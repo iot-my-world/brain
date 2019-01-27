@@ -66,7 +66,7 @@ func initialSystemRoleSetup(handler *mongoRecordHandler) error {
 		}
 
 		//Record Retrieved Successfully
-		if roleToCreate.comparePermissions(retrieveRoleResponse.SystemRole.Permissions) {
+		if roleToCreate.ComparePermissions(retrieveRoleResponse.SystemRole.Permissions) {
 			log.Info("Initial Role Setup: Role " + retrieveRoleResponse.SystemRole.Name + " already exists and permissions correct.")
 			continue
 		}

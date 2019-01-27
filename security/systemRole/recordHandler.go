@@ -1,5 +1,7 @@
 package systemRole
 
+import "gitlab.com/iotTracker/brain/security"
+
 type RecordHandler interface {
 	Create(request *CreateRequest, response *CreateResponse) error
 	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
@@ -7,7 +9,7 @@ type RecordHandler interface {
 }
 
 type CreateRequest struct {
-	SystemRole SystemRole `json:"role" bson:"role"`
+	SystemRole security.SystemRole `json:"role" bson:"role"`
 }
 
 type CreateResponse struct {
@@ -18,11 +20,11 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	SystemRole SystemRole `json:"systemRole" bson:"systemRole"`
+	SystemRole security.SystemRole `json:"systemRole" bson:"systemRole"`
 }
 
 type UpdateRequest struct {
-	SystemRole SystemRole `json:"systemRole" bson:"systemRole"`
+	SystemRole security.SystemRole `json:"systemRole" bson:"systemRole"`
 }
 
 type UpdateResponse struct {

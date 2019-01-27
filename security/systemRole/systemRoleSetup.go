@@ -2,10 +2,10 @@ package systemRole
 
 import "gitlab.com/iotTracker/brain/security"
 
-var initialRoles = func() []SystemRole {
+var initialRoles = func() []security.SystemRole {
 
 	// Register roles here
-	allRoles := []SystemRole{
+	allRoles := []security.SystemRole{
 		owner,
 		admin,
 		employee,
@@ -23,16 +23,16 @@ var initialRoles = func() []SystemRole {
 	for _, role := range allRoles {
 		rootPermisions = append(rootPermisions, role.Permissions...)
 	}
-	root := SystemRole{
-		Name: "root",
+	root := security.SystemRole{
+		Name:        "root",
 		Permissions: rootPermisions,
 	}
-	return append([]SystemRole{root}, allRoles...)
+	return append([]security.SystemRole{root}, allRoles...)
 }()
 
 // Create Roles here
 
-var owner = SystemRole{
+var owner = security.SystemRole{
 	Name: "owner",
 	Permissions: []security.Permission{
 		"Employee.Create",
@@ -61,7 +61,7 @@ var owner = SystemRole{
 	},
 }
 
-var admin = SystemRole{
+var admin = security.SystemRole{
 	Name: "admin",
 	Permissions: []security.Permission{
 		"Employee.Create",
@@ -70,7 +70,7 @@ var admin = SystemRole{
 	},
 }
 
-var employee = SystemRole{
+var employee = security.SystemRole{
 	Name: "employee",
 	Permissions: []security.Permission{
 	},
