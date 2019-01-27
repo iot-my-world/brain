@@ -17,7 +17,6 @@ import (
 	"gitlab.com/iotTracker/brain/security/systemRole"
 	"gitlab.com/iotTracker/brain/security/apiAuth"
 	"gitlab.com/iotTracker/brain/security/token"
-	"gitlab.com/iotTracker/brain/business/businessRole"
 
 	"gitlab.com/iotTracker/brain/security/auth"
 )
@@ -49,15 +48,12 @@ func main(){
 	// Get or Generate RSA Key Pair
 	rsaPrivateKey := encrypt.FetchPrivateKey("./")
 
-
 	// Create Record Handlers
 	SystemRoleRecordHandler := systemRole.NewMongoRecordHandler(mainMongoSession, databaseName, systemRoleCollection)
-	BusinessRoleRecordHandler := businessRole.NewMongoRecordHandler(mainMongoSession, databaseName, businessRoleCollection)
 	UserRecordHandler := user.NewMongoRecordHandler(mainMongoSession, databaseName, userCollection)
 
 	// Create Services
 	SystemRoleService := systemRole.NewService(SystemRoleRecordHandler)
-	BusinessRoleService := businessRole.NewService(BusinessRoleRecordHandler)
 	UserService := user.NewServiceAdaptor(UserRecordHandler)
 	AuthService := auth.NewService(UserRecordHandler, rsaPrivateKey)
 
@@ -72,9 +68,6 @@ func main(){
 	// Register Services with secureAPIServer
 	if err := secureAPIServer.RegisterService(SystemRoleService, "SystemRole"); err != nil {
 		log.Fatal("Unable to Register System Role Service")
-	}
-	if err := secureAPIServer.RegisterService(BusinessRoleService, "BusinessRole"); err != nil {
-		log.Fatal("Unable to Register Business Role Service")
 	}
 	if err:= secureAPIServer.RegisterService(AuthService, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
