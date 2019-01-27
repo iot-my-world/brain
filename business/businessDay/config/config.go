@@ -1,6 +1,6 @@
 package config
 
-import shift "bitbucket.org/gotimekeeper/business/shift/config"
+import shift "gitlab.com/iotTracker/brain/business/shift/config"
 
 type Config struct {
 	Id string `json:"id" bson:"id"`

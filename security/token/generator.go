@@ -3,10 +3,10 @@ package token
 import (
 	"crypto/rsa"
 	"gopkg.in/square/go-jose.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"time"
 	"encoding/json"
-	"bitbucket.org/gotimekeeper/security/claims"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 const loginTokenValidTime = 90*time.Minute

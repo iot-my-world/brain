@@ -1,7 +1,7 @@
 package businessDay
 
 import (
-	"bitbucket.org/gotimekeeper/business"
+	"gitlab.com/iotTracker/brain/business"
 	"bitbucket.org/BACKUP/gotimekeeper/rfId/tagEvent"
 )
 

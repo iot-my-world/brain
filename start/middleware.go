@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"bytes"
 	"encoding/json"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 type JsonRpcReq struct{

@@ -1,6 +1,6 @@
 package systemRole
 
-import "bitbucket.org/gotimekeeper/security"
+import "gitlab.com/iotTracker/brain/security"
 
 var initialRoles = func() []SystemRole {
 

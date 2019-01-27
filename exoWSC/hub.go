@@ -1,9 +1,9 @@
 package exoWSC
 
 import (
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"encoding/json"
-	"bitbucket.org/gotimekeeper/exoWSC/message"
+	"gitlab.com/iotTracker/brain/exoWSC/message"
 	"fmt"
 )
 

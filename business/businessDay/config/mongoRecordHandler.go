@@ -2,7 +2,7 @@ package config
 
 import (
 	"gopkg.in/mgo.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"strings"
 	"errors"
 	"gopkg.in/mgo.v2/bson"

@@ -1,10 +1,10 @@
 package name
 
 import (
-	"bitbucket.org/gotimekeeper/identifier"
+	"gitlab.com/iotTracker/brain/identifier"
 	"errors"
 	"encoding/json"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 const TYPE = identifier.NAME

@@ -1,7 +1,7 @@
 package employee
 
 import (
-	"bitbucket.org/gotimekeeper/business"
+	"gitlab.com/iotTracker/brain/business"
 )
 
 type RecordHandler interface {

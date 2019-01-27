@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"errors"
-	"bitbucket.org/gotimekeeper/exoWSC"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/exoWSC"
+	"gitlab.com/iotTracker/brain/log"
 	"time"
-	"bitbucket.org/gotimekeeper/exoWSC/message"
+	"gitlab.com/iotTracker/brain/exoWSC/message"
 	"encoding/json"
 )
 

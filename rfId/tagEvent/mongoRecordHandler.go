@@ -2,17 +2,17 @@ package tagEvent
 
 import (
 	"gopkg.in/mgo.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"errors"
 	"strings"
-	"bitbucket.org/gotimekeeper/business/employee"
-	"bitbucket.org/gotimekeeper/exoWSC"
-	"bitbucket.org/gotimekeeper/exoWSC/message"
+	"gitlab.com/iotTracker/brain/business/employee"
+	"gitlab.com/iotTracker/brain/exoWSC"
+	"gitlab.com/iotTracker/brain/exoWSC/message"
 	"encoding/json"
-	"bitbucket.org/gotimekeeper/rfId"
+	"gitlab.com/iotTracker/brain/rfId"
 	"time"
 	"fmt"
-	"bitbucket.org/gotimekeeper/business/businessDay"
+	"gitlab.com/iotTracker/brain/business/businessDay"
 )
 
 type mongoRecordHandler struct{

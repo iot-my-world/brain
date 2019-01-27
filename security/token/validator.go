@@ -2,9 +2,9 @@ package token
 
 import (
 	"crypto/rsa"
-	"bitbucket.org/gotimekeeper/security/claims"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"gopkg.in/square/go-jose.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"encoding/json"
 	"time"
 	"errors"

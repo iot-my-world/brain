@@ -2,12 +2,12 @@ package auth
 
 import (
 "net/http"
-	"bitbucket.org/gotimekeeper/user"
+	"gitlab.com/iotTracker/brain/user"
 	"golang.org/x/crypto/bcrypt"
 	"crypto/rsa"
 	"fmt"
-	"bitbucket.org/gotimekeeper/security/token"
-	"bitbucket.org/gotimekeeper/security/claims"
+	"gitlab.com/iotTracker/brain/security/token"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"errors"
 )
 

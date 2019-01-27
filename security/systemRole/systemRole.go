@@ -1,7 +1,7 @@
 package systemRole
 
 import (
-	"bitbucket.org/gotimekeeper/security"
+	"gitlab.com/iotTracker/brain/security"
 )
 
 type SystemRole struct{

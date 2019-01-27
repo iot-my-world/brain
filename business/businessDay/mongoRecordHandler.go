@@ -2,17 +2,17 @@ package businessDay
 
 import (
 	"gopkg.in/mgo.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"time"
 	"strings"
 	"errors"
 	"strconv"
 	"gopkg.in/mgo.v2/bson"
-	businessDayConfig "bitbucket.org/gotimekeeper/business/businessDay/config"
-	shiftConfig "bitbucket.org/gotimekeeper/business/shift/config"
-	"bitbucket.org/gotimekeeper/business/shift"
-	"bitbucket.org/gotimekeeper/business/businessRole"
-	"bitbucket.org/gotimekeeper/business"
+	businessDayConfig "gitlab.com/iotTracker/brain/business/businessDay/config"
+	shiftConfig "gitlab.com/iotTracker/brain/business/shift/config"
+	"gitlab.com/iotTracker/brain/business/shift"
+	"gitlab.com/iotTracker/brain/business/businessRole"
+	"gitlab.com/iotTracker/brain/business"
 )
 
 type mongoRecordHandler struct{

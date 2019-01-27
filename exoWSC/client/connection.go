@@ -6,7 +6,7 @@ import (
 	"bitbucket.org/gopiwsclient/log"
 	"fmt"
 	"errors"
-	"bitbucket.org/gotimekeeper/exoWSC"
+	"gitlab.com/iotTracker/brain/exoWSC"
 	"time"
 )
 

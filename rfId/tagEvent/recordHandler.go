@@ -2,8 +2,8 @@ package tagEvent
 
 import (
 	"bitbucket.org/BACKUP/gotimekeeper/rfId/tagEvent"
-	"bitbucket.org/gotimekeeper/business"
-	"bitbucket.org/gotimekeeper/exoWSC"
+	"gitlab.com/iotTracker/brain/business"
+	"gitlab.com/iotTracker/brain/exoWSC"
 )
 
 type RecordHandler interface {

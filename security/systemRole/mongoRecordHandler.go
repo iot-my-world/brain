@@ -2,7 +2,7 @@ package systemRole
 
 import (
 	"gopkg.in/mgo.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"gopkg.in/mgo.v2/bson"
 	"errors"
 )

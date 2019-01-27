@@ -1,7 +1,7 @@
 package config
 
 import (
-	shift "bitbucket.org/gotimekeeper/business/shift/config"
+	shift "gitlab.com/iotTracker/brain/business/shift/config"
 	"time"
 )
 

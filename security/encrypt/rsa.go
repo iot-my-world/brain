@@ -3,7 +3,7 @@ package encrypt
 import (
 	"crypto/rsa"
 	"os"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"io/ioutil"
 	"encoding/pem"
 	"github.com/go-errors/errors"

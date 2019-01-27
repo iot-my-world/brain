@@ -6,7 +6,7 @@ import (
 	"time"
 	"net/url"
 	"errors"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"encoding/json"
 )
 

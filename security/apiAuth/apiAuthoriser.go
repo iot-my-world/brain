@@ -1,10 +1,10 @@
 package apiAuth
 
 import (
-	"bitbucket.org/gotimekeeper/security/token"
-	"bitbucket.org/gotimekeeper/security/systemRole"
-	"bitbucket.org/gotimekeeper/security"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/security/token"
+	"gitlab.com/iotTracker/brain/security/systemRole"
+	"gitlab.com/iotTracker/brain/security"
+	"gitlab.com/iotTracker/brain/log"
 	"errors"
 )
 

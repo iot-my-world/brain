@@ -2,13 +2,13 @@ package employee
 
 import (
 	"gopkg.in/mgo.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"strings"
 	"errors"
 	"gopkg.in/mgo.v2/bson"
-	"bitbucket.org/gotimekeeper/business/businessDay"
+	"gitlab.com/iotTracker/brain/business/businessDay"
 	"time"
-	"bitbucket.org/gotimekeeper/business"
+	"gitlab.com/iotTracker/brain/business"
 )
 
 

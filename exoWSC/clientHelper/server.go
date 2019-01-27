@@ -3,8 +3,8 @@ package clientHelper
 import (
 	"net/http"
 	"github.com/gorilla/websocket"
-	"bitbucket.org/gotimekeeper/log"
-	"bitbucket.org/gotimekeeper/exoWSC"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/exoWSC"
 )
 
 // serveWs handles websocket requests from the peer.

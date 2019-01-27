@@ -2,7 +2,7 @@ package user
 
 import (
 	"gopkg.in/mgo.v2"
-	"bitbucket.org/gotimekeeper/log"
+	"gitlab.com/iotTracker/brain/log"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 	"errors"
@@ -74,6 +74,10 @@ func validateServiceReqData(r interface{}) error {
 	if len(reasonsInvalid) > 0 {
 		return errors.New("Invalid Create Request: " + strings.Join(reasonsInvalid, ","))
 	}
+	return nil
+}
+
+func (u * mongoRecordHandler) Retrieve(request *RetrieveRequest, response *RetrieveResponse) error {
 	return nil
 }
 

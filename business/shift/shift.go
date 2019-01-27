@@ -1,6 +1,6 @@
 package shift
 
-import "bitbucket.org/gotimekeeper/business/businessRole"
+import "gitlab.com/iotTracker/brain/business/businessRole"
 
 type Shift struct {
 	Id                 string               `json:"id" bson:"id"`

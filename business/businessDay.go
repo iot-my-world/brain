@@ -1,8 +1,8 @@
 package business
 
 import (
-	"bitbucket.org/gotimekeeper/business/shift"
-	"bitbucket.org/gotimekeeper/rfId"
+	"gitlab.com/iotTracker/brain/business/shift"
+	"gitlab.com/iotTracker/brain/rfId"
 )
 
 type BusinessDay struct {
