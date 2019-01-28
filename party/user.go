@@ -1,4 +1,4 @@
-package user
+package party
 
 // Defines the User record for the database
 type User struct {

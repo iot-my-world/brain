@@ -1,5 +1,10 @@
 package user
 
+import (
+	"gitlab.com/iotTracker/brain/search"
+	"gitlab.com/iotTracker/brain/party"
+)
+
 type RecordHandler interface {
 	Create(request *CreateRequest, response *CreateResponse) error
 	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
@@ -9,18 +14,18 @@ type RecordHandler interface {
 }
 
 type CreateRequest struct {
-	NewUser NewUser `json:"newUser"`
+	NewUser party.NewUser `json:"newUser"`
 }
 
 type CreateResponse struct {
-	User User `json:"user"`
+	User party.User `json:"user"`
 }
 
 type RetrieveAllRequest struct {
 }
 
 type RetrieveAllResponse struct {
-	UserRecords []User `json:"userRecords" bson:"userRecords"`
+	UserRecords []party.User `json:"userRecords" bson:"userRecords"`
 }
 
 type DeleteRequest struct {
@@ -31,19 +36,17 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	UpdatedUser User `json:"updatedUser"`
+	UpdatedUser party.User `json:"updatedUser"`
 }
 
 type UpdateResponse struct {
-	User User `json:"user"`
+	User party.User `json:"user"`
 }
 
 type RetrieveRequest struct {
-	Identifier ide
+	Identifier search.Identifier
 }
 
 type RetrieveResponse struct {
-	Success bool     `json:"success" bson:"success"`
-	Reasons []string `json:"reasons" bson:"reasons"`
-	User    User     `json:"user" bson:"user"`
+	User party.User `json:"user" bson:"user"`
 }
