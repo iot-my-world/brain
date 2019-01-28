@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/search/identifiers/name"
 )
 
 type mongoRecordHandler struct {
@@ -198,8 +199,14 @@ func initialUserSetup(handler *mongoRecordHandler) error {
 		//Try and retrieve the new user record
 		retrieveUserResponse := RetrieveResponse{}
 
-		if err := handler.Retrieve(&RetrieveRequest{Username: newUser.Username}, &retrieveUserResponse); err != nil {
-			//Unable to retrieve user record
+		if err := handler.Retrieve(&RetrieveRequest{
+			Identifier: name.Identifier(newUser.Name),
+		}, &retrieveUserResponse); err != nil {
+			// user could not be found
+			if err != mgo.ErrNotFound {
+				log.Fatal("Unable to Complete Initial User Setup!", "Could Not Find User: "+newUser.Username+err.Error())
+			}
+			// User Record does not exist
 			//Try create user record
 			userCreateResponse := CreateResponse{}
 

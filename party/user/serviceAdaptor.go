@@ -2,6 +2,7 @@ package user
 
 import (
 	"net/http"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type serviceAdaptor struct{
@@ -15,12 +16,12 @@ func NewServiceAdaptor(recordHandler RecordHandler) *serviceAdaptor {
 }
 
 type CreateUserRequest struct {
-	NewUser NewUser `json:"newUser"`
+	NewUser party.NewUser `json:"newUser"`
 }
 
 func (s *serviceAdaptor) Create(r * http.Request, request *CreateUserRequest, response *CreateResponse) error {
 	createRequest := &CreateRequest{
-		NewUser{
+		party.NewUser{
 			// Personal Details
 			Name: request.NewUser.Name,
 			Surname: request.NewUser.Surname,

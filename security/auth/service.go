@@ -2,7 +2,7 @@ package auth
 
 import (
 "net/http"
-	"gitlab.com/iotTracker/brain/user"
+	"gitlab.com/iotTracker/brain/party/user"
 	"golang.org/x/crypto/bcrypt"
 	"crypto/rsa"
 	"fmt"
@@ -48,7 +48,7 @@ type LoginResponse struct {
 
 func (s *service) Login(r * http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	retrieveUserRequest := user.RetrieveRequest{Username:request.Username}
+	retrieveUserRequest := user.RetrieveRequest{Identifier:request.Username}
 	retrieveUserResponse := user.RetrieveResponse{}
 
 	//Retrieve User record

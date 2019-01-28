@@ -10,7 +10,7 @@ import (
 	"runtime/debug"
 	"os"
 	"os/signal"
-	"gitlab.com/iotTracker/brain/user"
+	"gitlab.com/iotTracker/brain/party/user"
 	"gopkg.in/mgo.v2"
 	"time"
 	"gitlab.com/iotTracker/brain/security/encrypt"
