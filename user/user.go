@@ -2,37 +2,29 @@ package user
 
 // Defines the User record for the database
 type User struct {
+	Id string `json:"id" bson:"id"`
+
 	// Personal Details
-	// TODO: Split out into "PersonalDetails" Struct
 	Name    string `json:"name" bson:"name"`
 	Surname string `json:"surname" bson:"surname"`
 	IDNo    int    `json:"idNo" bson:"idNo"`
 
 	// System Details
-	Username   string `json:"username" bson:"username"`
-	Password   []byte `json:"pwd" bson:"pwd"`
-	SystemRole string `json:"systemRole" bson:"systemRole"`
-	TagID      string `json:"tagID" bson:"tagID"`
-
-	// Business Details
-	// TODO: Split out into "BusinessDetails" Struct
-	BusinessRole string `json:"businessRole" bson:"businessRole"`
+	Username     string `json:"username" bson:"username"`
+	EmailAddress string `json:"emailAddress" bson:"emailAddress"`
+	Password     []byte `json:"pwd" bson:"pwd"`
+	SystemRole   string `json:"systemRole" bson:"systemRole"`
 }
 
 type NewUser struct {
 	// Personal Details
-	// TODO: Split out into "PersonalDetails" Struct
 	Name    string `json:"name"`
 	Surname string `json:"surname"`
 	IDNo    int    `json:"idNo"`
 
 	// System Details
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	SystemRole string `json:"systemRole"`
-	TagID      string `json:"tagID"`
-
-	// Business Details
-	// TODO: Split out into "BusinessDetails" Struct
-	BusinessRole string `json:"businessRole"`
+	Username     string `json:"username"`
+	EmailAddress string `json:"emailAddress"`
+	Password     string `json:"password"`
+	SystemRole   string `json:"systemRole"`
 }

@@ -8,7 +8,7 @@ type RecordHandler interface {
 	Delete(request *DeleteRequest, response *DeleteResponse) error
 }
 
-type CreateRequest struct{
+type CreateRequest struct {
 	NewUser NewUser `json:"newUser"`
 }
 
@@ -17,30 +17,29 @@ type CreateResponse struct {
 }
 
 type RetrieveAllRequest struct {
-
 }
 
 type RetrieveAllResponse struct {
 	UserRecords []User `json:"userRecords" bson:"userRecords"`
 }
 
-type DeleteRequest struct{
+type DeleteRequest struct {
 	Username string `json:"username" bson:"username"`
 }
 
 type DeleteResponse struct {
 }
 
-type UpdateRequest struct{
+type UpdateRequest struct {
 	UpdatedUser User `json:"updatedUser"`
 }
 
-type UpdateResponse struct{
+type UpdateResponse struct {
 	User User `json:"user"`
 }
 
 type RetrieveRequest struct {
-	Username string `json:"username" bson:"username"`
+	Identifier ide
 }
 
 type RetrieveResponse struct {
@@ -48,5 +47,3 @@ type RetrieveResponse struct {
 	Reasons []string `json:"reasons" bson:"reasons"`
 	User    User     `json:"user" bson:"user"`
 }
-
-

@@ -4,7 +4,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gitlab.com/iotTracker/brain/log"
 	"gopkg.in/mgo.v2/bson"
-	"errors"
 )
 
 type mongoRecordHandler struct{
@@ -81,37 +80,7 @@ func initialSystemRoleSetup(handler *mongoRecordHandler) error {
 	return nil
 }
 
-func validateServiceReqData(r interface{}) error {
-	var reasonsInvalid []string
-
-	switch v := r.(type){
-	case *CreateRequest:
-		if v.SystemRole.Name == "" {
-			reasonsInvalid = append(reasonsInvalid, "Role Name cannot be blank role create!")
-		}
-	case *RetrieveRequest:
-		if v.Name == "" {
-			reasonsInvalid = append(reasonsInvalid, "Role Name cannot be blank role retrieve!")
-		}
-	case *UpdateRequest:
-		if v.SystemRole.Name == "" {
-			reasonsInvalid = append(reasonsInvalid, "Role Name cannot be blank for role update!")
-		}
-	default:
-		log.Warn("NO CHECK CASE FOR THIS REQUEST!")
-	}
-
-	if len(reasonsInvalid) != 0 {
-		return errors.New("SomeErrors")
-	}
-
-	return nil
-}
-
 func (u *mongoRecordHandler) Create(request *CreateRequest, response *CreateResponse) error {
-	if err := validateServiceReqData(request); err != nil {
-		return err
-	}
 
 	mgoSession := u.mongoSession.Copy()
 	defer mgoSession.Close()
@@ -128,9 +97,6 @@ func (u *mongoRecordHandler) Create(request *CreateRequest, response *CreateResp
 }
 
 func (u *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *RetrieveResponse) error {
-	if err := validateServiceReqData(request); err != nil {
-		return err
-	}
 
 	mgoSession := u.mongoSession.Copy()
 	defer mgoSession.Close()
@@ -147,9 +113,6 @@ func (u *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retrie
 
 
 func (u *mongoRecordHandler) Update(request *UpdateRequest, response *UpdateResponse) error {
-	if err := validateServiceReqData(request); err != nil {
-		return err
-	}
 
 	mgoSession := u.mongoSession.Copy()
 	defer mgoSession.Close()

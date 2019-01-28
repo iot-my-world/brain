@@ -30,10 +30,6 @@ func (s *serviceAdaptor) Create(r * http.Request, request *CreateUserRequest, re
 			Username: request.NewUser.Username,
 			Password: request.NewUser.Password,
 			SystemRole: request.NewUser.SystemRole,
-			TagID: request.NewUser.TagID,
-
-			// Business Details
-			BusinessRole: request.NewUser.BusinessRole,
 		},
 
 	}

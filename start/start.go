@@ -28,7 +28,7 @@ var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 func main(){
 
 	// Connect to database
-	databaseName := "timeKeeper"
+	databaseName := "brain"
 	dialInfo := mgo.DialInfo{
 		Addrs: []string{"localhost:27017"},
 		Username: "",
