@@ -69,7 +69,21 @@ func setupUserRecords(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *CreateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
 func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateResponse) error {
+	if err := mrh.ValidateCreateRequest(request); err != nil {
+		return err
+	}
+
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
@@ -77,29 +91,28 @@ func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateRe
 
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewUser.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Error("Error While hashing Password!", err)
-		return err
+		return userException.Create{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	userToInsert := &party.User{
 		// Personal Details
 		Name:    request.NewUser.Name,
 		Surname: request.NewUser.Surname,
-		IDNo:    request.NewUser.IDNo,
 
 		// System Details
-		Username:   request.NewUser.Username,
-		Password:   pwdHash,
-		SystemRole: request.NewUser.SystemRole,
+		Username:     request.NewUser.Username,
+		EmailAddress: request.NewUser.Password,
+		Password:     pwdHash,
+		SystemRole:   request.NewUser.SystemRole,
 	}
 
 	err = userCollection.Insert(userToInsert)
-	if err != nil {
-		log.Error("Could not create user! ", err)
-		return err //TODO: Translate Unknown error
-	}
-	response.User = *userToInsert
 
+	if err != nil {
+		return userException.Create{Reasons: []string{"inserting record", err.Error()}}
+	}
+
+	response.User = *userToInsert
 	return nil
 }
 
@@ -145,6 +158,16 @@ func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retr
 	return nil
 }
 
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *CreateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
 func (mrh *mongoRecordHandler) Update(request *UpdateRequest, response *UpdateResponse) error {
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -175,13 +198,35 @@ func (mrh *mongoRecordHandler) Update(request *UpdateRequest, response *UpdateRe
 	return nil
 }
 
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *DeleteRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	} else {
+		if !IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.Identifier.Type()))
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
 func (mrh *mongoRecordHandler) Delete(request *DeleteRequest, response *DeleteResponse) error {
+	if err := mrh.ValidateDeleteRequest(request); err != nil {
+		return err
+	}
+
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
 	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	if err := userCollection.Remove(request); err != nil {
+	if err := userCollection.Remove(request.Identifier.ToMap()); err != nil {
 		return err
 	}
 
@@ -229,7 +274,25 @@ func (mrh *mongoRecordHandler) Validate(request *ValidateRequest, response *Vali
 			Field: "surname",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*userToValidate).Surname,
+			Data:  (*userToValidate).Name,
+		})
+	}
+
+	if (*userToValidate).Username == "" {
+		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+			Field: "username",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).Username,
+		})
+	}
+
+	if (*userToValidate).EmailAddress == "" {
+		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+			Field: "emailAddress",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).EmailAddress,
 		})
 	}
 

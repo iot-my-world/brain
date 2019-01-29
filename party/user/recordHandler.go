@@ -31,7 +31,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
-	Username string `json:"username" bson:"username"`
+	Identifier search.Identifier `json:"identifier"`
 }
 
 type DeleteResponse struct {
@@ -48,7 +48,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier
+	Identifier search.Identifier `json:"identifier"`
 }
 
 type RetrieveResponse struct {
