@@ -3,6 +3,7 @@ package user
 import (
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type RecordHandler interface {
@@ -49,4 +50,18 @@ type RetrieveRequest struct {
 
 type RetrieveResponse struct {
 	User party.User `json:"user" bson:"user"`
+}
+
+func IsValidIdentifier(id search.Identifier) bool {
+	if id == nil {
+		return false
+	}
+	switch id.Type() {
+	case identifier.EmailAddress:
+	case identifier.Id:
+	case identifier.Username:
+		return true
+	default:
+		return false
+	}
 }

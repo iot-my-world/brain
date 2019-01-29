@@ -6,8 +6,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/exception"
+	globalException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifiers/name"
+	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	"fmt"
 )
 
 type mongoRecordHandler struct {
@@ -71,10 +73,14 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *RetrieveRequest)
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	} else {
+		if !IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.Identifier.Type()))
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return exception.RequestInvalid{Reasons: reasonsInvalid}
+		return globalException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -93,7 +99,11 @@ func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retr
 	var userRecord party.User
 
 	if err := userCollection.Find(request.Identifier.ToMap()).One(&userRecord); err != nil {
-		return err
+		if err == mgo.ErrNotFound {
+			return userException.NotFound{}
+		} else {
+			return globalException.Unexpected{Reasons: err.Error()}
+		}
 	}
 
 	response.User = userRecord
@@ -199,27 +209,25 @@ func initialUserSetup(handler *mongoRecordHandler) error {
 		//Try and retrieve the new user record
 		retrieveUserResponse := RetrieveResponse{}
 
+		err := handler.Retrieve(&RetrieveRequest{Identifier: name.Identifier(newUser.Name)}, &retrieveUserResponse)
+		switch err.(type) {
+
+		}
+
 		if err := handler.Retrieve(&RetrieveRequest{
 			Identifier: name.Identifier(newUser.Name),
 		}, &retrieveUserResponse); err != nil {
 			// User could not be found
-			// if the error is not a mongo 'not found' error
 			if err != mgo.ErrNotFound {
-				// something went fatally wrong
-				log.Fatal("Unable to Complete Initial User Setup!", "Could Not Find User: "+newUser.Username+err.Error())
+				// if the error is not a mongo 'not found' error something went fatally wrong
+				return userException.InitialSetup{Reasons: []string{"retrieval failure", err.Error()}}
 			}
 
-			// Otherwise user Record does not exist. error was mongo 'not found' error
-			//Try create user record
+			// Otherwise error was mongo 'not found' error
+			// user record does not exist yet, try and create it
 			userCreateResponse := CreateResponse{}
-
-			if err := handler.Create(&CreateRequest{
-				NewUser: newUser,
-			}, &userCreateResponse); err != nil {
-				log.Fatal("Unable to Complete Initial User Setup!", "Could Not Create User: "+newUser.Username)
-			}
-			if err != nil {
-				log.Fatal("Unable to Complete Initial User Setup!", "Could Not Create User: "+newUser.Username, err.Error())
+			if err := handler.Create(&CreateRequest{NewUser: newUser}, &userCreateResponse); err != nil {
+				return userException.InitialSetup{Reasons: []string{"creation failure", err.Error()}}
 			}
 			log.Info("Initial User Setup: Created User: " + newUser.Username)
 			continue
