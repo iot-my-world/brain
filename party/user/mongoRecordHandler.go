@@ -102,7 +102,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retr
 		if err == mgo.ErrNotFound {
 			return userException.NotFound{}
 		} else {
-			return globalException.Unexpected{Reasons: err.Error()}
+			return globalException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
@@ -208,33 +208,25 @@ func initialUserSetup(handler *mongoRecordHandler) error {
 	for _, newUser := range initialUsers {
 		//Try and retrieve the new user record
 		retrieveUserResponse := RetrieveResponse{}
-
 		err := handler.Retrieve(&RetrieveRequest{Identifier: name.Identifier(newUser.Name)}, &retrieveUserResponse)
+
 		switch err.(type) {
-
-		}
-
-		if err := handler.Retrieve(&RetrieveRequest{
-			Identifier: name.Identifier(newUser.Name),
-		}, &retrieveUserResponse); err != nil {
-			// User could not be found
-			if err != mgo.ErrNotFound {
-				// if the error is not a mongo 'not found' error something went fatally wrong
-				return userException.InitialSetup{Reasons: []string{"retrieval failure", err.Error()}}
-			}
-
-			// Otherwise error was mongo 'not found' error
-			// user record does not exist yet, try and create it
+		case userException.NotFound:
+			// if user record does not exist yet, try and create it
 			userCreateResponse := CreateResponse{}
 			if err := handler.Create(&CreateRequest{NewUser: newUser}, &userCreateResponse); err != nil {
 				return userException.InitialSetup{Reasons: []string{"creation failure", err.Error()}}
 			}
 			log.Info("Initial User Setup: Created User: " + newUser.Username)
 			continue
-		}
 
-		//User Record Retrieved Successfully, update user record
-		log.Info("Initial User Setup: User " + newUser.Username + " already exists. Updating User.")
+		case nil:
+			log.Info("Initial User Setup: User " + newUser.Username + " already exists. Updating User.")
+
+		default:
+			return userException.InitialSetup{Reasons: []string{"retrieval failure", err.Error()}}
+
+		}
 	}
 
 	return nil
