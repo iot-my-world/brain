@@ -9,6 +9,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"errors"
+	"gitlab.com/iotTracker/brain/search/identifiers/name"
 )
 
 type service struct {
@@ -48,7 +49,7 @@ type LoginResponse struct {
 
 func (s *service) Login(r * http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	retrieveUserRequest := user.RetrieveRequest{Identifier:request.Username}
+	retrieveUserRequest := user.RetrieveRequest{Identifier: name.Identifier(request.Username)}
 	retrieveUserResponse := user.RetrieveResponse{}
 
 	//Retrieve User record

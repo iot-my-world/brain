@@ -202,11 +202,14 @@ func initialUserSetup(handler *mongoRecordHandler) error {
 		if err := handler.Retrieve(&RetrieveRequest{
 			Identifier: name.Identifier(newUser.Name),
 		}, &retrieveUserResponse); err != nil {
-			// user could not be found
+			// User could not be found
+			// if the error is not a mongo 'not found' error
 			if err != mgo.ErrNotFound {
+				// something went fatally wrong
 				log.Fatal("Unable to Complete Initial User Setup!", "Could Not Find User: "+newUser.Username+err.Error())
 			}
-			// User Record does not exist
+
+			// Otherwise user Record does not exist. error was mongo 'not found' error
 			//Try create user record
 			userCreateResponse := CreateResponse{}
 
