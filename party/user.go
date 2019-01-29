@@ -7,7 +7,6 @@ type User struct {
 	// Personal Details
 	Name    string `json:"name" bson:"name"`
 	Surname string `json:"surname" bson:"surname"`
-	IDNo    int    `json:"idNo" bson:"idNo"`
 
 	// System Details
 	Username     string `json:"username" bson:"username"`

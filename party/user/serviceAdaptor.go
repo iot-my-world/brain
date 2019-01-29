@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 )
 
-type serviceAdaptor struct{
+type serviceAdaptor struct {
 	RecordHandler
 }
 
@@ -19,27 +19,21 @@ type CreateUserRequest struct {
 	NewUser party.NewUser `json:"newUser"`
 }
 
-func (s *serviceAdaptor) Create(r * http.Request, request *CreateUserRequest, response *CreateResponse) error {
+func (s *serviceAdaptor) Create(r *http.Request, request *CreateUserRequest, response *CreateResponse) error {
 	createRequest := &CreateRequest{
 		party.NewUser{
 			// Personal Details
-			Name: request.NewUser.Name,
+			Name:    request.NewUser.Name,
 			Surname: request.NewUser.Surname,
-			IDNo: request.NewUser.IDNo,
+			IDNo:    request.NewUser.IDNo,
 
 			// System Details
-			Username: request.NewUser.Username,
-			Password: request.NewUser.Password,
+			Username:   request.NewUser.Username,
+			Password:   request.NewUser.Password,
 			SystemRole: request.NewUser.SystemRole,
 		},
-
 	}
 	return s.RecordHandler.Create(createRequest, response)
-}
-
-func (s *serviceAdaptor) RetrieveAll(r *http.Request, request *RetrieveAllRequest, response *RetrieveAllResponse) error {
-
-	return s.RecordHandler.RetrieveAll(request, response)
 }
 
 func (s *serviceAdaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {

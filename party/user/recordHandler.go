@@ -3,14 +3,23 @@ package user
 import (
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/validate"
 )
 
 type RecordHandler interface {
 	Create(request *CreateRequest, response *CreateResponse) error
 	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
-	RetrieveAll(request *RetrieveAllRequest, response *RetrieveAllResponse) error
 	Update(request *UpdateRequest, response *UpdateResponse) error
 	Delete(request *DeleteRequest, response *DeleteResponse) error
+	Validate(request *ValidateRequest, response *ValidateResponse) error
+}
+
+type ValidateRequest struct {
+	User party.User `json:"user"`
+}
+
+type ValidateResponse struct {
+	ReasonsInvalid []validate.ReasonInvalid `json:"ReasonsInvalid"`
 }
 
 type CreateRequest struct {
@@ -21,22 +30,17 @@ type CreateResponse struct {
 	User party.User `json:"user"`
 }
 
-type RetrieveAllRequest struct {
-}
-
-type RetrieveAllResponse struct {
-	UserRecords []party.User `json:"userRecords" bson:"userRecords"`
-}
-
 type DeleteRequest struct {
 	Username string `json:"username" bson:"username"`
 }
 
 type DeleteResponse struct {
+	User party.User `json:"user"`
 }
 
 type UpdateRequest struct {
-	UpdatedUser party.User `json:"updatedUser"`
+	Identifier search.Identifier `json:"identifier"`
+	User       party.User        `json:"user"`
 }
 
 type UpdateResponse struct {

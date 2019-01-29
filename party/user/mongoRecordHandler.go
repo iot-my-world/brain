@@ -7,9 +7,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"gitlab.com/iotTracker/brain/party"
 	globalException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/search/identifiers/name"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"fmt"
+	"gitlab.com/iotTracker/brain/validate"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type mongoRecordHandler struct {
@@ -68,6 +69,40 @@ func setupUserRecords(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
+func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateResponse) error {
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewUser.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Error("Error While hashing Password!", err)
+		return err
+	}
+
+	userToInsert := &party.User{
+		// Personal Details
+		Name:    request.NewUser.Name,
+		Surname: request.NewUser.Surname,
+		IDNo:    request.NewUser.IDNo,
+
+		// System Details
+		Username:   request.NewUser.Username,
+		Password:   pwdHash,
+		SystemRole: request.NewUser.SystemRole,
+	}
+
+	err = userCollection.Insert(userToInsert)
+	if err != nil {
+		log.Error("Could not create user! ", err)
+		return err //TODO: Translate Unknown error
+	}
+	response.User = *userToInsert
+
+	return nil
+}
+
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
@@ -107,57 +142,6 @@ func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retr
 	}
 
 	response.User = userRecord
-	return nil
-}
-
-func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateResponse) error {
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewUser.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Error("Error While hashing Password!", err)
-		return err
-	}
-
-	userToInsert := &party.User{
-		// Personal Details
-		// TODO: Split out into "PersonalDetails" Struct
-		Name:    request.NewUser.Name,
-		Surname: request.NewUser.Surname,
-		IDNo:    request.NewUser.IDNo,
-
-		// System Details
-		Username:   request.NewUser.Username,
-		Password:   pwdHash,
-		SystemRole: request.NewUser.SystemRole,
-	}
-
-	err = userCollection.Insert(userToInsert)
-	if err != nil {
-		log.Error("Could not create user! ", err)
-		return err //TODO: Translate Unknown error
-	}
-	response.User = *userToInsert
-
-	return nil
-}
-
-func (mrh *mongoRecordHandler) RetrieveAll(request *RetrieveAllRequest, response *RetrieveAllResponse) error {
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	var records []party.User
-
-	if err := userCollection.Find(bson.M{}).All(&records); err != nil {
-		return err
-	}
-
-	response.UserRecords = records
 	return nil
 }
 
@@ -204,30 +188,51 @@ func (mrh *mongoRecordHandler) Delete(request *DeleteRequest, response *DeleteRe
 	return nil
 }
 
-func initialUserSetup(handler *mongoRecordHandler) error {
-	for _, newUser := range initialUsers {
-		//Try and retrieve the new user record
-		retrieveUserResponse := RetrieveResponse{}
-		err := handler.Retrieve(&RetrieveRequest{Identifier: name.Identifier(newUser.Name)}, &retrieveUserResponse)
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *ValidateRequest) error {
+	reasonsInvalid := make([]string, 0)
 
-		switch err.(type) {
-		case userException.NotFound:
-			// if user record does not exist yet, try and create it
-			userCreateResponse := CreateResponse{}
-			if err := handler.Create(&CreateRequest{NewUser: newUser}, &userCreateResponse); err != nil {
-				return userException.InitialSetup{Reasons: []string{"creation failure", err.Error()}}
-			}
-			log.Info("Initial User Setup: Created User: " + newUser.Username)
-			continue
+	if len(reasonsInvalid) > 0 {
+		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
 
-		case nil:
-			log.Info("Initial User Setup: User " + newUser.Username + " already exists. Updating User.")
-
-		default:
-			return userException.InitialSetup{Reasons: []string{"retrieval failure", err.Error()}}
-
-		}
+func (mrh *mongoRecordHandler) Validate(request *ValidateRequest, response *ValidateResponse) error {
+	if err := mrh.ValidateValidateRequest(request); err != nil {
+		return err
 	}
 
+	reasonsInvalid := make([]validate.ReasonInvalid, 0)
+	userToValidate := &request.User
+
+	if (*userToValidate).Id == "" {
+		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+			Field: "id",
+			Type:  reasonInvalid.Blank,
+			Help:  "id cannot be blank",
+			Data:  (*userToValidate).Id,
+		})
+	}
+
+	if (*userToValidate).Name == "" {
+		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+			Field: "name",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).Name,
+		})
+	}
+
+	if (*userToValidate).Name == "" {
+		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+			Field: "surname",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).Surname,
+		})
+	}
+
+	response.ReasonsInvalid = reasonsInvalid
 	return nil
 }
