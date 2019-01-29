@@ -15,17 +15,28 @@ import (
 
 type mongoRecordHandler struct {
 	mongoSession         *mgo.Session
-	database, collection string
+	database             string
+	collection           string
+	createIgnoredReasons reasonInvalid.IgnoredReasons
 }
 
 func NewMongoRecordHandler(mongoSession *mgo.Session, database, collection string) *mongoRecordHandler {
 
 	setupUserRecords(mongoSession, database, collection)
 
+	createIgnoredReasons := reasonInvalid.IgnoredReasons{
+		ReasonsInvalid: map[string][]reasonInvalid.Type{
+			"id": {
+				reasonInvalid.Blank,
+			},
+		},
+	}
+
 	newUserMongoRecordHandler := mongoRecordHandler{
-		mongoSession,
-		database,
-		collection,
+		mongoSession:         mongoSession,
+		database:             database,
+		collection:           collection,
+		createIgnoredReasons: createIgnoredReasons,
 	}
 
 	if err := initialUserSetup(&newUserMongoRecordHandler); err != nil {
@@ -72,6 +83,29 @@ func setupUserRecords(mongoSession *mgo.Session, database, collection string) {
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	// Validate the new user
+	userValidateResponse := ValidateResponse{}
+	newUser := party.User{
+		// Personal Details
+		Name:    request.NewUser.Name,
+		Surname: request.NewUser.Surname,
+
+		// System Details
+		Username:     request.NewUser.Username,
+		EmailAddress: request.NewUser.Password,
+		SystemRole:   request.NewUser.SystemRole,
+	}
+	err := mrh.Validate(&ValidateRequest{User: newUser}, &userValidateResponse)
+	if err != nil {
+		reasonsInvalid = append(reasonsInvalid, "unable to validate newUser")
+	} else {
+		for _, reason := range userValidateResponse.ReasonsInvalid {
+			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+			}
+		}
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return globalException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -95,6 +129,8 @@ func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateRe
 	}
 
 	userToInsert := &party.User{
+		Id: bson.NewObjectId().Hex(),
+
 		// Personal Details
 		Name:    request.NewUser.Name,
 		Surname: request.NewUser.Surname,
