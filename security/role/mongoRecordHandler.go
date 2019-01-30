@@ -65,6 +65,8 @@ func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateRe
 
 	roleCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
+	request.Role.Id = bson.NewObjectId().Hex()
+
 	err := roleCollection.Insert(request.Role)
 
 	if err != nil {
