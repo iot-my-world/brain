@@ -1,7 +1,7 @@
 package id
 
 import (
-	"gitlab.com/iotTracker/brain/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"errors"
 )
 

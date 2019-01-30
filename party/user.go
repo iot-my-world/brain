@@ -14,16 +14,3 @@ type User struct {
 	Password     []byte `json:"pwd" bson:"pwd"`
 	SystemRole   string `json:"systemRole" bson:"systemRole"`
 }
-
-type NewUser struct {
-	// Personal Details
-	Name    string `json:"name"`
-	Surname string `json:"surname"`
-	IDNo    int    `json:"idNo"`
-
-	// System Details
-	Username     string `json:"username"`
-	EmailAddress string `json:"emailAddress"`
-	Password     string `json:"password"`
-	SystemRole   string `json:"systemRole"`
-}

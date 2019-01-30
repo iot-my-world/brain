@@ -12,6 +12,7 @@ type RecordHandler interface {
 	Update(request *UpdateRequest, response *UpdateResponse) error
 	Delete(request *DeleteRequest, response *DeleteResponse) error
 	Validate(request *ValidateRequest, response *ValidateResponse) error
+	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
 }
 
 type ValidateRequest struct {
@@ -23,7 +24,7 @@ type ValidateResponse struct {
 }
 
 type CreateRequest struct {
-	NewUser party.NewUser `json:"newUser"`
+	User party.User `json:"newUser"`
 }
 
 type CreateResponse struct {
@@ -52,5 +53,14 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
+	User party.User `json:"user" bson:"user"`
+}
+
+type ChangePasswordRequest struct {
+	Identifier  search.Identifier `json:"identifier"`
+	NewPassword string            `json:"identifier"`
+}
+
+type ChangePasswordResponse struct {
 	User party.User `json:"user" bson:"user"`
 }
