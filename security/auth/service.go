@@ -1,7 +1,7 @@
 package auth
 
 import (
-"net/http"
+	"net/http"
 	"gitlab.com/iotTracker/brain/party/user"
 	"golang.org/x/crypto/bcrypt"
 	"crypto/rsa"
@@ -9,7 +9,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"errors"
-	"gitlab.com/iotTracker/brain/search/identifiers/name"
+	"gitlab.com/iotTracker/brain/search/identifiers/username"
 )
 
 type service struct {
@@ -49,7 +49,7 @@ type LoginResponse struct {
 
 func (s *service) Login(r * http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	retrieveUserRequest := user.RetrieveRequest{Identifier: name.Identifier(request.Username)}
+	retrieveUserRequest := user.RetrieveRequest{Identifier: username.Identifier(request.Username)}
 	retrieveUserResponse := user.RetrieveResponse{}
 
 	//Retrieve User record
