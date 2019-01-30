@@ -11,6 +11,7 @@ import (
 	"errors"
 	"gitlab.com/iotTracker/brain/search/identifiers/username"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifiers/id"
 )
 
 type service struct {
@@ -37,13 +38,13 @@ func (s *service) Logout(r *http.Request, request *LogoutRequest, response *Logo
 }
 
 type LoginRequest struct {
-	Username string `json:"username" bson:"username"`
-	Password string `json:"password" bson:"password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type LoginResponse struct {
-	Jwt  string     `json:"jwt" bson:"jwt"`
-	User party.User `json:"user" bson:"user"`
+	Jwt  string     `json:"jwt"`
+	User party.User `json:"user"`
 }
 
 func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
@@ -63,10 +64,9 @@ func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginR
 		return errors.New("log In failed")
 	}
 
-	//Password is correct. Try and retrieve loginToken
+	// Password is correct. Try and generate loginToken
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.LoginClaims{
-		Username:   request.Username,
-		SystemRole: retrieveUserResponse.User.SystemRole,
+		UserId: id.Identifier(retrieveUserResponse.User.Id),
 	})
 	if err != nil {
 		//Unexpected Error!

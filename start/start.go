@@ -14,7 +14,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"time"
 	"gitlab.com/iotTracker/brain/security/encrypt"
-	"gitlab.com/iotTracker/brain/security/systemRole"
+	"gitlab.com/iotTracker/brain/security/role"
 	"gitlab.com/iotTracker/brain/security/apiAuth"
 	"gitlab.com/iotTracker/brain/security/token"
 
@@ -49,11 +49,11 @@ func main(){
 	rsaPrivateKey := encrypt.FetchPrivateKey("./")
 
 	// Create Record Handlers
-	SystemRoleRecordHandler := systemRole.NewMongoRecordHandler(mainMongoSession, databaseName, systemRoleCollection)
+	SystemRoleRecordHandler := role.NewMongoRecordHandler(mainMongoSession, databaseName, systemRoleCollection)
 	UserRecordHandler := user.NewMongoRecordHandler(mainMongoSession, databaseName, userCollection)
 
 	// Create Services
-	SystemRoleService := systemRole.NewService(SystemRoleRecordHandler)
+	SystemRoleService := role.NewService(SystemRoleRecordHandler)
 	UserService := user.NewServiceAdaptor(UserRecordHandler)
 	AuthService := auth.NewService(UserRecordHandler, rsaPrivateKey)
 
@@ -66,7 +66,7 @@ func main(){
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// Register Services with secureAPIServer
-	if err := secureAPIServer.RegisterService(SystemRoleService, "SystemRole"); err != nil {
+	if err := secureAPIServer.RegisterService(SystemRoleService, "Role"); err != nil {
 		log.Fatal("Unable to Register System Role Service")
 	}
 	if err:= secureAPIServer.RegisterService(AuthService, "Auth"); err != nil {

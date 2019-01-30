@@ -1,8 +1,11 @@
 package claims
 
+import (
+	"gitlab.com/iotTracker/brain/search/identifiers/id"
+)
+
 type LoginClaims struct {
-	Username string `json:"username"`
-	SystemRole string `json:"role"`
-	IssuedAtTime int64 `json:"issueTime"`
-	ExpirationTime int64 `json:"expiry"`
+	UserId         id.Identifier `json:"userId"`
+	IssuedAtTime   int64         `json:"issueTime"`
+	ExpirationTime int64         `json:"expiry"`
 }

@@ -199,7 +199,7 @@ func (mrh *mongoRecordHandler) Update(request *UpdateRequest, response *UpdateRe
 	// retrieveUserResponse.User.Username = request.User.Username // cannot update yet
 	// retrieveUserResponse.User.EmailAddress = request.User.EmailAddress // cannot update yet
 	retrieveUserResponse.User.Password = request.User.Password
-	retrieveUserResponse.User.SystemRole = request.User.SystemRole
+	retrieveUserResponse.User.Roles = request.User.Roles
 
 	if err := userCollection.Update(request.Identifier.ToMap(), retrieveUserResponse.User); err != nil {
 		return userException.Update{Reasons: []string{"updating record", err.Error()}}

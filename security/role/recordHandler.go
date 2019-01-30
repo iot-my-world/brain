@@ -1,6 +1,9 @@
-package systemRole
+package role
 
-import "gitlab.com/iotTracker/brain/security"
+import (
+	"gitlab.com/iotTracker/brain/security"
+	"gitlab.com/iotTracker/brain/search"
+)
 
 type RecordHandler interface {
 	Create(request *CreateRequest, response *CreateResponse) error
@@ -9,22 +12,22 @@ type RecordHandler interface {
 }
 
 type CreateRequest struct {
-	SystemRole security.SystemRole `json:"role" bson:"role"`
+	Role security.Role `json:"role"`
 }
 
 type CreateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Name string `json:"name" bson:"name"`
+	Identifier search.Identifier `json:"identifier"`
 }
 
 type RetrieveResponse struct {
-	SystemRole security.SystemRole `json:"systemRole" bson:"systemRole"`
+	Role security.Role `json:"role"`
 }
 
 type UpdateRequest struct {
-	SystemRole security.SystemRole `json:"systemRole" bson:"systemRole"`
+	Role security.Role `json:"role"`
 }
 
 type UpdateResponse struct {
