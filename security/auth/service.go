@@ -10,6 +10,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"errors"
 	"gitlab.com/iotTracker/brain/search/identifiers/username"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type service struct {
@@ -41,8 +42,8 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Success bool   `json:"success" bson:"success"`
-	Jwt     string `json:"jwt" bson:"jwt"`
+	Jwt  string     `json:"jwt" bson:"jwt"`
+	User party.User `json:"user" bson:"user"`
 }
 
 func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
@@ -73,8 +74,8 @@ func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginR
 	}
 
 	//Login Successful, return Token to front-end client
-	response.Success = true
 	response.Jwt = loginToken
+	response.User = retrieveUserResponse.User
 
 	return nil
 }
