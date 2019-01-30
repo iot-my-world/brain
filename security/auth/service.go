@@ -14,22 +14,20 @@ import (
 
 type service struct {
 	userRecordHandler user.RecordHandler
-	jwtGenerator token.JWTGenerator
+	jwtGenerator      token.JWTGenerator
 }
 
-func NewService(userRecordHandler user.RecordHandler, rsaPrivateKey *rsa.PrivateKey) *service{
+func NewService(userRecordHandler user.RecordHandler, rsaPrivateKey *rsa.PrivateKey) *service {
 	return &service{
 		userRecordHandler: userRecordHandler,
-		jwtGenerator: token.NewJWTGenerator(rsaPrivateKey),
+		jwtGenerator:      token.NewJWTGenerator(rsaPrivateKey),
 	}
 }
 
-type LogoutRequest struct{
-
+type LogoutRequest struct {
 }
 
 type LogoutResponse struct {
-
 }
 
 func (s *service) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
@@ -37,17 +35,17 @@ func (s *service) Logout(r *http.Request, request *LogoutRequest, response *Logo
 	return nil
 }
 
-type LoginRequest struct{
+type LoginRequest struct {
 	Username string `json:"username" bson:"username"`
 	Password string `json:"password" bson:"password"`
 }
 
 type LoginResponse struct {
-	Success bool `json:"success" bson:"success"`
-	Jwt string `json:"jwt" bson:"jwt"`
+	Success bool   `json:"success" bson:"success"`
+	Jwt     string `json:"jwt" bson:"jwt"`
 }
 
-func (s *service) Login(r * http.Request, request *LoginRequest, response *LoginResponse) error {
+func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
 	retrieveUserRequest := user.RetrieveRequest{Identifier: username.Identifier(request.Username)}
 	retrieveUserResponse := user.RetrieveResponse{}
@@ -66,7 +64,7 @@ func (s *service) Login(r * http.Request, request *LoginRequest, response *Login
 
 	//Password is correct. Try and retrieve loginToken
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.LoginClaims{
-		Username: request.Username,
+		Username:   request.Username,
 		SystemRole: retrieveUserResponse.User.SystemRole,
 	})
 	if err != nil {
