@@ -19,6 +19,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 
 	"gitlab.com/iotTracker/brain/security/auth"
+	"gitlab.com/iotTracker/brain/security/permission"
 )
 
 var ServerPort = "9006"
@@ -49,17 +50,20 @@ func main(){
 	rsaPrivateKey := encrypt.FetchPrivateKey("./")
 
 	// Create Record Handlers
-	SystemRoleRecordHandler := role.NewMongoRecordHandler(mainMongoSession, databaseName, systemRoleCollection)
+	RoleRecordHandler := role.NewMongoRecordHandler(mainMongoSession, databaseName, systemRoleCollection)
 	UserRecordHandler := user.NewMongoRecordHandler(mainMongoSession, databaseName, userCollection)
 
+	// Create General Handlers
+	PermissionBasicHandler := permission.NewBasicHandler(UserRecordHandler, RoleRecordHandler)
+
 	// Create Services
-	SystemRoleService := role.NewService(SystemRoleRecordHandler)
+	SystemRoleService := role.NewService(RoleRecordHandler)
 	UserService := user.NewServiceAdaptor(UserRecordHandler)
 	AuthService := auth.NewService(UserRecordHandler, rsaPrivateKey)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
-	mainAPIAuthorizer.RoleRecordHandler = SystemRoleRecordHandler
+	mainAPIAuthorizer.PermissionHandler = PermissionBasicHandler
 
 	// Create secureAPIServer
 	secureAPIServer := rpc.NewServer()

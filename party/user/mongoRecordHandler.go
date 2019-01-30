@@ -20,7 +20,11 @@ type mongoRecordHandler struct {
 	createIgnoredReasons validate.IgnoredReasonsInvalid
 }
 
-func NewMongoRecordHandler(mongoSession *mgo.Session, database, collection string) *mongoRecordHandler {
+func NewMongoRecordHandler(
+	mongoSession *mgo.Session,
+	database string,
+	collection string,
+	) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 

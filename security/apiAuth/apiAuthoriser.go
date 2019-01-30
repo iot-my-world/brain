@@ -2,15 +2,15 @@ package apiAuth
 
 import (
 	"gitlab.com/iotTracker/brain/security/token"
-	"gitlab.com/iotTracker/brain/security/role"
 	"gitlab.com/iotTracker/brain/security"
-	"gitlab.com/iotTracker/brain/log"
-	"errors"
+	"gitlab.com/iotTracker/brain/security/permission"
+	globalException "gitlab.com/iotTracker/brain/exception"
+	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
 )
 
 type APIAuthorizer struct {
-	JWTValidator token.JWTValidator
-	RoleRecordHandler role.RecordHandler
+	JWTValidator      token.JWTValidator
+	PermissionHandler permission.Handler
 }
 
 func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error {
@@ -22,18 +22,18 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error 
 	}
 
 	// Check the if the user is authorised to access this jsonRpcMethod based on their role claim
-	retrieveRoleResponse := role.RetrieveResponse{}
-	if err := a.RoleRecordHandler.Retrieve(&role.RetrieveRequest{Name:jwtClaims.Role}, &retrieveRoleResponse); err != nil {
-		log.Info("Unable to retrieve role during API Access Authorisation!", err)
-		return err
+	userHasPermissionResponse := permission.UserHasPermissionResponse{}
+	if err := a.PermissionHandler.UserHasPermission(&permission.UserHasPermissionRequest{
+		UserIdentifier: jwtClaims.UserId,
+		Permission:     security.Permission(jsonRpcMethod),
+	}, &userHasPermissionResponse);
+		err != nil {
+		return globalException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
 	}
 
-	// Check if the jsonRpcMethod being accessed is the set of permissions assigned to their role
-	for _, perm := range retrieveRoleResponse.Role.Permissions {
-		if perm == security.Permission(jsonRpcMethod) {
-			return nil
-		}
+	if !userHasPermissionResponse.Result {
+		return apiAuthException.NotAuthorised{Permission: security.Permission(jsonRpcMethod)}
 	}
 
-	return errors.New("user does not have permission to access this API")
+	return nil
 }
