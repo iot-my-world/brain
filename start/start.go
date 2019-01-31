@@ -84,7 +84,6 @@ func main(){
 	secureAPIServerMux := mux.NewRouter()
 	secureAPIServerMux.Methods("OPTIONS").HandlerFunc(preFlightHandler)
 	secureAPIServerMux.Handle("/api", apiAuthApplier(secureAPIServer)).Methods("POST")
-	//secureAPIServerMux.Handle("/api", secureAPIServer).Methods("POST")
 	// Start secureAPIServer
 	log.Info("Starting secureAPIServer on port " + ServerPort)
 	go func() {

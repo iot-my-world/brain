@@ -38,8 +38,8 @@ func (s *service) Logout(r *http.Request, request *LogoutRequest, response *Logo
 }
 
 type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	UsernameOrEmailAddress string `json:"usernameOrEmailAddress"`
+	Password               string `json:"password"`
 }
 
 type LoginResponse struct {
@@ -49,7 +49,7 @@ type LoginResponse struct {
 
 func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	retrieveUserRequest := user.RetrieveRequest{Identifier: username.Identifier(request.Username)}
+	retrieveUserRequest := user.RetrieveRequest{Identifier: username.Identifier(request.UsernameOrEmailAddress)}
 	retrieveUserResponse := user.RetrieveResponse{}
 
 	//Retrieve User record

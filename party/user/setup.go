@@ -20,7 +20,7 @@ var initialUsers = []newUser{
 			Surname:      "root",
 			Username:     "root",
 			EmailAddress: "root@root.com",
-
+			Roles:        []string{"root"},
 		},
 		password: "12345",
 	},

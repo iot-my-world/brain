@@ -13,7 +13,6 @@ var initialRoles = func() []security.Role {
 	allRoles := []security.Role{
 		owner,
 		admin,
-		employee,
 	}
 
 	//Register additional root permissions here
@@ -38,45 +37,14 @@ var initialRoles = func() []security.Role {
 // Create Roles here
 
 var owner = security.Role{
-	Name: "owner",
+	Name: "client",
 	Permissions: []security.Permission{
-		"Employee.Create",
-		"Employee.RetrieveAll",
-		"Employee.Update",
-		"Employee.Delete",
-		"Employee.RetrieveByShiftAssignment",
-		"Employee.RetrieveByTagID",
-		"BusinessRole.Create",
-		"BusinessRole.RetrieveAll",
-		"BusinessRole.Update",
-		"BusinessRole.Delete",
-		"Ship.Create",
-		"Ship.RetrieveAll",
-		"Ship.Update",
-		"Ship.Delete",
-		"BusinessDayConfig.Create",
-		"BusinessDayConfig.Update",
-		"BusinessDayConfig.Retrieve",
-		// "BusinessDay.Create", // this may never happen directly via service
-		"BusinessDay.GetCurrent",
-		"BusinessDay.GetBefore",
-		"BusinessDay.GetAfter",
-		"BusinessDay.UpdateShifts",
-		"BusinessDay.GetSelected",
+		"User.Retrieve",
 	},
 }
 
 var admin = security.Role{
 	Name: "admin",
-	Permissions: []security.Permission{
-		"Employee.Create",
-		"Employee.RetrieveAll",
-		"Employee.Update",
-	},
-}
-
-var employee = security.Role{
-	Name: "employee",
 	Permissions: []security.Permission{
 	},
 }
