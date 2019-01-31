@@ -12,6 +12,8 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifiers/username"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifiers/id"
+	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	"gitlab.com/iotTracker/brain/search/identifiers/emailAddress"
 )
 
 type service struct {
@@ -49,13 +51,23 @@ type LoginResponse struct {
 
 func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	retrieveUserRequest := user.RetrieveRequest{Identifier: username.Identifier(request.UsernameOrEmailAddress)}
 	retrieveUserResponse := user.RetrieveResponse{}
 
-	//Retrieve User record
-	if err := s.userRecordHandler.Retrieve(&retrieveUserRequest, &retrieveUserResponse); err != nil {
-		//Error while retrieving user record
-		return errors.New("log In failed")
+	//try and retrieve User record with username
+	if err := s.userRecordHandler.Retrieve(&user.RetrieveRequest{
+		Identifier: username.Identifier(request.UsernameOrEmailAddress),
+	}, &retrieveUserResponse); err != nil {
+		switch err.(type) {
+		case userException.NotFound:
+			//try and retrieve User record with email address
+			if err := s.userRecordHandler.Retrieve(&user.RetrieveRequest{
+				Identifier: emailAddress.Identifier(request.UsernameOrEmailAddress),
+			}, &retrieveUserResponse); err != nil {
+				return errors.New("log in failed")
+			}
+		default:
+			return errors.New("log in failed")
+		}
 	}
 
 	//User record retrieved successfully, check password
