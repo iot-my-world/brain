@@ -16,7 +16,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/apiAuth"
 	"gitlab.com/iotTracker/brain/security/token"
 
-	"gitlab.com/iotTracker/brain/security/auth"
+	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
+	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
@@ -51,17 +52,16 @@ func main(){
 	// Get or Generate RSA Key Pair
 	rsaPrivateKey := encrypt.FetchPrivateKey("./")
 
-	// Create Record Handlers
+	// Create Service Providers
 	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, systemRoleCollection)
 	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
-
-	// Create General Handlers
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
+	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 
-	// Create Services
-	SystemRoleService := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
-	UserService := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
-	AuthService := auth.NewService(UserRecordHandler, rsaPrivateKey)
+	// Create Service Provider Adaptors
+	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
+	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
+	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -71,15 +71,15 @@ func main(){
 	secureAPIServer := rpc.NewServer()
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
-	// Register Services with secureAPIServer
-	if err := secureAPIServer.RegisterService(SystemRoleService, "Role"); err != nil {
+	// Register Service Provider Adaptors with secureAPIServer
+	if err := secureAPIServer.RegisterService(RoleRecordHandlerAdaptor, "Role"); err != nil {
 		log.Fatal("Unable to Register System Role Service")
 	}
-	if err:= secureAPIServer.RegisterService(AuthService, "Auth"); err != nil {
-		log.Fatal("Unable to Register Auth Service Adaptor")
-	}
-	if err := secureAPIServer.RegisterService(UserService, "User"); err != nil {
+	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "User"); err != nil {
 		log.Fatal("Unable to Register User Service")
+	}
+	if err:= secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
+		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
 
 	// Set up Router for secureAPIServer
