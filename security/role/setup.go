@@ -2,7 +2,7 @@ package role
 
 import (
 	"gitlab.com/iotTracker/brain/security"
-	"gitlab.com/iotTracker/brain/search/identifiers/name"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	"gitlab.com/iotTracker/brain/log"
 )

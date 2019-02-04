@@ -3,7 +3,7 @@ package search
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"encoding/json"
-	"gitlab.com/iotTracker/brain/search/identifiers/name"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
 	searchException "gitlab.com/iotTracker/brain/search/exception"
 	universalException "gitlab.com/iotTracker/brain/exception"
 )

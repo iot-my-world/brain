@@ -1,7 +1,7 @@
 package claims
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifiers/id"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 type LoginClaims struct {

@@ -8,10 +8,10 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"errors"
-	"gitlab.com/iotTracker/brain/search/identifiers/username"
-	"gitlab.com/iotTracker/brain/search/identifiers/id"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
-	"gitlab.com/iotTracker/brain/search/identifiers/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/security/auth"
 )
 

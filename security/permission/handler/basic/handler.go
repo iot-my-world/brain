@@ -6,7 +6,7 @@ import (
 	"fmt"
 	globalException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/security"
-	"gitlab.com/iotTracker/brain/search/identifiers/name"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	"gitlab.com/iotTracker/brain/security/permission"
 )
