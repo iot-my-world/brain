@@ -19,7 +19,7 @@ func (i Identifier) IsValid() error {
 	return nil
 }
 
-func (i Identifier) ToMap() map[string]interface{} {
+func (i Identifier) ToFilter() map[string]interface{} {
 	filter := make(map[string]interface{})
 	filter["emailAddress"] = i
 	return filter

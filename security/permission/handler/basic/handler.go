@@ -1,4 +1,4 @@
-package permission
+package basic
 
 import (
 	"gitlab.com/iotTracker/brain/party/user"
@@ -8,24 +8,25 @@ import (
 	"gitlab.com/iotTracker/brain/security"
 	"gitlab.com/iotTracker/brain/search/identifiers/name"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
+	"gitlab.com/iotTracker/brain/security/permission"
 )
 
-type basicHandler struct {
+type handler struct {
 	userRecordHandler user.RecordHandler
 	roleRecordHandler role.RecordHandler
 }
 
-func NewBasicHandler(
+func New(
 	userRecordHandler user.RecordHandler,
 	roleRecordHandler role.RecordHandler,
-) *basicHandler {
-	return &basicHandler{
+) *handler {
+	return &handler{
 		userRecordHandler: userRecordHandler,
 		roleRecordHandler: roleRecordHandler,
 	}
 }
 
-func (bh *basicHandler) ValidateUserHasPermissionRequest(request *UserHasPermissionRequest) error {
+func (bh *handler) ValidateUserHasPermissionRequest(request *permission.UserHasPermissionRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -47,14 +48,14 @@ func (bh *basicHandler) ValidateUserHasPermissionRequest(request *UserHasPermiss
 	}
 }
 
-func (bh *basicHandler) UserHasPermission(request *UserHasPermissionRequest, response *UserHasPermissionResponse) error {
+func (bh *handler) UserHasPermission(request *permission.UserHasPermissionRequest, response *permission.UserHasPermissionResponse) error {
 	if err := bh.ValidateUserHasPermissionRequest(request); err != nil {
 		return err
 	}
 
 	// retrieve all of the users permissions
-	getAllUsersPermissionsResponse := GetAllUsersPermissionsResponse{}
-	if err := bh.GetAllUsersPermissions(&GetAllUsersPermissionsRequest{}, &getAllUsersPermissionsResponse);
+	getAllUsersPermissionsResponse := permission.GetAllUsersPermissionsResponse{}
+	if err := bh.GetAllUsersPermissions(&permission.GetAllUsersPermissionsRequest{}, &getAllUsersPermissionsResponse);
 		err != nil {
 		return permissionException.GetAllPermissions{Reasons: []string{err.Error()}}
 	}
@@ -73,7 +74,7 @@ func (bh *basicHandler) UserHasPermission(request *UserHasPermissionRequest, res
 	return nil
 }
 
-func (bh *basicHandler) ValidateGetAllUsersPermissionsRequest(request *GetAllUsersPermissionsRequest) error {
+func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permission.GetAllUsersPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -91,7 +92,7 @@ func (bh *basicHandler) ValidateGetAllUsersPermissionsRequest(request *GetAllUse
 	}
 }
 
-func (bh *basicHandler) GetAllUsersPermissions(request *GetAllUsersPermissionsRequest, response *GetAllUsersPermissionsResponse) error {
+func (bh *handler) GetAllUsersPermissions(request *permission.GetAllUsersPermissionsRequest, response *permission.GetAllUsersPermissionsResponse) error {
 	if err := bh.ValidateGetAllUsersPermissionsRequest(request); err != nil {
 		return err
 	}

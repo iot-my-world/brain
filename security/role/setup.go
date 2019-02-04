@@ -49,7 +49,7 @@ var admin = security.Role{
 	},
 }
 
-func initialRoleSetup(handler *mongoRecordHandler) error {
+func InitialSetup(handler RecordHandler) error {
 	for _, roleToCreate := range initialRoles {
 		//Try and retrieve the record
 		retrieveRoleResponse := RetrieveResponse{}

@@ -8,24 +8,25 @@ import (
 	globalException "gitlab.com/iotTracker/brain/exception"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	"gitlab.com/iotTracker/brain/security"
+	"gitlab.com/iotTracker/brain/security/role"
 )
 
-type mongoRecordHandler struct {
+type recordHandler struct {
 	mongoSession         *mgo.Session
 	database, collection string
 }
 
-func NewMongoRecordHandler(mongoSession *mgo.Session, database, collection string) *mongoRecordHandler {
+func New(mongoSession *mgo.Session, database, collection string) *recordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	NewMongoRecordHandler := mongoRecordHandler{
+	NewMongoRecordHandler := recordHandler{
 		mongoSession: mongoSession,
 		database:     database,
 		collection:   collection,
 	}
 
-	if err := initialRoleSetup(&NewMongoRecordHandler); err != nil {
+	if err := role.InitialSetup(&NewMongoRecordHandler); err != nil {
 		log.Fatal("Unable to complete Initial System Role Setup!", err)
 	}
 
@@ -58,7 +59,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateResponse) error {
+func (mrh *recordHandler) Create(request *role.CreateRequest, response *role.CreateResponse) error {
 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
@@ -76,13 +77,13 @@ func (mrh *mongoRecordHandler) Create(request *CreateRequest, response *CreateRe
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *RetrieveRequest) error {
+func (mrh *recordHandler) ValidateRetrieveRequest(request *role.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !IsValidIdentifier(request.Identifier) {
+		if !role.IsValidIdentifier(request.Identifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for role", request.Identifier.Type()))
 		}
 	}
@@ -94,7 +95,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *RetrieveRequest)
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *RetrieveResponse) error {
+func (mrh *recordHandler) Retrieve(request *role.RetrieveRequest, response *role.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -106,7 +107,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retr
 
 	var roleRecord security.Role
 
-	if err := userCollection.Find(request.Identifier.ToMap()).One(&roleRecord); err != nil {
+	if err := userCollection.Find(request.Identifier.ToFilter()).One(&roleRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return roleException.NotFound{}
 		} else {
@@ -118,7 +119,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *RetrieveRequest, response *Retr
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Update(request *UpdateRequest, response *UpdateResponse) error {
+func (mrh *recordHandler) Update(request *role.UpdateRequest, response *role.UpdateResponse) error {
 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()

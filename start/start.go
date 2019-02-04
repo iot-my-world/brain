@@ -10,19 +10,21 @@ import (
 	"runtime/debug"
 	"os"
 	"os/signal"
-	"gitlab.com/iotTracker/brain/party/user"
 	"gopkg.in/mgo.v2"
 	"time"
 	"gitlab.com/iotTracker/brain/security/encrypt"
-	"gitlab.com/iotTracker/brain/security/role"
 	"gitlab.com/iotTracker/brain/security/apiAuth"
 	"gitlab.com/iotTracker/brain/security/token"
 
 	"gitlab.com/iotTracker/brain/security/auth"
-	"gitlab.com/iotTracker/brain/security/permission"
+	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
+	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
+	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
+	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
+	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 )
 
-var ServerPort = "9006"
+var ServerPort = "9010"
 
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
@@ -50,15 +52,15 @@ func main(){
 	rsaPrivateKey := encrypt.FetchPrivateKey("./")
 
 	// Create Record Handlers
-	RoleRecordHandler := role.NewMongoRecordHandler(mainMongoSession, databaseName, systemRoleCollection)
-	UserRecordHandler := user.NewMongoRecordHandler(mainMongoSession, databaseName, userCollection)
+	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, systemRoleCollection)
+	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
 
 	// Create General Handlers
-	PermissionBasicHandler := permission.NewBasicHandler(UserRecordHandler, RoleRecordHandler)
+	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 
 	// Create Services
-	SystemRoleService := role.NewService(RoleRecordHandler)
-	UserService := user.NewServiceAdaptor(UserRecordHandler)
+	SystemRoleService := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
+	UserService := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	AuthService := auth.NewService(UserRecordHandler, rsaPrivateKey)
 
 	// Initialise the APIAuthorizer

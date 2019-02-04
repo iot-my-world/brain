@@ -26,7 +26,7 @@ var initialUsers = []newUser{
 	},
 }
 
-func initialUserSetup(handler *mongoRecordHandler) error {
+func InitialSetup(handler RecordHandler) error {
 	for _, newUser := range initialUsers {
 		//Try and retrieve the new user record
 		retrieveUserResponse := RetrieveResponse{}
