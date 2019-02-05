@@ -8,40 +8,40 @@ import (
 	universalException "gitlab.com/iotTracker/brain/exception"
 )
 
-type IdentifierWrapper struct {
-	Type       identifier.Type `json:"type"`
-	Identifier json.RawMessage `json:"identifier"`
+type WrappedIdentifier struct {
+	Type  identifier.Type `json:"type"`
+	Value json.RawMessage `json:"value"`
 }
 
-func (i IdentifierWrapper) UnWrap() (Identifier, error) {
+func (i WrappedIdentifier) UnWrap() (Identifier, error) {
 	var result Identifier = nil
 	switch i.Type {
 	case identifier.Id:
 		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Identifier, unmarshalledId); err != nil {
+		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
 			return nil, searchException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
 	case identifier.Name:
 		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Identifier, unmarshalledId); err != nil {
+		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
 			return nil, searchException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
 	case identifier.Username:
 		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Identifier, unmarshalledId); err != nil {
+		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
 			return nil, searchException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
 	case identifier.EmailAddress:
 		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Identifier, unmarshalledId); err != nil {
+		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
 			return nil, searchException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
 	default:
-		return nil, searchException.Unwrapping{Reasons: []string{"invalid type"}}
+		return nil, searchException.InvalidIdentifier{Reasons: []string{"invalid type"}}
 	}
 
 	if result == nil {
@@ -58,6 +58,5 @@ func (i IdentifierWrapper) UnWrap() (Identifier, error) {
 type Identifier interface {
 	IsValid() error                   // Returns the validity of the Identifier
 	Type() identifier.Type            // Returns the IdentifierType of the Identifier
-	ToFilter() map[string]interface{} // Returns a map to use to query the databases
-	//Marshal() MarshalledIdentifier // Returns the Identifier in Marshalled form
+	ToFilter() map[string]interface{} // Returns a map filter to use to query the databases
 }
