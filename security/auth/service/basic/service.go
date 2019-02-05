@@ -38,13 +38,13 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	//try and retrieve User record with username
 	if err := s.userRecordHandler.Retrieve(&user.RetrieveRequest{
-		Identifier: username.Identifier(request.UsernameOrEmailAddress),
+		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
 	}, &retrieveUserResponse); err != nil {
 		switch err.(type) {
 		case userException.NotFound:
 			//try and retrieve User record with email address
 			if err := s.userRecordHandler.Retrieve(&user.RetrieveRequest{
-				Identifier: emailAddress.Identifier(request.UsernameOrEmailAddress),
+				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 			}, &retrieveUserResponse); err != nil {
 				return errors.New("log in failed")
 			}
@@ -61,7 +61,7 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	// Password is correct. Try and generate loginToken
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.LoginClaims{
-		UserId: id.Identifier(retrieveUserResponse.User.Id),
+		UserId: id.Identifier{Id: retrieveUserResponse.User.Id},
 	})
 	if err != nil {
 		//Unexpected Error!

@@ -110,7 +110,7 @@ func (bh *handler) GetAllUsersPermissions(request *permission.GetAllUsersPermiss
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
 		roleRetrieveResponse := role.RetrieveResponse{}
-		if err := bh.roleRecordHandler.Retrieve(&role.RetrieveRequest{Identifier: name.Identifier(roleName)}, &roleRetrieveResponse);
+		if err := bh.roleRecordHandler.Retrieve(&role.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse);
 			err != nil {
 			return err
 		}

@@ -30,7 +30,7 @@ func InitialSetup(handler RecordHandler) error {
 	for _, newUser := range initialUsers {
 		//Try and retrieve the new user record
 		retrieveUserResponse := RetrieveResponse{}
-		err := handler.Retrieve(&RetrieveRequest{Identifier: username.Identifier(newUser.user.Username)}, &retrieveUserResponse)
+		err := handler.Retrieve(&RetrieveRequest{Identifier: username.Identifier{Username: newUser.user.Username}}, &retrieveUserResponse)
 
 		switch err.(type) {
 		case userException.NotFound:
@@ -46,7 +46,7 @@ func InitialSetup(handler RecordHandler) error {
 			log.Info("Initial User Setup: User " + newUser.user.Username + " already exists. Updating User.")
 			userUpdateResponse := UpdateResponse{}
 			if err := handler.Update(&UpdateRequest{
-				Identifier: id.Identifier(retrieveUserResponse.User.Id),
+				Identifier: id.Identifier{Id: retrieveUserResponse.User.Id},
 				User:       newUser.user,
 			}, &userUpdateResponse); err != nil {
 				return userException.InitialSetup{Reasons: []string{"update error", err.Error()}}
@@ -61,7 +61,7 @@ func InitialSetup(handler RecordHandler) error {
 		// creation done, change password
 		userChangePasswordResponse := ChangePasswordResponse{}
 		if err := handler.ChangePassword(&ChangePasswordRequest{
-			Identifier:  username.Identifier(newUser.user.Username),
+			Identifier:  username.Identifier{Username: newUser.user.Username},
 			NewPassword: newUser.password,
 		}, &userChangePasswordResponse); err != nil {
 			return userException.InitialSetup{Reasons: []string{"change password error", err.Error()}}

@@ -53,7 +53,7 @@ func InitialSetup(handler RecordHandler) error {
 	for _, roleToCreate := range initialRoles {
 		//Try and retrieve the record
 		retrieveRoleResponse := RetrieveResponse{}
-		err := handler.Retrieve(&RetrieveRequest{Identifier: name.Identifier(roleToCreate.Name)}, &retrieveRoleResponse)
+		err := handler.Retrieve(&RetrieveRequest{Identifier: name.Identifier{Name: roleToCreate.Name}}, &retrieveRoleResponse)
 
 		switch err.(type) {
 		case roleException.NotFound:

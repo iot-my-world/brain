@@ -21,7 +21,7 @@ func (s *serviceAdaptor) Create(r *http.Request, request *user.CreateRequest, re
 }
 
 func (s *serviceAdaptor) Retrieve(r *http.Request, request *user.RetrieveRequest, response *user.RetrieveResponse) error {
-	return s.RecordHandler.Retrieve(&user.RetrieveRequest{Identifier: id.Identifier("5c520cdf5402664b2017c0fc")}, response)
+	return s.RecordHandler.Retrieve(&user.RetrieveRequest{Identifier: id.Identifier{Id: "1234"}}, response)
 }
 
 func (s *serviceAdaptor) Update(r *http.Request, request *user.UpdateRequest, response *user.UpdateResponse) error {
