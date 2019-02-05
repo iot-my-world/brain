@@ -21,6 +21,7 @@ import (
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
+	permissionServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/handler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 )
@@ -62,6 +63,7 @@ func main(){
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
+	PermissionHandlerAdaptor := permissionServiceJsonRpcAdaptor.New(PermissionBasicHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -80,6 +82,9 @@ func main(){
 	}
 	if err:= secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
+	}
+	if err:= secureAPIServer.RegisterService(PermissionHandlerAdaptor, "Permission"); err != nil {
+		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
 
 	// Set up Router for secureAPIServer

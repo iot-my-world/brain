@@ -7,12 +7,12 @@ import (
 	"gitlab.com/iotTracker/brain/security/auth"
 )
 
-type service struct {
+type adaptor struct {
 	authService auth.Service
 }
 
-func New(authService auth.Service) *service {
-	return &service{
+func New(authService auth.Service) *adaptor {
+	return &adaptor{
 		authService: authService,
 	}
 }
@@ -23,7 +23,7 @@ type LogoutRequest struct {
 type LogoutResponse struct {
 }
 
-func (s *service) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
+func (s *adaptor) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
 	fmt.Println("Logout Service running.")
 	return nil
 }
@@ -38,7 +38,7 @@ type LoginResponse struct {
 	User party.User `json:"user"`
 }
 
-func (s *service) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
+func (s *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
 	loginRequest := auth.LoginRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
