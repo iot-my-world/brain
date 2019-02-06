@@ -29,10 +29,10 @@ func NewJWTGenerator(privateRSAKey *rsa.PrivateKey) JWTGenerator {
 	}
 }
 
-func (g JWTGenerator)GenerateLoginToken(loginClaims claims.LoginClaims)(string, error){
+func (g JWTGenerator)GenerateLoginToken(loginClaims claims.Claims)(string, error){
 
 	loginClaims.ExpirationTime = time.Now().UTC().Add(loginTokenValidTime).Unix()
-	loginClaims.IssuedAtTime = time.Now().UTC().Unix()
+	loginClaims.IssueTime = time.Now().UTC().Unix()
 
 	return getSignedJWT(loginClaims, g.signer)
 }

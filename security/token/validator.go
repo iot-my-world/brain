@@ -19,7 +19,7 @@ func NewJWTValidator (rsaPublicKey *rsa.PublicKey) JWTValidator {
 }
 
 
-func (jwtv *JWTValidator) ValidateJWT(jwt string) (*claims.LoginClaims, error) {
+func (jwtv *JWTValidator) ValidateJWT(jwt string) (*claims.Claims, error) {
 	// Parse the jwt. Successful parse means the content of authorisation header was jwt
 	jwtObject, err := jose.ParseSigned(jwt)
 	if err != nil {
@@ -36,7 +36,7 @@ func (jwtv *JWTValidator) ValidateJWT(jwt string) (*claims.LoginClaims, error) {
 	}
 
 	// Unmarshal json claims
-	loginClaims := claims.LoginClaims{}
+	loginClaims := claims.Claims{}
 	err = json.Unmarshal(jsonClaims, &loginClaims)
 	if err != nil {
 		// This is an unknown flop, by now things shouldn't flop
