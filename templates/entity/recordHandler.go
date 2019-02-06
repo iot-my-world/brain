@@ -1,4 +1,4 @@
-package client
+package company
 
 import (
 	"gitlab.com/iotTracker/brain/search"
@@ -14,7 +14,7 @@ type RecordHandler interface {
 }
 
 type ValidateRequest struct {
-	Client Client
+	Company Company
 }
 
 type ValidateResponse struct {
@@ -22,11 +22,11 @@ type ValidateResponse struct {
 }
 
 type CreateRequest struct {
-	Client Client
+	Company Company
 }
 
 type CreateResponse struct {
-	Client Client
+	Company Company
 }
 
 type DeleteRequest struct {
@@ -34,16 +34,16 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Client Client
+	Company Company
 }
 
 type UpdateRequest struct {
 	Identifier search.Identifier
-	Client    Client
+	Company    Company
 }
 
 type UpdateResponse struct {
-	Client Client
+	Company Company
 }
 
 type RetrieveRequest struct {
@@ -51,5 +51,5 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Client Client
+	Company Company
 }

@@ -18,12 +18,21 @@ import (
 
 	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
-	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
-	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
+
 	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
 	permissionServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/handler/adaptor/jsonRpc"
+
+	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
+	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
+
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
+
+	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
+	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
+
+	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
+	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 )
 
 var ServerPort = "9010"
@@ -58,12 +67,17 @@ func main(){
 	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
+	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
+	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
+
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
 	PermissionHandlerAdaptor := permissionServiceJsonRpcAdaptor.New(PermissionBasicHandler)
+	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
+	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -74,17 +88,23 @@ func main(){
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// Register Service Provider Adaptors with secureAPIServer
-	if err := secureAPIServer.RegisterService(RoleRecordHandlerAdaptor, "Role"); err != nil {
-		log.Fatal("Unable to Register System Role Service")
+	if err := secureAPIServer.RegisterService(RoleRecordHandlerAdaptor, "RoleRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Role Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "User"); err != nil {
-		log.Fatal("Unable to Register User Service")
+	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
+		log.Fatal("Unable to Register User Record Handler Service")
 	}
 	if err:= secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
-	if err:= secureAPIServer.RegisterService(PermissionHandlerAdaptor, "Permission"); err != nil {
+	if err:= secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
+	}
+	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Company Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Client Record Handler Service")
 	}
 
 	// Set up Router for secureAPIServer
