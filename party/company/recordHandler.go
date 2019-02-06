@@ -1,4 +1,4 @@
-package user
+package company
 
 import (
 	"gitlab.com/iotTracker/brain/search"
@@ -11,55 +11,45 @@ type RecordHandler interface {
 	Update(request *UpdateRequest, response *UpdateResponse) error
 	Delete(request *DeleteRequest, response *DeleteResponse) error
 	Validate(request *ValidateRequest, response *ValidateResponse) error
-	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
 }
 
 type ValidateRequest struct {
-	User User `json:"user"`
+	Company Company
 }
 
 type ValidateResponse struct {
-	ReasonsInvalid []validate.ReasonInvalid `json:"ReasonsInvalid"`
+	ReasonsInvalid []validate.ReasonInvalid
 }
 
 type CreateRequest struct {
-	User User `json:"newUser"`
+	Company Company
 }
 
 type CreateResponse struct {
-	User User `json:"user"`
+	Company Company
 }
 
 type DeleteRequest struct {
-	Identifier search.Identifier `json:"identifier"`
+	Identifier search.Identifier
 }
 
 type DeleteResponse struct {
-	User User `json:"user"`
+	Company Company
 }
 
 type UpdateRequest struct {
-	Identifier search.Identifier `json:"identifier"`
-	User       User              `json:"user"`
+	Identifier search.Identifier
+	Company    Company
 }
 
 type UpdateResponse struct {
-	User User `json:"user"`
+	Company Company
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier `json:"identifier"`
+	Identifier search.Identifier
 }
 
 type RetrieveResponse struct {
-	User User `json:"user" bson:"user"`
-}
-
-type ChangePasswordRequest struct {
-	Identifier  search.Identifier `json:"identifier"`
-	NewPassword string            `json:"identifier"`
-}
-
-type ChangePasswordResponse struct {
-	User User `json:"user" bson:"user"`
+	Company Company
 }

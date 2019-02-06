@@ -24,7 +24,7 @@ func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
-	) *mongoRecordHandler {
+) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
@@ -285,7 +285,7 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 		})
 	}
 
-	if (*userToValidate).Name == "" {
+	if (*userToValidate).Surname == "" {
 		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
 			Field: "surname",
 			Type:  reasonInvalid.Blank,
@@ -347,7 +347,7 @@ func (mrh *mongoRecordHandler) ChangePassword(request *user.ChangePasswordReques
 	retrieveUserResponse.User.Password = pwdHash
 	updateUserResponse := user.UpdateResponse{}
 	if err := mrh.Update(&user.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse);
-	err != nil {
+		err != nil {
 		return userException.ChangePassword{Reasons: []string{"updating user", err.Error()}}
 	}
 
