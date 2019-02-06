@@ -5,6 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type newUser struct {
@@ -15,11 +16,16 @@ type newUser struct {
 var initialUsers = []newUser{
 	{
 		user: User{
-			Name:         "root",
-			Surname:      "root",
+			Name:    "root",
+			Surname: "root",
+
 			Username:     "root",
 			EmailAddress: "root@root.com",
-			Roles:        []string{"root"},
+			// Password: set later with hashing
+			Roles: []string{"root"},
+
+			PartyType: party.System,
+			// PartyId: no associated party for root
 		},
 		password: "12345",
 	},

@@ -204,6 +204,8 @@ func (mrh *mongoRecordHandler) Update(request *user.UpdateRequest, response *use
 	// retrieveUserResponse.User.EmailAddress = request.User.EmailAddress // cannot update yet
 	retrieveUserResponse.User.Password = request.User.Password
 	retrieveUserResponse.User.Roles = request.User.Roles
+	// retrieveUserResponse.User.PartyType = request.User.PartyType // cannot update yet
+	// retrieveUserResponse.User.PartyId = request.User.PartyId // cannot update yet
 
 	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
 		return userException.Update{Reasons: []string{"updating record", err.Error()}}

@@ -64,7 +64,7 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.Claims{
 		UserId:         id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:   time.Now().Unix(),
-		ExpirationTime: time.Now().Add(30 * time.Minute).Unix(),
+		ExpirationTime: time.Now().Add(1 * time.Minute).Unix(),
 		PartyType:      retrieveUserResponse.User.PartyType,
 		PartyId:        retrieveUserResponse.User.PartyId,
 	})
