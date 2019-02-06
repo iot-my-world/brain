@@ -13,6 +13,7 @@ import (
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/security/auth"
+	"time"
 )
 
 type service struct {
@@ -61,7 +62,11 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	// Password is correct. Try and generate loginToken
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.LoginClaims{
-		UserId: id.Identifier{Id: retrieveUserResponse.User.Id},
+		UserId:         id.Identifier{Id: retrieveUserResponse.User.Id},
+		IssuedAtTime:   time.Now().Unix(),
+		ExpirationTime: time.Now().Add(30 * time.Minute).Unix(),
+		PartyType:      retrieveUserResponse.User.PartyType,
+		PartyId:        retrieveUserResponse.User.PartyId,
 	})
 	if err != nil {
 		//Unexpected Error!

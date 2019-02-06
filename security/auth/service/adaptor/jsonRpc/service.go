@@ -3,8 +3,8 @@ package auth
 import (
 	"net/http"
 	"fmt"
-	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/auth"
+	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type adaptor struct {
@@ -34,8 +34,8 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Jwt  string     `json:"jwt"`
-	User party.User `json:"user"`
+	Jwt  string    `json:"jwt"`
+	User user.User `json:"user"`
 }
 
 func (s *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {

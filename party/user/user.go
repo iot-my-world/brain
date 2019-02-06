@@ -1,4 +1,9 @@
-package party
+package user
+
+import (
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/party"
+)
 
 // Defines the User record for the database
 type User struct {
@@ -13,4 +18,8 @@ type User struct {
 	EmailAddress string   `json:"emailAddress" bson:"emailAddress"`
 	Password     []byte   `json:"pwd" bson:"pwd"`
 	Roles        []string `json:"roles" bson:"roles"`
+
+	// Party Details
+	PartyType party.Type          `json:"partyType" bson:"partyType"`
+	PartyId   id.Identifier `json:"partyId" bson:"partyId"`
 }

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"gitlab.com/iotTracker/brain/party"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -9,13 +8,13 @@ import (
 )
 
 type newUser struct {
-	user     party.User
+	user     User
 	password string
 }
 
 var initialUsers = []newUser{
 	{
-		user: party.User{
+		user: User{
 			Name:         "root",
 			Surname:      "root",
 			Username:     "root",

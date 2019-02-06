@@ -2,7 +2,6 @@ package user
 
 import (
 	"gitlab.com/iotTracker/brain/search"
-	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/validate"
 )
 
@@ -16,7 +15,7 @@ type RecordHandler interface {
 }
 
 type ValidateRequest struct {
-	User party.User `json:"user"`
+	User User `json:"user"`
 }
 
 type ValidateResponse struct {
@@ -24,11 +23,11 @@ type ValidateResponse struct {
 }
 
 type CreateRequest struct {
-	User party.User `json:"newUser"`
+	User User `json:"newUser"`
 }
 
 type CreateResponse struct {
-	User party.User `json:"user"`
+	User User `json:"user"`
 }
 
 type DeleteRequest struct {
@@ -36,16 +35,16 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	User party.User `json:"user"`
+	User User `json:"user"`
 }
 
 type UpdateRequest struct {
 	Identifier search.Identifier `json:"identifier"`
-	User       party.User        `json:"user"`
+	User       User              `json:"user"`
 }
 
 type UpdateResponse struct {
-	User party.User `json:"user"`
+	User User `json:"user"`
 }
 
 type RetrieveRequest struct {
@@ -53,7 +52,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	User party.User `json:"user" bson:"user"`
+	User User `json:"user" bson:"user"`
 }
 
 type ChangePasswordRequest struct {
@@ -62,5 +61,5 @@ type ChangePasswordRequest struct {
 }
 
 type ChangePasswordResponse struct {
-	User party.User `json:"user" bson:"user"`
+	User User `json:"user" bson:"user"`
 }

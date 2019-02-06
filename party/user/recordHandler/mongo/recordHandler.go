@@ -4,7 +4,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gitlab.com/iotTracker/brain/log"
 	"gopkg.in/mgo.v2/bson"
-	"gitlab.com/iotTracker/brain/party"
 	globalException "gitlab.com/iotTracker/brain/exception"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"fmt"
@@ -157,7 +156,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *user.RetrieveRequest, response 
 
 	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	var userRecord party.User
+	var userRecord user.User
 
 	if err := userCollection.Find(request.Identifier.ToFilter()).One(&userRecord); err != nil {
 		if err == mgo.ErrNotFound {
