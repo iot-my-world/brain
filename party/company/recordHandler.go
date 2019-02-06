@@ -15,51 +15,51 @@ type RecordHandler interface {
 }
 
 type ValidateRequest struct {
-	User User
+	User User `json:"user"`
 }
 
 type ValidateResponse struct {
-	ReasonsInvalid []validate.ReasonInvalid
+	ReasonsInvalid []validate.ReasonInvalid `json:"ReasonsInvalid"`
 }
 
 type CreateRequest struct {
-	User User
+	User User `json:"newUser"`
 }
 
 type CreateResponse struct {
-	User User
+	User User `json:"user"`
 }
 
 type DeleteRequest struct {
-	Identifier search.Identifier
+	Identifier search.Identifier `json:"identifier"`
 }
 
 type DeleteResponse struct {
-	User User
+	User User `json:"user"`
 }
 
 type UpdateRequest struct {
-	Identifier search.Identifier
-	User       User
+	Identifier search.Identifier `json:"identifier"`
+	User       User              `json:"user"`
 }
 
 type UpdateResponse struct {
-	User User
+	User User `json:"user"`
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier
+	Identifier search.Identifier `json:"identifier"`
 }
 
 type RetrieveResponse struct {
-	User User
+	User User `json:"user" bson:"user"`
 }
 
 type ChangePasswordRequest struct {
-	Identifier  search.Identifier
-	NewPassword string
+	Identifier  search.Identifier `json:"identifier"`
+	NewPassword string            `json:"identifier"`
 }
 
 type ChangePasswordResponse struct {
-	User User
+	User User `json:"user" bson:"user"`
 }
