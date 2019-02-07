@@ -59,8 +59,7 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 		//Password Incorrect
 		return errors.New("log In failed")
 	}
-	testExpiration := time.Now().AddDate(0, 0, -1).UTC().Unix()
-	fmt.Println("test expiration:", testExpiration)
+
 	// Password is correct. Try and generate loginToken
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.Claims{
 		UserId:         id.Identifier{Id: retrieveUserResponse.User.Id},
@@ -76,7 +75,6 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	//Login Successful, return Token to front-end client
 	response.Jwt = loginToken
-	response.User = retrieveUserResponse.User
 
 	return nil
 }

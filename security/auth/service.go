@@ -1,9 +1,5 @@
 package auth
 
-import (
-	"gitlab.com/iotTracker/brain/party/user"
-)
-
 type Service interface {
 	Login(request *LoginRequest, response *LoginResponse) error
 	Logout(request *LogoutRequest, response *LogoutResponse) error
@@ -21,6 +17,5 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Jwt  string
-	User user.User
+	Jwt string
 }
