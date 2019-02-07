@@ -3,7 +3,10 @@ package claims
 import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/party"
+	"time"
 )
+
+const ValidTime = 90*time.Minute
 
 type Claims struct {
 	UserId         id.Identifier `json:"userId"`

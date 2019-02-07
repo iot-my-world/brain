@@ -4,12 +4,9 @@ import (
 	"crypto/rsa"
 	"gopkg.in/square/go-jose.v2"
 	"gitlab.com/iotTracker/brain/log"
-	"time"
 	"encoding/json"
 	"gitlab.com/iotTracker/brain/security/claims"
 )
-
-const loginTokenValidTime = 90*time.Minute
 
 type JWTGenerator struct {
 	privateKey *rsa.PrivateKey
@@ -30,10 +27,6 @@ func NewJWTGenerator(privateRSAKey *rsa.PrivateKey) JWTGenerator {
 }
 
 func (g JWTGenerator)GenerateLoginToken(loginClaims claims.Claims)(string, error){
-
-	loginClaims.ExpirationTime = time.Now().UTC().Add(loginTokenValidTime).Unix()
-	loginClaims.IssueTime = time.Now().UTC().Unix()
-
 	return getSignedJWT(loginClaims, g.signer)
 }
 
