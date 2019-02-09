@@ -17,10 +17,14 @@ var initialRoles = func() []Role {
 
 	//Register additional root permissions here
 	rootPermissions := []permission.Permission{
-		"Role.Create",
-		"Role.Retrieve",
-		"Role.Update",
-		"Role.Delete",
+		permission.RoleCreate,
+		permission.RoleRetrieve,
+		permission.RoleUpdate,
+		permission.RoleDelete,
+		permission.CompanyRecordHandlerCreate,
+		permission.CompanyRecordHandlerRetrieve,
+		permission.CompanyRecordHandlerUpdate,
+		permission.CompanyRecordHandlerDelete,
 	}
 
 	// Create root role and apply permissions of all other roles to root
