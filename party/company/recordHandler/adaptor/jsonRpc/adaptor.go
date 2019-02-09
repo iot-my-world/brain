@@ -3,7 +3,7 @@ package company
 import (
 	"gitlab.com/iotTracker/brain/party/company"
 	"gitlab.com/iotTracker/brain/search"
-	"gitlab.com/iotTracker/brain/validate"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 
@@ -127,11 +127,12 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 }
 
 type ValidateRequest struct {
-	Company company.Company `json:"company"`
+	Company             company.Company `json:"company"`
+	IgnoreReasonsMethod string          `json:"ignoreReasonsMethod"`
 }
 
 type ValidateResponse struct {
-	ReasonsInvalid []validate.ReasonInvalid `json:"reasonsInvalid"`
+	ReasonsInvalid []reasonInvalid.ReasonInvalid `json:"reasonsInvalid"`
 }
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
@@ -139,7 +140,8 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 	validateCompanyResponse := company.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
 		&company.ValidateRequest{
-			Company: request.Company,
+			Company:             request.Company,
+			IgnoreReasonsMethod: request.IgnoreReasonsMethod,
 		},
 		&validateCompanyResponse); err != nil {
 		return err

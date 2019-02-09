@@ -6,7 +6,6 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/client"
 	clientException "gitlab.com/iotTracker/brain/party/client/exception"
-	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -16,7 +15,7 @@ type mongoRecordHandler struct {
 	mongoSession         *mgo.Session
 	database             string
 	collection           string
-	createIgnoredReasons validate.IgnoredReasonsInvalid
+	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
@@ -27,7 +26,7 @@ func New(
 
 	setupIndices(mongoSession, database, collection)
 
-	createIgnoredReasons := validate.IgnoredReasonsInvalid{
+	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
 		ReasonsInvalid: map[string][]reasonInvalid.Type{
 			"id": {
 				reasonInvalid.Blank,
@@ -236,11 +235,11 @@ func (mrh *mongoRecordHandler) Validate(request *client.ValidateRequest, respons
 		return err
 	}
 
-	reasonsInvalid := make([]validate.ReasonInvalid, 0)
+	reasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	clientToValidate := &request.Client
 
 	if (*clientToValidate).Id == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "id cannot be blank",

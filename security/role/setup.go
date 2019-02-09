@@ -25,6 +25,7 @@ var initialRoles = func() []Role {
 		permission.CompanyRecordHandlerRetrieve,
 		permission.CompanyRecordHandlerUpdate,
 		permission.CompanyRecordHandlerDelete,
+		permission.CompanyRecordHandlerValidate,
 	}
 
 	// Create root role and apply permissions of all other roles to root

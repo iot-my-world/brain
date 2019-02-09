@@ -6,7 +6,6 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
-	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
@@ -17,7 +16,7 @@ type mongoRecordHandler struct {
 	mongoSession         *mgo.Session
 	database             string
 	collection           string
-	createIgnoredReasons validate.IgnoredReasonsInvalid
+	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
@@ -28,7 +27,7 @@ func New(
 
 	setupIndices(mongoSession, database, collection)
 
-	createIgnoredReasons := validate.IgnoredReasonsInvalid{
+	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
 		ReasonsInvalid: map[string][]reasonInvalid.Type{
 			"id": {
 				reasonInvalid.Blank,
@@ -266,11 +265,11 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 		return err
 	}
 
-	reasonsInvalid := make([]validate.ReasonInvalid, 0)
+	reasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	userToValidate := &request.User
 
 	if (*userToValidate).Id == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "id cannot be blank",
@@ -279,7 +278,7 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 	}
 
 	if (*userToValidate).Name == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -288,7 +287,7 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 	}
 
 	if (*userToValidate).Surname == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "surname",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -297,7 +296,7 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 	}
 
 	if (*userToValidate).Username == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "username",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -306,7 +305,7 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 	}
 
 	if (*userToValidate).EmailAddress == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "emailAddress",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",

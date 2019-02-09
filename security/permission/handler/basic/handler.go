@@ -57,8 +57,7 @@ func (bh *handler) UserHasPermission(request *permission.UserHasPermissionReques
 	if err := bh.GetAllUsersPermissions(&permission.GetAllUsersPermissionsRequest{
 		UserIdentifier: request.UserIdentifier,
 	},
-		&getAllUsersPermissionsResponse);
-		err != nil {
+		&getAllUsersPermissionsResponse); err != nil {
 		return permissionException.GetAllPermissions{Reasons: []string{err.Error()}}
 	}
 

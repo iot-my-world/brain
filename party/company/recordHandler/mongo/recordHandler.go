@@ -6,7 +6,6 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
-	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -16,7 +15,7 @@ type mongoRecordHandler struct {
 	mongoSession         *mgo.Session
 	database             string
 	collection           string
-	createIgnoredReasons validate.IgnoredReasonsInvalid
+	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
@@ -27,7 +26,7 @@ func New(
 
 	setupIndices(mongoSession, database, collection)
 
-	createIgnoredReasons := validate.IgnoredReasonsInvalid{
+	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
 		ReasonsInvalid: map[string][]reasonInvalid.Type{
 			"id": {
 				reasonInvalid.Blank,
@@ -236,11 +235,11 @@ func (mrh *mongoRecordHandler) Validate(request *company.ValidateRequest, respon
 		return err
 	}
 
-	reasonsInvalid := make([]validate.ReasonInvalid, 0)
+	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	companyToValidate := &request.Company
 
 	if (*companyToValidate).Id == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "id cannot be blank",
@@ -249,7 +248,7 @@ func (mrh *mongoRecordHandler) Validate(request *company.ValidateRequest, respon
 	}
 
 	if (*companyToValidate).Name == "" {
-		reasonsInvalid = append(reasonsInvalid, validate.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -257,6 +256,19 @@ func (mrh *mongoRecordHandler) Validate(request *company.ValidateRequest, respon
 		})
 	}
 
-	response.ReasonsInvalid = reasonsInvalid
+	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+
+	switch request.IgnoreReasonsMethod {
+	case "Create":
+		for _, reason := range allReasonsInvalid {
+			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+	default:
+		returnedReasonsInvalid = allReasonsInvalid
+	}
+
+	response.ReasonsInvalid = returnedReasonsInvalid
 	return nil
 }

@@ -1,9 +1,7 @@
-package validate
-
-import "gitlab.com/iotTracker/brain/validate/reasonInvalid"
+package reasonInvalid
 
 type IgnoredReasonsInvalid struct {
-	ReasonsInvalid map[string][]reasonInvalid.Type
+	ReasonsInvalid map[string][]Type
 }
 
 func (i IgnoredReasonsInvalid) CanIgnore(reason ReasonInvalid) bool {

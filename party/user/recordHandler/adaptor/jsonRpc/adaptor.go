@@ -3,7 +3,7 @@ package user
 import (
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search"
-	"gitlab.com/iotTracker/brain/validate"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 
@@ -131,7 +131,7 @@ type ValidateRequest struct {
 }
 
 type ValidateResponse struct {
-	ReasonsInvalid []validate.ReasonInvalid `json:"reasonsInvalid"`
+	ReasonsInvalid []reasonInvalid.ReasonInvalid `json:"reasonsInvalid"`
 }
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {

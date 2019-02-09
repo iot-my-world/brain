@@ -2,7 +2,7 @@ package company
 
 import (
 	"gitlab.com/iotTracker/brain/search"
-	"gitlab.com/iotTracker/brain/validate"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type RecordHandler interface {
@@ -14,11 +14,12 @@ type RecordHandler interface {
 }
 
 type ValidateRequest struct {
-	Company Company
+	Company             Company
+	IgnoreReasonsMethod string
 }
 
 type ValidateResponse struct {
-	ReasonsInvalid []validate.ReasonInvalid
+	ReasonsInvalid []reasonInvalid.ReasonInvalid
 }
 
 type CreateRequest struct {
