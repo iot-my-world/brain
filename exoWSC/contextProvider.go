@@ -1,20 +1,20 @@
 package exoWSC
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"time"
-	"net/url"
-	"errors"
 	"gitlab.com/iotTracker/brain/log"
-	"encoding/json"
+	"net/url"
+	"time"
 )
 
 func NewContextProvider(
-		Host string,
-		Port string,
-		Path string,
-	) (*ContextProvider) {
+	Host string,
+	Port string,
+	Path string,
+) *ContextProvider {
 
 	// Create New Websocket ContextProvider
 	return &ContextProvider{
@@ -29,15 +29,15 @@ type ContextProvider struct {
 	// The websocket ContextProvider
 	Conn *websocket.Conn
 	// Buffered channel of outbound messages
-	Send chan []byte
-	Host string
-	Port string
-	Path string
+	Send  chan []byte
+	Host  string
+	Port  string
+	Path  string
 	Close chan bool
 }
 
 func (cp *ContextProvider) Run() error {
-	
+
 	// Build websocket url
 	wsUrl := url.URL{Scheme: "ws", Host: cp.Host + ":" + cp.Port, Path: cp.Path}
 
@@ -60,14 +60,14 @@ func (cp *ContextProvider) Run() error {
 		return nil
 	})
 
-	go func () {
+	go func() {
 		//fmt.Println("Start rx")
 		err := cp.StartRX()
 		fmt.Println("StartRX error ", err)
 		cp.Close <- true
 	}()
 
-	go func () {
+	go func() {
 		//fmt.Println("start tx")
 		err := cp.StartTX()
 		fmt.Println("StartTX error ", err)
@@ -76,7 +76,7 @@ func (cp *ContextProvider) Run() error {
 
 	for {
 		select {
-		case <- cp.Close:
+		case <-cp.Close:
 			fmt.Println("websocket closing...")
 			return errors.New("some good reason for closing...")
 		}
@@ -110,7 +110,7 @@ func (cp *ContextProvider) StartTX() error {
 
 	for {
 		select {
-		case message, ok := <- cp.Send:
+		case message, ok := <-cp.Send:
 			if ok {
 				cp.Conn.SetWriteDeadline(time.Now().Add(WriteWait))
 				fmt.Println("Need to send message!", message)

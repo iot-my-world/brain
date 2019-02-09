@@ -10,7 +10,7 @@ func (e InitialSetup) Error() string {
 	return "initial role setup error: " + strings.Join(e.Reasons, "; ")
 }
 
-type NotFound struct {}
+type NotFound struct{}
 
 func (e NotFound) Error() string {
 	return "role not found"

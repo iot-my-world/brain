@@ -1,11 +1,11 @@
 package user
 
 import (
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party"
+	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/party"
 )
 
 type newUser struct {

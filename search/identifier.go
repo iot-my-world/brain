@@ -1,11 +1,11 @@
 package search
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"encoding/json"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	searchException "gitlab.com/iotTracker/brain/search/exception"
 	universalException "gitlab.com/iotTracker/brain/exception"
+	searchException "gitlab.com/iotTracker/brain/search/exception"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
 )
 
 type WrappedIdentifier struct {

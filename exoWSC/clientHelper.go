@@ -1,22 +1,22 @@
 package exoWSC
 
 import (
-	"github.com/gorilla/websocket"
-	"time"
-	"gitlab.com/iotTracker/brain/log"
 	"encoding/json"
+	"github.com/gorilla/websocket"
 	"gitlab.com/iotTracker/brain/exoWSC/message"
+	"gitlab.com/iotTracker/brain/log"
+	"time"
 )
 
 func NewClientHelper(
 	Conn *websocket.Conn,
 	Hub *Hub,
-	) *clientHelper {
+) *clientHelper {
 
 	return &clientHelper{
-		Conn: Conn,
+		Conn:      Conn,
 		MsgToSend: make(chan Message),
-		Hub: Hub,
+		Hub:       Hub,
 	}
 }
 
@@ -30,20 +30,19 @@ type clientHelper struct {
 }
 
 func (c *clientHelper) Send(message Message) error {
-	sendTimeOutTicker := time.NewTicker(2 *time.Second)
-	defer func () {
+	sendTimeOutTicker := time.NewTicker(2 * time.Second)
+	defer func() {
 		sendTimeOutTicker.Stop()
 	}()
 
 	select {
 	case c.MsgToSend <- message:
-	case <- sendTimeOutTicker.C:
+	case <-sendTimeOutTicker.C:
 		log.Error("Time out on waiting to get message into Client Helper's MsgToSend Channel. Msg: ", message)
 	}
 
 	return nil
 }
-
 
 func (c *clientHelper) HandleRX() {
 	defer func() {
@@ -71,7 +70,7 @@ func (c *clientHelper) HandleRX() {
 	messageData := string(messageByteData[:])
 
 	welcomeMessage := Message{
-		Type: message.WelcomeMessage,
+		Type:       message.WelcomeMessage,
 		SerialData: messageData,
 	}
 
@@ -136,4 +135,3 @@ func (c *clientHelper) HandleTX() {
 		}
 	}
 }
-

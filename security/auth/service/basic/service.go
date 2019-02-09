@@ -1,18 +1,18 @@
 package auth
 
 import (
-	"gitlab.com/iotTracker/brain/party/user"
-	"golang.org/x/crypto/bcrypt"
 	"crypto/rsa"
-	"fmt"
-	"gitlab.com/iotTracker/brain/security/token"
-	"gitlab.com/iotTracker/brain/security/claims"
 	"errors"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"fmt"
+	"gitlab.com/iotTracker/brain/party/user"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/auth"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/security/token"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 

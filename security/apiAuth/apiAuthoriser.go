@@ -1,11 +1,10 @@
 package apiAuth
 
 import (
-	"gitlab.com/iotTracker/brain/security/token"
-	"gitlab.com/iotTracker/brain/security"
-	"gitlab.com/iotTracker/brain/security/permission"
 	globalException "gitlab.com/iotTracker/brain/exception"
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
+	"gitlab.com/iotTracker/brain/security/permission"
+	"gitlab.com/iotTracker/brain/security/token"
 )
 
 type APIAuthorizer struct {
@@ -25,14 +24,13 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error 
 	userHasPermissionResponse := permission.UserHasPermissionResponse{}
 	if err := a.PermissionHandler.UserHasPermission(&permission.UserHasPermissionRequest{
 		UserIdentifier: jwtClaims.UserId,
-		Permission:     security.Permission(jsonRpcMethod),
-	}, &userHasPermissionResponse);
-		err != nil {
+		Permission:     permission.Permission(jsonRpcMethod),
+	}, &userHasPermissionResponse); err != nil {
 		return globalException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
 	}
 
 	if !userHasPermissionResponse.Result {
-		return apiAuthException.NotAuthorised{Permission: security.Permission(jsonRpcMethod)}
+		return apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
 	}
 
 	return nil

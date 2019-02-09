@@ -1,22 +1,22 @@
 package role
 
 import (
-	"gitlab.com/iotTracker/brain/security"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/security/permission"
+	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 )
 
-var initialRoles = func() []security.Role {
+var initialRoles = func() []Role {
 
 	// Register roles here
-	allRoles := []security.Role{
+	allRoles := []Role{
 		owner,
 		admin,
 	}
 
 	//Register additional root permissions here
-	rootPermissions := []security.Permission{
+	rootPermissions := []permission.Permission{
 		"Role.Create",
 		"Role.Retrieve",
 		"Role.Update",
@@ -27,26 +27,25 @@ var initialRoles = func() []security.Role {
 	for _, role := range allRoles {
 		rootPermissions = append(rootPermissions, role.Permissions...)
 	}
-	root := security.Role{
+	root := Role{
 		Name:        "root",
 		Permissions: rootPermissions,
 	}
-	return append([]security.Role{root}, allRoles...)
+	return append([]Role{root}, allRoles...)
 }()
 
 // Create Roles here
 
-var owner = security.Role{
+var owner = Role{
 	Name: "client",
-	Permissions: []security.Permission{
+	Permissions: []permission.Permission{
 		"User.Retrieve",
 	},
 }
 
-var admin = security.Role{
-	Name: "admin",
-	Permissions: []security.Permission{
-	},
+var admin = Role{
+	Name:        "admin",
+	Permissions: []permission.Permission{},
 }
 
 func InitialSetup(handler RecordHandler) error {

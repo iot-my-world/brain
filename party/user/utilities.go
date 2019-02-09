@@ -1,8 +1,8 @@
 package user
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 func IsValidIdentifier(id search.Identifier) bool {

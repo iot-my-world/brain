@@ -1,12 +1,12 @@
 package exception
 
 import (
-	"gitlab.com/iotTracker/brain/security"
 	"fmt"
+	"gitlab.com/iotTracker/brain/security/permission"
 )
 
 type NotAuthorised struct {
-	Permission security.Permission
+	Permission permission.Permission
 }
 
 func (e NotAuthorised) Error() string {

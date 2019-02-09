@@ -1,14 +1,13 @@
 package basic
 
 import (
-	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/security/role"
 	"fmt"
 	globalException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/security"
+	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
-	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	"gitlab.com/iotTracker/brain/security/permission"
+	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
+	"gitlab.com/iotTracker/brain/security/role"
 )
 
 type handler struct {
@@ -55,8 +54,7 @@ func (bh *handler) UserHasPermission(request *permission.UserHasPermissionReques
 
 	// retrieve all of the users permissions
 	getAllUsersPermissionsResponse := permission.GetAllUsersPermissionsResponse{}
-	if err := bh.GetAllUsersPermissions(&permission.GetAllUsersPermissionsRequest{}, &getAllUsersPermissionsResponse);
-		err != nil {
+	if err := bh.GetAllUsersPermissions(&permission.GetAllUsersPermissionsRequest{}, &getAllUsersPermissionsResponse); err != nil {
 		return permissionException.GetAllPermissions{Reasons: []string{err.Error()}}
 	}
 
@@ -99,19 +97,17 @@ func (bh *handler) GetAllUsersPermissions(request *permission.GetAllUsersPermiss
 
 	// try and retrieve the user
 	userRetrieveResponse := user.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&user.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse);
-		err != nil {
+	if err := bh.userRecordHandler.Retrieve(&user.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
 		return err
 	}
 
-	usersPermissions := make([]security.Permission, 0)
+	usersPermissions := make([]permission.Permission, 0)
 
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
 		roleRetrieveResponse := role.RetrieveResponse{}
-		if err := bh.roleRecordHandler.Retrieve(&role.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse);
-			err != nil {
+		if err := bh.roleRecordHandler.Retrieve(&role.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
 			return err
 		}
 		// add all of the permissions of the role

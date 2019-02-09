@@ -12,4 +12,3 @@ const (
 	// Maximum message size allowed from peer.
 	MaxMessageSize = 4096
 )
-

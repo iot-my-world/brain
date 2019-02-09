@@ -1,10 +1,10 @@
 package clientHelper
 
 import (
-	"net/http"
 	"github.com/gorilla/websocket"
-	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/exoWSC"
+	"gitlab.com/iotTracker/brain/log"
+	"net/http"
 )
 
 // serveWs handles websocket requests from the peer.
@@ -30,7 +30,6 @@ func ServeWs(w http.ResponseWriter, r *http.Request, hub *exoWSC.Hub) {
 	log.Info("Registering Client With Hub")
 	// Register ClientHelper with hub
 	hub.Register <- newClientHelper
-
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines

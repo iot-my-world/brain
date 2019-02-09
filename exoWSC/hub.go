@@ -1,41 +1,41 @@
 package exoWSC
 
 import (
-	"gitlab.com/iotTracker/brain/log"
 	"encoding/json"
-	"gitlab.com/iotTracker/brain/exoWSC/message"
 	"fmt"
+	"gitlab.com/iotTracker/brain/exoWSC/message"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 type Hub struct {
-/*
-A central hub will receive all incoming messages and broadcast them
-to all registered "Subscriber"s
-(i.e. the Subscriber structures in the clients map)
-*/
-	Clients          map[Subscriber]bool
-	Broadcast        chan Message
-	Register         chan Subscriber
-	Unregister       chan Subscriber
-	content          Message
+	/*
+	   A central hub will receive all incoming messages and broadcast them
+	   to all registered "Subscriber"s
+	   (i.e. the Subscriber structures in the clients map)
+	*/
+	Clients    map[Subscriber]bool
+	Broadcast  chan Message
+	Register   chan Subscriber
+	Unregister chan Subscriber
+	content    Message
 }
 
-func NewHub () *Hub {
+func NewHub() *Hub {
 	return &Hub{
-		Broadcast:        make(chan Message),
-		Register:         make(chan Subscriber),
-		Unregister:       make(chan Subscriber),
-		Clients:          make(map[Subscriber]bool),
+		Broadcast:  make(chan Message),
+		Register:   make(chan Subscriber),
+		Unregister: make(chan Subscriber),
+		Clients:    make(map[Subscriber]bool),
 	}
 }
 
 func (h *Hub) Run() {
-/*
-Channels are like FIFO Stacks
-A Subscriber will store a message in one of the 3 channels
-A go routine will unstack them as soon as possible by arrival
-time.
-*/
+	/*
+	   Channels are like FIFO Stacks
+	   A Subscriber will store a message in one of the 3 channels
+	   A go routine will unstack them as soon as possible by arrival
+	   time.
+	*/
 	log.Info("Starting websocket connection hub")
 	for {
 		select {
@@ -55,7 +55,7 @@ time.
 			messageData := string(messageByteData[:])
 
 			welcomeMessage := Message{
-				Type: message.WelcomeMessage,
+				Type:       message.WelcomeMessage,
 				SerialData: messageData,
 			}
 			if err == nil {

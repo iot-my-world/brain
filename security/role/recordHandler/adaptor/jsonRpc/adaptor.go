@@ -1,11 +1,11 @@
 package role
 
 import (
-	"net/http"
 	"gitlab.com/iotTracker/brain/security/role"
+	"net/http"
 )
 
-type adaptor struct{
+type adaptor struct {
 	role.RecordHandler
 }
 

@@ -1,8 +1,8 @@
 package username
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"errors"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 const TYPE = identifier.Username

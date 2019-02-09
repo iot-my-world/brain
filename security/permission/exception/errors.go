@@ -7,5 +7,5 @@ type GetAllPermissions struct {
 }
 
 func (e GetAllPermissions) Error() string {
-	return "error getting all users permissions: " + strings.Join(e.Reasons,  "; ")
+	return "error getting all users permissions: " + strings.Join(e.Reasons, "; ")
 }

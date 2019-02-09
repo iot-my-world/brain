@@ -1,10 +1,10 @@
 package client
 
 import (
-	"net/http"
 	"gitlab.com/iotTracker/brain/party/client"
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate"
+	"net/http"
 )
 
 type adaptor struct {
@@ -32,8 +32,7 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		&client.CreateRequest{
 			Client: request.Client,
 		},
-		&createClientResponse);
-		err != nil {
+		&createClientResponse); err != nil {
 		return err
 	}
 
@@ -61,8 +60,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		&client.RetrieveRequest{
 			Identifier: id,
 		},
-		&retrieveClientResponse);
-		err != nil {
+		&retrieveClientResponse); err != nil {
 		return err
 	}
 
@@ -73,7 +71,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 
 type UpdateRequest struct {
 	Identifier search.WrappedIdentifier `json:"identifier"`
-	Client       client.Client                `json:"client"`
+	Client     client.Client            `json:"client"`
 }
 
 type UpdateResponse struct {
@@ -91,8 +89,7 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		&client.UpdateRequest{
 			Identifier: id,
 		},
-		&updateClientResponse);
-		err != nil {
+		&updateClientResponse); err != nil {
 		return err
 	}
 
@@ -120,8 +117,7 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		&client.DeleteRequest{
 			Identifier: id,
 		},
-		&deleteClientResponse);
-		err != nil {
+		&deleteClientResponse); err != nil {
 		return err
 	}
 
@@ -145,8 +141,7 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		&client.ValidateRequest{
 			Client: request.Client,
 		},
-		&validateClientResponse);
-		err != nil {
+		&validateClientResponse); err != nil {
 		return err
 	}
 

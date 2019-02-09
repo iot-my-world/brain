@@ -39,7 +39,7 @@ type DeleteResponse struct {
 
 type UpdateRequest struct {
 	Identifier search.Identifier
-	Client    Client
+	Client     Client
 }
 
 type UpdateResponse struct {

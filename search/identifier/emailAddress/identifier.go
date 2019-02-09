@@ -1,8 +1,8 @@
 package emailAddress
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"errors"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 const TYPE = identifier.EmailAddress

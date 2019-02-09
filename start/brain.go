@@ -1,54 +1,54 @@
 package main
 
 import (
-	"github.com/gorilla/rpc"
-	"gitlab.com/iotTracker/brain/cors"
-	gorillaJson "github.com/gorilla/rpc/json"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/rpc"
+	gorillaJson "github.com/gorilla/rpc/json"
+	"gitlab.com/iotTracker/brain/cors"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/security/apiAuth"
+	"gitlab.com/iotTracker/brain/security/encrypt"
+	"gitlab.com/iotTracker/brain/security/token"
+	"gopkg.in/mgo.v2"
 	"net/http"
-	"runtime/debug"
 	"os"
 	"os/signal"
-	"gopkg.in/mgo.v2"
+	"runtime/debug"
 	"time"
-	"gitlab.com/iotTracker/brain/security/encrypt"
-	"gitlab.com/iotTracker/brain/security/apiAuth"
-	"gitlab.com/iotTracker/brain/security/token"
 
-	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
 
-	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
 	permissionServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/handler/adaptor/jsonRpc"
+	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
 
-	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
+	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
-	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
+	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 
-	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
+	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
 
-	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
+	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 )
 
 var ServerPort = "9010"
 
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
-func main(){
+func main() {
 
 	// Connect to database
 	databaseName := "brain"
 	dialInfo := mgo.DialInfo{
-		Addrs: []string{"localhost:27017"},
+		Addrs:    []string{"localhost:27017"},
 		Username: "",
 		Password: "",
-		Timeout: 10*time.Second,
-		Source: "admin",
+		Timeout:  10 * time.Second,
+		Source:   "admin",
 		Database: databaseName,
 	}
 	mainMongoSession, err := mgo.DialWithInfo(&dialInfo)
@@ -69,7 +69,6 @@ func main(){
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
-
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
@@ -94,10 +93,10 @@ func main(){
 	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
-	if err:= secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
+	if err := secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
-	if err:= secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
+	if err := secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
 	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
@@ -114,7 +113,7 @@ func main(){
 	// Start secureAPIServer
 	log.Info("Starting secureAPIServer on port " + ServerPort)
 	go func() {
-		err := http.ListenAndServe("0.0.0.0:" + ServerPort, secureAPIServerMux)
+		err := http.ListenAndServe("0.0.0.0:"+ServerPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()
@@ -124,7 +123,7 @@ func main(){
 	signal.Notify(systemSignalsChannel)
 	for {
 		select {
-		case s := <- systemSignalsChannel:
+		case s := <-systemSignalsChannel:
 			log.Info("Application is shutting down.. ( ", s, " )")
 			return
 		}

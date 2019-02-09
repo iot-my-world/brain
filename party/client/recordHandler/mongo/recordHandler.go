@@ -1,15 +1,15 @@
 package mongo
 
 import (
-	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/log"
-	"gopkg.in/mgo.v2/bson"
-	globalException "gitlab.com/iotTracker/brain/exception"
-	clientException "gitlab.com/iotTracker/brain/party/client/exception"
 	"fmt"
+	globalException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party/client"
+	clientException "gitlab.com/iotTracker/brain/party/client/exception"
 	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	"gitlab.com/iotTracker/brain/party/client"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {

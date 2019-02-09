@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"net/http"
 	"fmt"
 	"gitlab.com/iotTracker/brain/security/auth"
+	"net/http"
 )
 
 type adaptor struct {

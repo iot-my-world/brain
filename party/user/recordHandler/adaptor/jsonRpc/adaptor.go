@@ -1,10 +1,10 @@
 package user
 
 import (
-	"net/http"
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate"
+	"net/http"
 )
 
 type adaptor struct {
@@ -32,8 +32,7 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		&user.CreateRequest{
 			User: request.User,
 		},
-		&createUserResponse);
-		err != nil {
+		&createUserResponse); err != nil {
 		return err
 	}
 
@@ -61,8 +60,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		&user.RetrieveRequest{
 			Identifier: id,
 		},
-		&retrieveUserResponse);
-		err != nil {
+		&retrieveUserResponse); err != nil {
 		return err
 	}
 
@@ -91,8 +89,7 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		&user.UpdateRequest{
 			Identifier: id,
 		},
-		&updateUserResponse);
-		err != nil {
+		&updateUserResponse); err != nil {
 		return err
 	}
 
@@ -120,8 +117,7 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		&user.DeleteRequest{
 			Identifier: id,
 		},
-		&deleteUserResponse);
-		err != nil {
+		&deleteUserResponse); err != nil {
 		return err
 	}
 
@@ -145,8 +141,7 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		&user.ValidateRequest{
 			User: request.User,
 		},
-		&validateUserResponse);
-		err != nil {
+		&validateUserResponse); err != nil {
 		return err
 	}
 

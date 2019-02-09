@@ -1,14 +1,13 @@
-package role
+package mongo
 
 import (
-	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/log"
-	"gopkg.in/mgo.v2/bson"
 	"fmt"
 	globalException "gitlab.com/iotTracker/brain/exception"
-	roleException "gitlab.com/iotTracker/brain/security/role/exception"
-	"gitlab.com/iotTracker/brain/security"
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/role"
+	roleException "gitlab.com/iotTracker/brain/security/role/exception"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type recordHandler struct {
@@ -105,7 +104,7 @@ func (mrh *recordHandler) Retrieve(request *role.RetrieveRequest, response *role
 
 	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	var roleRecord security.Role
+	var roleRecord role.Role
 
 	if err := userCollection.Find(request.Identifier.ToFilter()).One(&roleRecord); err != nil {
 		if err == mgo.ErrNotFound {

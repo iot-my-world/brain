@@ -1,14 +1,14 @@
 package encrypt
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
-	"os"
-	"gitlab.com/iotTracker/brain/log"
-	"io/ioutil"
+	"crypto/x509"
 	"encoding/pem"
 	"github.com/go-errors/errors"
-	"crypto/x509"
-	"crypto/rand"
+	"gitlab.com/iotTracker/brain/log"
+	"io/ioutil"
+	"os"
 )
 
 func FetchPrivateKey(dir string) *rsa.PrivateKey {
@@ -18,7 +18,7 @@ func FetchPrivateKey(dir string) *rsa.PrivateKey {
 
 	pvtKey, err := fetchRSAPrivateKeyFromFile(privateKeyFilePath)
 	if err != nil {
-		if os.IsNotExist(err){
+		if os.IsNotExist(err) {
 			log.Info("Private Key not found at: '" + privateKeyFilePath + "' Generating a new Key Pair.")
 			pvtKey, err = generateRSAKeyPair(privateKeyBitCount)
 			if err = saveRSAPrivateKeyToFile(privateKeyFilePath, pvtKey); err != nil {
@@ -37,7 +37,7 @@ func FetchPrivateKey(dir string) *rsa.PrivateKey {
 	return pvtKey
 }
 
-func generateRSAKeyPair(privateKeyBitCount int)(*rsa.PrivateKey, error){
+func generateRSAKeyPair(privateKeyBitCount int) (*rsa.PrivateKey, error) {
 	pvtKey, err := rsa.GenerateKey(rand.Reader, privateKeyBitCount)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func saveRSAPrivateKeyToFile(privateKeyFilePath string, privateKey *rsa.PrivateK
 	}
 
 	var privateKeyBlock = &pem.Block{
-		Type: "RSA PRIVATE KEY",
+		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
 	}
 
@@ -73,14 +73,14 @@ func saveRSAPublicKeyToFile(publicKeyFilePath string, publicKey *rsa.PublicKey) 
 	}
 
 	var publicKeyBlock = &pem.Block{
-		Type: "RSA PUBLIC KEY",
+		Type:  "RSA PUBLIC KEY",
 		Bytes: publicKeyByteData,
 	}
 
 	return pem.Encode(outputFile, publicKeyBlock)
 }
 
-func fetchRSAPrivateKeyFromFile(privateKeyFilePath string)(*rsa.PrivateKey, error) {
+func fetchRSAPrivateKeyFromFile(privateKeyFilePath string) (*rsa.PrivateKey, error) {
 	//Check that file exists and is readable
 	if _, err := os.Stat(privateKeyFilePath); err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func fetchRSAPrivateKeyFromFile(privateKeyFilePath string)(*rsa.PrivateKey, erro
 	return parseRSAPrivateKeyFromString(string(fileBytes))
 }
 
-func fetchRSAPublicKeyFromFile(publicKeyFilePath string)(*rsa.PublicKey, error){
+func fetchRSAPublicKeyFromFile(publicKeyFilePath string) (*rsa.PublicKey, error) {
 	//Check that the file exists and is readable
 	if _, err := os.Stat(publicKeyFilePath); err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func fetchRSAPublicKeyFromFile(publicKeyFilePath string)(*rsa.PublicKey, error){
 	return parseRSAPublicKeyFromString(string(filebytes))
 }
 
-func parseRSAPrivateKeyFromString(rsaPrivateKeyString string)(*rsa.PrivateKey, error) {
+func parseRSAPrivateKeyFromString(rsaPrivateKeyString string) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode([]byte(rsaPrivateKeyString))
 	if block == nil {
 		return nil, errors.New("Failed to parse private key string!")
@@ -126,7 +126,7 @@ func parseRSAPrivateKeyFromString(rsaPrivateKeyString string)(*rsa.PrivateKey, e
 	return pvtKey, nil
 }
 
-func parseRSAPublicKeyFromString(rsaPublicKeyString string)(*rsa.PublicKey, error)  {
+func parseRSAPublicKeyFromString(rsaPublicKeyString string) (*rsa.PublicKey, error) {
 	block, _ := pem.Decode([]byte(rsaPublicKeyString))
 	if block == nil {
 		return nil, errors.New("Failed to parse public key string!")

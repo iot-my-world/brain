@@ -1,16 +1,16 @@
 package mongo
 
 import (
-	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/log"
-	"gopkg.in/mgo.v2/bson"
-	globalException "gitlab.com/iotTracker/brain/exception"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"fmt"
+	globalException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party/user"
+	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
-	"gitlab.com/iotTracker/brain/party/user"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {
@@ -348,8 +348,7 @@ func (mrh *mongoRecordHandler) ChangePassword(request *user.ChangePasswordReques
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
 	updateUserResponse := user.UpdateResponse{}
-	if err := mrh.Update(&user.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse);
-		err != nil {
+	if err := mrh.Update(&user.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse); err != nil {
 		return userException.ChangePassword{Reasons: []string{"updating user", err.Error()}}
 	}
 

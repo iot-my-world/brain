@@ -1,18 +1,18 @@
 package client
 
 import (
-	"github.com/gorilla/websocket"
-	"net/url"
 	"bitbucket.org/gopiwsclient/log"
-	"fmt"
 	"errors"
+	"fmt"
+	"github.com/gorilla/websocket"
 	"gitlab.com/iotTracker/brain/exoWSC"
+	"net/url"
 	"time"
 )
 
 func NewConnection(
 	Host, Port, Path string,
-	) *Connection {
+) *Connection {
 	return &Connection{
 		Host: Host,
 		Port: Port,
@@ -25,15 +25,15 @@ type Connection struct {
 	// The websocket Connection
 	Conn *websocket.Conn
 	// Buffered channel of outbound messages
-	Send chan []byte
-	Host string
-	Port string
-	Path string
-	Close chan bool
+	Send      chan []byte
+	Host      string
+	Port      string
+	Path      string
+	Close     chan bool
 	MessageRx chan []byte
 }
 
-func (c * Connection) Connect() error {
+func (c *Connection) Connect() error {
 	// Build websocket url
 	wsUrl := url.URL{Scheme: "ws", Host: c.Host + ":" + c.Port, Path: c.Path}
 
@@ -56,14 +56,14 @@ func (c * Connection) Connect() error {
 		return nil
 	})
 
-	go func () {
+	go func() {
 		//fmt.Println("Start rx")
 		err := c.StartRX()
 		fmt.Println("StartRX error ", err)
 		c.Close <- true
 	}()
 
-	go func () {
+	go func() {
 		//fmt.Println("start tx")
 		err := c.StartTX()
 		fmt.Println("StartTX error ", err)
@@ -72,9 +72,9 @@ func (c * Connection) Connect() error {
 
 	for {
 		select {
-		case <- c.Close:
+		case <-c.Close:
 			fmt.Println("websocket closing...")
-		return errors.New("some good reason for closing...")
+			return errors.New("some good reason for closing...")
 		}
 	}
 }
@@ -99,7 +99,7 @@ func (c *Connection) StartTX() error {
 
 	for {
 		select {
-		case message, ok := <- c.Send:
+		case message, ok := <-c.Send:
 			if ok {
 				c.Conn.SetWriteDeadline(time.Now().Add(exoWSC.WriteWait))
 				//fmt.Println("Need to send message!", message)

@@ -2,22 +2,21 @@ package token
 
 import (
 	"crypto/rsa"
+	"encoding/json"
+	"errors"
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gopkg.in/square/go-jose.v2"
-	"gitlab.com/iotTracker/brain/log"
-	"encoding/json"
 	"time"
-	"errors"
 )
 
 type JWTValidator struct {
 	rsaPublicKey *rsa.PublicKey
 }
 
-func NewJWTValidator (rsaPublicKey *rsa.PublicKey) JWTValidator {
+func NewJWTValidator(rsaPublicKey *rsa.PublicKey) JWTValidator {
 	return JWTValidator{rsaPublicKey: rsaPublicKey}
 }
-
 
 func (jwtv *JWTValidator) ValidateJWT(jwt string) (*claims.Claims, error) {
 	// Parse the jwt. Successful parse means the content of authorisation header was jwt
