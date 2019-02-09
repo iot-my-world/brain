@@ -256,6 +256,15 @@ func (mrh *mongoRecordHandler) Validate(request *company.ValidateRequest, respon
 		})
 	}
 
+	if (*companyToValidate).AdminEmail == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "adminEmail",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*companyToValidate).AdminEmail,
+		})
+	}
+
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
 	switch request.IgnoreReasonsMethod {
