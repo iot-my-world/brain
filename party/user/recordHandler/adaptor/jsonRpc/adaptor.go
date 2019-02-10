@@ -5,13 +5,14 @@ import (
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 )
 
 type adaptor struct {
-	RecordHandler user.RecordHandler
+	RecordHandler userRecordHandler.RecordHandler
 }
 
-func New(recordHandler user.RecordHandler) *adaptor {
+func New(recordHandler userRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -26,10 +27,10 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	createUserResponse := user.CreateResponse{}
+	createUserResponse := userRecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
-		&user.CreateRequest{
+		&userRecordHandler.CreateRequest{
 			User: request.User,
 		},
 		&createUserResponse); err != nil {
@@ -55,9 +56,9 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveUserResponse := user.RetrieveResponse{}
+	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
-		&user.RetrieveRequest{
+		&userRecordHandler.RetrieveRequest{
 			Identifier: id,
 		},
 		&retrieveUserResponse); err != nil {
@@ -84,9 +85,9 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		return err
 	}
 
-	updateUserResponse := user.UpdateResponse{}
+	updateUserResponse := userRecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
-		&user.UpdateRequest{
+		&userRecordHandler.UpdateRequest{
 			Identifier: id,
 		},
 		&updateUserResponse); err != nil {
@@ -112,9 +113,9 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		return err
 	}
 
-	deleteUserResponse := user.DeleteResponse{}
+	deleteUserResponse := userRecordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
-		&user.DeleteRequest{
+		&userRecordHandler.DeleteRequest{
 			Identifier: id,
 		},
 		&deleteUserResponse); err != nil {
@@ -136,9 +137,9 @@ type ValidateResponse struct {
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 
-	validateUserResponse := user.ValidateResponse{}
+	validateUserResponse := userRecordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
-		&user.ValidateRequest{
+		&userRecordHandler.ValidateRequest{
 			User: request.User,
 		},
 		&validateUserResponse); err != nil {

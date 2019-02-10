@@ -8,15 +8,16 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	"gitlab.com/iotTracker/brain/security/role"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 )
 
 type handler struct {
-	userRecordHandler user.RecordHandler
+	userRecordHandler userRecordHandler.RecordHandler
 	roleRecordHandler role.RecordHandler
 }
 
 func New(
-	userRecordHandler user.RecordHandler,
+	userRecordHandler userRecordHandler.RecordHandler,
 	roleRecordHandler role.RecordHandler,
 ) *handler {
 	return &handler{
@@ -99,8 +100,8 @@ func (bh *handler) GetAllUsersPermissions(request *permission.GetAllUsersPermiss
 	}
 
 	// try and retrieve the user
-	userRetrieveResponse := user.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&user.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
 		return err
 	}
 

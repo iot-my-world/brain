@@ -1,8 +1,10 @@
-package user
+package recordHandler
 
 import (
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/api"
 )
 
 type RecordHandler interface {
@@ -14,8 +16,14 @@ type RecordHandler interface {
 	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
 }
 
+const Create api.Method = "Create"
+const Retrieve api.Method = "Retrieve"
+const Update api.Method = "Update"
+const Delete api.Method = "Delete"
+const Validate api.Method = "Validate"
+
 type ValidateRequest struct {
-	User User
+	User user.User
 }
 
 type ValidateResponse struct {
@@ -23,11 +31,11 @@ type ValidateResponse struct {
 }
 
 type CreateRequest struct {
-	User User
+	User user.User
 }
 
 type CreateResponse struct {
-	User User
+	User user.User
 }
 
 type DeleteRequest struct {
@@ -35,16 +43,16 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	User User
+	User user.User
 }
 
 type UpdateRequest struct {
 	Identifier search.Identifier
-	User       User
+	User       user.User
 }
 
 type UpdateResponse struct {
-	User User
+	User user.User
 }
 
 type RetrieveRequest struct {
@@ -52,7 +60,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	User User
+	User user.User
 }
 
 type ChangePasswordRequest struct {
@@ -61,5 +69,5 @@ type ChangePasswordRequest struct {
 }
 
 type ChangePasswordResponse struct {
-	User User
+	User user.User
 }

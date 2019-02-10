@@ -129,8 +129,8 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 }
 
 type ValidateRequest struct {
-	Company             company.Company `json:"company"`
-	IgnoreReasonsMethod api.Method      `json:"ignoreReasonsMethod"`
+	Company company.Company `json:"company"`
+	Method  api.Method      `json:"method"`
 }
 
 type ValidateResponse struct {
@@ -142,8 +142,8 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 	validateCompanyResponse := recordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
 		&recordHandler.ValidateRequest{
-			Company:             request.Company,
-			IgnoreReasonsMethod: request.IgnoreReasonsMethod,
+			Company: request.Company,
+			Method:  request.Method,
 		},
 		&validateCompanyResponse); err != nil {
 		return err

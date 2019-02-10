@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
-	"gitlab.com/iotTracker/brain/party/user"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -14,14 +13,15 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"golang.org/x/crypto/bcrypt"
 	"time"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 )
 
 type service struct {
-	userRecordHandler user.RecordHandler
+	userRecordHandler userRecordHandler.RecordHandler
 	jwtGenerator      token.JWTGenerator
 }
 
-func New(userRecordHandler user.RecordHandler, rsaPrivateKey *rsa.PrivateKey) *service {
+func New(userRecordHandler userRecordHandler.RecordHandler, rsaPrivateKey *rsa.PrivateKey) *service {
 	return &service{
 		userRecordHandler: userRecordHandler,
 		jwtGenerator:      token.NewJWTGenerator(rsaPrivateKey),
@@ -35,16 +35,16 @@ func (s *service) Logout(request *auth.LogoutRequest, response *auth.LogoutRespo
 
 func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse) error {
 
-	retrieveUserResponse := user.RetrieveResponse{}
+	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
 
 	//try and retrieve User record with username
-	if err := s.userRecordHandler.Retrieve(&user.RetrieveRequest{
+	if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
 	}, &retrieveUserResponse); err != nil {
 		switch err.(type) {
 		case userException.NotFound:
 			//try and retrieve User record with email address
-			if err := s.userRecordHandler.Retrieve(&user.RetrieveRequest{
+			if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 			}, &retrieveUserResponse); err != nil {
 				return errors.New("log in failed")

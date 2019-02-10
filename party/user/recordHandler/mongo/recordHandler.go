@@ -10,6 +10,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 )
 
 type mongoRecordHandler struct {
@@ -42,7 +44,7 @@ func New(
 		createIgnoredReasons: createIgnoredReasons,
 	}
 
-	if err := user.InitialSetup(&newUserMongoRecordHandler); err != nil {
+	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
 		log.Fatal("Unable to complete initial user setup!", err.Error())
 	}
 
@@ -83,13 +85,13 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *user.CreateRequest) error {
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// Validate the new user
-	userValidateResponse := user.ValidateResponse{}
+	userValidateResponse := userRecordHandler.ValidateResponse{}
 
-	err := mrh.Validate(&user.ValidateRequest{User: request.User}, &userValidateResponse)
+	err := mrh.Validate(&userRecordHandler.ValidateRequest{User: request.User}, &userValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newUser")
 	} else {
@@ -107,7 +109,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *user.CreateRequest
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *user.CreateRequest, response *user.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, response *userRecordHandler.CreateResponse) error {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -127,7 +129,7 @@ func (mrh *mongoRecordHandler) Create(request *user.CreateRequest, response *use
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *user.RetrieveRequest) error {
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -145,7 +147,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *user.RetrieveReq
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *user.RetrieveRequest, response *user.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveRequest, response *userRecordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -169,7 +171,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *user.RetrieveRequest, response 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *user.UpdateRequest) error {
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -179,7 +181,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *user.UpdateRequest
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *user.UpdateRequest, response *user.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, response *userRecordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -190,8 +192,8 @@ func (mrh *mongoRecordHandler) Update(request *user.UpdateRequest, response *use
 	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve User
-	retrieveUserResponse := user.RetrieveResponse{}
-	if err := mrh.Retrieve(&user.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
+	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
 		return userException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -215,7 +217,7 @@ func (mrh *mongoRecordHandler) Update(request *user.UpdateRequest, response *use
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *user.DeleteRequest) error {
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -233,7 +235,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *user.DeleteRequest
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *user.DeleteRequest, response *user.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *userRecordHandler.DeleteRequest, response *userRecordHandler.DeleteResponse) error {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -250,7 +252,7 @@ func (mrh *mongoRecordHandler) Delete(request *user.DeleteRequest, response *use
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *user.ValidateRequest) error {
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -260,7 +262,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *user.ValidateReq
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response *user.ValidateResponse) error {
+func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateRequest, response *userRecordHandler.ValidateResponse) error {
 	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}
@@ -317,7 +319,7 @@ func (mrh *mongoRecordHandler) Validate(request *user.ValidateRequest, response 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *user.ChangePasswordRequest) error {
+func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *userRecordHandler.ChangePasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -327,14 +329,14 @@ func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *user.Chang
 	}
 }
 
-func (mrh *mongoRecordHandler) ChangePassword(request *user.ChangePasswordRequest, response *user.ChangePasswordResponse) error {
+func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangePasswordRequest, response *userRecordHandler.ChangePasswordResponse) error {
 	if err := mrh.ValidateChangePasswordRequest(request); err != nil {
 		return err
 	}
 
 	// Retrieve User
-	retrieveUserResponse := user.RetrieveResponse{}
-	if err := mrh.Retrieve(&user.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
+	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
 		return userException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -346,8 +348,8 @@ func (mrh *mongoRecordHandler) ChangePassword(request *user.ChangePasswordReques
 
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
-	updateUserResponse := user.UpdateResponse{}
-	if err := mrh.Update(&user.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse); err != nil {
+	updateUserResponse := userRecordHandler.UpdateResponse{}
+	if err := mrh.Update(&userRecordHandler.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse); err != nil {
 		return userException.ChangePassword{Reasons: []string{"updating user", err.Error()}}
 	}
 

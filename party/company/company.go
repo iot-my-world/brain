@@ -6,5 +6,5 @@ type Company struct {
 	// The email address which will be used to invite the admin
 	// user of the company
 	// I.e. the first user of the system from the company
-	AdminEmail string `json:"adminEmail" bson:"adminEmail"`
+	AdminEmailAddress string `json:"adminEmailAddress" bson:"adminEmailAddress"`
 }

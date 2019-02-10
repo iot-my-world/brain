@@ -22,8 +22,8 @@ const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
 
 type ValidateRequest struct {
-	Company             company.Company
-	IgnoreReasonsMethod api.Method
+	Company company.Company
+	Method  api.Method
 }
 
 type ValidateResponse struct {

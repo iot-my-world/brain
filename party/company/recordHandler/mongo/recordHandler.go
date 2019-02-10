@@ -10,6 +10,7 @@ import (
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 )
 
 type mongoRecordHandler struct {
@@ -59,6 +60,16 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	if err := companyCollection.EnsureIndex(idUnique); err != nil {
 		log.Fatal("Could not ensure id uniqueness: ", err)
 	}
+
+	// Ensure admin email uniqueness
+	adminEmailUnique := mgo.Index{
+		Key:    []string{"adminEmail"},
+		Unique: true,
+	}
+	if err := companyCollection.EnsureIndex(adminEmailUnique); err != nil {
+		log.Fatal("Could not ensure admin email uniqueness: ", err)
+	}
+
 }
 
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *recordHandler.CreateRequest) error {
@@ -67,8 +78,11 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *recordHandler.Crea
 	// Validate the new company
 	companyValidateResponse := recordHandler.ValidateResponse{}
 
-	err := mrh.Validate(&recordHandler.ValidateRequest{Company: request.Company}, &companyValidateResponse)
-	if err != nil {
+	if err := mrh.Validate(&recordHandler.ValidateRequest{
+		Company: request.Company,
+		Method:  recordHandler.Create},
+		&companyValidateResponse);
+		err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
 	} else {
 		for _, reason := range companyValidateResponse.ReasonsInvalid {
@@ -135,7 +149,9 @@ func (mrh *mongoRecordHandler) Retrieve(request *recordHandler.RetrieveRequest, 
 
 	var companyRecord company.Company
 
-	if err := companyCollection.Find(request.Identifier.ToFilter()).One(&companyRecord); err != nil {
+	filter := request.Identifier.ToFilter()
+
+	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return companyException.NotFound{}
 		} else {
@@ -257,21 +273,52 @@ func (mrh *mongoRecordHandler) Validate(request *recordHandler.ValidateRequest, 
 		})
 	}
 
-	if (*companyToValidate).AdminEmail == "" {
+	if (*companyToValidate).AdminEmailAddress == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "adminEmail",
+			Field: "adminEmailAddress",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*companyToValidate).AdminEmail,
+			Data:  (*companyToValidate).AdminEmailAddress,
 		})
 	}
 
-	// Additional Checks
-
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
-	switch request.IgnoreReasonsMethod {
+	switch request.Method {
 	case recordHandler.Create:
+		// Perform additional Checks for this method
+
+		// Check if this email address already exists
+		if (*companyToValidate).AdminEmailAddress != "" {
+			if err := mrh.Retrieve(&recordHandler.RetrieveRequest{
+				Identifier: adminEmailAddress.Identifier{
+					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
+				},
+			},
+				&recordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case companyException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "adminEmailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*companyToValidate).AdminEmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email is already in database
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "adminEmailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*companyToValidate).AdminEmailAddress,
+				})
+			}
+		}
+
+		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)

@@ -1,4 +1,4 @@
-package user
+package setup
 
 import (
 	"gitlab.com/iotTracker/brain/log"
@@ -6,16 +6,18 @@ import (
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type newUser struct {
-	user     User
+	user     user.User
 	password string
 }
 
 var initialUsers = []newUser{
 	{
-		user: User{
+		user: user.User{
 			Name:    "root",
 			Surname: "root",
 
@@ -31,17 +33,17 @@ var initialUsers = []newUser{
 	},
 }
 
-func InitialSetup(handler RecordHandler) error {
+func InitialSetup(handler userRecordHandler.RecordHandler) error {
 	for _, newUser := range initialUsers {
 		//Try and retrieve the new user record
-		retrieveUserResponse := RetrieveResponse{}
-		err := handler.Retrieve(&RetrieveRequest{Identifier: username.Identifier{Username: newUser.user.Username}}, &retrieveUserResponse)
+		retrieveUserResponse := userRecordHandler.RetrieveResponse{}
+		err := handler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: username.Identifier{Username: newUser.user.Username}}, &retrieveUserResponse)
 
 		switch err.(type) {
 		case userException.NotFound:
 			// if user record does not exist yet, try and create it
-			userCreateResponse := CreateResponse{}
-			if err := handler.Create(&CreateRequest{User: newUser.user}, &userCreateResponse); err != nil {
+			userCreateResponse := userRecordHandler.CreateResponse{}
+			if err := handler.Create(&userRecordHandler.CreateRequest{User: newUser.user}, &userCreateResponse); err != nil {
 				return userException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
 			}
 			log.Info("Initial User Setup: Created User: " + newUser.user.Username)
@@ -49,8 +51,8 @@ func InitialSetup(handler RecordHandler) error {
 		case nil:
 			// no error, user was retrieved successfully
 			log.Info("Initial User Setup: User " + newUser.user.Username + " already exists. Updating User.")
-			userUpdateResponse := UpdateResponse{}
-			if err := handler.Update(&UpdateRequest{
+			userUpdateResponse := userRecordHandler.UpdateResponse{}
+			if err := handler.Update(&userRecordHandler.UpdateRequest{
 				Identifier: id.Identifier{Id: retrieveUserResponse.User.Id},
 				User:       newUser.user,
 			}, &userUpdateResponse); err != nil {
@@ -64,8 +66,8 @@ func InitialSetup(handler RecordHandler) error {
 
 		// creation or update done, update password
 		// creation done, change password
-		userChangePasswordResponse := ChangePasswordResponse{}
-		if err := handler.ChangePassword(&ChangePasswordRequest{
+		userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
+		if err := handler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 			Identifier:  username.Identifier{Username: newUser.user.Username},
 			NewPassword: newUser.password,
 		}, &userChangePasswordResponse); err != nil {
