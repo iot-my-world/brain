@@ -3,17 +3,19 @@ package company
 import (
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type adaptor struct {
-	RecordHandler recordHandler.RecordHandler
+	RecordHandler companyRecordHandler.RecordHandler
 }
 
-func New(recordHandler recordHandler.RecordHandler) *adaptor {
+func New(recordHandler companyRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -28,10 +30,10 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	createCompanyResponse := recordHandler.CreateResponse{}
+	createCompanyResponse := companyRecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
-		&recordHandler.CreateRequest{
+		&companyRecordHandler.CreateRequest{
 			Company: request.Company,
 		},
 		&createCompanyResponse); err != nil {
@@ -57,9 +59,9 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveCompanyResponse := recordHandler.RetrieveResponse{}
+	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
-		&recordHandler.RetrieveRequest{
+		&companyRecordHandler.RetrieveRequest{
 			Identifier: id,
 		},
 		&retrieveCompanyResponse); err != nil {
@@ -86,9 +88,9 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		return err
 	}
 
-	updateCompanyResponse := recordHandler.UpdateResponse{}
+	updateCompanyResponse := companyRecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
-		&recordHandler.UpdateRequest{
+		&companyRecordHandler.UpdateRequest{
 			Identifier: id,
 		},
 		&updateCompanyResponse); err != nil {
@@ -114,9 +116,9 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		return err
 	}
 
-	deleteCompanyResponse := recordHandler.DeleteResponse{}
+	deleteCompanyResponse := companyRecordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
-		&recordHandler.DeleteRequest{
+		&companyRecordHandler.DeleteRequest{
 			Identifier: id,
 		},
 		&deleteCompanyResponse); err != nil {
@@ -139,9 +141,9 @@ type ValidateResponse struct {
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 
-	validateCompanyResponse := recordHandler.ValidateResponse{}
+	validateCompanyResponse := companyRecordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
-		&recordHandler.ValidateRequest{
+		&companyRecordHandler.ValidateRequest{
 			Company: request.Company,
 			Method:  request.Method,
 		},
@@ -151,5 +153,39 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 
 	response.ReasonsInvalid = validateCompanyResponse.ReasonsInvalid
 
+	return nil
+}
+
+type CollectRequest struct {
+	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
+}
+
+type CollectResponse struct {
+	Records []company.Company
+	Total   int
+}
+
+func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+	// unwrap criteria
+	criteria := make([]criterion.Criterion, 0)
+	for criterionIdx := range request.Criteria {
+		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {
+			criteria = append(criteria, c)
+		} else {
+			return err
+		}
+	}
+
+	collectCompanyResponse := companyRecordHandler.CollectResponse{}
+	if err := s.RecordHandler.Collect(&companyRecordHandler.CollectRequest{
+		Criteria: criteria,
+	},
+		&collectCompanyResponse);
+		err != nil {
+		return err
+	}
+
+	response.Records = collectCompanyResponse.Records
+	response.Total = collectCompanyResponse.Total
 	return nil
 }

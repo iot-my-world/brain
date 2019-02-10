@@ -330,3 +330,23 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 	response.ReasonsInvalid = returnedReasonsInvalid
 	return nil
 }
+
+func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest, response *companyRecordHandler.CollectResponse) error {
+	if err := mrh.ValidateCollectRequest(request); err != nil {
+		return err
+	}
+
+
+
+	return nil
+}
