@@ -63,7 +63,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 	// Ensure admin email uniqueness
 	adminEmailUnique := mgo.Index{
-		Key:    []string{"adminEmail"},
+		Key:    []string{"adminEmailAddress"},
 		Unique: true,
 	}
 	if err := companyCollection.EnsureIndex(adminEmailUnique); err != nil {
