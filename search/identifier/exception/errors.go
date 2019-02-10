@@ -13,10 +13,10 @@ func (e Unwrapping) Error() string {
 	return fmt.Sprintf("unwrapping identifier: %s", strings.Join(e.Reasons, "; "))
 }
 
-type InvalidIdentifier struct {
+type Invalid struct {
 	Reasons []string
 }
 
-func (e InvalidIdentifier) Error() string {
+func (e Invalid) Error() string {
 	return fmt.Sprintf("invalid identifier: %s", strings.Join(e.Reasons, "; "))
 }
