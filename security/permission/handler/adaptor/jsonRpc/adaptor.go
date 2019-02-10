@@ -1,10 +1,10 @@
 package jsonRpc
 
 import (
-	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/security/permission"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"net/http"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 )
 
 type adaptor struct {
@@ -18,7 +18,7 @@ func New(permissionHandler permissionHandler.Handler) *adaptor {
 }
 
 type GetAllUsersPermissionsRequest struct {
-	UserIdentifier search.WrappedIdentifier `json:"userIdentifier"`
+	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
 }
 
 type GetAllUsersPermissionsResponse struct {

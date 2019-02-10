@@ -1,8 +1,8 @@
 package client
 
 import (
-	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type RecordHandler interface {
@@ -30,7 +30,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type DeleteResponse struct {
@@ -38,7 +38,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 	Client     Client
 }
 
@@ -47,7 +47,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type RetrieveResponse struct {

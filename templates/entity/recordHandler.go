@@ -30,7 +30,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type DeleteResponse struct {
@@ -38,7 +38,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 	Company    Company
 }
 
@@ -47,7 +47,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type RetrieveResponse struct {

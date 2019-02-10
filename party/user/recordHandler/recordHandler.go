@@ -1,10 +1,10 @@
 package recordHandler
 
 import (
-	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type RecordHandler interface {
@@ -39,7 +39,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type DeleteResponse struct {
@@ -47,7 +47,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 	User       user.User
 }
 
@@ -56,7 +56,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type RetrieveResponse struct {
@@ -64,7 +64,7 @@ type RetrieveResponse struct {
 }
 
 type ChangePasswordRequest struct {
-	Identifier  search.Identifier
+	Identifier  identifier.Identifier
 	NewPassword string
 }
 

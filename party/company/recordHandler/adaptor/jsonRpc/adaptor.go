@@ -4,9 +4,9 @@ import (
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/company"
 	"gitlab.com/iotTracker/brain/party/company/recordHandler"
-	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 )
 
 type adaptor struct {
@@ -44,7 +44,7 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 }
 
 type RetrieveRequest struct {
-	Identifier search.WrappedIdentifier `json:"identifier"`
+	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 }
 
 type RetrieveResponse struct {
@@ -72,7 +72,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 }
 
 type UpdateRequest struct {
-	Identifier search.WrappedIdentifier `json:"identifier"`
+	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 	Company    company.Company          `json:"company"`
 }
 
@@ -101,7 +101,7 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 }
 
 type DeleteRequest struct {
-	Identifier search.WrappedIdentifier `json:"identifier"`
+	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 }
 
 type DeleteResponse struct {

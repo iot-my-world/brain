@@ -3,7 +3,7 @@ package recordHandler
 import (
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/search"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
@@ -39,7 +39,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type DeleteResponse struct {
@@ -47,7 +47,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 	Company    company.Company
 }
 
@@ -56,7 +56,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier
+	Identifier identifier.Identifier
 }
 
 type RetrieveResponse struct {

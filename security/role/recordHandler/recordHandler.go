@@ -1,7 +1,7 @@
 package recordHandler
 
 import (
-	"gitlab.com/iotTracker/brain/search"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/role"
 )
 
@@ -19,7 +19,7 @@ type CreateResponse struct {
 }
 
 type RetrieveRequest struct {
-	Identifier search.Identifier `json:"identifier"`
+	Identifier identifier.Identifier `json:"identifier"`
 }
 
 type RetrieveResponse struct {

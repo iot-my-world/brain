@@ -1,11 +1,10 @@
 package user
 
 import (
-	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
-func IsValidIdentifier(id search.Identifier) bool {
+func IsValidIdentifier(id identifier.Identifier) bool {
 	if id == nil {
 		return false
 	}

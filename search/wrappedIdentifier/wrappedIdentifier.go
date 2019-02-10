@@ -1,10 +1,10 @@
-package search
+package wrappedIdentifier
 
 import (
-	"encoding/json"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	universalException "gitlab.com/iotTracker/brain/exception"
 	searchException "gitlab.com/iotTracker/brain/search/exception"
-	"gitlab.com/iotTracker/brain/search/identifier"
+	"encoding/json"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 )
 
@@ -13,8 +13,8 @@ type WrappedIdentifier struct {
 	Value json.RawMessage `json:"value"`
 }
 
-func (i WrappedIdentifier) UnWrap() (Identifier, error) {
-	var result Identifier = nil
+func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
+	var result identifier.Identifier = nil
 	switch i.Type {
 	case identifier.Id:
 		var unmarshalledId name.Identifier
@@ -53,10 +53,4 @@ func (i WrappedIdentifier) UnWrap() (Identifier, error) {
 	}
 
 	return result, nil
-}
-
-type Identifier interface {
-	IsValid() error                   // Returns the validity of the Identifier
-	Type() identifier.Type            // Returns the IdentifierType of the Identifier
-	ToFilter() map[string]interface{} // Returns a map filter to use to query the databases
 }
