@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
+	"gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -60,13 +61,13 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *company.CreateRequest) error {
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *recordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// Validate the new company
-	companyValidateResponse := company.ValidateResponse{}
+	companyValidateResponse := recordHandler.ValidateResponse{}
 
-	err := mrh.Validate(&company.ValidateRequest{Company: request.Company}, &companyValidateResponse)
+	err := mrh.Validate(&recordHandler.ValidateRequest{Company: request.Company}, &companyValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
 	} else {
@@ -84,7 +85,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *company.CreateRequ
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *company.CreateRequest, response *company.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *recordHandler.CreateRequest, response *recordHandler.CreateResponse) error {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func (mrh *mongoRecordHandler) Create(request *company.CreateRequest, response *
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *company.RetrieveRequest) error {
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *recordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -122,7 +123,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *company.Retrieve
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *company.RetrieveRequest, response *company.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *recordHandler.RetrieveRequest, response *recordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -146,7 +147,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *company.RetrieveRequest, respon
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *company.UpdateRequest) error {
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *recordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -156,7 +157,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *company.UpdateRequ
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *company.UpdateRequest, response *company.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *recordHandler.UpdateRequest, response *recordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -167,8 +168,8 @@ func (mrh *mongoRecordHandler) Update(request *company.UpdateRequest, response *
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve Company
-	retrieveCompanyResponse := company.RetrieveResponse{}
-	if err := mrh.Retrieve(&company.RetrieveRequest{Identifier: request.Identifier}, &retrieveCompanyResponse); err != nil {
+	retrieveCompanyResponse := recordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&recordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveCompanyResponse); err != nil {
 		return companyException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -185,7 +186,7 @@ func (mrh *mongoRecordHandler) Update(request *company.UpdateRequest, response *
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *company.DeleteRequest) error {
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *recordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -203,7 +204,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *company.DeleteRequ
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *company.DeleteRequest, response *company.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *recordHandler.DeleteRequest, response *recordHandler.DeleteResponse) error {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -220,7 +221,7 @@ func (mrh *mongoRecordHandler) Delete(request *company.DeleteRequest, response *
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *company.ValidateRequest) error {
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *recordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -230,7 +231,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *company.Validate
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *company.ValidateRequest, response *company.ValidateResponse) error {
+func (mrh *mongoRecordHandler) Validate(request *recordHandler.ValidateRequest, response *recordHandler.ValidateResponse) error {
 	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}
@@ -265,10 +266,12 @@ func (mrh *mongoRecordHandler) Validate(request *company.ValidateRequest, respon
 		})
 	}
 
+	// Additional Checks
+
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
 	switch request.IgnoreReasonsMethod {
-	case "Create":
+	case recordHandler.Create:
 		for _, reason := range allReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)

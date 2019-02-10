@@ -1,17 +1,19 @@
 package company
 
 import (
+	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/company"
+	"gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 
 type adaptor struct {
-	RecordHandler company.RecordHandler
+	RecordHandler recordHandler.RecordHandler
 }
 
-func New(recordHandler company.RecordHandler) *adaptor {
+func New(recordHandler recordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -26,10 +28,10 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	createCompanyResponse := company.CreateResponse{}
+	createCompanyResponse := recordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
-		&company.CreateRequest{
+		&recordHandler.CreateRequest{
 			Company: request.Company,
 		},
 		&createCompanyResponse); err != nil {
@@ -55,9 +57,9 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveCompanyResponse := company.RetrieveResponse{}
+	retrieveCompanyResponse := recordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
-		&company.RetrieveRequest{
+		&recordHandler.RetrieveRequest{
 			Identifier: id,
 		},
 		&retrieveCompanyResponse); err != nil {
@@ -84,9 +86,9 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		return err
 	}
 
-	updateCompanyResponse := company.UpdateResponse{}
+	updateCompanyResponse := recordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
-		&company.UpdateRequest{
+		&recordHandler.UpdateRequest{
 			Identifier: id,
 		},
 		&updateCompanyResponse); err != nil {
@@ -112,9 +114,9 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		return err
 	}
 
-	deleteCompanyResponse := company.DeleteResponse{}
+	deleteCompanyResponse := recordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
-		&company.DeleteRequest{
+		&recordHandler.DeleteRequest{
 			Identifier: id,
 		},
 		&deleteCompanyResponse); err != nil {
@@ -128,7 +130,7 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 
 type ValidateRequest struct {
 	Company             company.Company `json:"company"`
-	IgnoreReasonsMethod string          `json:"ignoreReasonsMethod"`
+	IgnoreReasonsMethod api.Method      `json:"ignoreReasonsMethod"`
 }
 
 type ValidateResponse struct {
@@ -137,9 +139,9 @@ type ValidateResponse struct {
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 
-	validateCompanyResponse := company.ValidateResponse{}
+	validateCompanyResponse := recordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
-		&company.ValidateRequest{
+		&recordHandler.ValidateRequest{
 			Company:             request.Company,
 			IgnoreReasonsMethod: request.IgnoreReasonsMethod,
 		},
