@@ -7,19 +7,19 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/permission"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
-	"gitlab.com/iotTracker/brain/security/role"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
+	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
 
 type handler struct {
 	userRecordHandler userRecordHandler.RecordHandler
-	roleRecordHandler role.RecordHandler
+	roleRecordHandler roleRecordHandler.RecordHandler
 }
 
 func New(
 	userRecordHandler userRecordHandler.RecordHandler,
-	roleRecordHandler role.RecordHandler,
+	roleRecordHandler roleRecordHandler.RecordHandler,
 ) *handler {
 	return &handler{
 		userRecordHandler: userRecordHandler,
@@ -111,8 +111,8 @@ func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsers
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
-		roleRetrieveResponse := role.RetrieveResponse{}
-		if err := bh.roleRecordHandler.Retrieve(&role.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
+		roleRetrieveResponse := roleRecordHandler.RetrieveResponse{}
+		if err := bh.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
 			return err
 		}
 		// add all of the permissions of the role

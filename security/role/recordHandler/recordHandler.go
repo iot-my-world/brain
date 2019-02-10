@@ -1,7 +1,8 @@
-package role
+package recordHandler
 
 import (
 	"gitlab.com/iotTracker/brain/search"
+	"gitlab.com/iotTracker/brain/security/role"
 )
 
 type RecordHandler interface {
@@ -11,7 +12,7 @@ type RecordHandler interface {
 }
 
 type CreateRequest struct {
-	Role Role `json:"role"`
+	Role role.Role `json:"role"`
 }
 
 type CreateResponse struct {
@@ -22,11 +23,11 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Role Role `json:"role"`
+	Role role.Role `json:"role"`
 }
 
 type UpdateRequest struct {
-	Role Role `json:"role"`
+	Role role.Role `json:"role"`
 }
 
 type UpdateResponse struct {

@@ -8,6 +8,8 @@ import (
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 )
 
 type recordHandler struct {
@@ -25,7 +27,7 @@ func New(mongoSession *mgo.Session, database, collection string) *recordHandler 
 		collection:   collection,
 	}
 
-	if err := role.InitialSetup(&NewMongoRecordHandler); err != nil {
+	if err := roleSetup.InitialSetup(&NewMongoRecordHandler); err != nil {
 		log.Fatal("Unable to complete Initial System Role Setup!", err)
 	}
 
@@ -58,7 +60,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *recordHandler) Create(request *role.CreateRequest, response *role.CreateResponse) error {
+func (mrh *recordHandler) Create(request *roleRecordHandler.CreateRequest, response *roleRecordHandler.CreateResponse) error {
 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
@@ -76,7 +78,7 @@ func (mrh *recordHandler) Create(request *role.CreateRequest, response *role.Cre
 	return nil
 }
 
-func (mrh *recordHandler) ValidateRetrieveRequest(request *role.RetrieveRequest) error {
+func (mrh *recordHandler) ValidateRetrieveRequest(request *roleRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -94,7 +96,7 @@ func (mrh *recordHandler) ValidateRetrieveRequest(request *role.RetrieveRequest)
 	}
 }
 
-func (mrh *recordHandler) Retrieve(request *role.RetrieveRequest, response *role.RetrieveResponse) error {
+func (mrh *recordHandler) Retrieve(request *roleRecordHandler.RetrieveRequest, response *roleRecordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -118,7 +120,7 @@ func (mrh *recordHandler) Retrieve(request *role.RetrieveRequest, response *role
 	return nil
 }
 
-func (mrh *recordHandler) Update(request *role.UpdateRequest, response *role.UpdateResponse) error {
+func (mrh *recordHandler) Update(request *roleRecordHandler.UpdateRequest, response *roleRecordHandler.UpdateResponse) error {
 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
