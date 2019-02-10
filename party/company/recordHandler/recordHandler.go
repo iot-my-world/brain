@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
 )
 
 type RecordHandler interface {
@@ -25,6 +26,7 @@ const Validate api.Method = "Validate"
 
 type CollectRequest struct {
 	Criteria []criterion.Criterion
+	Query    query.Query
 }
 
 type CollectResponse struct {

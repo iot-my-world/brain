@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
 )
 
 type adaptor struct {
@@ -158,6 +159,7 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 
 type CollectRequest struct {
 	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
+	Query    query.Query                         `json:"query"`
 }
 
 type CollectResponse struct {
@@ -179,6 +181,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 	collectCompanyResponse := companyRecordHandler.CollectResponse{}
 	if err := s.RecordHandler.Collect(&companyRecordHandler.CollectRequest{
 		Criteria: criteria,
+		Query:    request.Query,
 	},
 		&collectCompanyResponse);
 		err != nil {

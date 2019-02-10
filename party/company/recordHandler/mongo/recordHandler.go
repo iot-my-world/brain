@@ -346,6 +346,7 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 		return err
 	}
 
+	// Build filters from criteria
 	filter := bson.M{}
 	criteriaFilters := make([]bson.M, 0)
 	for criterionIdx := range request.Criteria {
@@ -355,21 +356,36 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 		filter["$and"] = criteriaFilters
 	}
 
+	// Get Company Collection
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
-
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
+	// Perform Query
 	query := companyCollection.Find(filter)
 
+	// Apply the count
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
 		return err
 	}
 
+	// Apply limit if applicable
+	if request.Query.Limit > 0 {
+		query.Limit(request.Query.Limit)
+	}
+
+	// Determine the Sort Order
+	mongoSortOrder := request.Query.ToMongoSortFormat()
+
+	// Populate records
 	response.Records = make([]company.Company, 0)
-	if err := query.All(&response.Records); err != nil {
+	if err := query.
+		Skip(request.Query.Offset).
+		Sort(mongoSortOrder...).
+		All(&response.Records);
+		err != nil {
 		return err
 	}
 
