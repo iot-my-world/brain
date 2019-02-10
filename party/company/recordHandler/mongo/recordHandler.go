@@ -7,10 +7,10 @@ import (
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 )
 
 type mongoRecordHandler struct {
@@ -81,8 +81,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
 		Company: request.Company,
 		Method:  companyRecordHandler.Create},
-		&companyValidateResponse);
-		err != nil {
+		&companyValidateResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
 	} else {
 		for _, reason := range companyValidateResponse.ReasonsInvalid {

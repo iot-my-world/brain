@@ -71,7 +71,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 
 type UpdateRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-	Company    company.Company          `json:"company"`
+	Company    company.Company                     `json:"company"`
 }
 
 type UpdateResponse struct {

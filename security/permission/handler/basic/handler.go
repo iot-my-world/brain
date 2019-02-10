@@ -4,10 +4,10 @@ import (
 	"fmt"
 	globalException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party/user"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/permission"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )

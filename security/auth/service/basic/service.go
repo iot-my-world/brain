@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
@@ -13,7 +14,6 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"golang.org/x/crypto/bcrypt"
 	"time"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 )
 
 type service struct {

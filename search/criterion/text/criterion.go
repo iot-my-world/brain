@@ -1,10 +1,10 @@
 package text
 
 import (
-	"gitlab.com/iotTracker/brain/search/criterion"
 	"github.com/go-errors/errors"
-	"strings"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	"gopkg.in/mgo.v2/bson"
+	"strings"
 )
 
 const Type = criterion.Text

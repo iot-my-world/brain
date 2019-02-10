@@ -4,8 +4,8 @@ import (
 	globalException "gitlab.com/iotTracker/brain/exception"
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
 	"gitlab.com/iotTracker/brain/security/permission"
-	"gitlab.com/iotTracker/brain/security/token"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
+	"gitlab.com/iotTracker/brain/security/token"
 )
 
 type APIAuthorizer struct {

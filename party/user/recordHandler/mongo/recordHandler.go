@@ -6,12 +6,12 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 )
 
 type mongoRecordHandler struct {

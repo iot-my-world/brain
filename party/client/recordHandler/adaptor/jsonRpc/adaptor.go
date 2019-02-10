@@ -2,9 +2,9 @@ package client
 
 import (
 	"gitlab.com/iotTracker/brain/party/client"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 )
 
 type adaptor struct {
@@ -71,7 +71,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 
 type UpdateRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-	Client     client.Client            `json:"client"`
+	Client     client.Client                       `json:"client"`
 }
 
 type UpdateResponse struct {

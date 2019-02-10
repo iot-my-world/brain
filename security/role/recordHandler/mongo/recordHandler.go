@@ -6,10 +6,10 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/role"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type recordHandler struct {

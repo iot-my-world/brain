@@ -1,10 +1,10 @@
 package wrappedIdentifier
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
-	universalException "gitlab.com/iotTracker/brain/exception"
-	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"encoding/json"
+	universalException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 )
 

@@ -1,8 +1,8 @@
 package role
 
 import (
-	"net/http"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	"net/http"
 )
 
 type adaptor struct {

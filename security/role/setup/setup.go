@@ -4,9 +4,9 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/permission"
+	"gitlab.com/iotTracker/brain/security/role"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	"gitlab.com/iotTracker/brain/security/role"
 )
 
 var initialRoles = func() []role.Role {

@@ -11,7 +11,7 @@ type Handler interface {
 }
 
 type UserHasPermissionRequest struct {
-	UserIdentifier identifier.Identifier     `json:"userIdentifier"`
+	UserIdentifier identifier.Identifier `json:"userIdentifier"`
 	Permission     permission.Permission `json:"permission"`
 }
 
