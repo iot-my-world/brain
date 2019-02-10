@@ -9,6 +9,7 @@ import (
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	"gitlab.com/iotTracker/brain/security/role"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 )
 
 type handler struct {
@@ -26,7 +27,7 @@ func New(
 	}
 }
 
-func (bh *handler) ValidateUserHasPermissionRequest(request *permission.UserHasPermissionRequest) error {
+func (bh *handler) ValidateUserHasPermissionRequest(request *permissionHandler.UserHasPermissionRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -48,14 +49,14 @@ func (bh *handler) ValidateUserHasPermissionRequest(request *permission.UserHasP
 	}
 }
 
-func (bh *handler) UserHasPermission(request *permission.UserHasPermissionRequest, response *permission.UserHasPermissionResponse) error {
+func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissionRequest, response *permissionHandler.UserHasPermissionResponse) error {
 	if err := bh.ValidateUserHasPermissionRequest(request); err != nil {
 		return err
 	}
 
 	// retrieve all of the users permissions
-	getAllUsersPermissionsResponse := permission.GetAllUsersPermissionsResponse{}
-	if err := bh.GetAllUsersPermissions(&permission.GetAllUsersPermissionsRequest{
+	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersPermissionsResponse{}
+	if err := bh.GetAllUsersPermissions(&permissionHandler.GetAllUsersPermissionsRequest{
 		UserIdentifier: request.UserIdentifier,
 	},
 		&getAllUsersPermissionsResponse); err != nil {
@@ -76,7 +77,7 @@ func (bh *handler) UserHasPermission(request *permission.UserHasPermissionReques
 	return nil
 }
 
-func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permission.GetAllUsersPermissionsRequest) error {
+func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permissionHandler.GetAllUsersPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -94,7 +95,7 @@ func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permission.Get
 	}
 }
 
-func (bh *handler) GetAllUsersPermissions(request *permission.GetAllUsersPermissionsRequest, response *permission.GetAllUsersPermissionsResponse) error {
+func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsersPermissionsRequest, response *permissionHandler.GetAllUsersPermissionsResponse) error {
 	if err := bh.ValidateGetAllUsersPermissionsRequest(request); err != nil {
 		return err
 	}

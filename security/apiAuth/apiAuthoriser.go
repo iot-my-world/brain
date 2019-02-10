@@ -5,11 +5,12 @@ import (
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
 	"gitlab.com/iotTracker/brain/security/permission"
 	"gitlab.com/iotTracker/brain/security/token"
+	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 )
 
 type APIAuthorizer struct {
 	JWTValidator      token.JWTValidator
-	PermissionHandler permission.Handler
+	PermissionHandler permissionHandler.Handler
 }
 
 func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error {
@@ -21,8 +22,8 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error 
 	}
 
 	// Check the if the user is authorised to access this jsonRpcMethod based on their role claim
-	userHasPermissionResponse := permission.UserHasPermissionResponse{}
-	if err := a.PermissionHandler.UserHasPermission(&permission.UserHasPermissionRequest{
+	userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
+	if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
 		UserIdentifier: jwtClaims.UserId,
 		Permission:     permission.Permission(jsonRpcMethod),
 	}, &userHasPermissionResponse); err != nil {

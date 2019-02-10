@@ -6,7 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
-	"gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -72,15 +72,15 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *recordHandler.CreateRequest) error {
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// Validate the new company
-	companyValidateResponse := recordHandler.ValidateResponse{}
+	companyValidateResponse := companyRecordHandler.ValidateResponse{}
 
-	if err := mrh.Validate(&recordHandler.ValidateRequest{
+	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
 		Company: request.Company,
-		Method:  recordHandler.Create},
+		Method:  companyRecordHandler.Create},
 		&companyValidateResponse);
 		err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
@@ -99,7 +99,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *recordHandler.Crea
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *recordHandler.CreateRequest, response *recordHandler.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest, response *companyRecordHandler.CreateResponse) error {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (mrh *mongoRecordHandler) Create(request *recordHandler.CreateRequest, resp
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *recordHandler.RetrieveRequest) error {
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -137,7 +137,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *recordHandler.Re
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *recordHandler.RetrieveRequest, response *recordHandler.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest, response *companyRecordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -163,7 +163,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *recordHandler.RetrieveRequest, 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *recordHandler.UpdateRequest) error {
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -173,7 +173,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *recordHandler.Upda
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *recordHandler.UpdateRequest, response *recordHandler.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateRequest, response *companyRecordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -184,8 +184,8 @@ func (mrh *mongoRecordHandler) Update(request *recordHandler.UpdateRequest, resp
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve Company
-	retrieveCompanyResponse := recordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&recordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveCompanyResponse); err != nil {
+	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveCompanyResponse); err != nil {
 		return companyException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -202,7 +202,7 @@ func (mrh *mongoRecordHandler) Update(request *recordHandler.UpdateRequest, resp
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *recordHandler.DeleteRequest) error {
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -220,7 +220,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *recordHandler.Dele
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *recordHandler.DeleteRequest, response *recordHandler.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteRequest, response *companyRecordHandler.DeleteResponse) error {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func (mrh *mongoRecordHandler) Delete(request *recordHandler.DeleteRequest, resp
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *recordHandler.ValidateRequest) error {
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *companyRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -247,7 +247,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *recordHandler.Va
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *recordHandler.ValidateRequest, response *recordHandler.ValidateResponse) error {
+func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRequest, response *companyRecordHandler.ValidateResponse) error {
 	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}
@@ -285,17 +285,17 @@ func (mrh *mongoRecordHandler) Validate(request *recordHandler.ValidateRequest, 
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
 	switch request.Method {
-	case recordHandler.Create:
+	case companyRecordHandler.Create:
 		// Perform additional Checks for this method
 
 		// Check if this email address already exists
 		if (*companyToValidate).AdminEmailAddress != "" {
-			if err := mrh.Retrieve(&recordHandler.RetrieveRequest{
+			if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
 			},
-				&recordHandler.RetrieveResponse{}); err != nil {
+				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyException.NotFound:
 					// this is what we want, do nothing

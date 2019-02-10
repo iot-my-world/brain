@@ -3,14 +3,15 @@ package jsonRpc
 import (
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/security/permission"
+	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"net/http"
 )
 
 type adaptor struct {
-	permissionHandler permission.Handler
+	permissionHandler permissionHandler.Handler
 }
 
-func New(permissionHandler permission.Handler) *adaptor {
+func New(permissionHandler permissionHandler.Handler) *adaptor {
 	return &adaptor{
 		permissionHandler: permissionHandler,
 	}
@@ -30,8 +31,8 @@ func (s *adaptor) GetAllUsersPermissions(r *http.Request, request *GetAllUsersPe
 		return err
 	}
 
-	getAllUsersPermissionsResponse := permission.GetAllUsersPermissionsResponse{}
-	if err := s.permissionHandler.GetAllUsersPermissions(&permission.GetAllUsersPermissionsRequest{
+	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersPermissionsResponse{}
+	if err := s.permissionHandler.GetAllUsersPermissions(&permissionHandler.GetAllUsersPermissionsRequest{
 		UserIdentifier: id,
 	}, &getAllUsersPermissionsResponse); err != nil {
 		return err
