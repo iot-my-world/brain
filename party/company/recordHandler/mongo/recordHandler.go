@@ -346,7 +346,32 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 		return err
 	}
 
+	filter := bson.M{}
+	criteriaFilters := make([]bson.M, 0)
+	for criterionIdx := range request.Criteria {
+		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
+	}
+	if len(criteriaFilters) > 0 {
+		filter["$and"] = criteriaFilters
+	}
 
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	query := companyCollection.Find(filter)
+
+	if total, err := query.Count(); err == nil {
+		response.Total = total
+	} else {
+		return err
+	}
+
+	response.Records = make([]company.Company, 0)
+	if err := query.All(&response.Records); err != nil {
+		return err
+	}
 
 	return nil
 }

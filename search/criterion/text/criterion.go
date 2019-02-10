@@ -11,7 +11,7 @@ const Type = criterion.Text
 
 type Criterion struct {
 	Field string `json:"field"`
-	Text  string `json:"field"`
+	Text  string `json:"text"`
 }
 
 func (c Criterion) IsValid() error {

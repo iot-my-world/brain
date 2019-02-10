@@ -161,8 +161,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []company.Company
-	Total   int
+	Records []company.Company `json:"records"`
+	Total   int               `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
