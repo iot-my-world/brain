@@ -36,6 +36,8 @@ import (
 
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/email/mailer"
+	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 )
 
 var ServerPort = "9010"
@@ -62,8 +64,19 @@ func main() {
 	log.Debug("Connected to Mongo!")
 	defer mainMongoSession.Close()
 
+	// spotNav123
+	// spotnavza@gmail.com
+
 	// Get or Generate RSA Key Pair
 	rsaPrivateKey := encrypt.FetchPrivateKey("./")
+
+	// Create Mailer
+	Mailer := gmailMailer.New(mailer.AuthInfo{
+		Identity: "",
+		Username: "spotnavza@gmail.com",
+		Password: "spotNav123",
+		Host:     "smtp.gmail.com",
+	})
 
 	// Create Service Providers
 	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, systemRoleCollection)
@@ -72,7 +85,7 @@ func main() {
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
-	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler)
+	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
