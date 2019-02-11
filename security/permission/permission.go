@@ -13,3 +13,5 @@ const CompanyRecordHandlerUpdate = "CompanyRecordHandler.Update"
 const CompanyRecordHandlerDelete = "CompanyRecordHandler.Delete"
 const CompanyRecordHandlerValidate = "CompanyRecordHandler.Validate"
 const CompanyRecordHandlerCollect = "CompanyRecordHandler.Collect"
+
+const PartyRegistrarInviteCompanyAdminUser = "PartyRegistrar.InviteCompanyAdminUser"

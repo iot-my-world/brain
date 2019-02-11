@@ -1,6 +1,7 @@
 package client
 
 import (
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	"gitlab.com/iotTracker/brain/party/client"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -8,10 +9,10 @@ import (
 )
 
 type adaptor struct {
-	RecordHandler client.RecordHandler
+	RecordHandler clientRecordHandler.RecordHandler
 }
 
-func New(recordHandler client.RecordHandler) *adaptor {
+func New(recordHandler clientRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -26,10 +27,10 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	createClientResponse := client.CreateResponse{}
+	createClientResponse := clientRecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
-		&client.CreateRequest{
+		&clientRecordHandler.CreateRequest{
 			Client: request.Client,
 		},
 		&createClientResponse); err != nil {
@@ -55,9 +56,9 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveClientResponse := client.RetrieveResponse{}
+	retrieveClientResponse := clientRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
-		&client.RetrieveRequest{
+		&clientRecordHandler.RetrieveRequest{
 			Identifier: id,
 		},
 		&retrieveClientResponse); err != nil {
@@ -84,9 +85,9 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		return err
 	}
 
-	updateClientResponse := client.UpdateResponse{}
+	updateClientResponse := clientRecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
-		&client.UpdateRequest{
+		&clientRecordHandler.UpdateRequest{
 			Identifier: id,
 		},
 		&updateClientResponse); err != nil {
@@ -112,9 +113,9 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		return err
 	}
 
-	deleteClientResponse := client.DeleteResponse{}
+	deleteClientResponse := clientRecordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
-		&client.DeleteRequest{
+		&clientRecordHandler.DeleteRequest{
 			Identifier: id,
 		},
 		&deleteClientResponse); err != nil {
@@ -136,9 +137,9 @@ type ValidateResponse struct {
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 
-	validateClientResponse := client.ValidateResponse{}
+	validateClientResponse := clientRecordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
-		&client.ValidateRequest{
+		&clientRecordHandler.ValidateRequest{
 			Client: request.Client,
 		},
 		&validateClientResponse); err != nil {

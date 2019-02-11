@@ -9,6 +9,7 @@ import (
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 )
 
 type mongoRecordHandler struct {
@@ -60,13 +61,13 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *client.CreateRequest) error {
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// Validate the new client
-	clientValidateResponse := client.ValidateResponse{}
+	clientValidateResponse := clientRecordHandler.ValidateResponse{}
 
-	err := mrh.Validate(&client.ValidateRequest{Client: request.Client}, &clientValidateResponse)
+	err := mrh.Validate(&clientRecordHandler.ValidateRequest{Client: request.Client}, &clientValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newClient")
 	} else {
@@ -84,7 +85,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *client.CreateReque
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *client.CreateRequest, response *client.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *clientRecordHandler.CreateRequest, response *clientRecordHandler.CreateResponse) error {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func (mrh *mongoRecordHandler) Create(request *client.CreateRequest, response *c
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *client.RetrieveRequest) error {
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *clientRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -122,7 +123,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *client.RetrieveR
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *client.RetrieveRequest, response *client.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveRequest, response *clientRecordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -146,7 +147,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *client.RetrieveRequest, respons
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *client.UpdateRequest) error {
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *clientRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -156,7 +157,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *client.UpdateReque
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *client.UpdateRequest, response *client.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest, response *clientRecordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -167,8 +168,8 @@ func (mrh *mongoRecordHandler) Update(request *client.UpdateRequest, response *c
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve Client
-	retrieveClientResponse := client.RetrieveResponse{}
-	if err := mrh.Retrieve(&client.RetrieveRequest{Identifier: request.Identifier}, &retrieveClientResponse); err != nil {
+	retrieveClientResponse := clientRecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveClientResponse); err != nil {
 		return clientException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -185,7 +186,7 @@ func (mrh *mongoRecordHandler) Update(request *client.UpdateRequest, response *c
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *client.DeleteRequest) error {
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *clientRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -203,7 +204,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *client.DeleteReque
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *client.DeleteRequest, response *client.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest, response *clientRecordHandler.DeleteResponse) error {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -220,7 +221,7 @@ func (mrh *mongoRecordHandler) Delete(request *client.DeleteRequest, response *c
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *client.ValidateRequest) error {
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *clientRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -230,7 +231,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *client.ValidateR
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *client.ValidateRequest, response *client.ValidateResponse) error {
+func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateRequest, response *clientRecordHandler.ValidateResponse) error {
 	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}

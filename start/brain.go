@@ -33,6 +33,9 @@ import (
 
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
+
+	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
+	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 )
 
 var ServerPort = "9010"
@@ -69,6 +72,7 @@ func main() {
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
+	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
@@ -77,6 +81,7 @@ func main() {
 	PermissionHandlerAdaptor := permissionServiceJsonRpcAdaptor.New(PermissionBasicHandler)
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
+	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -104,6 +109,9 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
+		log.Fatal("Unable to Register Party Registrar Service")
 	}
 
 	// Set up Router for secureAPIServer
