@@ -6,6 +6,10 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 )
 
 type WrappedIdentifier struct {
@@ -17,29 +21,40 @@ func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
 	var result identifier.Identifier = nil
 	switch i.Type {
 	case identifier.Id:
-		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
+		var unmarshalledId id.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
+
 	case identifier.Name:
 		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
+
 	case identifier.Username:
-		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
+		var unmarshalledId username.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
+
 	case identifier.EmailAddress:
-		var unmarshalledId name.Identifier
-		if err := json.Unmarshal(i.Value, unmarshalledId); err != nil {
+		var unmarshalledId emailAddress.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledId
+
+	case identifier.AdminEmailAddress:
+		var unmarshalledId adminEmailAddress.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
+			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledId
+
 	default:
 		return nil, identifierException.Invalid{Reasons: []string{"invalid type"}}
 	}
