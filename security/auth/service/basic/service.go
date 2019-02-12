@@ -62,6 +62,7 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	// Password is correct. Try and generate loginToken
 	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.LoginClaims{
+		Type:           claims.Login,
 		UserId:         id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:      time.Now().UTC().Unix(),
 		ExpirationTime: time.Now().Add(claims.ValidTime).UTC().Unix(),

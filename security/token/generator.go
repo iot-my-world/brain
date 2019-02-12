@@ -30,6 +30,14 @@ func (g JWTGenerator) GenerateLoginToken(loginClaims claims.LoginClaims) (string
 	return getSignedJWT(loginClaims, g.signer)
 }
 
+func (g JWTGenerator) GenerateRegisterCompanyAdminUserToken(registerCompanyAdminUserClaims claims.RegisterCompanyAdminUserClaims) (string, error) {
+	return getSignedJWT(registerCompanyAdminUserClaims, g.signer)
+}
+
+func (g JWTGenerator) GenerateRegisterClientAdminUserToken(registerClientAdminUserClaims claims.RegisterClientAdminUserClaims) (string, error) {
+	return getSignedJWT(registerClientAdminUserClaims, g.signer)
+}
+
 func getSignedJWT(claims interface{}, signer jose.Signer) (string, error) {
 	//Marshall the claims data to a json string
 	claimsPayload, err := json.Marshal(claims)
