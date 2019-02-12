@@ -26,7 +26,7 @@ func NewJWTGenerator(privateRSAKey *rsa.PrivateKey) JWTGenerator {
 	}
 }
 
-func (g JWTGenerator) GenerateLoginToken(loginClaims claims.Claims) (string, error) {
+func (g JWTGenerator) GenerateLoginToken(loginClaims claims.LoginClaims) (string, error) {
 	return getSignedJWT(loginClaims, g.signer)
 }
 
