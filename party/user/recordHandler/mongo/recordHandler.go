@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 )
 
 type mongoRecordHandler struct {
@@ -159,7 +160,8 @@ func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveReque
 
 	var userRecord user.User
 
-	if err := userCollection.Find(request.Identifier.ToFilter()).One(&userRecord); err != nil {
+	filter := request.Identifier.ToFilter()
+	if err := userCollection.Find(filter).One(&userRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return userException.NotFound{}
 		} else {
@@ -267,11 +269,11 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		return err
 	}
 
-	reasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	userToValidate := &request.User
 
 	if (*userToValidate).Id == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "id cannot be blank",
@@ -280,7 +282,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).Name == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -289,7 +291,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).Surname == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "surname",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -298,7 +300,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).Username == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "username",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -307,7 +309,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).EmailAddress == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "emailAddress",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -315,7 +317,55 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		})
 	}
 
-	response.ReasonsInvalid = reasonsInvalid
+	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+
+	// Perform additional checks/ignores considering method field
+	switch request.Method {
+	case userRecordHandler.Create:
+		// Check if the users email already exists by checking if a user can be
+		// retrieved with it
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*userToValidate).EmailAddress,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{});
+				err != nil {
+				switch err.(type) {
+				case userException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
+
+		// Ignore reasons not applicable for this method
+		for _, reason := range allReasonsInvalid {
+			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+
+	default:
+	returnedReasonsInvalid = allReasonsInvalid
+	}
+
+	response.ReasonsInvalid = returnedReasonsInvalid
 	return nil
 }
 

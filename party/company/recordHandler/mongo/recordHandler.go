@@ -149,7 +149,6 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 	var companyRecord company.Company
 
 	filter := request.Identifier.ToFilter()
-
 	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return companyException.NotFound{}
@@ -283,10 +282,9 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
+	// Perform additional checks/ignores considering method field
 	switch request.Method {
 	case companyRecordHandler.Create:
-		// Perform additional Checks for this method
-
 		// Check if this email address already exists
 		if (*companyToValidate).AdminEmailAddress != "" {
 			if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
@@ -294,7 +292,8 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
 			},
-				&companyRecordHandler.RetrieveResponse{}); err != nil {
+				&companyRecordHandler.RetrieveResponse{});
+				err != nil {
 				switch err.(type) {
 				case companyException.NotFound:
 					// this is what we want, do nothing
