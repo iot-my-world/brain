@@ -8,6 +8,14 @@ import (
 	globalException "gitlab.com/iotTracker/brain/exception"
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	"gitlab.com/iotTracker/brain/email/mailer"
+	"time"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/security/token"
+	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"errors"
+	"fmt"
+	"crypto/rsa"
 )
 
 type basicRegistrar struct {
@@ -15,6 +23,7 @@ type basicRegistrar struct {
 	userRecordHandler    userRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	mailer               mailer.Mailer
+	jwtGenerator         token.JWTGenerator
 }
 
 func New(
@@ -22,12 +31,14 @@ func New(
 	userRecordHandler userRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	mailer mailer.Mailer,
+	rsaPrivateKey *rsa.PrivateKey,
 ) *basicRegistrar {
 	return &basicRegistrar{
 		companyRecordHandler: companyRecordHandler,
 		userRecordHandler:    userRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
 		mailer:               mailer,
+		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
 	}
 }
 
@@ -56,19 +67,33 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		return registrarException.UnableToRetrieveParty{Reasons: []string{"company party", err.Error()}}
 	}
 
+	// Generate the registration token
+	registrationToken, err := br.jwtGenerator.GenerateRegisterCompanyAdminUserToken(claims.RegisterCompanyAdminUserClaims{
+		Type:           claims.RegisterCompanyAdminUser,
+		IssueTime:      time.Now().UTC().Unix(),
+		ExpirationTime: time.Now().Add(claims.ValidTime).UTC().Unix(),
+		PartyType:      party.Company,
+		PartyId:        id.Identifier{Id: companyRetrieveResponse.Company.Id},
+	})
+	if err != nil {
+		//Unexpected Error!
+		return errors.New("log In failed")
+	}
+
 	sendMailResponse := mailer.SendResponse{}
 	if err := br.mailer.Send(&mailer.SendRequest{
 		//From    string
 		To: companyRetrieveResponse.Company.AdminEmailAddress,
 		//Cc      string
 		Subject: "Welcome to SpotNav",
-		Body:    "Welcome to Spot Nav. Click the link to continue.",
+		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. http://localhost:3000/register?&t=%s", registrationToken),
 		//Bcc     []string
 	},
 		&sendMailResponse);
 		err != nil {
 		return err
 	}
+	//http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
 
 	return nil
 }
