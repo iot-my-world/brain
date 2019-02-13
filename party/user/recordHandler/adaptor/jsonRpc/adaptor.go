@@ -1,12 +1,12 @@
 package user
 
 import (
+	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
-	"gitlab.com/iotTracker/brain/api"
 )
 
 type adaptor struct {

@@ -10,7 +10,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/auth"
-	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/token"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -61,11 +61,10 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 	}
 
 	// Password is correct. Try and generate loginToken
-	loginToken, err := s.jwtGenerator.GenerateLoginToken(claims.LoginClaims{
-		Type:           claims.Login,
+	loginToken, err := s.jwtGenerator.GenerateToken(login.Login{
 		UserId:         id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:      time.Now().UTC().Unix(),
-		ExpirationTime: time.Now().Add(claims.ValidTime).UTC().Unix(),
+		ExpirationTime: time.Now().Add(90 * time.Minute).UTC().Unix(),
 		PartyType:      retrieveUserResponse.User.PartyType,
 		PartyId:        retrieveUserResponse.User.PartyId,
 	})

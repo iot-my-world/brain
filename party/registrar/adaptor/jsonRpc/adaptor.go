@@ -2,8 +2,8 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/party/registrar"
-	"net/http"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"net/http"
 )
 
 type adaptor struct {
@@ -35,8 +35,7 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 	if err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
 		PartyIdentifier: id,
 	},
-		&inviteCompanyAdminUserResponse);
-		err != nil {
+		&inviteCompanyAdminUserResponse); err != nil {
 		return err
 	}
 

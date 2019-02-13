@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gopkg.in/square/go-jose.v2"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 )
 
 type JWTGenerator struct {
@@ -26,16 +27,12 @@ func NewJWTGenerator(privateRSAKey *rsa.PrivateKey) JWTGenerator {
 	}
 }
 
-func (g JWTGenerator) GenerateLoginToken(loginClaims claims.LoginClaims) (string, error) {
-	return getSignedJWT(loginClaims, g.signer)
-}
-
-func (g JWTGenerator) GenerateRegisterCompanyAdminUserToken(registerCompanyAdminUserClaims claims.RegisterCompanyAdminUserClaims) (string, error) {
-	return getSignedJWT(registerCompanyAdminUserClaims, g.signer)
-}
-
-func (g JWTGenerator) GenerateRegisterClientAdminUserToken(registerClientAdminUserClaims claims.RegisterClientAdminUserClaims) (string, error) {
-	return getSignedJWT(registerClientAdminUserClaims, g.signer)
+func (g JWTGenerator) GenerateToken(loginClaims claims.Claims) (string, error) {
+	wrapped, err := wrappedClaims.Wrap(loginClaims)
+	if err != nil {
+		return "", err
+	}
+	return getSignedJWT(wrapped, g.signer)
 }
 
 func getSignedJWT(claims interface{}, signer jose.Signer) (string, error) {

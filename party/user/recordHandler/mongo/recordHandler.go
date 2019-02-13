@@ -8,11 +8,11 @@ import (
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 )
 
 type mongoRecordHandler struct {
@@ -330,8 +330,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 					EmailAddress: (*userToValidate).EmailAddress,
 				},
 			},
-				&userRecordHandler.RetrieveResponse{});
-				err != nil {
+				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case userException.NotFound:
 					// this is what we want, do nothing
@@ -362,7 +361,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		}
 
 	default:
-	returnedReasonsInvalid = allReasonsInvalid
+		returnedReasonsInvalid = allReasonsInvalid
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid

@@ -34,10 +34,10 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
-	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
-	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/email/mailer"
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
+	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
+	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 )
 
 var ServerPort = "9010"

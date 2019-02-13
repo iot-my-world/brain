@@ -6,10 +6,10 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/client"
 	clientException "gitlab.com/iotTracker/brain/party/client/exception"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 )
 
 type mongoRecordHandler struct {

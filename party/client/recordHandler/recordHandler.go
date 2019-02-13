@@ -1,9 +1,9 @@
 package recordHandler
 
 import (
+	"gitlab.com/iotTracker/brain/party/client"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	"gitlab.com/iotTracker/brain/party/client"
 )
 
 type RecordHandler interface {

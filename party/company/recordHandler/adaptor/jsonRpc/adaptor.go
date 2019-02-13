@@ -4,12 +4,12 @@ import (
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/query"
 )
 
 type adaptor struct {
@@ -183,8 +183,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		Criteria: criteria,
 		Query:    request.Query,
 	},
-		&collectCompanyResponse);
-		err != nil {
+		&collectCompanyResponse); err != nil {
 		return err
 	}
 

@@ -1,8 +1,8 @@
 package client
 
 import (
-	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	"gitlab.com/iotTracker/brain/party/client"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"

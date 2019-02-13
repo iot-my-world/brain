@@ -292,8 +292,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
 			},
-				&companyRecordHandler.RetrieveResponse{});
-				err != nil {
+				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyException.NotFound:
 					// this is what we want, do nothing
@@ -383,8 +382,7 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 	if err := query.
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
-		All(&response.Records);
-		err != nil {
+		All(&response.Records); err != nil {
 		return err
 	}
 

@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/token"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type APIAuthorizer struct {
@@ -21,18 +22,23 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error 
 		return err
 	}
 
-	// Check the if the user is authorised to access this jsonRpcMethod based on their role claim
-	userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
-	if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
-		UserIdentifier: jwtClaims.UserId,
-		Permission:     permission.Permission(jsonRpcMethod),
-	}, &userHasPermissionResponse); err != nil {
-		return globalException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
+	switch c := jwtClaims.(type) {
+	case login.Login:
+		// if these are login claims we check in the normal way if the user has the
+		// required permission to check access the api
+		userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
+		if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
+			UserIdentifier: c.UserId,
+			Permission:     permission.Permission(jsonRpcMethod),
+		}, &userHasPermissionResponse); err != nil {
+			return globalException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
+		}
+
+		if !userHasPermissionResponse.Result {
+			return apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
+		}
 	}
 
-	if !userHasPermissionResponse.Result {
-		return apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
-	}
 
 	return nil
 }

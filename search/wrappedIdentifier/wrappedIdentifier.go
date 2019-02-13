@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	universalException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier"
-	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
 type WrappedIdentifier struct {
