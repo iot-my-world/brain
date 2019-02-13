@@ -7,6 +7,7 @@ import (
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 )
 
 type APIAuthorizer struct {
@@ -37,6 +38,18 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) error 
 		if !userHasPermissionResponse.Result {
 			return apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
 		}
+
+	case registerCompanyAdminUser.RegisterCompanyAdminUser:
+		switch permission.Permission(jsonRpcMethod) {
+
+		case permission.UserRecordHandlerValidate:
+			return nil
+		default:
+			return apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
+		}
+
+	default:
+		return apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
 	}
 
 
