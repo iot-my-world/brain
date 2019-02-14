@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
@@ -92,7 +92,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -130,7 +130,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHan
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -153,7 +153,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 		if err == mgo.ErrNotFound {
 			return companyException.NotFound{}
 		} else {
-			return globalException.Unexpected{Reasons: []string{err.Error()}}
+			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
@@ -165,7 +165,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandl
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -212,7 +212,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandl
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -239,7 +239,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *companyRecordHan
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -333,7 +333,7 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHand
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}

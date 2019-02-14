@@ -5,6 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"time"
+	"gitlab.com/iotTracker/brain/security/permission"
 )
 
 type RegisterCompanyAdminUser struct {
@@ -20,4 +21,10 @@ func (r RegisterCompanyAdminUser) Type() claims.Type {
 
 func (r RegisterCompanyAdminUser) Expired() bool {
 	return time.Now().UTC().After(time.Unix(r.ExpirationTime, 0).UTC())
+}
+
+// permissions granted by having a valid set of these claims
+var GrantedAPIPermissions = []permission.Permission{
+	permission.UserRecordHandlerValidate,
+	permission.PartyRegistrarInviteCompanyAdminUser,
 }

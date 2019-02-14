@@ -2,7 +2,7 @@ package wrappedIdentifier
 
 import (
 	"encoding/json"
-	universalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -60,7 +60,7 @@ func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
 	}
 
 	if result == nil {
-		return nil, universalException.Unexpected{Reasons: []string{"identifier still nil"}}
+		return nil, brainException.Unexpected{Reasons: []string{"identifier still nil"}}
 	}
 
 	if err := result.IsValid(); err != nil {

@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/role"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
@@ -90,7 +90,7 @@ func (mrh *recordHandler) ValidateRetrieveRequest(request *roleRecordHandler.Ret
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -112,7 +112,7 @@ func (mrh *recordHandler) Retrieve(request *roleRecordHandler.RetrieveRequest, r
 		if err == mgo.ErrNotFound {
 			return roleException.NotFound{}
 		} else {
-			return globalException.Unexpected{Reasons: []string{err.Error()}}
+			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 

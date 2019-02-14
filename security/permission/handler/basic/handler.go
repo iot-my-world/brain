@@ -2,7 +2,7 @@ package basic
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
@@ -43,7 +43,7 @@ func (bh *handler) ValidateUserHasPermissionRequest(request *permissionHandler.U
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -89,7 +89,7 @@ func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permissionHand
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}

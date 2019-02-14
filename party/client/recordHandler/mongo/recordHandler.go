@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/client"
 	clientException "gitlab.com/iotTracker/brain/party/client/exception"
@@ -79,7 +79,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandle
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -117,7 +117,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *clientRecordHand
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -139,7 +139,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 		if err == mgo.ErrNotFound {
 			return clientException.NotFound{}
 		} else {
-			return globalException.Unexpected{Reasons: []string{err.Error()}}
+			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
@@ -151,7 +151,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *clientRecordHandle
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -198,7 +198,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *clientRecordHandle
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -225,7 +225,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *clientRecordHand
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}

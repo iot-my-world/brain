@@ -13,6 +13,7 @@ const UserRecordHandlerUpdate = "UserRecordHandler.Update"
 const UserRecordHandlerDelete = "UserRecordHandler.Delete"
 const UserRecordHandlerValidate = "UserRecordHandler.Validate"
 const UserRecordHandlerCollect = "UserRecordHandler.Collect"
+const UserRecordHandlerChangePassword = "UserRecordHandler.ChangePassword"
 
 const CompanyRecordHandlerCreate = "CompanyRecordHandler.Create"
 const CompanyRecordHandlerRetrieve = "CompanyRecordHandler.Retrieve"

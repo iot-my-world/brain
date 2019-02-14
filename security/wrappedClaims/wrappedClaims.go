@@ -2,7 +2,7 @@ package wrappedClaims
 
 import (
 	"encoding/json"
-	universalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
@@ -52,7 +52,7 @@ func (wc WrappedClaims) Unwrap() (claims.Claims, error) {
 	}
 
 	if result == nil {
-		return nil, universalException.Unexpected{Reasons: []string{"identifier still nil"}}
+		return nil, brainException.Unexpected{Reasons: []string{"identifier still nil"}}
 	}
 
 	// check for expiry

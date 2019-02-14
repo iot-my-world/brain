@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
@@ -104,7 +104,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -142,7 +142,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandle
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -165,7 +165,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveReque
 		if err == mgo.ErrNotFound {
 			return userException.NotFound{}
 		} else {
-			return globalException.Unexpected{Reasons: []string{err.Error()}}
+			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
@@ -177,7 +177,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -231,7 +231,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -258,7 +258,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandle
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -372,7 +372,7 @@ func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *userRecord
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
