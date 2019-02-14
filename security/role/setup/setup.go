@@ -13,8 +13,10 @@ var initialRoles = func() []role.Role {
 
 	// Register roles here
 	allRoles := []role.Role{
-		owner,
-		admin,
+		ClientAdmin,
+		ClientUser,
+		CompanyAdmin,
+		CompanyUser,
 	}
 
 	//Register additional root permissions here
@@ -30,6 +32,7 @@ var initialRoles = func() []role.Role {
 		permission.CompanyRecordHandlerValidate,
 		permission.CompanyRecordHandlerCollect,
 		permission.PartyRegistrarInviteCompanyAdminUser,
+		permission.PartyRegistrarRegisterCompanyAdminUser,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -44,17 +47,31 @@ var initialRoles = func() []role.Role {
 }()
 
 // Create Roles here
-
-var owner = role.Role{
-	Name: "client",
+var CompanyAdmin = role.Role{
+	Name: "companyAdmin",
 	Permissions: []permission.Permission{
-		"User.Retrieve",
+
+	},
+}
+var CompanyUser = role.Role{
+	Name: "companyUser",
+	Permissions: []permission.Permission{
+
 	},
 }
 
-var admin = role.Role{
-	Name:        "admin",
-	Permissions: []permission.Permission{},
+var ClientAdmin = role.Role{
+	Name: "clientAdmin",
+	Permissions: []permission.Permission{
+
+	},
+}
+
+var ClientUser = role.Role{
+	Name: "clientUser",
+	Permissions: []permission.Permission{
+
+	},
 }
 
 func InitialSetup(handler roleRecordHandler.RecordHandler) error {

@@ -16,6 +16,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/token"
 	"time"
+	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 )
 
 type basicRegistrar struct {
@@ -110,6 +111,24 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 		reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
 	}
 
+	// email address must be the same as the admin email address on the party entity
+	// retrieve party to confirm this
+	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
+	if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		Identifier: request.Claims.PartyDetails().PartyId,
+	},
+		&companyRetrieveResponse); err != nil {
+		return registrarException.UnableToRetrieveParty{Reasons: []string{"company party", err.Error()}}
+	}
+	if companyRetrieveResponse.Company.AdminEmailAddress != request.User.EmailAddress {
+		reasonsInvalid = append(reasonsInvalid, "user email address incorrect")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -121,6 +140,33 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	if err := br.ValidateRegisterCompanyAdminUserRequest(request); err != nil {
 		return err
 	}
+
+	// give the user the necessary roles
+	request.User.Roles = append(request.User.Roles, roleSetup.CompanyAdmin.Name)
+	request.User.Roles = append(request.User.Roles, roleSetup.CompanyUser.Name)
+
+	// create the user
+	userCreateResponse := userRecordHandler.CreateResponse{}
+	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		User: request.User,
+	},
+		&userCreateResponse);
+		err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
+	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
+		NewPassword: request.Password,
+	},
+		&userChangePasswordResponse);
+		err != nil {
+		return err
+	}
+
+	response.User = userCreateResponse.User
 
 	return nil
 }

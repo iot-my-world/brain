@@ -427,11 +427,16 @@ func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangeP
 		return userException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
-	updateUserResponse := userRecordHandler.UpdateResponse{}
-	if err := mrh.Update(&userRecordHandler.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse); err != nil {
-		return userException.ChangePassword{Reasons: []string{"updating user", err.Error()}}
+
+	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
+		return userException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.User = retrieveUserResponse.User
