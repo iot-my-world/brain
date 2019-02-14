@@ -56,7 +56,7 @@ func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
 		result = unmarshalledId
 
 	default:
-		return nil, identifierException.Invalid{Reasons: []string{"invalid type"}}
+		return nil, identifierException.Invalid{Reasons: []string{"invalid type", string(i.Type)}}
 	}
 
 	if result == nil {

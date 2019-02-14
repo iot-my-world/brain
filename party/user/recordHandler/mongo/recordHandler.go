@@ -9,6 +9,7 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
@@ -33,6 +34,9 @@ func New(
 	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
 		ReasonsInvalid: map[string][]reasonInvalid.Type{
 			"id": {
+				reasonInvalid.Blank,
+			},
+			"password": {
 				reasonInvalid.Blank,
 			},
 		},
@@ -314,6 +318,34 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
 			Data:  (*userToValidate).EmailAddress,
+		})
+	}
+
+	if len((*userToValidate).Password) == 0 {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "password",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).Password,
+		})
+	}
+
+	if (*userToValidate).PartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "partyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).PartyType,
+		})
+	}
+
+	blankIdIdentifier := id.Identifier{}
+	if (*userToValidate).PartyId == blankIdIdentifier {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "partyId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).PartyId,
 		})
 	}
 

@@ -1,8 +1,9 @@
 package registrar
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type Registrar interface {
@@ -18,6 +19,7 @@ type InviteCompanyAdminUserResponse struct {
 }
 
 type RegisterCompanyAdminUserRequest struct {
+	Claims   claims.Claims
 	User     user.User
 	Password string
 }

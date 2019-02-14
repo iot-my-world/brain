@@ -4,8 +4,8 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"time"
 	"gitlab.com/iotTracker/brain/security/permission"
+	"time"
 )
 
 type RegisterCompanyAdminUser struct {
@@ -13,6 +13,7 @@ type RegisterCompanyAdminUser struct {
 	ExpirationTime int64         `json:"expirationTime"`
 	PartyType      party.Type    `json:"partyType"`
 	PartyId        id.Identifier `json:"partyId"`
+	EmailAddress   string        `json:"emailAddress"`
 }
 
 func (r RegisterCompanyAdminUser) Type() claims.Type {
@@ -23,8 +24,15 @@ func (r RegisterCompanyAdminUser) Expired() bool {
 	return time.Now().UTC().After(time.Unix(r.ExpirationTime, 0).UTC())
 }
 
+func (r RegisterCompanyAdminUser) PartyDetails() party.Details {
+	return party.Details{
+		PartyType: r.PartyType,
+		PartyId:   r.PartyId,
+	}
+}
+
 // permissions granted by having a valid set of these claims
 var GrantedAPIPermissions = []permission.Permission{
-	permission.UserRecordHandlerValidate,
-	permission.PartyRegistrarInviteCompanyAdminUser,
+	permission.UserRecordHandlerValidate,              // Ability to validate users
+	permission.PartyRegistrarRegisterCompanyAdminUser, // Ability to register self
 }

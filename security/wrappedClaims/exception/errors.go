@@ -28,3 +28,11 @@ type Invalid struct {
 func (e Invalid) Error() string {
 	return fmt.Sprintf("invalid claims: %s", strings.Join(e.Reasons, "; "))
 }
+
+type CouldNotParseFromContext struct {
+	Reasons []string
+}
+
+func (e CouldNotParseFromContext) Error() string {
+	return fmt.Sprintf("could not parse claims from context: %s", strings.Join(e.Reasons, "; "))
+}

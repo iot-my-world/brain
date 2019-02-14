@@ -22,3 +22,10 @@ func (l Login) Type() claims.Type {
 func (l Login) Expired() bool {
 	return time.Now().UTC().After(time.Unix(l.ExpirationTime, 0).UTC())
 }
+
+func (l Login) PartyDetails() party.Details {
+	return party.Details{
+		PartyType: l.PartyType,
+		PartyId:   l.PartyId,
+	}
+}

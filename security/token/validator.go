@@ -3,10 +3,9 @@ package token
 import (
 	"crypto/rsa"
 	"encoding/json"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"gopkg.in/square/go-jose.v2"
+	tokenException "gitlab.com/iotTracker/brain/security/token/exception"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gopkg.in/square/go-jose.v2"
 )
 
 type JWTValidator struct {
@@ -17,20 +16,18 @@ func NewJWTValidator(rsaPublicKey *rsa.PublicKey) JWTValidator {
 	return JWTValidator{rsaPublicKey: rsaPublicKey}
 }
 
-func (jwtv *JWTValidator) ValidateJWT(jwt string) (claims.Claims, error) {
+func (jwtv *JWTValidator) ValidateJWT(jwt string) (wrappedClaims.WrappedClaims, error) {
 	// Parse the jwt. Successful parse means the content of authorisation header was jwt
 	jwtObject, err := jose.ParseSigned(jwt)
 	if err != nil {
-		log.Warn("Invalid JWT Submitted!")
-		return nil, err
+		return wrappedClaims.WrappedClaims{}, tokenException.InvalidJWT{Reasons: []string{err.Error()}}
 	}
 
 	// Verify jwt signature and retrieve json marshalled claims
 	// Failure indicates jwt was damaged or tampered with
 	jsonClaims, err := jwtObject.Verify(jwtv.rsaPublicKey)
 	if err != nil {
-		log.Warn("JWT verification failure!")
-		return nil, err
+		return wrappedClaims.WrappedClaims{}, tokenException.JWTVerification{Reasons: []string{err.Error()}}
 	}
 
 	// Unmarshal json claims
@@ -38,10 +35,9 @@ func (jwtv *JWTValidator) ValidateJWT(jwt string) (claims.Claims, error) {
 	err = json.Unmarshal(jsonClaims, &wrapped)
 	if err != nil {
 		// This is an unknown flop, by now things shouldn't flop
-		log.Warn("Unable to Unmarshal login claims!")
-		return nil, err
+		return wrappedClaims.WrappedClaims{}, tokenException.JWTUnmarshalling{Reasons: []string{err.Error()}}
 	}
 
 	// Unwrap the claims and return the result
-	return wrapped.Unwrap()
+	return wrapped, nil
 }

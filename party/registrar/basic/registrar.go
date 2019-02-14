@@ -72,6 +72,7 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		ExpirationTime: time.Now().Add(90 * time.Minute).UTC().Unix(),
 		PartyType:      party.Company,
 		PartyId:        id.Identifier{Id: companyRetrieveResponse.Company.Id},
+		EmailAddress:   companyRetrieveResponse.Company.AdminEmailAddress,
 	}
 
 	registrationToken, err := br.jwtGenerator.GenerateToken(registerCompanyAdminUserClaims)
@@ -99,6 +100,15 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 
 func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	// user party type and id must be as was in claims otherwise someone is
+	// trying to abuse the registration token
+	if request.User.PartyType != request.Claims.PartyDetails().PartyType {
+		reasonsInvalid = append(reasonsInvalid, "user party type incorrect")
+	}
+	if request.User.PartyId != request.Claims.PartyDetails().PartyId {
+		reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
+	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}

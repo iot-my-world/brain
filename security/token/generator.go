@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gopkg.in/square/go-jose.v2"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gopkg.in/square/go-jose.v2"
 )
 
 type JWTGenerator struct {

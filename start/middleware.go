@@ -2,12 +2,12 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"gitlab.com/iotTracker/brain/log"
 	"io/ioutil"
 	"net/http"
-	"context"
 )
 
 type JsonRpcReq struct {
@@ -40,12 +40,13 @@ func apiAuthApplier(next http.Handler) http.Handler {
 				http.Error(w, "Unauthorised", http.StatusForbidden)
 				// TODO: Unauthorised access attempts like this should be getting tracked more formally. Could indicate an attack.
 			}
+			return
 		}
 
 		// Validate the jwt and confirm that user has appropriate claims to access given jsonrpc service
 		jwt := r.Header["Authorization"][0]
-		if claims, err := mainAPIAuthorizer.AuthorizeAPIReq(jwt, jsonRpcServiceMethod); err == nil {
-			ctx := context.WithValue(r.Context(), "claims", claims)
+		if wrappedClaims, err := mainAPIAuthorizer.AuthorizeAPIReq(jwt, jsonRpcServiceMethod); err == nil {
+			ctx := context.WithValue(r.Context(), "wrappedClaims", wrappedClaims)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		} else {

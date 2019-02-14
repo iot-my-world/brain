@@ -7,6 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	wrappedClaimsException "gitlab.com/iotTracker/brain/security/wrappedClaims/exception"
+	"net/http"
 )
 
 type WrappedClaims struct {
@@ -61,4 +62,12 @@ func (wc WrappedClaims) Unwrap() (claims.Claims, error) {
 	}
 
 	return result, nil
+}
+
+func UnwrapClaimsFromContext(r *http.Request) (claims.Claims, error) {
+	wrapped, ok := r.Context().Value("wrappedClaims").(WrappedClaims)
+	if !ok {
+		return nil, wrappedClaimsException.CouldNotParseFromContext{}
+	}
+	return wrapped.Unwrap()
 }
