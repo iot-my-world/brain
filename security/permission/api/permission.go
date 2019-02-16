@@ -24,3 +24,5 @@ const CompanyRecordHandlerCollect = "CompanyRecordHandler.Collect"
 
 const PartyRegistrarInviteCompanyAdminUser = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser = "PartyRegistrar.RegisterCompanyAdminUser"
+
+const PermissionHandlerGetAllUsersViewPermissions = "PermissionHandler.GetAllUsersViewPermissions"
