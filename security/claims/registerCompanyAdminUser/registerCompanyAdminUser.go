@@ -4,8 +4,8 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/permission"
 	"time"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 )
 
 type RegisterCompanyAdminUser struct {
@@ -32,7 +32,7 @@ func (r RegisterCompanyAdminUser) PartyDetails() party.Details {
 }
 
 // permissions granted by having a valid set of these claims
-var GrantedAPIPermissions = []permission.Permission{
-	permission.UserRecordHandlerValidate,              // Ability to validate users
-	permission.PartyRegistrarRegisterCompanyAdminUser, // Ability to register self
+var GrantedAPIPermissions = []api.Permission{
+	api.UserRecordHandlerValidate,              // Ability to validate users
+	api.PartyRegistrarRegisterCompanyAdminUser, // Ability to register self
 }

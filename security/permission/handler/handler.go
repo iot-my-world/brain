@@ -2,7 +2,7 @@ package handler
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/security/permission"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 )
 
 type Handler interface {
@@ -12,7 +12,7 @@ type Handler interface {
 
 type UserHasPermissionRequest struct {
 	UserIdentifier identifier.Identifier `json:"userIdentifier"`
-	Permission     permission.Permission `json:"permission"`
+	Permission     api.Permission `json:"permission"`
 }
 
 type UserHasPermissionResponse struct {
@@ -24,5 +24,5 @@ type GetAllUsersPermissionsRequest struct {
 }
 
 type GetAllUsersPermissionsResponse struct {
-	Permissions []permission.Permission `json:"permissions"`
+	Permissions []api.Permission `json:"permissions"`
 }

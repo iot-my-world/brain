@@ -5,10 +5,10 @@ import (
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
-	"gitlab.com/iotTracker/brain/security/permission"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 )
 
 type APIAuthorizer struct {
@@ -35,18 +35,18 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 		userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
 		if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
 			UserIdentifier: typedClaims.UserId,
-			Permission:     permission.Permission(jsonRpcMethod),
+			Permission:     api.Permission(jsonRpcMethod),
 		}, &userHasPermissionResponse); err != nil {
 			return wrappedClaims.WrappedClaims{}, brainException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
 		}
 		if !userHasPermissionResponse.Result {
-			return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
+			return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 		}
 		// user was authorised
 		return wrappedJWTClaims, nil
 
 	case registerCompanyAdminUser.RegisterCompanyAdminUser:
-		permissionForMethod := permission.Permission(jsonRpcMethod)
+		permissionForMethod := api.Permission(jsonRpcMethod)
 		// check the permissions granted by the RegisterCompanyAdminUser claims to see if this
 		// method is allowed
 		for allowedPermIdx := range registerCompanyAdminUser.GrantedAPIPermissions {
@@ -54,13 +54,13 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerCompanyAdminUser.GrantedAPIPermissions)-1 {
-				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
+				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}
 
 	default:
-		return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
+		return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 	}
 
-	return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: permission.Permission(jsonRpcMethod)}
+	return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 }

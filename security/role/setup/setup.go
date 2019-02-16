@@ -3,10 +3,10 @@ package setup
 import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/security/permission"
 	"gitlab.com/iotTracker/brain/security/role"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 )
 
 var initialRoles = func() []role.Role {
@@ -20,28 +20,28 @@ var initialRoles = func() []role.Role {
 	}
 
 	//Register additional root permissions here
-	rootPermissions := []permission.Permission{
-		permission.RoleCreate,
-		permission.RoleRetrieve,
-		permission.RoleUpdate,
-		permission.RoleDelete,
-		permission.CompanyRecordHandlerCreate,
-		permission.CompanyRecordHandlerRetrieve,
-		permission.CompanyRecordHandlerUpdate,
-		permission.CompanyRecordHandlerDelete,
-		permission.CompanyRecordHandlerValidate,
-		permission.CompanyRecordHandlerCollect,
-		permission.PartyRegistrarInviteCompanyAdminUser,
-		permission.PartyRegistrarRegisterCompanyAdminUser,
+	rootAPIPermissions := []api.Permission{
+		api.RoleCreate,
+		api.RoleRetrieve,
+		api.RoleUpdate,
+		api.RoleDelete,
+		api.CompanyRecordHandlerCreate,
+		api.CompanyRecordHandlerRetrieve,
+		api.CompanyRecordHandlerUpdate,
+		api.CompanyRecordHandlerDelete,
+		api.CompanyRecordHandlerValidate,
+		api.CompanyRecordHandlerCollect,
+		api.PartyRegistrarInviteCompanyAdminUser,
+		api.PartyRegistrarRegisterCompanyAdminUser,
 	}
 
 	// Create root role and apply permissions of all other roles to root
 	for _, role := range allRoles {
-		rootPermissions = append(rootPermissions, role.Permissions...)
+		rootAPIPermissions = append(rootAPIPermissions, role.APIPermissions...)
 	}
 	root := role.Role{
 		Name:        "root",
-		Permissions: rootPermissions,
+		APIPermissions: rootAPIPermissions,
 	}
 	return append([]role.Role{root}, allRoles...)
 }()
@@ -49,27 +49,27 @@ var initialRoles = func() []role.Role {
 // Create Roles here
 var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
-	Permissions: []permission.Permission{
+	APIPermissions: []api.Permission{
 
 	},
 }
 var CompanyUser = role.Role{
 	Name: "companyUser",
-	Permissions: []permission.Permission{
+	APIPermissions: []api.Permission{
 
 	},
 }
 
 var ClientAdmin = role.Role{
 	Name: "clientAdmin",
-	Permissions: []permission.Permission{
+	APIPermissions: []api.Permission{
 
 	},
 }
 
 var ClientUser = role.Role{
 	Name: "clientUser",
-	Permissions: []permission.Permission{
+	APIPermissions: []api.Permission{
 
 	},
 }
@@ -92,7 +92,7 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 		case nil:
 			// no error, role was retrieved successfully
 			//Record Retrieved Successfully
-			if roleToCreate.ComparePermissions(retrieveRoleResponse.Role.Permissions) {
+			if roleToCreate.CompareAPIPermissions(retrieveRoleResponse.Role.APIPermissions) {
 				// no difference in role permissions, do nothing
 				log.Info("Initial Role Setup: Role " + retrieveRoleResponse.Role.Name + " already exists and permissions correct.")
 			} else {

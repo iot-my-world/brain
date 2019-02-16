@@ -6,10 +6,10 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/security/permission"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 )
 
 type handler struct {
@@ -106,7 +106,7 @@ func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsers
 		return err
 	}
 
-	usersPermissions := make([]permission.Permission, 0)
+	usersPermissions := make([]api.Permission, 0)
 
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
@@ -116,7 +116,7 @@ func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsers
 			return err
 		}
 		// add all of the permissions of the role
-		usersPermissions = append(usersPermissions, roleRetrieveResponse.Role.Permissions...)
+		usersPermissions = append(usersPermissions, roleRetrieveResponse.Role.APIPermissions...)
 	}
 
 	// return all permissions
