@@ -34,6 +34,9 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
+	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
+	trackerTCPServer "gitlab.com/iotTracker/brain/tracker/tcpServer"
+
 	"gitlab.com/iotTracker/brain/email/mailer"
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
@@ -86,6 +89,7 @@ func main() {
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey)
+	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
@@ -136,6 +140,15 @@ func main() {
 	go func() {
 		err := http.ListenAndServe("0.0.0.0:"+ServerPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
+		os.Exit(1)
+	}()
+
+	// Set up tracker tcp server
+	trackerTCPServerInst := trackerTCPServer.New(ReadingRecordHandler, "0.0.0.0", "7018")
+	log.Info("Starting Reading TCP Server")
+	go func(){
+		err := trackerTCPServerInst.Start()
+		log.Error("tcp server stopped: ", err)
 		os.Exit(1)
 	}()
 
