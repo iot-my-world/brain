@@ -31,7 +31,7 @@ func (r *Role) CompareViewPermissions(perms []view.Permission) bool {
 		return false
 	}
 
-	for i := range r.APIPermissions {
+	for i := range r.ViewPermissions {
 		if r.ViewPermissions[i] != perms[i] {
 			return false
 		}

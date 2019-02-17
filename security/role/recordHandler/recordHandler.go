@@ -27,7 +27,8 @@ type RetrieveResponse struct {
 }
 
 type UpdateRequest struct {
-	Role role.Role `json:"role"`
+	Identifier identifier.Identifier `json:"identifier"`
+	Role       role.Role             `json:"role"`
 }
 
 type UpdateResponse struct {

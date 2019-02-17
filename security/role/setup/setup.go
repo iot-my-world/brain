@@ -8,6 +8,7 @@ import (
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 var initialRoles = func() []role.Role {
@@ -38,7 +39,10 @@ var initialRoles = func() []role.Role {
 	}
 
 	rootViewPermissions := []view.Permission{
+		view.Party,
 		view.PartyCompany,
+		view.PartyClient,
+		view.PartyUser,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -71,7 +75,9 @@ var CompanyAdmin = role.Role{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 	},
 	ViewPermissions: []view.Permission{
-
+		view.Party,
+		view.PartyClient,
+		view.PartyUser,
 	},
 }
 var CompanyUser = role.Role{
@@ -88,6 +94,10 @@ var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+	},
+	ViewPermissions: []view.Permission{
+		view.Party,
+		view.PartyUser,
 	},
 }
 
@@ -120,11 +130,16 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 			//Record Retrieved Successfully
 
 			// Update Role Permissions If Necessary
-			if !(roleToCreate.CompareAPIPermissions(retrieveRoleResponse.Role.APIPermissions) ||
+			if !(roleToCreate.CompareAPIPermissions(retrieveRoleResponse.Role.APIPermissions) &&
 				roleToCreate.CompareViewPermissions(retrieveRoleResponse.Role.ViewPermissions)) {
 				// role permissions differ, try update role
 				log.Info("Initial Role Setup: Role: " + roleToCreate.Name + " already exists. Updating Role API permissions.")
-				if err := handler.Update(&roleRecordHandler.UpdateRequest{Role: roleToCreate}, &roleRecordHandler.UpdateResponse{}); err != nil {
+				if err := handler.Update(&roleRecordHandler.UpdateRequest{
+					Role: roleToCreate,
+					Identifier: id.Identifier{Id: retrieveRoleResponse.Role.Id},
+				},
+				&roleRecordHandler.UpdateResponse{});
+				err != nil {
 					return roleException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 				}
 			}
