@@ -7,12 +7,15 @@ import (
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 )
 
 type mongoRecordHandler struct {
@@ -20,12 +23,14 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	userRecordHandler    userRecordHandler.RecordHandler
 }
 
 func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
+	userRecordHandler userRecordHandler.RecordHandler,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -43,6 +48,7 @@ func New(
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
+		userRecordHandler:    userRecordHandler,
 	}
 
 	return &newCompanyMongoRecordHandler
@@ -315,7 +321,8 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 	// Perform additional checks/ignores considering method field
 	switch request.Method {
 	case companyRecordHandler.Create:
-		// Check if this email address already exists
+
+		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
 			if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
 				Identifier: adminEmailAddress.Identifier{
@@ -325,6 +332,33 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "adminEmailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*companyToValidate).AdminEmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email is already in database
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "adminEmailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*companyToValidate).AdminEmailAddress,
+				})
+			}
+
+			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*companyToValidate).AdminEmailAddress,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

@@ -86,8 +86,8 @@ func main() {
 	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
-	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
-	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
+	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
+	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
@@ -146,7 +146,7 @@ func main() {
 	// Set up tracker tcp server
 	trackerTCPServerInst := trackerTCPServer.New(ReadingRecordHandler, "0.0.0.0", "7018")
 	log.Info("Starting Reading TCP Server")
-	go func(){
+	go func() {
 		err := trackerTCPServerInst.Start()
 		log.Error("tcp server stopped: ", err)
 		os.Exit(1)

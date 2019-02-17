@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
-const TYPE = identifier.EmailAddress
+const TYPE = identifier.AdminEmailAddress
 
 type Identifier struct {
 	AdminEmailAddress string `json:"adminEmailAddress"`

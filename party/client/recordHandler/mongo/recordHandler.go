@@ -7,10 +7,13 @@ import (
 	"gitlab.com/iotTracker/brain/party/client"
 	clientException "gitlab.com/iotTracker/brain/party/client/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 )
 
 type mongoRecordHandler struct {
@@ -18,12 +21,14 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	userRecordHandler    userRecordHandler.RecordHandler
 }
 
 func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
+	userRecordHandler userRecordHandler.RecordHandler,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -41,6 +46,7 @@ func New(
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
+		userRecordHandler:    userRecordHandler,
 	}
 
 	return &newClientMongoRecordHandler
@@ -80,7 +86,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandle
 
 	if err := mrh.Validate(&clientRecordHandler.ValidateRequest{
 		Client: request.Client,
-		Method:  clientRecordHandler.Create},
+		Method: clientRecordHandler.Create},
 		&clientValidateResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newClient")
 	} else {
@@ -285,8 +291,10 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 	// Perform additional checks/ignores considering method field
 	switch request.Method {
 	case clientRecordHandler.Create:
-		// Check if this email address already exists
+
 		if (*clientToValidate).AdminEmailAddress != "" {
+
+			// Check if there is another client that is already using the same admin email address
 			if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*clientToValidate).AdminEmailAddress,
@@ -313,7 +321,37 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 					Data:  (*clientToValidate).AdminEmailAddress,
 				})
 			}
+
+			// Check if there is another user that is already using the same admin email address
+			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*clientToValidate).AdminEmailAddress,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "adminEmailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*clientToValidate).AdminEmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email is already in database
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "adminEmailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*clientToValidate).AdminEmailAddress,
+				})
+			}
 		}
+
+		// Check if there is another user that is already using the same admin email address
 
 		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {

@@ -73,6 +73,12 @@ var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+		api.ClientRecordHandlerCreate,
+		api.ClientRecordHandlerRetrieve,
+		api.ClientRecordHandlerUpdate,
+		api.ClientRecordHandlerDelete,
+		api.ClientRecordHandlerValidate,
+		api.ClientRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Party,
@@ -135,11 +141,11 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 				// role permissions differ, try update role
 				log.Info("Initial Role Setup: Role: " + roleToCreate.Name + " already exists. Updating Role API permissions.")
 				if err := handler.Update(&roleRecordHandler.UpdateRequest{
-					Role: roleToCreate,
+					Role:       roleToCreate,
 					Identifier: id.Identifier{Id: retrieveRoleResponse.Role.Id},
 				},
-				&roleRecordHandler.UpdateResponse{});
-				err != nil {
+					&roleRecordHandler.UpdateResponse{});
+					err != nil {
 					return roleException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 				}
 			}

@@ -22,6 +22,13 @@ const CompanyRecordHandlerDelete = "CompanyRecordHandler.Delete"
 const CompanyRecordHandlerValidate = "CompanyRecordHandler.Validate"
 const CompanyRecordHandlerCollect = "CompanyRecordHandler.Collect"
 
+const ClientRecordHandlerCreate = "ClientRecordHandler.Create"
+const ClientRecordHandlerRetrieve = "ClientRecordHandler.Retrieve"
+const ClientRecordHandlerUpdate = "ClientRecordHandler.Update"
+const ClientRecordHandlerDelete = "ClientRecordHandler.Delete"
+const ClientRecordHandlerValidate = "ClientRecordHandler.Validate"
+const ClientRecordHandlerCollect = "ClientRecordHandler.Collect"
+
 const PartyRegistrarInviteCompanyAdminUser = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser = "PartyRegistrar.RegisterCompanyAdminUser"
 
