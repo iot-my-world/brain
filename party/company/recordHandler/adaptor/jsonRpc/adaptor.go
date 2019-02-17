@@ -10,6 +10,8 @@ import (
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 type adaptor struct {
@@ -31,11 +33,18 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	createCompanyResponse := companyRecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
 		&companyRecordHandler.CreateRequest{
 			Company: request.Company,
+			Claims:  claims,
 		},
 		&createCompanyResponse); err != nil {
 		return err

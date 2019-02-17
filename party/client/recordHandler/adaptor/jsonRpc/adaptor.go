@@ -1,8 +1,12 @@
 package client
 
 import (
+	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/client"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
@@ -129,6 +133,7 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 
 type ValidateRequest struct {
 	Client client.Client `json:"client"`
+	Method api.Method    `json:"method"`
 }
 
 type ValidateResponse struct {
@@ -141,6 +146,7 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 	if err := s.RecordHandler.Validate(
 		&clientRecordHandler.ValidateRequest{
 			Client: request.Client,
+			Method: request.Method,
 		},
 		&validateClientResponse); err != nil {
 		return err
@@ -148,5 +154,40 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 
 	response.ReasonsInvalid = validateClientResponse.ReasonsInvalid
 
+	return nil
+}
+
+type CollectRequest struct {
+	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
+	Query    query.Query                         `json:"query"`
+}
+
+type CollectResponse struct {
+	Records []client.Client `json:"records"`
+	Total   int             `json:"total"`
+}
+
+func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+	// unwrap criteria
+	criteria := make([]criterion.Criterion, 0)
+	for criterionIdx := range request.Criteria {
+		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {
+			criteria = append(criteria, c)
+		} else {
+			return err
+		}
+	}
+
+	collectClientResponse := clientRecordHandler.CollectResponse{}
+	if err := s.RecordHandler.Collect(&clientRecordHandler.CollectRequest{
+		Criteria: criteria,
+		Query:    request.Query,
+	},
+		&collectClientResponse); err != nil {
+		return err
+	}
+
+	response.Records = collectClientResponse.Records
+	response.Total = collectClientResponse.Total
 	return nil
 }

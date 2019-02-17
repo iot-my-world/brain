@@ -27,8 +27,8 @@ func NewJWTGenerator(privateRSAKey *rsa.PrivateKey) JWTGenerator {
 	}
 }
 
-func (g JWTGenerator) GenerateToken(loginClaims claims.Claims) (string, error) {
-	wrapped, err := wrappedClaims.Wrap(loginClaims)
+func (g JWTGenerator) GenerateToken(claimsToWrap claims.Claims) (string, error) {
+	wrapped, err := wrappedClaims.Wrap(claimsToWrap)
 	if err != nil {
 		return "", err
 	}

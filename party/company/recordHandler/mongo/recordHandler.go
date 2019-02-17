@@ -11,6 +11,8 @@ import (
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type mongoRecordHandler struct {
@@ -74,6 +76,15 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	// A new company can only be made by root
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "nil claims")
+	} else {
+		if request.Claims.PartyDetails().PartyType != party.System {
+			reasonsInvalid = append(reasonsInvalid, "only system party can make a new company")
+		}
+	}
 
 	// Validate the new company
 	companyValidateResponse := companyRecordHandler.ValidateResponse{}
@@ -277,6 +288,25 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
 			Data:  (*companyToValidate).AdminEmailAddress,
+		})
+	}
+
+	if (*companyToValidate).ParentPartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentPartyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*companyToValidate).ParentPartyType,
+		})
+	}
+
+	blankIdIdentifier := id.Identifier{}
+	if (*companyToValidate).ParentId == blankIdIdentifier {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*companyToValidate).ParentId,
 		})
 	}
 
