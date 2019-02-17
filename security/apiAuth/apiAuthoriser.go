@@ -9,6 +9,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 )
 
 type APIAuthorizer struct {
@@ -54,6 +55,19 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerCompanyAdminUser.GrantedAPIPermissions)-1 {
+				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+			}
+		}
+
+	case registerClientAdminUser.RegisterClientAdminUser:
+		permissionForMethod := api.Permission(jsonRpcMethod)
+		// check the permissions granted by the RegisterClientAdminUser claims to see if this
+		// method is allowed
+		for allowedPermIdx := range registerClientAdminUser.GrantedAPIPermissions {
+			if registerClientAdminUser.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
+				return wrappedJWTClaims, nil
+			}
+			if allowedPermIdx == len(registerClientAdminUser.GrantedAPIPermissions)-1 {
 				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}

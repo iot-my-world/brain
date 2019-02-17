@@ -77,3 +77,60 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 
 	return nil
 }
+
+type InviteClientAdminUserRequest struct {
+	PartyIdentifier wrappedIdentifier.WrappedIdentifier `json:"partyIdentifier"`
+}
+
+type InviteClientAdminUserResponse struct {
+}
+
+func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error {
+
+	id, err := request.PartyIdentifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
+	inviteClientAdminUserResponse := registrar.InviteClientAdminUserResponse{}
+	if err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
+		PartyIdentifier: id,
+	},
+		&inviteClientAdminUserResponse); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type RegisterClientAdminUserRequest struct {
+	User     user.User `json:"user"`
+	Password string    `json:"password"`
+}
+
+type RegisterClientAdminUserResponse struct {
+	User user.User `json:"user"`
+}
+
+func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	registerClientAdminUserResponse := registrar.RegisterClientAdminUserResponse{}
+	if err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
+		Claims:   claims,
+		User:     request.User,
+		Password: request.Password,
+	},
+		&registerClientAdminUserResponse); err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	response.User = registerClientAdminUserResponse.User
+
+	return nil
+}

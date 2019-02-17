@@ -79,6 +79,7 @@ var CompanyAdmin = role.Role{
 		api.ClientRecordHandlerDelete,
 		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
+		api.PartyRegistrarInviteClientAdminUser,
 	},
 	ViewPermissions: []view.Permission{
 		view.Party,

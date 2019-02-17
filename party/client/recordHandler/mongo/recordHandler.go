@@ -14,6 +14,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type mongoRecordHandler struct {
@@ -93,6 +94,24 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandle
 		for _, reason := range clientValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
 				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+			}
+		}
+	}
+
+	// except for root, who is free to assign parents to other parties, the new clients parent party type and
+	// parent id must match claims
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		switch request.Claims.PartyDetails().PartyType {
+		case party.System:
+			// do nothing, we expect system to not make a mistake
+		default:
+			if request.Client.ParentPartyType != request.Claims.PartyDetails().PartyType {
+				reasonsInvalid = append(reasonsInvalid, "client ParentPartyType must be the type of the party doing creation")
+			}
+			if request.Client.ParentId != request.Claims.PartyDetails().PartyId {
+				reasonsInvalid = append(reasonsInvalid, "client ParentId must be the id of the party doing creation")
 			}
 		}
 	}

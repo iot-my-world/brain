@@ -9,6 +9,8 @@ import (
 type Registrar interface {
 	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
 	RegisterCompanyAdminUser(request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error
+	InviteClientAdminUser(request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error
+	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
 }
 
 type InviteCompanyAdminUserRequest struct {
@@ -25,5 +27,22 @@ type RegisterCompanyAdminUserRequest struct {
 }
 
 type RegisterCompanyAdminUserResponse struct {
+	User user.User
+}
+
+type InviteClientAdminUserRequest struct {
+	PartyIdentifier identifier.Identifier
+}
+
+type InviteClientAdminUserResponse struct {
+}
+
+type RegisterClientAdminUserRequest struct {
+	Claims   claims.Claims
+	User     user.User
+	Password string
+}
+
+type RegisterClientAdminUserResponse struct {
 	User user.User
 }

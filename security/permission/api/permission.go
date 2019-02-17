@@ -31,5 +31,7 @@ const ClientRecordHandlerCollect = "ClientRecordHandler.Collect"
 
 const PartyRegistrarInviteCompanyAdminUser = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser = "PartyRegistrar.RegisterCompanyAdminUser"
+const PartyRegistrarInviteClientAdminUser = "PartyRegistrar.InviteClientAdminUser"
+const PartyRegistrarRegisterClientAdminUser = "PartyRegistrar.RegisterClientAdminUser"
 
 const PermissionHandlerGetAllUsersViewPermissions = "PermissionHandler.GetAllUsersViewPermissions"

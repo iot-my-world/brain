@@ -14,6 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
 type mongoRecordHandler struct {
@@ -381,6 +382,37 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 					Type:  reasonInvalid.Duplicate,
 					Help:  "already exists",
 					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
+
+		// Check if the users username already exists by checking if a user can be
+		// retrieved with it
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Identifier: username.Identifier{
+					Username: (*userToValidate).Username,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).Username,
+					})
+				}
+			} else {
+				// there was no error, this username is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "username",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).Username,
 				})
 			}
 		}
