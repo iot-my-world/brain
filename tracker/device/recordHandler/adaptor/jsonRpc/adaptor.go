@@ -1,9 +1,9 @@
-package company
+package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/api"
-	"gitlab.com/iotTracker/brain/party/company"
-	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/tracker/device"
+	deviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
@@ -15,21 +15,21 @@ import (
 )
 
 type adaptor struct {
-	RecordHandler companyRecordHandler.RecordHandler
+	RecordHandler deviceRecordHandler.RecordHandler
 }
 
-func New(recordHandler companyRecordHandler.RecordHandler) *adaptor {
+func New(recordHandler deviceRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
 }
 
 type CreateRequest struct {
-	Company company.Company `json:"company"`
+	Device device.Device `json:"device"`
 }
 
 type CreateResponse struct {
-	Company company.Company `json:"company"`
+	Device device.Device `json:"device"`
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
@@ -39,18 +39,18 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createCompanyResponse := companyRecordHandler.CreateResponse{}
+	createDeviceResponse := deviceRecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
-		&companyRecordHandler.CreateRequest{
-			Company: request.Company,
-			Claims:  claims,
+		&deviceRecordHandler.CreateRequest{
+			Device: request.Device,
+			Claims: claims,
 		},
-		&createCompanyResponse); err != nil {
+		&createDeviceResponse); err != nil {
 		return err
 	}
 
-	response.Company = createCompanyResponse.Company
+	response.Device = createDeviceResponse.Device
 
 	return nil
 }
@@ -60,7 +60,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Company company.Company `json:"company" bson:"company"`
+	Device device.Device `json:"device"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -69,27 +69,27 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
+	retrieveDeviceResponse := deviceRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
-		&companyRecordHandler.RetrieveRequest{
+		&deviceRecordHandler.RetrieveRequest{
 			Identifier: id,
 		},
-		&retrieveCompanyResponse); err != nil {
+		&retrieveDeviceResponse); err != nil {
 		return err
 	}
 
-	response.Company = retrieveCompanyResponse.Company
+	response.Device = retrieveDeviceResponse.Device
 
 	return nil
 }
 
 type UpdateRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-	Company    company.Company                     `json:"company"`
+	Device     device.Device                       `json:"device"`
 }
 
 type UpdateResponse struct {
-	Company company.Company `json:"company"`
+	Device device.Device `json:"device"`
 }
 
 func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
@@ -98,16 +98,16 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		return err
 	}
 
-	updateCompanyResponse := companyRecordHandler.UpdateResponse{}
+	updateDeviceResponse := deviceRecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
-		&companyRecordHandler.UpdateRequest{
+		&deviceRecordHandler.UpdateRequest{
 			Identifier: id,
 		},
-		&updateCompanyResponse); err != nil {
+		&updateDeviceResponse); err != nil {
 		return err
 	}
 
-	response.Company = updateCompanyResponse.Company
+	response.Device = updateDeviceResponse.Device
 
 	return nil
 }
@@ -117,7 +117,7 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Company company.Company `json:"company"`
+	Device device.Device `json:"device"`
 }
 
 func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *DeleteResponse) error {
@@ -126,23 +126,23 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		return err
 	}
 
-	deleteCompanyResponse := companyRecordHandler.DeleteResponse{}
+	deleteDeviceResponse := deviceRecordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
-		&companyRecordHandler.DeleteRequest{
+		&deviceRecordHandler.DeleteRequest{
 			Identifier: id,
 		},
-		&deleteCompanyResponse); err != nil {
+		&deleteDeviceResponse); err != nil {
 		return err
 	}
 
-	response.Company = deleteCompanyResponse.Company
+	response.Device = deleteDeviceResponse.Device
 
 	return nil
 }
 
 type ValidateRequest struct {
-	Company company.Company `json:"company"`
-	Method  api.Method      `json:"method"`
+	Device device.Device `json:"device"`
+	Method api.Method    `json:"method"`
 }
 
 type ValidateResponse struct {
@@ -151,17 +151,17 @@ type ValidateResponse struct {
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 
-	validateCompanyResponse := companyRecordHandler.ValidateResponse{}
+	validateDeviceResponse := deviceRecordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
-		&companyRecordHandler.ValidateRequest{
-			Company: request.Company,
-			Method:  request.Method,
+		&deviceRecordHandler.ValidateRequest{
+			Device: request.Device,
+			Method: request.Method,
 		},
-		&validateCompanyResponse); err != nil {
+		&validateDeviceResponse); err != nil {
 		return err
 	}
 
-	response.ReasonsInvalid = validateCompanyResponse.ReasonsInvalid
+	response.ReasonsInvalid = validateDeviceResponse.ReasonsInvalid
 
 	return nil
 }
@@ -172,8 +172,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []company.Company `json:"records"`
-	Total   int               `json:"total"`
+	Records []device.Device `json:"records"`
+	Total   int             `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
@@ -187,16 +187,16 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectCompanyResponse := companyRecordHandler.CollectResponse{}
-	if err := s.RecordHandler.Collect(&companyRecordHandler.CollectRequest{
+	collectDeviceResponse := deviceRecordHandler.CollectResponse{}
+	if err := s.RecordHandler.Collect(&deviceRecordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
 	},
-		&collectCompanyResponse); err != nil {
+		&collectDeviceResponse); err != nil {
 		return err
 	}
 
-	response.Records = collectCompanyResponse.Records
-	response.Total = collectCompanyResponse.Total
+	response.Records = collectDeviceResponse.Records
+	response.Total = collectDeviceResponse.Total
 	return nil
 }

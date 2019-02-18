@@ -35,3 +35,10 @@ const PartyRegistrarInviteClientAdminUser = "PartyRegistrar.InviteClientAdminUse
 const PartyRegistrarRegisterClientAdminUser = "PartyRegistrar.RegisterClientAdminUser"
 
 const PermissionHandlerGetAllUsersViewPermissions = "PermissionHandler.GetAllUsersViewPermissions"
+
+const DeviceRecordHandlerCreate = "DeviceRecordHandler.Create"
+const DeviceRecordHandlerRetrieve = "DeviceRecordHandler.Retrieve"
+const DeviceRecordHandlerUpdate = "DeviceRecordHandler.Update"
+const DeviceRecordHandlerDelete = "DeviceRecordHandler.Delete"
+const DeviceRecordHandlerValidate = "DeviceRecordHandler.Validate"
+const DeviceRecordHandlerCollect = "DeviceRecordHandler.Collect"

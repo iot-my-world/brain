@@ -412,7 +412,7 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 		// neither are blank
 		switch (*deviceToValidate).AssignedPartyType {
 		case party.System:
-			// system owner party type means assignedId must be the system id
+			// system assigned party type means assignedId must be the system id
 			rootPartyID := id.Identifier{Id: "root"}
 			if (*deviceToValidate).AssignedId != rootPartyID {
 				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

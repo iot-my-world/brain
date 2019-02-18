@@ -43,6 +43,7 @@ var initialRoles = func() []role.Role {
 		view.PartyCompany,
 		view.PartyClient,
 		view.PartyUser,
+		view.Device,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -80,11 +81,18 @@ var CompanyAdmin = role.Role{
 		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
 		api.PartyRegistrarInviteClientAdminUser,
+		api.DeviceRecordHandlerCreate,
+		api.DeviceRecordHandlerRetrieve,
+		api.DeviceRecordHandlerUpdate,
+		api.DeviceRecordHandlerDelete,
+		api.DeviceRecordHandlerValidate,
+		api.DeviceRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Party,
 		view.PartyClient,
 		view.PartyUser,
+		view.Device,
 	},
 }
 var CompanyUser = role.Role{
@@ -101,10 +109,17 @@ var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+		api.DeviceRecordHandlerCreate,
+		api.DeviceRecordHandlerRetrieve,
+		api.DeviceRecordHandlerUpdate,
+		api.DeviceRecordHandlerDelete,
+		api.DeviceRecordHandlerValidate,
+		api.DeviceRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Party,
 		view.PartyUser,
+		view.Device,
 	},
 }
 

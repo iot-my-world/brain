@@ -37,6 +37,9 @@ import (
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
 	trackerTCPServer "gitlab.com/iotTracker/brain/tracker/tcpServer"
 
+	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
+	deviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/recordHandler/adaptor/jsonRpc"
+
 	"gitlab.com/iotTracker/brain/email/mailer"
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
@@ -89,6 +92,7 @@ func main() {
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey)
+	DeviceRecordHandler := deviceMongoRecordHandler.New(mainMongoSession, databaseName, deviceCollection, CompanyRecordHandler, ClientRecordHandler)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
 	// Create Service Provider Adaptors
@@ -99,6 +103,7 @@ func main() {
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
+	DeviceRecordHandlerAdaptor := deviceRecordHandlerJsonRpcAdaptor.New(DeviceRecordHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -129,6 +134,9 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
+	}
+	if err := secureAPIServer.RegisterService(DeviceRecordHandlerAdaptor, "DeviceRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Device Record Handler Service")
 	}
 
 	// Set up Router for secureAPIServer

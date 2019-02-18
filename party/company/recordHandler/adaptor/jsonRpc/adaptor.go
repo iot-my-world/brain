@@ -60,7 +60,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Company company.Company `json:"company" bson:"company"`
+	Company company.Company `json:"company"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
