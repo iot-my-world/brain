@@ -390,6 +390,88 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 		}
 	}
 
+	blankId := id.Identifier{}
+	// although assigned party type can be blank, if it is then the assigned id must also be blank
+	if ((*deviceToValidate).AssignedPartyType == "" && (*deviceToValidate).AssignedId != blankId) ||
+		((*deviceToValidate).AssignedId == blankId && (*deviceToValidate).AssignedPartyType != "") {
+		if (*deviceToValidate).AssignedId != blankId {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "assignedPartyType",
+				Type:  reasonInvalid.Invalid,
+				Help:  "assigned must be blank if assignedPartyType is",
+				Data:  (*deviceToValidate).AssignedPartyType,
+			})
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "assignedId",
+				Type:  reasonInvalid.Invalid,
+				Help:  "assigned must be blank if assignedPartyType is",
+				Data:  (*deviceToValidate).AssignedId,
+			})
+		}
+	} else {
+		// neither are blank
+		switch (*deviceToValidate).AssignedPartyType {
+		case party.System:
+			// system owner party type means assignedId must be the system id
+			rootPartyID := id.Identifier{Id: "root"}
+			if (*deviceToValidate).AssignedId != rootPartyID {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "ownerId",
+					Type:  reasonInvalid.MustExist,
+					Help:  "owner party must exist",
+					Data:  (*deviceToValidate).AssignedId,
+				})
+			}
+
+		case party.Company:
+			// company assigned must exist, try and retrieve to confirm
+			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Identifier: (*deviceToValidate).AssignedId,
+			},
+				&companyRecordHandler.RetrieveResponse{});
+				err != nil {
+				switch err.(type) {
+				case companyException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "assignedId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "assigned party must exist",
+						Data:  (*deviceToValidate).AssignedId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving company", err.Error()}}
+				}
+			}
+
+		case party.Client:
+			// client assigned must exist, try and retrieve to confirm
+			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Identifier: (*deviceToValidate).AssignedId,
+			},
+				&clientRecordHandler.RetrieveResponse{});
+				err != nil {
+				switch err.(type) {
+				case clientException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "assignedId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "assigned party must exist",
+						Data:  (*deviceToValidate).AssignedId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving client", err.Error()}}
+				}
+			}
+
+		default:
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "ownerPartyType",
+				Type:  reasonInvalid.Invalid,
+				Help:  "must be a valid type",
+				Data:  (*deviceToValidate).OwnerPartyType,
+			})
+		}
+	}
 
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
