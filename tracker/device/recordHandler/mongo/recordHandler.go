@@ -7,11 +7,16 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/device"
 	deviceException "gitlab.com/iotTracker/brain/tracker/device/exception"
 	deviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/satori/go.uuid"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyException "gitlab.com/iotTracker/brain/party/company/exception"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	clientException "gitlab.com/iotTracker/brain/party/client/exception"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 type mongoRecordHandler struct {
@@ -19,14 +24,16 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
-	userRecordHandler    userRecordHandler.RecordHandler
+	companyRecordHandler companyRecordHandler.RecordHandler
+	clientRecordHandler  clientRecordHandler.RecordHandler
 }
 
 func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
-	userRecordHandler userRecordHandler.RecordHandler,
+	companyRecordHandler companyRecordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -44,7 +51,8 @@ func New(
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
-		userRecordHandler:    userRecordHandler,
+		companyRecordHandler: companyRecordHandler,
+		clientRecordHandler:  clientRecordHandler,
 	}
 
 	return &newDeviceMongoRecordHandler
@@ -65,27 +73,30 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 		log.Fatal("Could not ensure id uniqueness: ", err)
 	}
 
-	// Ensure admin email uniqueness
-	adminEmailUnique := mgo.Index{
-		Key:    []string{"adminEmailAddress"},
+	// Ensure admin imei uniqueness
+	imeiUnique := mgo.Index{
+		Key:    []string{"imei"},
 		Unique: true,
 	}
-	if err := deviceCollection.EnsureIndex(adminEmailUnique); err != nil {
-		log.Fatal("Could not ensure admin email uniqueness: ", err)
+	if err := deviceCollection.EnsureIndex(imeiUnique); err != nil {
+		log.Fatal("Could not ensure imei: ", err)
 	}
 
+	// Ensure country code + number uniqueness
+	countryCodeNumberUnique := mgo.Index{
+		Key:    []string{"simCountryCode", "simNumber"},
+		Unique: true,
+	}
+	if err := deviceCollection.EnsureIndex(countryCodeNumberUnique); err != nil {
+		log.Fatal("Could not ensure sim country code and number combination unique: ", err)
+	}
 }
 
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *deviceRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	// A new device can only be made by root
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "nil claims")
-	} else {
-		if request.Claims.PartyDetails().PartyType != party.System {
-			reasonsInvalid = append(reasonsInvalid, "only system party can make a new device")
-		}
 	}
 
 	// Validate the new device
@@ -93,7 +104,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *deviceRecordHandle
 
 	if err := mrh.Validate(&deviceRecordHandler.ValidateRequest{
 		Device: request.Device,
-		Method:  deviceRecordHandler.Create},
+		Method: deviceRecordHandler.Create},
 		&deviceValidateResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newDevice")
 	} else {
@@ -121,7 +132,11 @@ func (mrh *mongoRecordHandler) Create(request *deviceRecordHandler.CreateRequest
 
 	deviceCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	request.Device.Id = bson.NewObjectId().Hex()
+	newId, err := uuid.NewV4()
+	if err != nil {
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
+	request.Device.Id = newId.String()
 
 	if err := deviceCollection.Insert(request.Device); err != nil {
 		return deviceException.Create{Reasons: []string{"inserting record", err.Error()}}
@@ -269,10 +284,112 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
-			Help:  "id cannot be blank",
+			Help:  "cannot be blank",
 			Data:  (*deviceToValidate).Id,
 		})
 	}
+
+	if (*deviceToValidate).IMEI == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "imei",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*deviceToValidate).IMEI,
+		})
+	}
+
+	if (*deviceToValidate).SimCountryCode == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "simCountryCode",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*deviceToValidate).SimCountryCode,
+		})
+	}
+
+	if (*deviceToValidate).SimNumber == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "simNumber",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*deviceToValidate).SimNumber,
+		})
+	}
+
+	// owner party type must be set, cannot be blank
+	if (*deviceToValidate).OwnerPartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "ownerPartyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*deviceToValidate).OwnerPartyType,
+		})
+	} else {
+		// if it is not blank
+		// owner party type must be valid. i.e. must be of a valid type and the party must exist
+		switch (*deviceToValidate).OwnerPartyType {
+		case party.System:
+			// system owner party type means ownerId must be the system id
+			rootPartyID := id.Identifier{Id: "root"}
+			if (*deviceToValidate).OwnerId != rootPartyID {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "ownerId",
+					Type:  reasonInvalid.MustExist,
+					Help:  "owner party must exist",
+					Data:  (*deviceToValidate).OwnerId,
+				})
+			}
+
+		case party.Company:
+			// company owner must exist, try and retrieve to confirm
+			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Identifier: (*deviceToValidate).OwnerId,
+			},
+				&companyRecordHandler.RetrieveResponse{});
+				err != nil {
+				switch err.(type) {
+				case companyException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "ownerId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "owner party must exist",
+						Data:  (*deviceToValidate).OwnerId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving company", err.Error()}}
+				}
+			}
+
+		case party.Client:
+			// client owner must exist, try and retrieve to confirm
+			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Identifier: (*deviceToValidate).OwnerId,
+			},
+				&clientRecordHandler.RetrieveResponse{});
+				err != nil {
+				switch err.(type) {
+				case clientException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "ownerId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "owner party must exist",
+						Data:  (*deviceToValidate).OwnerId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving client", err.Error()}}
+				}
+			}
+
+		default:
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "ownerPartyType",
+				Type:  reasonInvalid.Invalid,
+				Help:  "must be a valid type",
+				Data:  (*deviceToValidate).OwnerPartyType,
+			})
+		}
+	}
+
 
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 

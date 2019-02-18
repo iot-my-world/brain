@@ -9,7 +9,7 @@ import (
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/satori/go.uuid"
 )
 
 type recordHandler struct {
@@ -67,11 +67,13 @@ func (mrh *recordHandler) Create(request *roleRecordHandler.CreateRequest, respo
 
 	roleCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	request.Role.Id = bson.NewObjectId().Hex()
-
-	err := roleCollection.Insert(request.Role)
-
+	newId, err := uuid.NewV4()
 	if err != nil {
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
+	request.Role.Id = newId.String()
+
+	if err := roleCollection.Insert(request.Role); err != nil {
 		log.Error("Could not create Role! ", err)
 		return err //TODO: Translate Unknown error
 	}

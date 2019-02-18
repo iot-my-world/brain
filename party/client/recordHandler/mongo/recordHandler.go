@@ -15,6 +15,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/party"
+	"github.com/satori/go.uuid"
 )
 
 type mongoRecordHandler struct {
@@ -133,7 +134,11 @@ func (mrh *mongoRecordHandler) Create(request *clientRecordHandler.CreateRequest
 
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	request.Client.Id = bson.NewObjectId().Hex()
+	newId, err := uuid.NewV4()
+	if err != nil {
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
+	request.Client.Id = newId.String()
 
 	if err := clientCollection.Insert(request.Client); err != nil {
 		return clientException.Create{Reasons: []string{"inserting record", err.Error()}}

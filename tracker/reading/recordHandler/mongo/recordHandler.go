@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/satori/go.uuid"
 )
 
 type mongoRecordHandler struct {
@@ -66,7 +66,11 @@ func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateReques
 
 	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	request.Reading.Id = bson.NewObjectId().Hex()
+	newId, err := uuid.NewV4()
+	if err != nil {
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
+	request.Reading.Id = newId.String()
 
 	if err := readingCollection.Insert(request.Reading); err != nil {
 		return err

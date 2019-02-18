@@ -11,7 +11,7 @@ type Device struct {
 	SimCountryCode    string        `json:"simCountryCode" bson:"simCountryCode"`
 	SimNumber         string        `json:"simNumber" bson:"simNumber"`
 	OwnerPartyType    party.Type    `json:"ownerPartyType" bson:"ownerPartyType"`
-	ParentId          id.Identifier `json:"parentId" bson:"parentId"`
+	OwnerId           id.Identifier `json:"ownerId" bson:"ownerId"`
 	AssignedPartyType party.Type    `json:"assignedPartyType" bson:"assignedPartyType"`
 	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
 }
