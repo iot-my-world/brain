@@ -1,9 +1,11 @@
-before_script:
- - apt-get update
+image: golang
+
+# before_script:
+#  - apt-get update
 
 deploy_stage:
   stage: deploy
-  environment: Staging
+  environment: Production
   only:
     - master
   script:
