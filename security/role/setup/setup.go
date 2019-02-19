@@ -36,6 +36,7 @@ var initialRoles = func() []role.Role {
 		api.CompanyRecordHandlerCollect,
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
+		api.ReadingRecordHandlerCollect,
 	}
 
 	rootViewPermissions := []view.Permission{

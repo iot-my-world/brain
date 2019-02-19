@@ -42,3 +42,5 @@ const DeviceRecordHandlerUpdate = "DeviceRecordHandler.Update"
 const DeviceRecordHandlerDelete = "DeviceRecordHandler.Delete"
 const DeviceRecordHandlerValidate = "DeviceRecordHandler.Validate"
 const DeviceRecordHandlerCollect = "DeviceRecordHandler.Collect"
+
+const ReadingRecordHandlerCollect = "ReadingRecordHandler.Collect"
