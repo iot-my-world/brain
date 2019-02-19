@@ -6,6 +6,8 @@ import (
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"github.com/satori/go.uuid"
+	"gitlab.com/iotTracker/brain/tracker/reading"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {
@@ -30,7 +32,7 @@ func New(
 }
 
 func setupIndices(mongoSession *mgo.Session, database, collection string) {
-	//Initialise Company collection in database
+	//Initialise Reading collection in database
 	mgoSesh := mongoSession.Copy()
 	defer mgoSesh.Close()
 	readingCollection := mgoSesh.DB(database).C(collection)
@@ -77,5 +79,65 @@ func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateReques
 	}
 
 	response.Reading = request.Reading
+	return nil
+}
+
+func (mrh *mongoRecordHandler) ValidateCollectRequest(request *readingRecordHandler.CollectRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequest, response *readingRecordHandler.CollectResponse) error {
+	if err := mrh.ValidateCollectRequest(request); err != nil {
+		return err
+	}
+
+	// Build filters from criteria
+	filter := bson.M{}
+	criteriaFilters := make([]bson.M, 0)
+	for criterionIdx := range request.Criteria {
+		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
+	}
+	if len(criteriaFilters) > 0 {
+		filter["$and"] = criteriaFilters
+	}
+
+	// Get Reading Collection
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	// Perform Query
+	query := readingCollection.Find(filter)
+
+	// Apply the count
+	if total, err := query.Count(); err == nil {
+		response.Total = total
+	} else {
+		return err
+	}
+
+	// Apply limit if applicable
+	if request.Query.Limit > 0 {
+		query.Limit(request.Query.Limit)
+	}
+
+	// Determine the Sort Order
+	mongoSortOrder := request.Query.ToMongoSortFormat()
+
+	// Populate records
+	response.Records = make([]reading.Reading, 0)
+	if err := query.
+		Skip(request.Query.Offset).
+		Sort(mongoSortOrder...).
+		All(&response.Records); err != nil {
+		return err
+	}
+
 	return nil
 }

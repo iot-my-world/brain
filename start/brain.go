@@ -35,6 +35,7 @@ import (
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
+	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	trackerTCPServer "gitlab.com/iotTracker/brain/tracker/tcpServer"
 
 	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
@@ -104,6 +105,7 @@ func main() {
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
 	DeviceRecordHandlerAdaptor := deviceRecordHandlerJsonRpcAdaptor.New(DeviceRecordHandler)
+	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -137,6 +139,9 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(DeviceRecordHandlerAdaptor, "DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Device Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Reading Record Handler Service")
 	}
 
 	// Set up Router for secureAPIServer
