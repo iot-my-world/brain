@@ -1,5 +1,10 @@
 package company
 
+import (
+	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+)
+
 type Company struct {
 	Id   string `json:"id" bson:"id"`
 	Name string `json:"name" bson:"name"`
@@ -7,4 +12,7 @@ type Company struct {
 	// user of the company
 	// I.e. the first user of the system from the company
 	AdminEmailAddress string `json:"adminEmailAddress" bson:"adminEmailAddress"`
+
+	ParentPartyType party.Type    `json:"parentPartyType" bson:"parentPartyType"`
+	ParentId        id.Identifier `json:"parentId" bson:"parentId"`
 }

@@ -1,8 +1,8 @@
 package query
 
 import (
-	"strings"
 	"gitlab.com/iotTracker/brain/log"
+	"strings"
 )
 
 type Query struct {

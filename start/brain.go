@@ -34,10 +34,16 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
-	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
-	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
+	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
+	trackerTCPServer "gitlab.com/iotTracker/brain/tracker/tcpServer"
+
+	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
+	deviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/recordHandler/adaptor/jsonRpc"
+
 	"gitlab.com/iotTracker/brain/email/mailer"
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
+	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
+	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 )
 
 var ServerPort = "9010"
@@ -83,9 +89,11 @@ func main() {
 	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
-	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection)
-	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection)
+	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
+	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey)
+	DeviceRecordHandler := deviceMongoRecordHandler.New(mainMongoSession, databaseName, deviceCollection, CompanyRecordHandler, ClientRecordHandler)
+	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
@@ -95,6 +103,7 @@ func main() {
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
+	DeviceRecordHandlerAdaptor := deviceRecordHandlerJsonRpcAdaptor.New(DeviceRecordHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -126,6 +135,9 @@ func main() {
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
+	if err := secureAPIServer.RegisterService(DeviceRecordHandlerAdaptor, "DeviceRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Device Record Handler Service")
+	}
 
 	// Set up Router for secureAPIServer
 	secureAPIServerMux := mux.NewRouter()
@@ -136,6 +148,15 @@ func main() {
 	go func() {
 		err := http.ListenAndServe("0.0.0.0:"+ServerPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
+		os.Exit(1)
+	}()
+
+	// Set up tracker tcp server
+	trackerTCPServerInst := trackerTCPServer.New(ReadingRecordHandler, "0.0.0.0", "7018")
+	log.Info("Starting Reading TCP Server")
+	go func() {
+		err := trackerTCPServerInst.Start()
+		log.Error("tcp server stopped: ", err)
 		os.Exit(1)
 	}()
 

@@ -1,20 +1,38 @@
 package role
 
-import "gitlab.com/iotTracker/brain/security/permission"
+import (
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/view"
+)
 
 type Role struct {
-	Id          string                  `json:"id" bson:"id"`
-	Name        string                  `json:"name" bson:"name"`
-	Permissions []permission.Permission `json:"permissions" bson:"permissions"`
+	Id              string            `json:"id" bson:"id"`
+	Name            string            `json:"name" bson:"name"`
+	APIPermissions  []api.Permission  `json:"apiPermissions" bson:"apiPermissions"`
+	ViewPermissions []view.Permission `json:"viewPermissions" bson:"viewPermissions"`
 }
 
-func (r *Role) ComparePermissions(perms []permission.Permission) bool {
-	if len(r.Permissions) != len(perms) {
+func (r *Role) CompareAPIPermissions(perms []api.Permission) bool {
+	if len(r.APIPermissions) != len(perms) {
 		return false
 	}
 
-	for i := range r.Permissions {
-		if r.Permissions[i] != perms[i] {
+	for i := range r.APIPermissions {
+		if r.APIPermissions[i] != perms[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (r *Role) CompareViewPermissions(perms []view.Permission) bool {
+	if len(r.ViewPermissions) != len(perms) {
+		return false
+	}
+
+	for i := range r.ViewPermissions {
+		if r.ViewPermissions[i] != perms[i] {
 			return false
 		}
 	}

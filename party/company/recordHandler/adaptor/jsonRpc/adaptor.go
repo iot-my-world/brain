@@ -4,12 +4,14 @@ import (
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 type adaptor struct {
@@ -31,11 +33,18 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	createCompanyResponse := companyRecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
 		&companyRecordHandler.CreateRequest{
 			Company: request.Company,
+			Claims:  claims,
 		},
 		&createCompanyResponse); err != nil {
 		return err
@@ -51,7 +60,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Company company.Company `json:"company" bson:"company"`
+	Company company.Company `json:"company"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -183,8 +192,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		Criteria: criteria,
 		Query:    request.Query,
 	},
-		&collectCompanyResponse);
-		err != nil {
+		&collectCompanyResponse); err != nil {
 		return err
 	}
 

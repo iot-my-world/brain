@@ -23,7 +23,8 @@ const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
 
 type ValidateRequest struct {
-	User user.User
+	User   user.User
+	Method api.Method
 }
 
 type ValidateResponse struct {

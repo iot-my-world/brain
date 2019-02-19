@@ -2,14 +2,15 @@ package basic
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/security/permission"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/view"
 )
 
 type handler struct {
@@ -43,7 +44,7 @@ func (bh *handler) ValidateUserHasPermissionRequest(request *permissionHandler.U
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -55,8 +56,8 @@ func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissio
 	}
 
 	// retrieve all of the users permissions
-	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersPermissionsResponse{}
-	if err := bh.GetAllUsersPermissions(&permissionHandler.GetAllUsersPermissionsRequest{
+	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
+	if err := bh.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
 		UserIdentifier: request.UserIdentifier,
 	},
 		&getAllUsersPermissionsResponse); err != nil {
@@ -77,7 +78,7 @@ func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissio
 	return nil
 }
 
-func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permissionHandler.GetAllUsersPermissionsRequest) error {
+func (bh *handler) ValidateGetAllUsersAPIPermissionsRequest(request *permissionHandler.GetAllUsersAPIPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -89,14 +90,14 @@ func (bh *handler) ValidateGetAllUsersPermissionsRequest(request *permissionHand
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
 }
 
-func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsersPermissionsRequest, response *permissionHandler.GetAllUsersPermissionsResponse) error {
-	if err := bh.ValidateGetAllUsersPermissionsRequest(request); err != nil {
+func (bh *handler) GetAllUsersAPIPermissions(request *permissionHandler.GetAllUsersAPIPermissionsRequest, response *permissionHandler.GetAllUsersAPIPermissionsResponse) error {
+	if err := bh.ValidateGetAllUsersAPIPermissionsRequest(request); err != nil {
 		return err
 	}
 
@@ -106,7 +107,7 @@ func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsers
 		return err
 	}
 
-	usersPermissions := make([]permission.Permission, 0)
+	usersAPIPermissions := make([]api.Permission, 0)
 
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
@@ -116,11 +117,59 @@ func (bh *handler) GetAllUsersPermissions(request *permissionHandler.GetAllUsers
 			return err
 		}
 		// add all of the permissions of the role
-		usersPermissions = append(usersPermissions, roleRetrieveResponse.Role.Permissions...)
+		usersAPIPermissions = append(usersAPIPermissions, roleRetrieveResponse.Role.APIPermissions...)
 	}
 
 	// return all permissions
-	response.Permissions = usersPermissions
+	response.Permissions = usersAPIPermissions
+
+	return nil
+}
+
+func (bh *handler) ValidateGetAllUsersViewPermissionsRequest(request *permissionHandler.GetAllUsersViewPermissionsRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.UserIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	} else {
+		if !user.IsValidIdentifier(request.UserIdentifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (bh *handler) GetAllUsersViewPermissions(request *permissionHandler.GetAllUsersViewPermissionsRequest, response *permissionHandler.GetAllUsersViewPermissionsResponse) error {
+	if err := bh.ValidateGetAllUsersViewPermissionsRequest(request); err != nil {
+		return err
+	}
+
+	// try and retrieve the user
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
+		return err
+	}
+
+	usersViewPermissions := make([]view.Permission, 0)
+
+	// for every role that the user has been assigned
+	for _, roleName := range userRetrieveResponse.User.Roles {
+		// retrieve the role
+		roleRetrieveResponse := roleRecordHandler.RetrieveResponse{}
+		if err := bh.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
+			return err
+		}
+		// add all of the permissions of the role
+		usersViewPermissions = append(usersViewPermissions, roleRetrieveResponse.Role.ViewPermissions...)
+	}
+
+	// return all permissions
+	response.Permissions = usersViewPermissions
 
 	return nil
 }

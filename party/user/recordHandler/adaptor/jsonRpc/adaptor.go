@@ -1,6 +1,7 @@
 package user
 
 import (
+	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
@@ -128,7 +129,8 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 }
 
 type ValidateRequest struct {
-	User user.User `json:"user"`
+	User   user.User  `json:"user"`
+	Method api.Method `json:"method"`
 }
 
 type ValidateResponse struct {
@@ -140,7 +142,8 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 	validateUserResponse := userRecordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
 		&userRecordHandler.ValidateRequest{
-			User: request.User,
+			User:   request.User,
+			Method: request.Method,
 		},
 		&validateUserResponse); err != nil {
 		return err

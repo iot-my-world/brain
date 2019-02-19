@@ -2,14 +2,14 @@ package wrappedIdentifier
 
 import (
 	"encoding/json"
-	universalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier"
-	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
 type WrappedIdentifier struct {
@@ -56,11 +56,11 @@ func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
 		result = unmarshalledId
 
 	default:
-		return nil, identifierException.Invalid{Reasons: []string{"invalid type"}}
+		return nil, identifierException.Invalid{Reasons: []string{"invalid type", string(i.Type)}}
 	}
 
 	if result == nil {
-		return nil, universalException.Unexpected{Reasons: []string{"identifier still nil"}}
+		return nil, brainException.Unexpected{Reasons: []string{"identifier still nil"}}
 	}
 
 	if err := result.IsValid(); err != nil {

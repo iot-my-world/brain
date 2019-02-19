@@ -27,7 +27,7 @@ var initialUsers = []newUser{
 			Roles: []string{"root"},
 
 			PartyType: party.System,
-			// PartyId: no associated party for root
+			PartyId: id.Identifier{Id: "root"},
 		},
 		password: "12345",
 	},

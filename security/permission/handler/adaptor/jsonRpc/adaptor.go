@@ -2,9 +2,10 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
-	"gitlab.com/iotTracker/brain/security/permission"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"net/http"
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/view"
 )
 
 type adaptor struct {
@@ -17,26 +18,50 @@ func New(permissionHandler permissionHandler.Handler) *adaptor {
 	}
 }
 
-type GetAllUsersPermissionsRequest struct {
+type GetAllUsersAPIPermissionsRequest struct {
 	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
 }
 
-type GetAllUsersPermissionsResponse struct {
-	Permissions []permission.Permission `json:"permission"`
+type GetAllUsersAPIPermissionsResponse struct {
+	Permissions []api.Permission `json:"permission"`
 }
 
-func (s *adaptor) GetAllUsersPermissions(r *http.Request, request *GetAllUsersPermissionsRequest, response *GetAllUsersPermissionsResponse) error {
+func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUsersAPIPermissionsRequest, response *GetAllUsersAPIPermissionsResponse) error {
 	id, err := request.UserIdentifier.UnWrap()
 	if err != nil {
 		return err
 	}
 
-	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersPermissionsResponse{}
-	if err := s.permissionHandler.GetAllUsersPermissions(&permissionHandler.GetAllUsersPermissionsRequest{
+	getAllUsersAPIPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
+	if err := s.permissionHandler.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
 		UserIdentifier: id,
-	}, &getAllUsersPermissionsResponse); err != nil {
+	}, &getAllUsersAPIPermissionsResponse); err != nil {
 		return err
 	}
-	response.Permissions = getAllUsersPermissionsResponse.Permissions
+	response.Permissions = getAllUsersAPIPermissionsResponse.Permissions
+	return nil
+}
+
+type GetAllUsersViewPermissionsRequest struct {
+	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
+}
+
+type GetAllUsersViewPermissionsResponse struct {
+	Permissions []view.Permission `json:"permission"`
+}
+
+func (s *adaptor) GetAllUsersViewPermissions(r *http.Request, request *GetAllUsersViewPermissionsRequest, response *GetAllUsersViewPermissionsResponse) error {
+	id, err := request.UserIdentifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
+	getAllUsersViewPermissionsResponse := permissionHandler.GetAllUsersViewPermissionsResponse{}
+	if err := s.permissionHandler.GetAllUsersViewPermissions(&permissionHandler.GetAllUsersViewPermissionsRequest{
+		UserIdentifier: id,
+	}, &getAllUsersViewPermissionsResponse); err != nil {
+		return err
+	}
+	response.Permissions = getAllUsersViewPermissionsResponse.Permissions
 	return nil
 }

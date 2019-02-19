@@ -1,10 +1,10 @@
 package gmail
 
 import (
-	"gitlab.com/iotTracker/brain/email/mailer"
-	"net/smtp"
 	"github.com/jpoehls/gophermail"
+	"gitlab.com/iotTracker/brain/email/mailer"
 	"net/mail"
+	"net/smtp"
 )
 
 type gmailMailer struct {

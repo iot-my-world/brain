@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"gitlab.com/iotTracker/brain/log"
@@ -44,15 +45,20 @@ func apiAuthApplier(next http.Handler) http.Handler {
 
 		// Validate the jwt and confirm that user has appropriate claims to access given jsonrpc service
 		jwt := r.Header["Authorization"][0]
-		if err := mainAPIAuthorizer.AuthorizeAPIReq(jwt, jsonRpcServiceMethod); err != nil {
-			log.Warn("Unauthorised Access Attempt for Method."+jsonRpcServiceMethod, err.Error())
+		if wrappedClaims, err := mainAPIAuthorizer.AuthorizeAPIReq(jwt, jsonRpcServiceMethod); err == nil {
+			ctx := context.WithValue(r.Context(), "wrappedClaims", wrappedClaims)
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		} else {
+			log.Warn("Unauthorised Access Attempt", err.Error())
 			// unauthorised api access, error 403
 			http.Error(w, "Unauthorised", http.StatusForbidden)
 			// TODO: Unauthorised access attempts like this should be getting tracked more formally. Could indicate an attack.
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// if it can't be retrieved, error 404
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	})
 }

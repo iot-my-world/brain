@@ -2,16 +2,19 @@ package mongo
 
 import (
 	"fmt"
-	globalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"github.com/satori/go.uuid"
 )
 
 type mongoRecordHandler struct {
@@ -32,6 +35,9 @@ func New(
 	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
 		ReasonsInvalid: map[string][]reasonInvalid.Type{
 			"id": {
+				reasonInvalid.Blank,
+			},
+			"password": {
 				reasonInvalid.Blank,
 			},
 		},
@@ -103,7 +109,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -119,7 +125,11 @@ func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, 
 
 	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	request.User.Id = bson.NewObjectId().Hex()
+	newId, err := uuid.NewV4()
+	if err != nil {
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
+	request.User.Id = newId.String()
 
 	if err := userCollection.Insert(request.User); err != nil {
 		return userException.Create{Reasons: []string{"inserting record", err.Error()}}
@@ -141,7 +151,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandle
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -159,11 +169,12 @@ func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveReque
 
 	var userRecord user.User
 
-	if err := userCollection.Find(request.Identifier.ToFilter()).One(&userRecord); err != nil {
+	filter := request.Identifier.ToFilter()
+	if err := userCollection.Find(filter).One(&userRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return userException.NotFound{}
 		} else {
-			return globalException.Unexpected{Reasons: []string{err.Error()}}
+			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
@@ -175,7 +186,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -229,7 +240,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.
 	}
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -256,7 +267,7 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandle
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -267,11 +278,11 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		return err
 	}
 
-	reasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	userToValidate := &request.User
 
 	if (*userToValidate).Id == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "id cannot be blank",
@@ -280,7 +291,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).Name == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -289,7 +300,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).Surname == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "surname",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -298,7 +309,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).Username == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "username",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -307,7 +318,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	if (*userToValidate).EmailAddress == "" {
-		reasonsInvalid = append(reasonsInvalid, reasonInvalid.ReasonInvalid{
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "emailAddress",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
@@ -315,7 +326,113 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		})
 	}
 
-	response.ReasonsInvalid = reasonsInvalid
+	if len((*userToValidate).Password) == 0 {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "password",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).Password,
+		})
+	}
+
+	if (*userToValidate).PartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "partyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).PartyType,
+		})
+	}
+
+	blankIdIdentifier := id.Identifier{}
+	if (*userToValidate).PartyId == blankIdIdentifier {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "partyId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).PartyId,
+		})
+	}
+
+	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+
+	// Perform additional checks/ignores considering method field
+	switch request.Method {
+	case userRecordHandler.Create:
+		// Check if the users email already exists by checking if a user can be
+		// retrieved with it
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*userToValidate).EmailAddress,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
+
+		// Check if the users username already exists by checking if a user can be
+		// retrieved with it
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Identifier: username.Identifier{
+					Username: (*userToValidate).Username,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).Username,
+					})
+				}
+			} else {
+				// there was no error, this username is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "username",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).Username,
+				})
+			}
+		}
+
+		// Ignore reasons not applicable for this method
+		for _, reason := range allReasonsInvalid {
+			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+
+	default:
+		returnedReasonsInvalid = allReasonsInvalid
+	}
+
+	response.ReasonsInvalid = returnedReasonsInvalid
 	return nil
 }
 
@@ -323,7 +440,7 @@ func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *userRecord
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
-		return globalException.RequestInvalid{Reasons: reasonsInvalid}
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
 		return nil
 	}
@@ -346,11 +463,16 @@ func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangeP
 		return userException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
-	updateUserResponse := userRecordHandler.UpdateResponse{}
-	if err := mrh.Update(&userRecordHandler.UpdateRequest{Identifier: request.Identifier, User: retrieveUserResponse.User}, &updateUserResponse); err != nil {
-		return userException.ChangePassword{Reasons: []string{"updating user", err.Error()}}
+
+	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
+		return userException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.User = retrieveUserResponse.User

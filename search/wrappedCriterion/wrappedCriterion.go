@@ -2,7 +2,7 @@ package wrappedCriterion
 
 import (
 	"encoding/json"
-	universalException "gitlab.com/iotTracker/brain/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	criterionException "gitlab.com/iotTracker/brain/search/criterion/exception"
 	"gitlab.com/iotTracker/brain/search/criterion/text"
@@ -27,7 +27,7 @@ func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {
 	}
 
 	if result == nil {
-		return nil, universalException.Unexpected{Reasons: []string{"identifier still nil"}}
+		return nil, brainException.Unexpected{Reasons: []string{"identifier still nil"}}
 	}
 
 	return result, nil
