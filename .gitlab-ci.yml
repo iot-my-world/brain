@@ -1,0 +1,10 @@
+before_script:
+ - apt-get update
+
+deploy_stage:
+  stage: deploy
+  environment: Staging
+  only:
+    - master
+  script:
+    - ls
