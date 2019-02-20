@@ -11,5 +11,5 @@ deploy_stage:
   only:
     - master
   script:
-    - go build /go/src/gitlab.com/brain/brain
+    - go build /go/src/gitlab.com/iotTracker/brain/brain
     - ls
