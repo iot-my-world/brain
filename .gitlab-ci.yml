@@ -12,7 +12,12 @@ deploy_stage:
     - master
   script:
     - ls
-    - cd /go/src
+    - cd /go/src/gitlab.com
+    - ls
+    - cd iotTracker
+    - cd brain
+    - ls
+    - cd start
     - ls
     # - go build gitlab.com/iotTracker/brain/start
     # - ls
