@@ -31,9 +31,8 @@ deploy_stage:
   only:
     - master
   script:
-    - ssh gitlabcli@spotnav.net
-    - touch test
-    # - cd /go/src/gitlab.com/iotTracker/brain/brain
-    # - go get
-    # - go build /go/src/gitlab.com/iotTracker/brain/brain
-    # - ls
+    # - ssh gitlabcli@spotnav.net
+    - cd /go/src/gitlab.com/iotTracker/brain/brain
+    - go get
+    - go  build gitlab.com/iotTracker/brain/brain -goos=linux -goarch=amd64
+    - ls
