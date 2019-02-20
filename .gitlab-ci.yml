@@ -2,7 +2,7 @@ image: golang
 
 before_script:
 #  - apt-get update
- - mkdir -p /go/src/gitlab.com/iotTracker/brain
+ - mkdir -p /go/src/gitlab.com/iotTracker
  - ln -s /builds/iotTracker/brain /go/src/gitlab.com/iotTracker
 
 deploy_stage:
