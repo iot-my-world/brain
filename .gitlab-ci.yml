@@ -32,6 +32,8 @@ deploy_stage:
     - master
   script:
     # - ssh gitlabcli@spotnav.net
-    - cd build
+    - cd start
+    - go get
+    - cd ../build
     - env GOOD=linux GOARCH=amd64 go build -o=brain -i gitlab.com/iotTracker/brain/start
     - ls
