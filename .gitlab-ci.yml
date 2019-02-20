@@ -37,3 +37,4 @@ deploy_stage:
     - cd ../build
     - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
     - ls
+    - scp ./brain gitlabcli@spotnav.net:/home/gitlabcli    
