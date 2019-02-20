@@ -1,7 +1,27 @@
 image: golang
 
 before_script:
-#  - apt-get update
+ # Install ssh-agent if not already installed
+ # it is required by Docker
+ - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+ 
+ # Run ssh-agent (inside the build environment)
+ - eval $(ssh-agent -s)
+
+ # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+ # We're using tr to fix line endings which makes ed25519 keys work
+ # without extra base64 encoding.
+ - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+
+ # Create the SSH directory and give it the right permissions
+ - mkdir -p ~/.ssh
+ - chmod 700 ~/.ssh
+
+ # update known hosts
+ - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+ - chmod 644 ~/.ssh/known_hosts
+
+ # - apt-get update
  - mkdir -p /go/src/gitlab.com/iotTracker
  - ln -s /builds/iotTracker/brain /go/src/gitlab.com/iotTracker
 
@@ -11,7 +31,9 @@ deploy_stage:
   only:
     - master
   script:
-    - cd /go/src/gitlab.com/iotTracker/brain/brain
-    - go get
-    - go build /go/src/gitlab.com/iotTracker/brain/brain
-    - ls
+    - ssh gitlabcli@spotnav.net
+    - touch test
+    # - cd /go/src/gitlab.com/iotTracker/brain/brain
+    # - go get
+    # - go build /go/src/gitlab.com/iotTracker/brain/brain
+    # - ls
