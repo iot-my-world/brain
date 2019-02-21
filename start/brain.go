@@ -45,6 +45,8 @@ import (
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
+	"flag"
+	"strings"
 )
 
 var ServerPort = "9010"
@@ -52,13 +54,21 @@ var ServerPort = "9010"
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
 func main() {
+	// get the command line variables
+	mongoNodes := flag.String("mongoNodes", "localhost:27017", "the nodes in the db cluster")
+	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
+	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
+	flag.Parse()
 
 	// Connect to database
+	log.Info("connecting to mongo")
 	databaseName := "brain"
+	mongoCluster := strings.Split(*mongoNodes, ",")
 	dialInfo := mgo.DialInfo{
-		Addrs:    []string{"localhost:27017"},
-		Username: "",
-		Password: "",
+		Addrs:    mongoCluster,
+		Username: *mongoUser,
+		Password: *mongoPassword,
+		Mechanism: "SCRAM-SHA-1",
 		Timeout:  10 * time.Second,
 		Source:   "admin",
 		Database: databaseName,
