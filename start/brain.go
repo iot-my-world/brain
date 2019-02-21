@@ -61,7 +61,7 @@ func main() {
 	flag.Parse()
 
 	// Connect to database
-	log.Info("connecting to mongo")
+	log.Info("connecting to mongo...")
 	databaseName := "brain"
 	mongoCluster := strings.Split(*mongoNodes, ",")
 	dialInfo := mgo.DialInfo{
@@ -78,7 +78,7 @@ func main() {
 		log.Error("Could not connect to Mongo cluster: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}
-	log.Debug("Connected to Mongo!")
+	log.Info("Connected to Mongo!")
 	defer mainMongoSession.Close()
 
 	// spotNav123
@@ -161,7 +161,7 @@ func main() {
 	// Start secureAPIServer
 	log.Info("Starting secureAPIServer on port " + ServerPort)
 	go func() {
-		err := http.ListenAndServe("0.0.0.0:"+ServerPort, secureAPIServerMux)
+		err := http.ListenAndServe(":"+ServerPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()
