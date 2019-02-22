@@ -6,9 +6,9 @@ import (
 )
 
 type Client struct {
-	Id              string        `json:"id" bson:"id"`
+	Id string `json:"id" bson:"id"`
 
-	Name            string        `json:"name" bson:"name"`
+	Name string `json:"name" bson:"name"`
 
 	// The email address which will be used to invite the admin
 	// user of the company

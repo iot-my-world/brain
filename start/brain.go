@@ -34,18 +34,18 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
-	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
+	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
 	trackerTCPServer "gitlab.com/iotTracker/brain/tracker/tcpServer"
 
-	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
-	deviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/recordHandler/adaptor/jsonRpc"
+	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
+	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
 
+	"flag"
 	"gitlab.com/iotTracker/brain/email/mailer"
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
-	"flag"
 	"strings"
 )
 
@@ -65,13 +65,13 @@ func main() {
 	databaseName := "brain"
 	mongoCluster := strings.Split(*mongoNodes, ",")
 	dialInfo := mgo.DialInfo{
-		Addrs:    mongoCluster,
-		Username: *mongoUser,
-		Password: *mongoPassword,
+		Addrs:     mongoCluster,
+		Username:  *mongoUser,
+		Password:  *mongoPassword,
 		Mechanism: "SCRAM-SHA-1",
-		Timeout:  10 * time.Second,
-		Source:   "admin",
-		Database: databaseName,
+		Timeout:   10 * time.Second,
+		Source:    "admin",
+		Database:  databaseName,
 	}
 	mainMongoSession, err := mgo.DialWithInfo(&dialInfo)
 	if err != nil {
@@ -103,7 +103,7 @@ func main() {
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey)
-	DeviceRecordHandler := deviceMongoRecordHandler.New(mainMongoSession, databaseName, deviceCollection, CompanyRecordHandler, ClientRecordHandler)
+	DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, CompanyRecordHandler, ClientRecordHandler)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
 	// Create Service Provider Adaptors
@@ -114,7 +114,7 @@ func main() {
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
-	DeviceRecordHandlerAdaptor := deviceRecordHandlerJsonRpcAdaptor.New(DeviceRecordHandler)
+	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(DeviceRecordHandler)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 
 	// Initialise the APIAuthorizer
@@ -147,8 +147,8 @@ func main() {
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
-	if err := secureAPIServer.RegisterService(DeviceRecordHandlerAdaptor, "DeviceRecordHandler"); err != nil {
-		log.Fatal("Unable to Register Device Record Handler Service")
+	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
+		log.Fatal("Unable to Register TK102 Device Record Handler Service")
 	}
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")

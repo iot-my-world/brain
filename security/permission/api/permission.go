@@ -36,11 +36,11 @@ const PartyRegistrarRegisterClientAdminUser = "PartyRegistrar.RegisterClientAdmi
 
 const PermissionHandlerGetAllUsersViewPermissions = "PermissionHandler.GetAllUsersViewPermissions"
 
-const DeviceRecordHandlerCreate = "DeviceRecordHandler.Create"
-const DeviceRecordHandlerRetrieve = "DeviceRecordHandler.Retrieve"
-const DeviceRecordHandlerUpdate = "DeviceRecordHandler.Update"
-const DeviceRecordHandlerDelete = "DeviceRecordHandler.Delete"
-const DeviceRecordHandlerValidate = "DeviceRecordHandler.Validate"
-const DeviceRecordHandlerCollect = "DeviceRecordHandler.Collect"
+const TK102DeviceRecordHandlerCreate = "TK102DeviceRecordHandler.Create"
+const TK102DeviceRecordHandlerRetrieve = "TK102DeviceRecordHandler.Retrieve"
+const TK102DeviceRecordHandlerUpdate = "TK102DeviceRecordHandler.Update"
+const TK102DeviceRecordHandlerDelete = "TK102DeviceRecordHandler.Delete"
+const TK102DeviceRecordHandlerValidate = "TK102DeviceRecordHandler.Validate"
+const TK102DeviceRecordHandlerCollect = "TK102DeviceRecordHandler.Collect"
 
 const ReadingRecordHandlerCollect = "ReadingRecordHandler.Collect"

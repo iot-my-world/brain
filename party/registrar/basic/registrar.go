@@ -13,11 +13,11 @@ import (
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
+	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gitlab.com/iotTracker/brain/security/token"
 	"time"
-	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 )
 
 type basicRegistrar struct {
@@ -151,8 +151,7 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: request.User,
 	},
-		&userCreateResponse);
-		err != nil {
+		&userCreateResponse); err != nil {
 		return err
 	}
 
@@ -162,8 +161,7 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: request.Password,
 	},
-		&userChangePasswordResponse);
-		err != nil {
+		&userChangePasswordResponse); err != nil {
 		return err
 	}
 
@@ -279,8 +277,7 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: request.User,
 	},
-		&userCreateResponse);
-		err != nil {
+		&userCreateResponse); err != nil {
 		return err
 	}
 
@@ -290,8 +287,7 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: request.Password,
 	},
-		&userChangePasswordResponse);
-		err != nil {
+		&userChangePasswordResponse); err != nil {
 		return err
 	}
 

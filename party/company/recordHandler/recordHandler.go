@@ -6,8 +6,8 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type RecordHandler interface {
@@ -45,7 +45,7 @@ type ValidateResponse struct {
 }
 
 type CreateRequest struct {
-	Claims   claims.Claims
+	Claims  claims.Claims
 	Company company.Company
 }
 

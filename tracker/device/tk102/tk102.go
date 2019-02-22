@@ -1,11 +1,11 @@
-package device
+package tk102
 
 import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
-type Device struct {
+type TK102 struct {
 	Id                string        `json:"id" bson:"id"`
 	IMEI              string        `json:"imei" bson:"imei"`
 	SimCountryCode    string        `json:"simCountryCode" bson:"simCountryCode"`

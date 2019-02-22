@@ -2,12 +2,12 @@ package recordHandler
 
 import (
 	"gitlab.com/iotTracker/brain/api"
-	"gitlab.com/iotTracker/brain/tracker/device"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/tracker/device/tk102"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type RecordHandler interface {
@@ -31,12 +31,12 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []device.Device
+	Records []tk102.TK102
 	Total   int
 }
 
 type ValidateRequest struct {
-	Device device.Device
+	TK102  tk102.TK102
 	Method api.Method
 }
 
@@ -46,11 +46,11 @@ type ValidateResponse struct {
 
 type CreateRequest struct {
 	Claims claims.Claims
-	Device device.Device
+	TK102  tk102.TK102
 }
 
 type CreateResponse struct {
-	Device device.Device
+	TK102 tk102.TK102
 }
 
 type DeleteRequest struct {
@@ -58,16 +58,16 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Device device.Device
+	TK102 tk102.TK102
 }
 
 type UpdateRequest struct {
 	Identifier identifier.Identifier
-	Device     device.Device
+	TK102      tk102.TK102
 }
 
 type UpdateResponse struct {
-	Device device.Device
+	TK102 tk102.TK102
 }
 
 type RetrieveRequest struct {
@@ -75,5 +75,5 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Device device.Device
+	TK102 tk102.TK102
 }

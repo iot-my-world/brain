@@ -2,20 +2,20 @@ package mongo
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/client"
 	clientException "gitlab.com/iotTracker/brain/party/client/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/party"
-	"github.com/satori/go.uuid"
 )
 
 type mongoRecordHandler struct {

@@ -4,8 +4,8 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"time"
 	"gitlab.com/iotTracker/brain/security/permission/api"
+	"time"
 )
 
 type RegisterCompanyAdminUser struct {

@@ -6,11 +6,11 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
-	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
+	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
 
 type handler struct {

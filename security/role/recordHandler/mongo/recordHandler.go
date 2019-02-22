@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/role"
@@ -9,7 +10,6 @@ import (
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gopkg.in/mgo.v2"
-	"github.com/satori/go.uuid"
 )
 
 type recordHandler struct {

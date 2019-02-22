@@ -2,34 +2,34 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/api"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	deviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler"
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/tracker/device/tk102"
+	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/log"
 )
 
 type adaptor struct {
-	RecordHandler deviceRecordHandler.RecordHandler
+	RecordHandler tk102RecordHandler.RecordHandler
 }
 
-func New(recordHandler deviceRecordHandler.RecordHandler) *adaptor {
+func New(recordHandler tk102RecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
 }
 
 type CreateRequest struct {
-	Device device.Device `json:"device"`
+	TK102 tk102.TK102 `json:"tk102"`
 }
 
 type CreateResponse struct {
-	Device device.Device `json:"device"`
+	TK102 tk102.TK102 `json:"tk102"`
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
@@ -39,18 +39,18 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createDeviceResponse := deviceRecordHandler.CreateResponse{}
+	createTK102Response := tk102RecordHandler.CreateResponse{}
 
 	if err := s.RecordHandler.Create(
-		&deviceRecordHandler.CreateRequest{
-			Device: request.Device,
+		&tk102RecordHandler.CreateRequest{
+			TK102:  request.TK102,
 			Claims: claims,
 		},
-		&createDeviceResponse); err != nil {
+		&createTK102Response); err != nil {
 		return err
 	}
 
-	response.Device = createDeviceResponse.Device
+	response.TK102 = createTK102Response.TK102
 
 	return nil
 }
@@ -60,7 +60,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Device device.Device `json:"device"`
+	TK102 tk102.TK102 `json:"tk102"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -69,27 +69,27 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveDeviceResponse := deviceRecordHandler.RetrieveResponse{}
+	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
-		&deviceRecordHandler.RetrieveRequest{
+		&tk102RecordHandler.RetrieveRequest{
 			Identifier: id,
 		},
-		&retrieveDeviceResponse); err != nil {
+		&retrieveTK102Response); err != nil {
 		return err
 	}
 
-	response.Device = retrieveDeviceResponse.Device
+	response.TK102 = retrieveTK102Response.TK102
 
 	return nil
 }
 
 type UpdateRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-	Device     device.Device                       `json:"device"`
+	TK102      tk102.TK102                         `json:"tk102"`
 }
 
 type UpdateResponse struct {
-	Device device.Device `json:"device"`
+	TK102 tk102.TK102 `json:"tk102"`
 }
 
 func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
@@ -98,16 +98,16 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 		return err
 	}
 
-	updateDeviceResponse := deviceRecordHandler.UpdateResponse{}
+	updateTK102Response := tk102RecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
-		&deviceRecordHandler.UpdateRequest{
+		&tk102RecordHandler.UpdateRequest{
 			Identifier: id,
 		},
-		&updateDeviceResponse); err != nil {
+		&updateTK102Response); err != nil {
 		return err
 	}
 
-	response.Device = updateDeviceResponse.Device
+	response.TK102 = updateTK102Response.TK102
 
 	return nil
 }
@@ -117,7 +117,7 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Device device.Device `json:"device"`
+	TK102 tk102.TK102 `json:"tk102"`
 }
 
 func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *DeleteResponse) error {
@@ -126,23 +126,23 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 		return err
 	}
 
-	deleteDeviceResponse := deviceRecordHandler.DeleteResponse{}
+	deleteTK102Response := tk102RecordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
-		&deviceRecordHandler.DeleteRequest{
+		&tk102RecordHandler.DeleteRequest{
 			Identifier: id,
 		},
-		&deleteDeviceResponse); err != nil {
+		&deleteTK102Response); err != nil {
 		return err
 	}
 
-	response.Device = deleteDeviceResponse.Device
+	response.TK102 = deleteTK102Response.TK102
 
 	return nil
 }
 
 type ValidateRequest struct {
-	Device device.Device `json:"device"`
-	Method api.Method    `json:"method"`
+	TK102  tk102.TK102 `json:"tk102"`
+	Method api.Method  `json:"method"`
 }
 
 type ValidateResponse struct {
@@ -151,17 +151,17 @@ type ValidateResponse struct {
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 
-	validateDeviceResponse := deviceRecordHandler.ValidateResponse{}
+	validateTK102Response := tk102RecordHandler.ValidateResponse{}
 	if err := s.RecordHandler.Validate(
-		&deviceRecordHandler.ValidateRequest{
-			Device: request.Device,
+		&tk102RecordHandler.ValidateRequest{
+			TK102:  request.TK102,
 			Method: request.Method,
 		},
-		&validateDeviceResponse); err != nil {
+		&validateTK102Response); err != nil {
 		return err
 	}
 
-	response.ReasonsInvalid = validateDeviceResponse.ReasonsInvalid
+	response.ReasonsInvalid = validateTK102Response.ReasonsInvalid
 
 	return nil
 }
@@ -172,8 +172,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []device.Device `json:"records"`
-	Total   int             `json:"total"`
+	Records []tk102.TK102 `json:"records"`
+	Total   int           `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
@@ -187,16 +187,16 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectDeviceResponse := deviceRecordHandler.CollectResponse{}
-	if err := s.RecordHandler.Collect(&deviceRecordHandler.CollectRequest{
+	collectTK102Response := tk102RecordHandler.CollectResponse{}
+	if err := s.RecordHandler.Collect(&tk102RecordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
 	},
-		&collectDeviceResponse); err != nil {
+		&collectTK102Response); err != nil {
 		return err
 	}
 
-	response.Records = collectDeviceResponse.Records
-	response.Total = collectDeviceResponse.Total
+	response.Records = collectTK102Response.Records
+	response.Total = collectTK102Response.Total
 	return nil
 }

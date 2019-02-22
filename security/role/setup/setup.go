@@ -2,13 +2,13 @@ package setup
 
 import (
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/view"
 	"gitlab.com/iotTracker/brain/security/role"
 	roleException "gitlab.com/iotTracker/brain/security/role/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/security/permission/view"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 var initialRoles = func() []role.Role {
@@ -82,12 +82,12 @@ var CompanyAdmin = role.Role{
 		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
 		api.PartyRegistrarInviteClientAdminUser,
-		api.DeviceRecordHandlerCreate,
-		api.DeviceRecordHandlerRetrieve,
-		api.DeviceRecordHandlerUpdate,
-		api.DeviceRecordHandlerDelete,
-		api.DeviceRecordHandlerValidate,
-		api.DeviceRecordHandlerCollect,
+		api.TK102DeviceRecordHandlerCreate,
+		api.TK102DeviceRecordHandlerRetrieve,
+		api.TK102DeviceRecordHandlerUpdate,
+		api.TK102DeviceRecordHandlerDelete,
+		api.TK102DeviceRecordHandlerValidate,
+		api.TK102DeviceRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Party,
@@ -101,21 +101,19 @@ var CompanyUser = role.Role{
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 	},
-	ViewPermissions: []view.Permission{
-
-	},
+	ViewPermissions: []view.Permission{},
 }
 
 var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
-		api.DeviceRecordHandlerCreate,
-		api.DeviceRecordHandlerRetrieve,
-		api.DeviceRecordHandlerUpdate,
-		api.DeviceRecordHandlerDelete,
-		api.DeviceRecordHandlerValidate,
-		api.DeviceRecordHandlerCollect,
+		api.TK102DeviceRecordHandlerCreate,
+		api.TK102DeviceRecordHandlerRetrieve,
+		api.TK102DeviceRecordHandlerUpdate,
+		api.TK102DeviceRecordHandlerDelete,
+		api.TK102DeviceRecordHandlerValidate,
+		api.TK102DeviceRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Party,
@@ -129,9 +127,7 @@ var ClientUser = role.Role{
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 	},
-	ViewPermissions: []view.Permission{
-
-	},
+	ViewPermissions: []view.Permission{},
 }
 
 func InitialSetup(handler roleRecordHandler.RecordHandler) error {
@@ -161,8 +157,7 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 					Role:       roleToCreate,
 					Identifier: id.Identifier{Id: retrieveRoleResponse.Role.Id},
 				},
-					&roleRecordHandler.UpdateResponse{});
-					err != nil {
+					&roleRecordHandler.UpdateResponse{}); err != nil {
 					return roleException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 				}
 			}

@@ -1,4 +1,4 @@
-package device
+package tk102
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"

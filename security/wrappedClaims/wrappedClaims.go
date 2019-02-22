@@ -5,10 +5,10 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	wrappedClaimsException "gitlab.com/iotTracker/brain/security/wrappedClaims/exception"
 	"net/http"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 )
 
 type WrappedClaims struct {

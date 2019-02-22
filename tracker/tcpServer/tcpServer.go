@@ -1,14 +1,14 @@
 package tcpServer
 
 import (
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
-	"fmt"
-	"net"
 	"bufio"
-	"gitlab.com/iotTracker/brain/tracker/reading"
-	"time"
-	"strconv"
+	"fmt"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/tracker/reading"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
+	"net"
+	"strconv"
+	"time"
 )
 
 type tcpServer struct {
@@ -35,9 +35,9 @@ var exampleData = "(027045053055BR03190217A2608.9903S02808.1080E000.70610270.000
 
 /**
 2609.0064 ==> 26°09'(60*0.0064)"
- */
+*/
 
- //26°09'0.0313 ==> 26°09'1.878000"
+//26°09'0.0313 ==> 26°09'1.878000"
 func toDMS(reading string) (string, error) {
 	degrees := reading[:2]
 	minutes := reading[2:4]
@@ -79,15 +79,14 @@ func (ts *tcpServer) handleConnection(c net.Conn) {
 				createReadingResponse := readingRecordHandler.CreateResponse{}
 				if err := ts.readingRecordHandler.Create(&readingRecordHandler.CreateRequest{
 					Reading: reading.Reading{
-						IMEI:      data[2:13],
-						Raw:       data,
-						TimeStamp: time.Now().UTC().Unix(),
-						SouthCoordinate:south,
-						EastCoordinate:east,
+						IMEI:            data[2:13],
+						Raw:             data,
+						TimeStamp:       time.Now().UTC().Unix(),
+						SouthCoordinate: south,
+						EastCoordinate:  east,
 					},
 				},
-					&createReadingResponse);
-					err != nil {
+					&createReadingResponse); err != nil {
 					fmt.Println("error creating new reading: ", err.Error())
 					continue
 				}

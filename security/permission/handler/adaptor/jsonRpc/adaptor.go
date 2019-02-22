@@ -2,10 +2,10 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
-	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
-	"net/http"
 	"gitlab.com/iotTracker/brain/security/permission/api"
+	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/permission/view"
+	"net/http"
 )
 
 type adaptor struct {

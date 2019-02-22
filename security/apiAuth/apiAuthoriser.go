@@ -4,12 +4,12 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 )
 
 type APIAuthorizer struct {

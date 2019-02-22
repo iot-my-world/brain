@@ -2,21 +2,21 @@ package mongo
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	deviceException "gitlab.com/iotTracker/brain/tracker/device/exception"
-	deviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler"
+	"gitlab.com/iotTracker/brain/party"
+	clientException "gitlab.com/iotTracker/brain/party/client/exception"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	companyException "gitlab.com/iotTracker/brain/party/company/exception"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/tracker/device/tk102"
+	tk102Exception "gitlab.com/iotTracker/brain/tracker/device/tk102/exception"
+	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"github.com/satori/go.uuid"
-	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	companyException "gitlab.com/iotTracker/brain/party/company/exception"
-	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	clientException "gitlab.com/iotTracker/brain/party/client/exception"
-	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 type mongoRecordHandler struct {
@@ -46,7 +46,7 @@ func New(
 		},
 	}
 
-	newDeviceMongoRecordHandler := mongoRecordHandler{
+	newTK102MongoRecordHandler := mongoRecordHandler{
 		mongoSession:         mongoSession,
 		database:             database,
 		collection:           collection,
@@ -55,21 +55,21 @@ func New(
 		clientRecordHandler:  clientRecordHandler,
 	}
 
-	return &newDeviceMongoRecordHandler
+	return &newTK102MongoRecordHandler
 }
 
 func setupIndices(mongoSession *mgo.Session, database, collection string) {
-	//Initialise Device collection in database
+	//Initialise TK102 collection in database
 	mgoSesh := mongoSession.Copy()
 	defer mgoSesh.Close()
-	deviceCollection := mgoSesh.DB(database).C(collection)
+	tk102Collection := mgoSesh.DB(database).C(collection)
 
 	// Ensure id uniqueness
 	idUnique := mgo.Index{
 		Key:    []string{"id"},
 		Unique: true,
 	}
-	if err := deviceCollection.EnsureIndex(idUnique); err != nil {
+	if err := tk102Collection.EnsureIndex(idUnique); err != nil {
 		log.Fatal("Could not ensure id uniqueness: ", err)
 	}
 
@@ -78,7 +78,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 		Key:    []string{"imei"},
 		Unique: true,
 	}
-	if err := deviceCollection.EnsureIndex(imeiUnique); err != nil {
+	if err := tk102Collection.EnsureIndex(imeiUnique); err != nil {
 		log.Fatal("Could not ensure imei: ", err)
 	}
 
@@ -87,28 +87,28 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 		Key:    []string{"simCountryCode", "simNumber"},
 		Unique: true,
 	}
-	if err := deviceCollection.EnsureIndex(countryCodeNumberUnique); err != nil {
+	if err := tk102Collection.EnsureIndex(countryCodeNumberUnique); err != nil {
 		log.Fatal("Could not ensure sim country code and number combination unique: ", err)
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *deviceRecordHandler.CreateRequest) error {
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *tk102RecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "nil claims")
 	}
 
-	// Validate the new device
-	deviceValidateResponse := deviceRecordHandler.ValidateResponse{}
+	// Validate the new tk102
+	tk102ValidateResponse := tk102RecordHandler.ValidateResponse{}
 
-	if err := mrh.Validate(&deviceRecordHandler.ValidateRequest{
-		Device: request.Device,
-		Method: deviceRecordHandler.Create},
-		&deviceValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newDevice")
+	if err := mrh.Validate(&tk102RecordHandler.ValidateRequest{
+		TK102:  request.TK102,
+		Method: tk102RecordHandler.Create},
+		&tk102ValidateResponse); err != nil {
+		reasonsInvalid = append(reasonsInvalid, "unable to validate newTK102")
 	} else {
-		for _, reason := range deviceValidateResponse.ReasonsInvalid {
+		for _, reason := range tk102ValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
 				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 			}
@@ -122,7 +122,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *deviceRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *deviceRecordHandler.CreateRequest, response *deviceRecordHandler.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *tk102RecordHandler.CreateRequest, response *tk102RecordHandler.CreateResponse) error {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -130,30 +130,30 @@ func (mrh *mongoRecordHandler) Create(request *deviceRecordHandler.CreateRequest
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	deviceCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	newId, err := uuid.NewV4()
 	if err != nil {
 		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
-	request.Device.Id = newId.String()
+	request.TK102.Id = newId.String()
 
-	if err := deviceCollection.Insert(request.Device); err != nil {
-		return deviceException.Create{Reasons: []string{"inserting record", err.Error()}}
+	if err := tk102Collection.Insert(request.TK102); err != nil {
+		return tk102Exception.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.Device = request.Device
+	response.TK102 = request.TK102
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *deviceRecordHandler.RetrieveRequest) error {
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *tk102RecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !device.IsValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for device", request.Identifier.Type()))
+		if !tk102.IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for tk102", request.Identifier.Type()))
 		}
 	}
 
@@ -164,7 +164,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *deviceRecordHand
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *deviceRecordHandler.RetrieveRequest, response *deviceRecordHandler.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequest, response *tk102RecordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -172,24 +172,24 @@ func (mrh *mongoRecordHandler) Retrieve(request *deviceRecordHandler.RetrieveReq
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	deviceCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	var deviceRecord device.Device
+	var tk102Record tk102.TK102
 
 	filter := request.Identifier.ToFilter()
-	if err := deviceCollection.Find(filter).One(&deviceRecord); err != nil {
+	if err := tk102Collection.Find(filter).One(&tk102Record); err != nil {
 		if err == mgo.ErrNotFound {
-			return deviceException.NotFound{}
+			return tk102Exception.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.Device = deviceRecord
+	response.TK102 = tk102Record
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *deviceRecordHandler.UpdateRequest) error {
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *tk102RecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -199,7 +199,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *deviceRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *deviceRecordHandler.UpdateRequest, response *deviceRecordHandler.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *tk102RecordHandler.UpdateRequest, response *tk102RecordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -207,34 +207,34 @@ func (mrh *mongoRecordHandler) Update(request *deviceRecordHandler.UpdateRequest
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	deviceCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	// Retrieve Device
-	retrieveDeviceResponse := deviceRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&deviceRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveDeviceResponse); err != nil {
-		return deviceException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	// Retrieve TK102
+	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&tk102RecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveTK102Response); err != nil {
+		return tk102Exception.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
-	// retrieveDeviceResponse.Device.Id = request.Device.Id // cannot update ever
+	// retrieveTK102Response.TK102.Id = request.TK102.Id // cannot update ever
 
-	if err := deviceCollection.Update(request.Identifier.ToFilter(), retrieveDeviceResponse.Device); err != nil {
-		return deviceException.Update{Reasons: []string{"updating record", err.Error()}}
+	if err := tk102Collection.Update(request.Identifier.ToFilter(), retrieveTK102Response.TK102); err != nil {
+		return tk102Exception.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.Device = retrieveDeviceResponse.Device
+	response.TK102 = retrieveTK102Response.TK102
 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *deviceRecordHandler.DeleteRequest) error {
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *tk102RecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !device.IsValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for device", request.Identifier.Type()))
+		if !tk102.IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for tk102", request.Identifier.Type()))
 		}
 	}
 
@@ -245,7 +245,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *deviceRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *deviceRecordHandler.DeleteRequest, response *deviceRecordHandler.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *tk102RecordHandler.DeleteRequest, response *tk102RecordHandler.DeleteResponse) error {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -253,16 +253,16 @@ func (mrh *mongoRecordHandler) Delete(request *deviceRecordHandler.DeleteRequest
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	deviceCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	if err := deviceCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	if err := tk102Collection.Remove(request.Identifier.ToFilter()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *deviceRecordHandler.ValidateRequest) error {
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *tk102RecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -272,88 +272,87 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *deviceRecordHand
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateRequest, response *deviceRecordHandler.ValidateResponse) error {
+func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequest, response *tk102RecordHandler.ValidateResponse) error {
 	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	deviceToValidate := &request.Device
+	tk102ToValidate := &request.TK102
 
-	if (*deviceToValidate).Id == "" {
+	if (*tk102ToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*deviceToValidate).Id,
+			Data:  (*tk102ToValidate).Id,
 		})
 	}
 
-	if (*deviceToValidate).IMEI == "" {
+	if (*tk102ToValidate).IMEI == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "imei",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*deviceToValidate).IMEI,
+			Data:  (*tk102ToValidate).IMEI,
 		})
 	}
 
-	if (*deviceToValidate).SimCountryCode == "" {
+	if (*tk102ToValidate).SimCountryCode == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "simCountryCode",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*deviceToValidate).SimCountryCode,
+			Data:  (*tk102ToValidate).SimCountryCode,
 		})
 	}
 
-	if (*deviceToValidate).SimNumber == "" {
+	if (*tk102ToValidate).SimNumber == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "simNumber",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*deviceToValidate).SimNumber,
+			Data:  (*tk102ToValidate).SimNumber,
 		})
 	}
 
 	// owner party type must be set, cannot be blank
-	if (*deviceToValidate).OwnerPartyType == "" {
+	if (*tk102ToValidate).OwnerPartyType == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "ownerPartyType",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*deviceToValidate).OwnerPartyType,
+			Data:  (*tk102ToValidate).OwnerPartyType,
 		})
 	} else {
 		// if it is not blank
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
-		switch (*deviceToValidate).OwnerPartyType {
+		switch (*tk102ToValidate).OwnerPartyType {
 		case party.System:
 			// system owner party type means ownerId must be the system id
 			rootPartyID := id.Identifier{Id: "root"}
-			if (*deviceToValidate).OwnerId != rootPartyID {
+			if (*tk102ToValidate).OwnerId != rootPartyID {
 				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 					Field: "ownerId",
 					Type:  reasonInvalid.MustExist,
 					Help:  "owner party must exist",
-					Data:  (*deviceToValidate).OwnerId,
+					Data:  (*tk102ToValidate).OwnerId,
 				})
 			}
 
 		case party.Company:
 			// company owner must exist, try and retrieve to confirm
 			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-				Identifier: (*deviceToValidate).OwnerId,
+				Identifier: (*tk102ToValidate).OwnerId,
 			},
-				&companyRecordHandler.RetrieveResponse{});
-				err != nil {
+				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "ownerId",
 						Type:  reasonInvalid.MustExist,
 						Help:  "owner party must exist",
-						Data:  (*deviceToValidate).OwnerId,
+						Data:  (*tk102ToValidate).OwnerId,
 					})
 				default:
 					return brainException.Unexpected{Reasons: []string{"error retrieving company", err.Error()}}
@@ -363,17 +362,16 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 		case party.Client:
 			// client owner must exist, try and retrieve to confirm
 			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
-				Identifier: (*deviceToValidate).OwnerId,
+				Identifier: (*tk102ToValidate).OwnerId,
 			},
-				&clientRecordHandler.RetrieveResponse{});
-				err != nil {
+				&clientRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case clientException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "ownerId",
 						Type:  reasonInvalid.MustExist,
 						Help:  "owner party must exist",
-						Data:  (*deviceToValidate).OwnerId,
+						Data:  (*tk102ToValidate).OwnerId,
 					})
 				default:
 					return brainException.Unexpected{Reasons: []string{"error retrieving client", err.Error()}}
@@ -385,58 +383,57 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 				Field: "ownerPartyType",
 				Type:  reasonInvalid.Invalid,
 				Help:  "must be a valid type",
-				Data:  (*deviceToValidate).OwnerPartyType,
+				Data:  (*tk102ToValidate).OwnerPartyType,
 			})
 		}
 	}
 
 	blankId := id.Identifier{}
 	// although assigned party type can be blank, if it is then the assigned id must also be blank
-	if ((*deviceToValidate).AssignedPartyType == "" && (*deviceToValidate).AssignedId != blankId) ||
-		((*deviceToValidate).AssignedId == blankId && (*deviceToValidate).AssignedPartyType != "") {
-		if (*deviceToValidate).AssignedId != blankId {
+	if ((*tk102ToValidate).AssignedPartyType == "" && (*tk102ToValidate).AssignedId != blankId) ||
+		((*tk102ToValidate).AssignedId == blankId && (*tk102ToValidate).AssignedPartyType != "") {
+		if (*tk102ToValidate).AssignedId != blankId {
 			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 				Field: "assignedPartyType",
 				Type:  reasonInvalid.Invalid,
 				Help:  "assigned must be blank if assignedPartyType is",
-				Data:  (*deviceToValidate).AssignedPartyType,
+				Data:  (*tk102ToValidate).AssignedPartyType,
 			})
 			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 				Field: "assignedId",
 				Type:  reasonInvalid.Invalid,
 				Help:  "assigned must be blank if assignedPartyType is",
-				Data:  (*deviceToValidate).AssignedId,
+				Data:  (*tk102ToValidate).AssignedId,
 			})
 		}
 	} else {
 		// neither are blank
-		switch (*deviceToValidate).AssignedPartyType {
+		switch (*tk102ToValidate).AssignedPartyType {
 		case party.System:
 			// system assigned party type means assignedId must be the system id
 			rootPartyID := id.Identifier{Id: "root"}
-			if (*deviceToValidate).AssignedId != rootPartyID {
+			if (*tk102ToValidate).AssignedId != rootPartyID {
 				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 					Field: "ownerId",
 					Type:  reasonInvalid.MustExist,
 					Help:  "owner party must exist",
-					Data:  (*deviceToValidate).AssignedId,
+					Data:  (*tk102ToValidate).AssignedId,
 				})
 			}
 
 		case party.Company:
 			// company assigned must exist, try and retrieve to confirm
 			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-				Identifier: (*deviceToValidate).AssignedId,
+				Identifier: (*tk102ToValidate).AssignedId,
 			},
-				&companyRecordHandler.RetrieveResponse{});
-				err != nil {
+				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "assignedId",
 						Type:  reasonInvalid.MustExist,
 						Help:  "assigned party must exist",
-						Data:  (*deviceToValidate).AssignedId,
+						Data:  (*tk102ToValidate).AssignedId,
 					})
 				default:
 					return brainException.Unexpected{Reasons: []string{"error retrieving company", err.Error()}}
@@ -446,17 +443,16 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 		case party.Client:
 			// client assigned must exist, try and retrieve to confirm
 			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
-				Identifier: (*deviceToValidate).AssignedId,
+				Identifier: (*tk102ToValidate).AssignedId,
 			},
-				&clientRecordHandler.RetrieveResponse{});
-				err != nil {
+				&clientRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case clientException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "assignedId",
 						Type:  reasonInvalid.MustExist,
 						Help:  "assigned party must exist",
-						Data:  (*deviceToValidate).AssignedId,
+						Data:  (*tk102ToValidate).AssignedId,
 					})
 				default:
 					return brainException.Unexpected{Reasons: []string{"error retrieving client", err.Error()}}
@@ -468,7 +464,7 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 				Field: "ownerPartyType",
 				Type:  reasonInvalid.Invalid,
 				Help:  "must be a valid type",
-				Data:  (*deviceToValidate).OwnerPartyType,
+				Data:  (*tk102ToValidate).OwnerPartyType,
 			})
 		}
 	}
@@ -477,7 +473,7 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 
 	// Perform additional checks/ignores considering method field
 	switch request.Method {
-	case deviceRecordHandler.Create:
+	case tk102RecordHandler.Create:
 
 		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {
@@ -493,7 +489,7 @@ func (mrh *mongoRecordHandler) Validate(request *deviceRecordHandler.ValidateReq
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *deviceRecordHandler.CollectRequest) error {
+func (mrh *mongoRecordHandler) ValidateCollectRequest(request *tk102RecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -503,7 +499,7 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *deviceRecordHandl
 	}
 }
 
-func (mrh *mongoRecordHandler) Collect(request *deviceRecordHandler.CollectRequest, response *deviceRecordHandler.CollectResponse) error {
+func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectRequest, response *tk102RecordHandler.CollectResponse) error {
 	if err := mrh.ValidateCollectRequest(request); err != nil {
 		return err
 	}
@@ -518,13 +514,13 @@ func (mrh *mongoRecordHandler) Collect(request *deviceRecordHandler.CollectReque
 		filter["$and"] = criteriaFilters
 	}
 
-	// Get Device Collection
+	// Get TK102 Collection
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
-	deviceCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Perform Query
-	query := deviceCollection.Find(filter)
+	query := tk102Collection.Find(filter)
 
 	// Apply the count
 	if total, err := query.Count(); err == nil {
@@ -542,7 +538,7 @@ func (mrh *mongoRecordHandler) Collect(request *deviceRecordHandler.CollectReque
 	mongoSortOrder := request.Query.ToMongoSortFormat()
 
 	// Populate records
-	response.Records = make([]device.Device, 0)
+	response.Records = make([]tk102.TK102, 0)
 	if err := query.
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).

@@ -1,12 +1,12 @@
 package mongo
 
 import (
-	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/log"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
-	brainException "gitlab.com/iotTracker/brain/exception"
 	"github.com/satori/go.uuid"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/tracker/reading"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 

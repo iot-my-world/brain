@@ -1,12 +1,12 @@
 package jsonRpc
 
 import (
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
-	"gitlab.com/iotTracker/brain/tracker/reading"
-	"net/http"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/tracker/reading"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
+	"net/http"
 )
 
 type adaptor struct {
