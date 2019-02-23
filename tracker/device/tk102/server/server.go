@@ -154,7 +154,7 @@ func convertData(raw string) (*reading.Reading, error) {
 
 func (ts *tk102Server) handleConnection(c net.Conn) {
 	fmt.Printf("Serving %s\n", c.RemoteAddr().String())
-
+	lastReading := reading.Reading{}
 	reader := bufio.NewReader(c)
 	for {
 		data, err := reader.ReadString(')')
@@ -164,9 +164,19 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 		} else {
 			newReading, err := convertData(data)
 			if err != nil {
-				log.Info("Not Recording Invalid Data: ", err.Error())
+				log.Info("Not Recording. Invalid Data: ", err.Error())
 				continue
 			}
+
+			// if last reading was saved
+			if lastReading.Id != "" {
+				diff := reading.DifferenceBetween(newReading, &lastReading)
+				if diff < 30 {
+					log.Info(fmt.Sprintf("New reading not different enough. Not Recording."))
+					continue
+				}
+			}
+
 
 			// create
 			createReadingResponse := readingRecordHandler.CreateResponse{}
@@ -177,6 +187,7 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 				fmt.Println("error creating new reading: ", err.Error())
 				continue
 			}
+			lastReading = createReadingResponse.Reading
 			log.Info(fmt.Sprintf("%s: %f %f",
 				time.Unix(createReadingResponse.Reading.TimeStamp, 0).Format("2006-01-02 3:04PM"),
 				createReadingResponse.Reading.Latitude,
