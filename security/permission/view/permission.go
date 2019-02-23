@@ -2,9 +2,8 @@ package view
 
 type Permission string
 
-const Party Permission = "Party"
-const PartyCompany Permission = "PartyCompany"
-const PartyClient Permission = "PartyClient"
-const PartyUser Permission = "PartyUser"
-
-const Device Permission = "Device"
+const Configuration Permission = "Configuration"
+const PartyCompanyConfiguration Permission = "PartyCompanyConfiguration"
+const PartyClientConfiguration Permission = "PartyClientConfiguration"
+const PartyUserConfiguration Permission = "PartyUserConfiguration"
+const DeviceConfiguration Permission = "DeviceConfiguration"

@@ -40,11 +40,11 @@ var initialRoles = func() []role.Role {
 	}
 
 	rootViewPermissions := []view.Permission{
-		view.Party,
-		view.PartyCompany,
-		view.PartyClient,
-		view.PartyUser,
-		view.Device,
+		view.Configuration,
+		view.PartyCompanyConfiguration,
+		view.PartyClientConfiguration,
+		view.PartyUserConfiguration,
+		view.DeviceConfiguration,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -90,10 +90,10 @@ var CompanyAdmin = role.Role{
 		api.TK102DeviceRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
-		view.Party,
-		view.PartyClient,
-		view.PartyUser,
-		view.Device,
+		view.Configuration,
+		view.PartyClientConfiguration,
+		view.PartyUserConfiguration,
+		view.DeviceConfiguration,
 	},
 }
 var CompanyUser = role.Role{
@@ -116,9 +116,9 @@ var ClientAdmin = role.Role{
 		api.TK102DeviceRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
-		view.Party,
-		view.PartyUser,
-		view.Device,
+		view.Configuration,
+		view.PartyClientConfiguration,
+		view.PartyUserConfiguration,
 	},
 }
 
