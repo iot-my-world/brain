@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	criterionException "gitlab.com/iotTracker/brain/search/criterion/exception"
 	"gitlab.com/iotTracker/brain/search/criterion/text"
+	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
 )
 
 type WrappedCriterion struct {
@@ -18,6 +19,12 @@ func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {
 	switch cw.Type {
 	case criterion.Text:
 		var unmarshalledCriterion text.Criterion
+		if err := json.Unmarshal(cw.Value, &unmarshalledCriterion); err != nil {
+			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledCriterion
+	case criterion.ListText:
+		var unmarshalledCriterion listText.Criterion
 		if err := json.Unmarshal(cw.Value, &unmarshalledCriterion); err != nil {
 			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
