@@ -406,7 +406,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 				Data:  (*tk102ToValidate).AssignedId,
 			})
 		}
-	} else {
+	} else if (*tk102ToValidate).AssignedPartyType != "" && (*tk102ToValidate).AssignedId != blankId {
 		// neither are blank
 		switch (*tk102ToValidate).AssignedPartyType {
 		case party.System:
