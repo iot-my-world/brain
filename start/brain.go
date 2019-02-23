@@ -36,7 +36,7 @@ import (
 
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
-	trackerTCPServer "gitlab.com/iotTracker/brain/tracker/tcpServer"
+	tk102DeviceServer "gitlab.com/iotTracker/brain/tracker/device/tk102/server"
 
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
@@ -167,10 +167,10 @@ func main() {
 	}()
 
 	// Set up tracker tcp server
-	trackerTCPServerInst := trackerTCPServer.New(ReadingRecordHandler, "0.0.0.0", "7018")
-	log.Info("Starting Reading TCP Server")
+	tk102DeviceServerInstance := tk102DeviceServer.New(ReadingRecordHandler, "0.0.0.0", "7018")
+	log.Info("Starting TK102 Device Server")
 	go func() {
-		err := trackerTCPServerInst.Start()
+		err := tk102DeviceServerInstance.Start()
 		log.Error("tcp server stopped: ", err)
 		os.Exit(1)
 	}()
