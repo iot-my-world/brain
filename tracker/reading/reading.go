@@ -1,12 +1,29 @@
 package reading
 
-import "math"
+import (
+	"math"
+	"gitlab.com/iotTracker/brain/tracker/device"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/party"
+)
 
 type Reading struct {
-	TimeStamp int64   `json:"timeStamp" bson:"timeStamp"`
-	Id        string  `json:"id" bson:"id"`
-	IMEI      string  `json:"imei" bson:"imei"`
+	Id string `json:"id" bson:"id"`
+
+	// Device Details
+	DeviceId   id.Identifier `json:"deviceId" bson:"deviceId"`
+	DeviceType device.Type   `json:"DeviceType" bson:"DeviceType"`
+
+	// Owner Details
+	// derived from device when device is retrieved for reading to be saved
+	OwnerPartyType    party.Type    `json:"ownerPartyType" bson:"ownerPartyType"`
+	OwnerId           id.Identifier `json:"ownerId" bson:"ownerId"`
+	AssignedPartyType party.Type    `json:"assignedPartyType" bson:"assignedPartyType"`
+	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
+
+	// Reading Details
 	Raw       string  `json:"raw" bson:"raw"`
+	TimeStamp int64   `json:"timeStamp" bson:"timeStamp"`
 	Latitude  float32 `json:"latitude" bson:"latitude"`
 	Longitude float32 `json:"longitude" bson:"longitude"`
 }

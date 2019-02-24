@@ -7,3 +7,5 @@ const Name Type = "Name"
 const EmailAddress Type = "EmailAddress"
 const AdminEmailAddress Type = "adminEmailAddress"
 const Username Type = "Username"
+
+const DeviceTK102 Type = "DeviceTK102"

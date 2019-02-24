@@ -73,13 +73,13 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 		log.Fatal("Could not ensure id uniqueness: ", err)
 	}
 
-	// Ensure admin imei uniqueness
-	imeiUnique := mgo.Index{
-		Key:    []string{"imei"},
+	// Ensure admin manufacturerIdUnique uniqueness
+	manufacturerIdUnique := mgo.Index{
+		Key:    []string{"manufacturerId"},
 		Unique: true,
 	}
-	if err := tk102Collection.EnsureIndex(imeiUnique); err != nil {
-		log.Fatal("Could not ensure imei: ", err)
+	if err := tk102Collection.EnsureIndex(manufacturerIdUnique); err != nil {
+		log.Fatal("Could not ensure manufacturerId uniqueness: ", err)
 	}
 
 	// Ensure country code + number uniqueness
@@ -289,12 +289,12 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		})
 	}
 
-	if (*tk102ToValidate).IMEI == "" {
+	if (*tk102ToValidate).ManufacturerId == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "imei",
+			Field: "manufacturerId",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*tk102ToValidate).IMEI,
+			Data:  (*tk102ToValidate).ManufacturerId,
 		})
 	}
 

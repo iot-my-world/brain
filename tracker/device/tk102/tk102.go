@@ -7,7 +7,7 @@ import (
 
 type TK102 struct {
 	Id                string        `json:"id" bson:"id"`
-	IMEI              string        `json:"imei" bson:"imei"`
+	ManufacturerId    string        `json:"manufacturerId" bson:"manufacturerId"`
 	SimCountryCode    string        `json:"simCountryCode" bson:"simCountryCode"`
 	SimNumber         string        `json:"simNumber" bson:"simNumber"`
 	OwnerPartyType    party.Type    `json:"ownerPartyType" bson:"ownerPartyType"`
