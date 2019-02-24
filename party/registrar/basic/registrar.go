@@ -26,6 +26,7 @@ type basicRegistrar struct {
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	mailer               mailer.Mailer
 	jwtGenerator         token.JWTGenerator
+	mailRedirectBaseUrl  string
 }
 
 func New(
@@ -34,6 +35,7 @@ func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
+	mailRedirectBaseUrl string,
 ) *basicRegistrar {
 	return &basicRegistrar{
 		companyRecordHandler: companyRecordHandler,
@@ -41,6 +43,7 @@ func New(
 		clientRecordHandler:  clientRecordHandler,
 		mailer:               mailer,
 		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
+		mailRedirectBaseUrl:  mailRedirectBaseUrl,
 	}
 }
 
@@ -89,7 +92,7 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		To: companyRetrieveResponse.Company.AdminEmailAddress,
 		//Cc      string
 		Subject: "Welcome to SpotNav",
-		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. http://localhost:3000/register?&t=%s", registrationToken),
+		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s/register?&t=%s", br.mailRedirectBaseUrl, registrationToken),
 		//Bcc     []string
 	},
 		&sendMailResponse); err != nil {
@@ -215,7 +218,7 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 		To: clientRetrieveResponse.Client.AdminEmailAddress,
 		//Cc      string
 		Subject: "Welcome to SpotNav",
-		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. http://localhost:3000/register?&t=%s", registrationToken),
+		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s/register?&t=%s", br.mailRedirectBaseUrl, registrationToken),
 		//Bcc     []string
 	},
 		&sendMailResponse); err != nil {

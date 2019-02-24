@@ -58,6 +58,7 @@ func main() {
 	mongoNodes := flag.String("mongoNodes", "localhost:27017", "the nodes in the db cluster")
 	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
+	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
 	flag.Parse()
 
 	// Connect to database
@@ -102,7 +103,7 @@ func main() {
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
-	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey)
+	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, CompanyRecordHandler, ClientRecordHandler)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
