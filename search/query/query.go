@@ -2,15 +2,19 @@ package query
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"strings"
 )
 
 type Query struct {
 	Limit  int      `json:"limit"`
 	Offset int      `json:"offset"`
-	Order  []string `json:"order"`
+	Order  []SortOrder `json:"order"`
 	SortBy []string `json:"sortBy"`
 }
+
+type SortOrder string
+
+const SortOrderAscending  SortOrder = "asc"
+const SortOrderDescending SortOrder = "desc"
 
 func (q Query) ToMongoSortFormat() []string {
 	if len(q.Order) != len(q.SortBy) {
@@ -19,7 +23,7 @@ func (q Query) ToMongoSortFormat() []string {
 	}
 	var sortOrder []string
 	for i, field := range q.SortBy {
-		if len(q.Order) > i && strings.ToLower(q.Order[i]) == "desc" {
+		if len(q.Order) > i && q.Order[i] == SortOrderDescending {
 			sortOrder = append(sortOrder, "-"+field)
 		} else {
 			sortOrder = append(sortOrder, field)
