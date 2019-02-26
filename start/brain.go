@@ -34,12 +34,17 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
+	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
+	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
+
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
 	tk102DeviceServer "gitlab.com/iotTracker/brain/tracker/device/tk102/server"
 
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
+	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
+	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
 
 	"flag"
 	"gitlab.com/iotTracker/brain/email/mailer"
@@ -54,11 +59,13 @@ var ServerPort = "9010"
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
 func main() {
-	// get the command line variables
+	// get the command line args
 	mongoNodes := flag.String("mongoNodes", "localhost:27017", "the nodes in the db cluster")
 	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
+	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
+
 	flag.Parse()
 
 	// Connect to database
@@ -97,14 +104,16 @@ func main() {
 	})
 
 	// Create Service Providers
-	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, systemRoleCollection)
+	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, roleCollection)
 	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
+	SystemRecordHandler := systemMongoRecordHandler.New(mainMongoSession, databaseName, systemCollection, *rootPasswordFileLocation, PartyBasicRegistrar)
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, CompanyRecordHandler, ClientRecordHandler)
+	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(TK102DeviceRecordHandler, CompanyRecordHandler, ClientRecordHandler)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
 	// Create Service Provider Adaptors
@@ -115,7 +124,9 @@ func main() {
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
+	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
+	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 
 	// Initialise the APIAuthorizer
@@ -148,8 +159,14 @@ func main() {
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
+	if err := secureAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
+		log.Fatal("Unable to Register System Record Handler Service")
+	}
 	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
+		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")

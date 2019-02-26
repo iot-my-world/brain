@@ -12,12 +12,14 @@ import (
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gitlab.com/iotTracker/brain/security/token"
 	"time"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
 type basicRegistrar struct {
@@ -45,6 +47,47 @@ func New(
 		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
 		mailRedirectBaseUrl:  mailRedirectBaseUrl,
 	}
+}
+
+func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSystemAdminUserRequest, response *partyRegistrar.RegisterSystemAdminUserResponse) error {
+
+	// check if the system admin user already exists (i.e. has already been registered)
+	err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Identifier: username.Identifier{Username: request.User.Username},
+	},
+		&userRecordHandler.RetrieveResponse{})
+	switch err.(type) {
+	case nil:
+		// this means that the user already exists
+		return registrarException.AlreadyRegistered{}
+	case userRecordHandlerException.NotFound:
+		// this is fine, we will be creating the user now
+	default:
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+	}
+
+	// create the user
+	userCreateResponse := userRecordHandler.CreateResponse{}
+	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		User: request.User,
+	},
+		&userCreateResponse); err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
+	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
+		NewPassword: request.Password,
+	},
+		&userChangePasswordResponse); err != nil {
+		return err
+	}
+
+	response.User = userCreateResponse.User
+
+	return nil
 }
 
 func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRegistrar.InviteCompanyAdminUserRequest) error {

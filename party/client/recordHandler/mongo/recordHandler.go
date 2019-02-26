@@ -7,9 +7,9 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/client"
-	clientException "gitlab.com/iotTracker/brain/party/client/exception"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -141,7 +141,7 @@ func (mrh *mongoRecordHandler) Create(request *clientRecordHandler.CreateRequest
 	request.Client.Id = newId.String()
 
 	if err := clientCollection.Insert(request.Client); err != nil {
-		return clientException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return clientRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
 	response.Client = request.Client
@@ -181,7 +181,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 	filter := request.Identifier.ToFilter()
 	if err := clientCollection.Find(filter).One(&clientRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return clientException.NotFound{}
+			return clientRecordHandlerException.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
@@ -214,7 +214,7 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 	// Retrieve Client
 	retrieveClientResponse := clientRecordHandler.RetrieveResponse{}
 	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveClientResponse); err != nil {
-		return clientException.Update{Reasons: []string{"retrieving record", err.Error()}}
+		return clientRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -222,7 +222,7 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 	retrieveClientResponse.Client.Name = request.Client.Name
 
 	if err := clientCollection.Update(request.Identifier.ToFilter(), retrieveClientResponse.Client); err != nil {
-		return clientException.Update{Reasons: []string{"updating record", err.Error()}}
+		return clientRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.Client = retrieveClientResponse.Client
@@ -326,7 +326,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 			},
 				&clientRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case clientException.NotFound:
+				case clientRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -354,7 +354,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 			},
 				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case userException.NotFound:
+				case userRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

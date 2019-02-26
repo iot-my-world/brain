@@ -7,9 +7,9 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/company"
-	companyException "gitlab.com/iotTracker/brain/party/company/exception"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -133,7 +133,7 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 	request.Company.Id = newId.String()
 
 	if err := companyCollection.Insert(request.Company); err != nil {
-		return companyException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
 	response.Company = request.Company
@@ -173,7 +173,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 	filter := request.Identifier.ToFilter()
 	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return companyException.NotFound{}
+			return companyRecordHandlerException.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
@@ -206,7 +206,7 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 	// Retrieve Company
 	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
 	if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveCompanyResponse); err != nil {
-		return companyException.Update{Reasons: []string{"retrieving record", err.Error()}}
+		return companyRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -214,7 +214,7 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 	retrieveCompanyResponse.Company.Name = request.Company.Name
 
 	if err := companyCollection.Update(request.Identifier.ToFilter(), retrieveCompanyResponse.Company); err != nil {
-		return companyException.Update{Reasons: []string{"updating record", err.Error()}}
+		return companyRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.Company = retrieveCompanyResponse.Company
@@ -336,7 +336,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 			},
 				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case companyException.NotFound:
+				case companyRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -363,7 +363,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 			},
 				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case userException.NotFound:
+				case userRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

@@ -7,7 +7,7 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	permissionException "gitlab.com/iotTracker/brain/security/permission/exception"
+	permissionHandlerException "gitlab.com/iotTracker/brain/security/permission/handler/exception"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
@@ -61,7 +61,7 @@ func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissio
 		UserIdentifier: request.UserIdentifier,
 	},
 		&getAllUsersPermissionsResponse); err != nil {
-		return permissionException.GetAllPermissions{Reasons: []string{err.Error()}}
+		return permissionHandlerException.GetAllPermissions{Reasons: []string{err.Error()}}
 	}
 
 	// assume user does not have permission

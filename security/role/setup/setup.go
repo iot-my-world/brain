@@ -7,7 +7,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	"gitlab.com/iotTracker/brain/security/role"
-	roleException "gitlab.com/iotTracker/brain/security/role/exception"
+	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
+	roleSetupException "gitlab.com/iotTracker/brain/security/role/setup/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
 
@@ -37,6 +38,8 @@ var initialRoles = func() []role.Role {
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
 		api.ReadingRecordHandlerCollect,
+		api.TK102DeviceAdministratorChangeOwner,
+		api.TK102DeviceAdministratorChangeAssigned,
 	}
 
 	rootViewPermissions := []view.Permission{
@@ -84,10 +87,10 @@ var CompanyAdmin = role.Role{
 		api.PartyRegistrarInviteClientAdminUser,
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
-		api.TK102DeviceRecordHandlerUpdate,
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
+		api.TK102DeviceAdministratorChangeAssigned,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -110,7 +113,6 @@ var ClientAdmin = role.Role{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
-		api.TK102DeviceRecordHandlerUpdate,
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
@@ -137,11 +139,11 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 		err := handler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleToCreate.Name}}, &retrieveRoleResponse)
 
 		switch err.(type) {
-		case roleException.NotFound:
+		case roleRecordHandlerException.NotFound:
 			// if role record does not exist yet, try and create it
 			createRoleResponse := roleRecordHandler.CreateResponse{}
 			if err := handler.Create(&roleRecordHandler.CreateRequest{Role: roleToCreate}, &createRoleResponse); err != nil {
-				return roleException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
+				return roleSetupException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
 			}
 			log.Info("Initial Role Setup: Created Role: " + roleToCreate.Name)
 
@@ -158,13 +160,13 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 					Identifier: id.Identifier{Id: retrieveRoleResponse.Role.Id},
 				},
 					&roleRecordHandler.UpdateResponse{}); err != nil {
-					return roleException.InitialSetup{Reasons: []string{"update error", err.Error()}}
+					return roleSetupException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 				}
 			}
 
 		default:
 			// otherwise there was some retrieval error
-			return roleException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
+			return roleSetupException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
 		}
 	}
 
