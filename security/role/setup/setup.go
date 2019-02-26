@@ -29,6 +29,7 @@ var initialRoles = func() []role.Role {
 		api.RoleRetrieve,
 		api.RoleUpdate,
 		api.RoleDelete,
+		api.SystemRecordHandlerCollect,
 		api.CompanyRecordHandlerCreate,
 		api.CompanyRecordHandlerRetrieve,
 		api.CompanyRecordHandlerUpdate,

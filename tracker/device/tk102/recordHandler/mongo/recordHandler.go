@@ -10,6 +10,8 @@ import (
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
@@ -24,6 +26,7 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	systemRecordHandler  systemRecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
 }
@@ -32,6 +35,7 @@ func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
+	systemRecordHandler systemRecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
 ) *mongoRecordHandler {
@@ -51,6 +55,7 @@ func New(
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
+		systemRecordHandler:  systemRecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
 	}
@@ -329,15 +334,22 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
 		switch (*tk102ToValidate).OwnerPartyType {
 		case party.System:
-			// system owner party type means ownerId must be the system id
-			rootPartyID := id.Identifier{Id: "root"}
-			if (*tk102ToValidate).OwnerId != rootPartyID {
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "ownerId",
-					Type:  reasonInvalid.MustExist,
-					Help:  "owner party must exist",
-					Data:  (*tk102ToValidate).OwnerId,
-				})
+			// system owner must exist, try and retrieve to confirm
+			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Identifier: (*tk102ToValidate).OwnerId,
+			},
+				&systemRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case systemRecordHandlerException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "ownerId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "owner party must exist",
+						Data:  (*tk102ToValidate).OwnerId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving system", err.Error()}}
+				}
 			}
 
 		case party.Company:
@@ -410,15 +422,22 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		// neither are blank
 		switch (*tk102ToValidate).AssignedPartyType {
 		case party.System:
-			// system assigned party type means assignedId must be the system id
-			rootPartyID := id.Identifier{Id: "root"}
-			if (*tk102ToValidate).AssignedId != rootPartyID {
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "ownerId",
-					Type:  reasonInvalid.MustExist,
-					Help:  "owner party must exist",
-					Data:  (*tk102ToValidate).AssignedId,
-				})
+			// system assigned must exist, try and retrieve to confirm
+			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Identifier: (*tk102ToValidate).AssignedId,
+			},
+				&systemRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case systemRecordHandlerException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "assignedId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "assigned party must exist",
+						Data:  (*tk102ToValidate).AssignedId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving system", err.Error()}}
+				}
 			}
 
 		case party.Company:

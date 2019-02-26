@@ -12,6 +12,7 @@ import (
 	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {
@@ -305,5 +306,65 @@ func (mrh *mongoRecordHandler) Validate(request *systemRecordHandler.ValidateReq
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid
+	return nil
+}
+
+func (mrh *mongoRecordHandler) ValidateCollectRequest(request *systemRecordHandler.CollectRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectRequest, response *systemRecordHandler.CollectResponse) error {
+	if err := mrh.ValidateCollectRequest(request); err != nil {
+		return err
+	}
+
+	// Build filters from criteria
+	filter := bson.M{}
+	criteriaFilters := make([]bson.M, 0)
+	for criterionIdx := range request.Criteria {
+		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
+	}
+	if len(criteriaFilters) > 0 {
+		filter["$and"] = criteriaFilters
+	}
+
+	// Get System Collection
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	// Perform Query
+	query := systemCollection.Find(filter)
+
+	// Apply the count
+	if total, err := query.Count(); err == nil {
+		response.Total = total
+	} else {
+		return err
+	}
+
+	// Apply limit if applicable
+	if request.Query.Limit > 0 {
+		query.Limit(request.Query.Limit)
+	}
+
+	// Determine the Sort Order
+	mongoSortOrder := request.Query.ToMongoSortFormat()
+
+	// Populate records
+	response.Records = make([]system.System, 0)
+	if err := query.
+		Skip(request.Query.Offset).
+		Sort(mongoSortOrder...).
+		All(&response.Records); err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -15,6 +15,8 @@ const UserRecordHandlerValidate Permission = "UserRecordHandler.Validate"
 const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"
 const UserRecordHandlerChangePassword Permission = "UserRecordHandler.ChangePassword"
 
+const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
+
 const CompanyRecordHandlerCreate Permission = "CompanyRecordHandler.Create"
 const CompanyRecordHandlerRetrieve Permission = "CompanyRecordHandler.Retrieve"
 const CompanyRecordHandlerUpdate Permission = "CompanyRecordHandler.Update"
