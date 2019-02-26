@@ -6,7 +6,7 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/role"
-	roleException "gitlab.com/iotTracker/brain/security/role/exception"
+	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gopkg.in/mgo.v2"
@@ -112,7 +112,7 @@ func (mrh *recordHandler) Retrieve(request *roleRecordHandler.RetrieveRequest, r
 
 	if err := userCollection.Find(request.Identifier.ToFilter()).One(&roleRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return roleException.NotFound{}
+			return roleRecordHandlerException.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
@@ -132,7 +132,7 @@ func (mrh *recordHandler) Update(request *roleRecordHandler.UpdateRequest, respo
 	// Retrieve role
 	retrieveRoleResponse := roleRecordHandler.RetrieveResponse{}
 	if err := mrh.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveRoleResponse); err != nil {
-		return roleException.Update{Reasons: []string{"retrieving record", err.Error()}}
+		return roleRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields
@@ -142,7 +142,7 @@ func (mrh *recordHandler) Update(request *roleRecordHandler.UpdateRequest, respo
 	retrieveRoleResponse.Role.APIPermissions = request.Role.APIPermissions
 
 	if err := roleCollection.Update(request.Identifier.ToFilter(), retrieveRoleResponse.Role); err != nil {
-		return roleException.Update{Reasons: []string{"updating record", err.Error()}}
+		return roleRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	return nil
