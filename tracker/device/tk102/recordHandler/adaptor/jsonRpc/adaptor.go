@@ -148,6 +148,13 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+	// unwrap claims
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	// unwrap criteria
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
@@ -160,6 +167,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 
 	collectTK102Response := tk102RecordHandler.CollectResponse{}
 	if err := s.RecordHandler.Collect(&tk102RecordHandler.CollectRequest{
+		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
 	},

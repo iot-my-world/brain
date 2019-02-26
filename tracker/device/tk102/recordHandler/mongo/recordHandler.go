@@ -10,13 +10,14 @@ import (
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type mongoRecordHandler struct {
@@ -24,6 +25,8 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	updateIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	systemRecordHandler  systemRecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
 }
@@ -32,6 +35,7 @@ func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
+	systemRecordHandler systemRecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
 ) *mongoRecordHandler {
@@ -46,11 +50,17 @@ func New(
 		},
 	}
 
+	updateIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
+		ReasonsInvalid: map[string][]reasonInvalid.Type{},
+	}
+
 	newTK102MongoRecordHandler := mongoRecordHandler{
 		mongoSession:         mongoSession,
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
+		updateIgnoredReasons: updateIgnoredReasons,
+		systemRecordHandler:  systemRecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
 	}
@@ -329,15 +339,22 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
 		switch (*tk102ToValidate).OwnerPartyType {
 		case party.System:
-			// system owner party type means ownerId must be the system id
-			rootPartyID := id.Identifier{Id: "root"}
-			if (*tk102ToValidate).OwnerId != rootPartyID {
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "ownerId",
-					Type:  reasonInvalid.MustExist,
-					Help:  "owner party must exist",
-					Data:  (*tk102ToValidate).OwnerId,
-				})
+			// system owner must exist, try and retrieve to confirm
+			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Identifier: (*tk102ToValidate).OwnerId,
+			},
+				&systemRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case systemRecordHandlerException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "ownerId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "owner party must exist",
+						Data:  (*tk102ToValidate).OwnerId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving system", err.Error()}}
+				}
 			}
 
 		case party.Company:
@@ -388,37 +405,41 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		}
 	}
 
-	blankId := id.Identifier{}
 	// although assigned party type can be blank, if it is then the assigned id must also be blank
-	if ((*tk102ToValidate).AssignedPartyType == "" && (*tk102ToValidate).AssignedId != blankId) ||
-		((*tk102ToValidate).AssignedId == blankId && (*tk102ToValidate).AssignedPartyType != "") {
-		if (*tk102ToValidate).AssignedId != blankId {
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "assignedPartyType",
-				Type:  reasonInvalid.Invalid,
-				Help:  "assigned must be blank if assignedPartyType is",
-				Data:  (*tk102ToValidate).AssignedPartyType,
-			})
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "assignedId",
-				Type:  reasonInvalid.Invalid,
-				Help:  "assigned must be blank if assignedPartyType is",
-				Data:  (*tk102ToValidate).AssignedId,
-			})
-		}
-	} else if (*tk102ToValidate).AssignedPartyType != "" && (*tk102ToValidate).AssignedId != blankId {
+	if ((*tk102ToValidate).AssignedPartyType == "" && (*tk102ToValidate).AssignedId.Id != "") ||
+		((*tk102ToValidate).AssignedId.Id == "" && (*tk102ToValidate).AssignedPartyType != "") {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "assignedPartyType",
+			Type:  reasonInvalid.Invalid,
+			Help:  "must both be blank or set",
+			Data:  (*tk102ToValidate).AssignedPartyType,
+		})
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "assignedId",
+			Type:  reasonInvalid.Invalid,
+			Help:  "must both be blank or set",
+			Data:  (*tk102ToValidate).AssignedId,
+		})
+	} else if (*tk102ToValidate).AssignedPartyType != "" && (*tk102ToValidate).AssignedId.Id != "" {
 		// neither are blank
 		switch (*tk102ToValidate).AssignedPartyType {
 		case party.System:
-			// system assigned party type means assignedId must be the system id
-			rootPartyID := id.Identifier{Id: "root"}
-			if (*tk102ToValidate).AssignedId != rootPartyID {
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "ownerId",
-					Type:  reasonInvalid.MustExist,
-					Help:  "owner party must exist",
-					Data:  (*tk102ToValidate).AssignedId,
-				})
+			// system assigned must exist, try and retrieve to confirm
+			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Identifier: (*tk102ToValidate).AssignedId,
+			},
+				&systemRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case systemRecordHandlerException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "assignedId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "assigned party must exist",
+						Data:  (*tk102ToValidate).AssignedId,
+					})
+				default:
+					return brainException.Unexpected{Reasons: []string{"error retrieving system", err.Error()}}
+				}
 			}
 
 		case party.Company:
@@ -481,6 +502,16 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
+
+	case tk102RecordHandler.Update:
+
+		// Ignore reasons not applicable for this method
+		for _, reason := range allReasonsInvalid {
+			if !mrh.updateIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+
 	default:
 		returnedReasonsInvalid = allReasonsInvalid
 	}
@@ -504,15 +535,7 @@ func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectReques
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria, request.Claims)
 
 	// Get TK102 Collection
 	mgoSession := mrh.mongoSession.Copy()
