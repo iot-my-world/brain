@@ -5,6 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	userSetupException "gitlab.com/iotTracker/brain/party/user/setup/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
@@ -75,7 +76,7 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 			// if user record does not exist yet, try and create it
 			userCreateResponse := userRecordHandler.CreateResponse{}
 			if err := handler.Create(&userRecordHandler.CreateRequest{User: newUser.user}, &userCreateResponse); err != nil {
-				return userRecordHandlerException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
+				return userSetupException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
 			}
 			log.Info("Initial User Setup: Created User: " + newUser.user.Username)
 
@@ -87,12 +88,12 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 				Identifier: id.Identifier{Id: retrieveUserResponse.User.Id},
 				User:       newUser.user,
 			}, &userUpdateResponse); err != nil {
-				return userRecordHandlerException.InitialSetup{Reasons: []string{"update error", err.Error()}}
+				return userSetupException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 			}
 
 		default:
 			// otherwise there was some retrieval error
-			return userRecordHandlerException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
+			return userSetupException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
 		}
 
 		// creation or update done, update password
@@ -102,7 +103,7 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 			Identifier:  username.Identifier{Username: newUser.user.Username},
 			NewPassword: newUser.password,
 		}, &userChangePasswordResponse); err != nil {
-			return userRecordHandlerException.InitialSetup{Reasons: []string{"change password error", err.Error()}}
+			return userSetupException.InitialSetup{Reasons: []string{"change password error", err.Error()}}
 		}
 	}
 

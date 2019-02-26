@@ -8,6 +8,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	"gitlab.com/iotTracker/brain/security/role"
 	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
+	roleSetupException "gitlab.com/iotTracker/brain/security/role/setup/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
 
@@ -142,7 +143,7 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 			// if role record does not exist yet, try and create it
 			createRoleResponse := roleRecordHandler.CreateResponse{}
 			if err := handler.Create(&roleRecordHandler.CreateRequest{Role: roleToCreate}, &createRoleResponse); err != nil {
-				return roleRecordHandlerException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
+				return roleSetupException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
 			}
 			log.Info("Initial Role Setup: Created Role: " + roleToCreate.Name)
 
@@ -159,13 +160,13 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 					Identifier: id.Identifier{Id: retrieveRoleResponse.Role.Id},
 				},
 					&roleRecordHandler.UpdateResponse{}); err != nil {
-					return roleRecordHandlerException.InitialSetup{Reasons: []string{"update error", err.Error()}}
+					return roleSetupException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 				}
 			}
 
 		default:
 			// otherwise there was some retrieval error
-			return roleRecordHandlerException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
+			return roleSetupException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
 		}
 	}
 
