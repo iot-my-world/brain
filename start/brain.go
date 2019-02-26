@@ -56,11 +56,13 @@ var ServerPort = "9010"
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
 func main() {
-	// get the command line variables
+	// get the command line args
 	mongoNodes := flag.String("mongoNodes", "localhost:27017", "the nodes in the db cluster")
 	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
+	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "rootPassword", "path to file containing root password")
+
 	flag.Parse()
 
 	// Connect to database
@@ -100,7 +102,7 @@ func main() {
 
 	// Create Service Providers
 	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, systemRoleCollection)
-	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
+	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection, *rootPasswordFileLocation)
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)

@@ -8,6 +8,9 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"os"
+	"io/ioutil"
+	"strings"
 )
 
 type newUser struct {
@@ -33,7 +36,24 @@ var initialUsers = []newUser{
 	},
 }
 
-func InitialSetup(handler userRecordHandler.RecordHandler) error {
+func consumePasswordFile(location string) ([]byte, error) {
+	if _, err := os.Stat(location); err != nil {
+		return nil, err
+	}
+	// read the file
+	data, err := ioutil.ReadFile(location)
+	if err != nil {
+		return nil, err
+	}
+	// remove the file
+	if err := os.Remove(location); err != nil {
+		return nil, err
+	}
+	// return the data
+	return data, nil
+}
+
+func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocation string) error {
 	for _, newUser := range initialUsers {
 		//Try and retrieve the new user record
 		retrieveUserResponse := userRecordHandler.RetrieveResponse{}
@@ -41,6 +61,17 @@ func InitialSetup(handler userRecordHandler.RecordHandler) error {
 
 		switch err.(type) {
 		case userException.NotFound:
+
+			// if new user is root and if a rootPasswordFileLocation is passed
+			if newUser.user.Name == "root" && rootPasswordFileLocation != "" {
+				// try and retrieve the root password
+				rootPwdData, err := consumePasswordFile(rootPasswordFileLocation)
+				if err != nil {
+					return err
+				}
+				newUser.password = strings.TrimSuffix(string(rootPwdData), "\n")
+			}
+
 			// if user record does not exist yet, try and create it
 			userCreateResponse := userRecordHandler.CreateResponse{}
 			if err := handler.Create(&userRecordHandler.CreateRequest{User: newUser.user}, &userCreateResponse); err != nil {

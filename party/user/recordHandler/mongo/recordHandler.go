@@ -26,8 +26,9 @@ type mongoRecordHandler struct {
 
 func New(
 	mongoSession *mgo.Session,
-	database string,
-	collection string,
+	database,
+	collection,
+	rootPasswordFileLocation string,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -50,7 +51,7 @@ func New(
 		createIgnoredReasons: createIgnoredReasons,
 	}
 
-	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
+	if err := userSetup.InitialSetup(&newUserMongoRecordHandler, rootPasswordFileLocation); err != nil {
 		log.Fatal("Unable to complete initial user setup!", err.Error())
 	}
 
