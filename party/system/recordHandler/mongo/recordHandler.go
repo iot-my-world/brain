@@ -5,15 +5,12 @@ import (
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/user"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"gitlab.com/iotTracker/brain/party/system"
+	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	"golang.org/x/crypto/bcrypt"
+	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
+	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	"gopkg.in/mgo.v2"
 )
 
@@ -29,6 +26,7 @@ func New(
 	database,
 	collection,
 	rootPasswordFileLocation string,
+	registrar partyRegistrar.Registrar,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -38,71 +36,59 @@ func New(
 			"id": {
 				reasonInvalid.Blank,
 			},
-			"password": {
-				reasonInvalid.Blank,
-			},
 		},
 	}
 
-	newUserMongoRecordHandler := mongoRecordHandler{
+	newSystemMongoRecordHandler := mongoRecordHandler{
 		mongoSession:         mongoSession,
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
 	}
 
-	if err := userSetup.InitialSetup(&newUserMongoRecordHandler, rootPasswordFileLocation); err != nil {
-		log.Fatal("Unable to complete initial user setup!", err.Error())
+	if err := systemSetup.InitialSetup(&newSystemMongoRecordHandler, registrar, rootPasswordFileLocation); err != nil {
+		log.Fatal("Unable to complete initial system setup!", err.Error())
 	}
 
-	return &newUserMongoRecordHandler
+	return &newSystemMongoRecordHandler
 }
 
 func setupIndices(mongoSession *mgo.Session, database, collection string) {
-	//Initialise User collection in database
+	//Initialise System collection in database
 	mgoSesh := mongoSession.Copy()
 	defer mgoSesh.Close()
-	userCollection := mgoSesh.DB(database).C(collection)
+	systemCollection := mgoSesh.DB(database).C(collection)
 
 	// Ensure id uniqueness
 	idUnique := mgo.Index{
 		Key:    []string{"id"},
 		Unique: true,
 	}
-	if err := userCollection.EnsureIndex(idUnique); err != nil {
+	if err := systemCollection.EnsureIndex(idUnique); err != nil {
 		log.Fatal("Could not ensure id uniqueness: ", err)
 	}
 
-	//Ensure username Uniqueness
-	usernameUnique := mgo.Index{
-		Key:    []string{"username"},
+	// Ensure name uniqueness
+	nameUnique := mgo.Index{
+		Key:    []string{"name"},
 		Unique: true,
 	}
-	if err := userCollection.EnsureIndex(usernameUnique); err != nil {
-		log.Fatal("Could not ensure username uniqueness: ", err)
-	}
-
-	//Ensure emailAddress Uniqueness
-	emailAddressUnique := mgo.Index{
-		Key:    []string{"emailAddress"},
-		Unique: true,
-	}
-	if err := userCollection.EnsureIndex(emailAddressUnique); err != nil {
-		log.Fatal("Could not ensure email address uniqueness: ", err)
+	if err := systemCollection.EnsureIndex(nameUnique); err != nil {
+		log.Fatal("Could not ensure name uniqueness: ", err)
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.CreateRequest) error {
+func (mrh *mongoRecordHandler) ValidateCreateRequest(request *systemRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	// Validate the new user
-	userValidateResponse := userRecordHandler.ValidateResponse{}
+	// Validate the new system
+	systemValidateResponse := systemRecordHandler.ValidateResponse{}
 
-	err := mrh.Validate(&userRecordHandler.ValidateRequest{User: request.User}, &userValidateResponse)
+	err := mrh.Validate(&systemRecordHandler.ValidateRequest{System: request.System}, &systemValidateResponse)
 	if err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newUser")
+		reasonsInvalid = append(reasonsInvalid, "unable to validate new system")
 	} else {
-		for _, reason := range userValidateResponse.ReasonsInvalid {
+		for _, reason := range systemValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
 				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 			}
@@ -116,7 +102,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, response *userRecordHandler.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *systemRecordHandler.CreateRequest, response *systemRecordHandler.CreateResponse) error {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -124,30 +110,30 @@ func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	newId, err := uuid.NewV4()
 	if err != nil {
 		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
-	request.User.Id = newId.String()
+	request.System.Id = newId.String()
 
-	if err := userCollection.Insert(request.User); err != nil {
-		return userException.Create{Reasons: []string{"inserting record", err.Error()}}
+	if err := systemCollection.Insert(request.System); err != nil {
+		return systemException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.User = request.User
+	response.System = request.System
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandler.RetrieveRequest) error {
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *systemRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.Identifier.Type()))
+		if !system.IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for system", request.Identifier.Type()))
 		}
 	}
 
@@ -158,7 +144,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveRequest, response *userRecordHandler.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *systemRecordHandler.RetrieveRequest, response *systemRecordHandler.RetrieveResponse) error {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -166,24 +152,24 @@ func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveReque
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	var userRecord user.User
+	var systemRecord system.System
 
 	filter := request.Identifier.ToFilter()
-	if err := userCollection.Find(filter).One(&userRecord); err != nil {
+	if err := systemCollection.Find(filter).One(&systemRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return userException.NotFound{}
+			return systemException.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.User = userRecord
+	response.System = systemRecord
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.UpdateRequest) error {
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *systemRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -193,7 +179,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, response *userRecordHandler.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest, response *systemRecordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -201,42 +187,35 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	// Retrieve User
-	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
-		return userException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	// Retrieve System
+	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&systemRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveSystemResponse); err != nil {
+		return systemException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
-	// retrieveUserResponse.User.Id = request.User.Id // cannot update ever
-	retrieveUserResponse.User.Name = request.User.Name
-	retrieveUserResponse.User.Surname = request.User.Surname
-	// retrieveUserResponse.User.Username = request.User.Username // cannot update yet
-	// retrieveUserResponse.User.EmailAddress = request.User.EmailAddress // cannot update yet
-	retrieveUserResponse.User.Password = request.User.Password
-	retrieveUserResponse.User.Roles = request.User.Roles
-	// retrieveUserResponse.User.PartyType = request.User.PartyType // cannot update yet
-	// retrieveUserResponse.User.PartyId = request.User.PartyId // cannot update yet
-
-	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
-		return userException.Update{Reasons: []string{"updating record", err.Error()}}
+	// retrieveSystemResponse.System.Id = request.System.Id // cannot update ever
+	retrieveSystemResponse.System.Name = request.System.Name
+	retrieveSystemResponse.System.AdminEmailAddress = request.System.AdminEmailAddress
+	if err := systemCollection.Update(request.Identifier.ToFilter(), retrieveSystemResponse.System); err != nil {
+		return systemException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.User = retrieveUserResponse.User
+	response.System = retrieveSystemResponse.System
 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.DeleteRequest) error {
+func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *systemRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.Identifier.Type()))
+		if !system.IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for system", request.Identifier.Type()))
 		}
 	}
 
@@ -247,7 +226,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *userRecordHandler.DeleteRequest, response *userRecordHandler.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *systemRecordHandler.DeleteRequest, response *systemRecordHandler.DeleteResponse) error {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -255,16 +234,16 @@ func (mrh *mongoRecordHandler) Delete(request *userRecordHandler.DeleteRequest, 
 	mgoSession := mrh.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	if err := userCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	if err := systemCollection.Remove(request.Identifier.ToFilter()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandler.ValidateRequest) error {
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *systemRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -274,84 +253,38 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateRequest, response *userRecordHandler.ValidateResponse) error {
+func (mrh *mongoRecordHandler) Validate(request *systemRecordHandler.ValidateRequest, response *systemRecordHandler.ValidateResponse) error {
 	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	userToValidate := &request.User
+	systemToValidate := &request.System
 
-	if (*userToValidate).Id == "" {
+	if (*systemToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "id cannot be blank",
-			Data:  (*userToValidate).Id,
+			Data:  (*systemToValidate).Id,
 		})
 	}
 
-	if (*userToValidate).Name == "" {
+	if (*systemToValidate).Name == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*userToValidate).Name,
+			Data:  (*systemToValidate).Name,
 		})
 	}
 
-	if (*userToValidate).Surname == "" {
+	if (*systemToValidate).AdminEmailAddress == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "surname",
+			Field: "adminEmailAddress",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*userToValidate).Name,
-		})
-	}
-
-	if (*userToValidate).Username == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "username",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).Username,
-		})
-	}
-
-	if (*userToValidate).EmailAddress == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "emailAddress",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).EmailAddress,
-		})
-	}
-
-	if len((*userToValidate).Password) == 0 {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "password",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).Password,
-		})
-	}
-
-	if (*userToValidate).PartyType == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "partyType",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).PartyType,
-		})
-	}
-
-	blankIdIdentifier := id.Identifier{}
-	if (*userToValidate).PartyId == blankIdIdentifier {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "partyId",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).PartyId,
+			Data:  (*systemToValidate).AdminEmailAddress,
 		})
 	}
 
@@ -359,69 +292,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 
 	// Perform additional checks/ignores considering method field
 	switch request.Method {
-	case userRecordHandler.Create:
-		// Check if the users email already exists by checking if a user can be
-		// retrieved with it
-		if (*userToValidate).EmailAddress != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Identifier: emailAddress.Identifier{
-					EmailAddress: (*userToValidate).EmailAddress,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "emailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*userToValidate).EmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email address is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "emailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).EmailAddress,
-				})
-			}
-		}
-
-		// Check if the users username already exists by checking if a user can be
-		// retrieved with it
-		if (*userToValidate).EmailAddress != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Identifier: username.Identifier{
-					Username: (*userToValidate).Username,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "username",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*userToValidate).Username,
-					})
-				}
-			} else {
-				// there was no error, this username is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "username",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).Username,
-				})
-			}
-		}
-
+	case systemRecordHandler.Create:
 		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
@@ -434,49 +305,5 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
-}
-
-func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *userRecordHandler.ChangePasswordRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
-	}
-}
-
-func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangePasswordRequest, response *userRecordHandler.ChangePasswordResponse) error {
-	if err := mrh.ValidateChangePasswordRequest(request); err != nil {
-		return err
-	}
-
-	// Retrieve User
-	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
-		return userException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
-	}
-
-	// Hash the new Password
-	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return userException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
-	}
-
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	// update user
-	retrieveUserResponse.User.Password = pwdHash
-
-	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
-		return userException.Update{Reasons: []string{"updating record", err.Error()}}
-	}
-
-	response.User = retrieveUserResponse.User
-
 	return nil
 }

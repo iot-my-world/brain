@@ -2,7 +2,6 @@ package setup
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userSetupException "gitlab.com/iotTracker/brain/party/user/setup/exception"
@@ -11,7 +10,6 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"os"
 	"io/ioutil"
-	"strings"
 )
 
 type newUser struct {
@@ -19,23 +17,25 @@ type newUser struct {
 	password string
 }
 
-var initialUsers = []newUser{
-	{
-		user: user.User{
-			Name:    "root",
-			Surname: "root",
+//var initialUsers = []newUser{
+//	{
+//		user: user.User{
+//			Name:    "root",
+//			Surname: "root",
+//
+//			Username:     "root",
+//			EmailAddress: "root@root.com",
+//			// Password: set later with hashing
+//			Roles: []string{"root"},
+//
+//			PartyType: party.System,
+//			PartyId:   id.Identifier{Id: "root"},
+//		},
+//		password: "12345",
+//	},
+//}
 
-			Username:     "root",
-			EmailAddress: "root@root.com",
-			// Password: set later with hashing
-			Roles: []string{"root"},
-
-			PartyType: party.System,
-			PartyId:   id.Identifier{Id: "root"},
-		},
-		password: "12345",
-	},
-}
+var initialUsers = make([]newUser, 0)
 
 func consumePasswordFile(location string) ([]byte, error) {
 	if _, err := os.Stat(location); err != nil {
@@ -54,7 +54,7 @@ func consumePasswordFile(location string) ([]byte, error) {
 	return data, nil
 }
 
-func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocation string) error {
+func InitialSetup(handler userRecordHandler.RecordHandler) error {
 	for _, newUser := range initialUsers {
 		//Try and retrieve the new user record
 		retrieveUserResponse := userRecordHandler.RetrieveResponse{}
@@ -62,17 +62,6 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 
 		switch err.(type) {
 		case userRecordHandlerException.NotFound:
-
-			// if new user is root and if a rootPasswordFileLocation is passed
-			if newUser.user.Name == "root" && rootPasswordFileLocation != "" {
-				// try and retrieve the root password
-				rootPwdData, err := consumePasswordFile(rootPasswordFileLocation)
-				if err != nil {
-					return err
-				}
-				newUser.password = strings.TrimSuffix(string(rootPwdData), "\n")
-			}
-
 			// if user record does not exist yet, try and create it
 			userCreateResponse := userRecordHandler.CreateResponse{}
 			if err := handler.Create(&userRecordHandler.CreateRequest{User: newUser.user}, &userCreateResponse); err != nil {

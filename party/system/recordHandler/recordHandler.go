@@ -15,6 +15,12 @@ type RecordHandler interface {
 	Validate(request *ValidateRequest, response *ValidateResponse) error
 }
 
+const Create api.Method = "Create"
+const Retrieve api.Method = "Retrieve"
+const Update api.Method = "Update"
+const Delete api.Method = "Delete"
+const Validate api.Method = "Validate"
+
 type ValidateRequest struct {
 	System system.System
 	Method api.Method
