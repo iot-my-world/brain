@@ -36,7 +36,6 @@ var initialRoles = func() []role.Role {
 		api.CompanyRecordHandlerValidate,
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
-		api.ReadingRecordHandlerCollect,
 		api.TK102DeviceAdministratorChangeOwner,
 		api.TK102DeviceAdministratorChangeAssigned,
 	}
@@ -92,6 +91,7 @@ var CompanyAdmin = role.Role{
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
 		api.TK102DeviceAdministratorChangeAssigned,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -104,6 +104,7 @@ var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{},
 }
@@ -119,6 +120,7 @@ var ClientAdmin = role.Role{
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -131,6 +133,7 @@ var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{},
 }

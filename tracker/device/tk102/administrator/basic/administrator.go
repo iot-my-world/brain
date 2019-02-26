@@ -59,5 +59,7 @@ func (ba *basicAdministrator) ChangeAssigned(request *tk102Administrator.ChangeA
 		return err
 	}
 
+	// Retrieve all readings associated with this device
+
 	return nil
 }
