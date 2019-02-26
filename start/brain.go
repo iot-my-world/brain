@@ -40,6 +40,8 @@ import (
 
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
+	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
+	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
 
 	"flag"
 	"gitlab.com/iotTracker/brain/email/mailer"
@@ -105,6 +107,7 @@ func main() {
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
 	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, CompanyRecordHandler, ClientRecordHandler)
+	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(TK102DeviceRecordHandler, CompanyRecordHandler, ClientRecordHandler)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
 
 	// Create Service Provider Adaptors
@@ -116,6 +119,7 @@ func main() {
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
+	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 
 	// Initialise the APIAuthorizer
@@ -150,6 +154,9 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
+		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")

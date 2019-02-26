@@ -83,35 +83,6 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	return nil
 }
 
-type UpdateRequest struct {
-	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-	TK102      tk102.TK102                         `json:"tk102"`
-}
-
-type UpdateResponse struct {
-	TK102 tk102.TK102 `json:"tk102"`
-}
-
-func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
-	id, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
-	updateTK102Response := tk102RecordHandler.UpdateResponse{}
-	if err := s.RecordHandler.Update(
-		&tk102RecordHandler.UpdateRequest{
-			Identifier: id,
-		},
-		&updateTK102Response); err != nil {
-		return err
-	}
-
-	response.TK102 = updateTK102Response.TK102
-
-	return nil
-}
-
 type DeleteRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 }
