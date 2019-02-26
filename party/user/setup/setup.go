@@ -4,7 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/user"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
@@ -60,7 +60,7 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 		err := handler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: username.Identifier{Username: newUser.user.Username}}, &retrieveUserResponse)
 
 		switch err.(type) {
-		case userException.NotFound:
+		case userRecordHandlerException.NotFound:
 
 			// if new user is root and if a rootPasswordFileLocation is passed
 			if newUser.user.Name == "root" && rootPasswordFileLocation != "" {
@@ -75,7 +75,7 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 			// if user record does not exist yet, try and create it
 			userCreateResponse := userRecordHandler.CreateResponse{}
 			if err := handler.Create(&userRecordHandler.CreateRequest{User: newUser.user}, &userCreateResponse); err != nil {
-				return userException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
+				return userRecordHandlerException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
 			}
 			log.Info("Initial User Setup: Created User: " + newUser.user.Username)
 
@@ -87,12 +87,12 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 				Identifier: id.Identifier{Id: retrieveUserResponse.User.Id},
 				User:       newUser.user,
 			}, &userUpdateResponse); err != nil {
-				return userException.InitialSetup{Reasons: []string{"update error", err.Error()}}
+				return userRecordHandlerException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 			}
 
 		default:
 			// otherwise there was some retrieval error
-			return userException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
+			return userRecordHandlerException.InitialSetup{Reasons: []string{"retrieval error", err.Error()}}
 		}
 
 		// creation or update done, update password
@@ -102,7 +102,7 @@ func InitialSetup(handler userRecordHandler.RecordHandler, rootPasswordFileLocat
 			Identifier:  username.Identifier{Username: newUser.user.Username},
 			NewPassword: newUser.password,
 		}, &userChangePasswordResponse); err != nil {
-			return userException.InitialSetup{Reasons: []string{"change password error", err.Error()}}
+			return userRecordHandlerException.InitialSetup{Reasons: []string{"change password error", err.Error()}}
 		}
 	}
 

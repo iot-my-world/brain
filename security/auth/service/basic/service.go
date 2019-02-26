@@ -4,7 +4,7 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -42,7 +42,7 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
 	}, &retrieveUserResponse); err != nil {
 		switch err.(type) {
-		case userException.NotFound:
+		case userRecordHandlerException.NotFound:
 			//try and retrieve User record with email address
 			if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},

@@ -6,7 +6,7 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -133,7 +133,7 @@ func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, 
 	request.User.Id = newId.String()
 
 	if err := userCollection.Insert(request.User); err != nil {
-		return userException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return userRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
 	response.User = request.User
@@ -173,7 +173,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveReque
 	filter := request.Identifier.ToFilter()
 	if err := userCollection.Find(filter).One(&userRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return userException.NotFound{}
+			return userRecordHandlerException.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
@@ -206,7 +206,7 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 	// Retrieve User
 	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
 	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
-		return userException.Update{Reasons: []string{"retrieving record", err.Error()}}
+		return userRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -221,7 +221,7 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 	// retrieveUserResponse.User.PartyId = request.User.PartyId // cannot update yet
 
 	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
-		return userException.Update{Reasons: []string{"updating record", err.Error()}}
+		return userRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.User = retrieveUserResponse.User
@@ -370,7 +370,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 			},
 				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case userException.NotFound:
+				case userRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -401,7 +401,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 			},
 				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case userException.NotFound:
+				case userRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -455,13 +455,13 @@ func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangeP
 	// Retrieve User
 	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
 	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
-		return userException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
+		return userRecordHandlerException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return userException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
+		return userRecordHandlerException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -473,7 +473,7 @@ func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangeP
 	retrieveUserResponse.User.Password = pwdHash
 
 	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
-		return userException.Update{Reasons: []string{"updating record", err.Error()}}
+		return userRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.User = retrieveUserResponse.User

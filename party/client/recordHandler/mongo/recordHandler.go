@@ -9,7 +9,7 @@ import (
 	"gitlab.com/iotTracker/brain/party/client"
 	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	userException "gitlab.com/iotTracker/brain/party/user/exception"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -354,7 +354,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 			},
 				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case userException.NotFound:
+				case userRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
