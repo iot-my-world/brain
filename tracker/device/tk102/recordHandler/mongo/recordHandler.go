@@ -12,7 +12,7 @@ import (
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102Exception "gitlab.com/iotTracker/brain/tracker/device/tk102/exception"
+	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
@@ -139,7 +139,7 @@ func (mrh *mongoRecordHandler) Create(request *tk102RecordHandler.CreateRequest,
 	request.TK102.Id = newId.String()
 
 	if err := tk102Collection.Insert(request.TK102); err != nil {
-		return tk102Exception.Create{Reasons: []string{"inserting record", err.Error()}}
+		return tk102ExceptionRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
 	response.TK102 = request.TK102
@@ -179,7 +179,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequ
 	filter := request.Identifier.ToFilter()
 	if err := tk102Collection.Find(filter).One(&tk102Record); err != nil {
 		if err == mgo.ErrNotFound {
-			return tk102Exception.NotFound{}
+			return tk102ExceptionRecordHandlerException.NotFound{}
 		} else {
 			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
@@ -212,14 +212,14 @@ func (mrh *mongoRecordHandler) Update(request *tk102RecordHandler.UpdateRequest,
 	// Retrieve TK102
 	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
 	if err := mrh.Retrieve(&tk102RecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveTK102Response); err != nil {
-		return tk102Exception.Update{Reasons: []string{"retrieving record", err.Error()}}
+		return tk102ExceptionRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
 	// retrieveTK102Response.TK102.Id = request.TK102.Id // cannot update ever
 
 	if err := tk102Collection.Update(request.Identifier.ToFilter(), retrieveTK102Response.TK102); err != nil {
-		return tk102Exception.Update{Reasons: []string{"updating record", err.Error()}}
+		return tk102ExceptionRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	response.TK102 = retrieveTK102Response.TK102
