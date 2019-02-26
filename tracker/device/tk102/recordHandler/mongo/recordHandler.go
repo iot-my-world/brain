@@ -12,7 +12,6 @@ import (
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
 	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
@@ -26,6 +25,7 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	updateIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
 	systemRecordHandler  systemRecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
@@ -50,11 +50,16 @@ func New(
 		},
 	}
 
+	updateIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
+		ReasonsInvalid: map[string][]reasonInvalid.Type{},
+	}
+
 	newTK102MongoRecordHandler := mongoRecordHandler{
 		mongoSession:         mongoSession,
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
+		updateIgnoredReasons: updateIgnoredReasons,
 		systemRecordHandler:  systemRecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
@@ -400,25 +405,22 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		}
 	}
 
-	blankId := id.Identifier{}
 	// although assigned party type can be blank, if it is then the assigned id must also be blank
-	if ((*tk102ToValidate).AssignedPartyType == "" && (*tk102ToValidate).AssignedId != blankId) ||
-		((*tk102ToValidate).AssignedId == blankId && (*tk102ToValidate).AssignedPartyType != "") {
-		if (*tk102ToValidate).AssignedId != blankId {
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "assignedPartyType",
-				Type:  reasonInvalid.Invalid,
-				Help:  "assigned must be blank if assignedPartyType is",
-				Data:  (*tk102ToValidate).AssignedPartyType,
-			})
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "assignedId",
-				Type:  reasonInvalid.Invalid,
-				Help:  "assigned must be blank if assignedPartyType is",
-				Data:  (*tk102ToValidate).AssignedId,
-			})
-		}
-	} else if (*tk102ToValidate).AssignedPartyType != "" && (*tk102ToValidate).AssignedId != blankId {
+	if ((*tk102ToValidate).AssignedPartyType == "" && (*tk102ToValidate).AssignedId.Id != "") ||
+		((*tk102ToValidate).AssignedId.Id == "" && (*tk102ToValidate).AssignedPartyType != "") {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "assignedPartyType",
+			Type:  reasonInvalid.Invalid,
+			Help:  "must both be blank or set",
+			Data:  (*tk102ToValidate).AssignedPartyType,
+		})
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "assignedId",
+			Type:  reasonInvalid.Invalid,
+			Help:  "must both be blank or set",
+			Data:  (*tk102ToValidate).AssignedId,
+		})
+	} else if (*tk102ToValidate).AssignedPartyType != "" && (*tk102ToValidate).AssignedId.Id != "" {
 		// neither are blank
 		switch (*tk102ToValidate).AssignedPartyType {
 		case party.System:
@@ -500,6 +502,16 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
+
+	case tk102RecordHandler.Update:
+
+		// Ignore reasons not applicable for this method
+		for _, reason := range allReasonsInvalid {
+			if !mrh.updateIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+
 	default:
 		returnedReasonsInvalid = allReasonsInvalid
 	}
@@ -524,7 +536,6 @@ func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectReques
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria, request.Claims)
-
 
 	// Get TK102 Collection
 	mgoSession := mrh.mongoSession.Copy()
