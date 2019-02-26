@@ -29,13 +29,11 @@ var initialRoles = func() []role.Role {
 		api.RoleRetrieve,
 		api.RoleUpdate,
 		api.RoleDelete,
-		api.SystemRecordHandlerCollect,
 		api.CompanyRecordHandlerCreate,
 		api.CompanyRecordHandlerRetrieve,
 		api.CompanyRecordHandlerUpdate,
 		api.CompanyRecordHandlerDelete,
 		api.CompanyRecordHandlerValidate,
-		api.CompanyRecordHandlerCollect,
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
 		api.ReadingRecordHandlerCollect,
@@ -79,6 +77,8 @@ var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+		api.SystemRecordHandlerCollect,
+		api.CompanyRecordHandlerCollect,
 		api.ClientRecordHandlerCreate,
 		api.ClientRecordHandlerRetrieve,
 		api.ClientRecordHandlerUpdate,
@@ -111,6 +111,8 @@ var CompanyUser = role.Role{
 var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
+		api.SystemRecordHandlerCollect,
+		api.CompanyRecordHandlerCollect,
 		api.PermissionHandlerGetAllUsersViewPermissions,
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
