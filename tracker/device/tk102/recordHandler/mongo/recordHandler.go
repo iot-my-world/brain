@@ -8,7 +8,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	clientException "gitlab.com/iotTracker/brain/party/client/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	companyException "gitlab.com/iotTracker/brain/party/company/exception"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
@@ -347,7 +347,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 			},
 				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case companyException.NotFound:
+				case companyRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "ownerId",
 						Type:  reasonInvalid.MustExist,
@@ -428,7 +428,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 			},
 				&companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
-				case companyException.NotFound:
+				case companyRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "assignedId",
 						Type:  reasonInvalid.MustExist,
