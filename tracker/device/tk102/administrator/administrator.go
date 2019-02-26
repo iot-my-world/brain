@@ -14,7 +14,7 @@ type Administrator interface {
 
 type ChangeOwnerRequest struct {
 	Claims             claims.Claims
-	Identifier         identifier.Identifier
+	TK02Identifier     identifier.Identifier
 	NewOwnerPartyType  party.Type
 	NewOwnerIdentifier identifier.Identifier
 }
@@ -24,7 +24,8 @@ type ChangeOwnerResponse struct {
 }
 
 type ChangeAssignedRequest struct {
-	Identifier            identifier.Identifier
+	Claims                claims.Claims
+	TK02Identifier        identifier.Identifier
 	NewAssignedPartyType  party.Type
 	NewAssignedIdentifier identifier.Identifier
 }
