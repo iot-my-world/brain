@@ -7,6 +7,8 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"net/http"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 type adaptor struct {
@@ -30,6 +32,13 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+	// unwrap claims
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	// unwrap criteria
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
@@ -42,6 +51,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 
 	collectReadingResponse := readingRecordHandler.CollectResponse{}
 	if err := s.RecordHandler.Collect(&readingRecordHandler.CollectRequest{
+		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
 	},

@@ -7,11 +7,16 @@ import (
 	criterionException "gitlab.com/iotTracker/brain/search/criterion/exception"
 	"gitlab.com/iotTracker/brain/search/criterion/text"
 	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
+	"gitlab.com/iotTracker/brain/search/criterion/or"
 )
 
 type WrappedCriterion struct {
 	Type  criterion.Type  `json:"type"`
 	Value json.RawMessage `json:"value"`
+}
+
+type OrWrappedCriterion struct {
+	Criteria [] WrappedCriterion `json:"criteria"`
 }
 
 func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {
@@ -23,12 +28,30 @@ func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {
 			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledCriterion
+
 	case criterion.ListText:
 		var unmarshalledCriterion listText.Criterion
 		if err := json.Unmarshal(cw.Value, &unmarshalledCriterion); err != nil {
 			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
 		result = unmarshalledCriterion
+
+	case criterion.Or:
+		var wrappedOrCriterion OrWrappedCriterion
+		var unmarshalledCriterion or.Criterion
+		if err := json.Unmarshal(cw.Value, &wrappedOrCriterion); err != nil {
+			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		unmarshalledCriterion.Criteria = make([]criterion.Criterion, 0)
+		for wrappedCritIdx := range wrappedOrCriterion.Criteria {
+			if crit, err := wrappedOrCriterion.Criteria[wrappedCritIdx].UnWrap(); err != nil {
+				return nil, err
+			} else {
+				unmarshalledCriterion.Criteria = append(unmarshalledCriterion.Criteria, crit)
+			}
+		}
+		result = unmarshalledCriterion
+
 	default:
 		return nil, criterionException.Invalid{Reasons: []string{"invalid type"}}
 	}

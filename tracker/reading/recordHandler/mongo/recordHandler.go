@@ -7,7 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type mongoRecordHandler struct {
@@ -97,15 +97,7 @@ func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequ
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria, request.Claims)
 
 	// Get Reading Collection
 	mgoSession := mrh.mongoSession.Copy()
