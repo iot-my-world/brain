@@ -114,6 +114,7 @@ var ClientAdmin = role.Role{
 	APIPermissions: []api.Permission{
 		api.SystemRecordHandlerCollect,
 		api.CompanyRecordHandlerCollect,
+		api.ClientRecordHandlerCollect,
 		api.PermissionHandlerGetAllUsersViewPermissions,
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
