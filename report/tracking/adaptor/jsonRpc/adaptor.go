@@ -76,11 +76,52 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 }
 
 type HistoricalRequest struct {
-	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
+	CompanyCriteria []wrappedCriterion.WrappedCriterion `json:"companyCriteria"`
+	ClientCriteria  []wrappedCriterion.WrappedCriterion `json:"clientCriteria"`
 }
 
 type HistoricalResponse struct {
 	Companies []company.Company `json:"companies"`
 	Clients   []client.Client   `json:"clients"`
 	Readings  []reading.Reading `json:"readings"`
+}
+
+func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, response *HistoricalResponse) error {
+	// unwrap claims
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	// unwrap company criteria
+	companyCriteria := make([]criterion.Criterion, 0)
+	for criterionIdx := range request.CompanyCriteria {
+		if c, err := request.CompanyCriteria[criterionIdx].UnWrap(); err == nil {
+			companyCriteria = append(companyCriteria, c)
+		} else {
+			return err
+		}
+	}
+	// unwrap client criteria
+	clientCriteria := make([]criterion.Criterion, 0)
+	for criterionIdx := range request.ClientCriteria {
+		if c, err := request.ClientCriteria[criterionIdx].UnWrap(); err == nil {
+			clientCriteria = append(clientCriteria, c)
+		} else {
+			return err
+		}
+	}
+
+	// get report
+	historicalTrackingReportResponse := trackingReport.HistoricalResponse{}
+	if err := a.trackingReport.Historical(&trackingReport.HistoricalRequest{
+		Claims:          claims,
+		ClientCriteria:  clientCriteria,
+		CompanyCriteria: companyCriteria,
+	}, &historicalTrackingReportResponse); err != nil {
+		return err
+	}
+
+	return nil
 }
