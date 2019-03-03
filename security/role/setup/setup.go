@@ -38,14 +38,19 @@ var initialRoles = func() []role.Role {
 		api.PartyRegistrarRegisterCompanyAdminUser,
 		api.TK102DeviceAdministratorChangeOwner,
 		api.TK102DeviceAdministratorChangeAssigned,
+		api.ReadingRecordHandlerCollect,
 	}
 
+	// The view permissions that root has
 	rootViewPermissions := []view.Permission{
 		view.Configuration,
 		view.PartyCompanyConfiguration,
 		view.PartyClientConfiguration,
 		view.PartyUserConfiguration,
 		view.DeviceConfiguration,
+		view.Dashboards,
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -91,22 +96,31 @@ var CompanyAdmin = role.Role{
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
 		api.TK102DeviceAdministratorChangeAssigned,
-		api.ReadingRecordHandlerCollect,
+		api.TrackingReportLive,
+		api.TrackingReportHistorical,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
 		view.PartyClientConfiguration,
 		view.PartyUserConfiguration,
 		view.DeviceConfiguration,
+		view.Dashboards,
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
 	},
 }
 var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
-		api.ReadingRecordHandlerCollect,
+		api.TrackingReportLive,
+		api.TrackingReportHistorical,
 	},
-	ViewPermissions: []view.Permission{},
+	ViewPermissions: []view.Permission{
+		view.Dashboards,
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
+	},
 }
 
 var ClientAdmin = role.Role{
@@ -121,12 +135,16 @@ var ClientAdmin = role.Role{
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
-		api.ReadingRecordHandlerCollect,
+		api.TrackingReportLive,
+		api.TrackingReportHistorical,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
 		view.PartyClientConfiguration,
 		view.PartyUserConfiguration,
+		view.Dashboards,
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
 	},
 }
 
@@ -134,9 +152,14 @@ var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
-		api.ReadingRecordHandlerCollect,
+		api.TrackingReportLive,
+		api.TrackingReportHistorical,
 	},
-	ViewPermissions: []view.Permission{},
+	ViewPermissions: []view.Permission{
+		view.Dashboards,
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
+	},
 }
 
 func InitialSetup(handler roleRecordHandler.RecordHandler) error {

@@ -62,11 +62,12 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 		}
 	}
 
-
+	// get report
 	liveTrackingReportResponse := trackingReport.LiveResponse{}
 	if err := a.trackingReport.Live(&trackingReport.LiveRequest{
-		Claims:   claims,
-		Criteria: criteria,
+		Claims:          claims,
+		ClientCriteria:  clientCriteria,
+		CompanyCriteria: companyCriteria,
 	}, &liveTrackingReportResponse); err != nil {
 		return err
 	}
