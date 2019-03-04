@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/tracker/reading"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type RecordHandler interface {
@@ -20,6 +21,7 @@ type CreateResponse struct {
 }
 
 type CollectRequest struct {
+	Claims   claims.Claims
 	Criteria []criterion.Criterion
 	Query    query.Query
 }

@@ -48,3 +48,6 @@ const TK102DeviceAdministratorChangeOwner Permission = "TK102DeviceAdministrator
 const TK102DeviceAdministratorChangeAssigned Permission = "TK102DeviceAdministrator.ChangeAssigned"
 
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
+
+const TrackingReportLive Permission = "TrackingReport.Live"
+const TrackingReportHistorical Permission = "TrackingReport.Historical"
