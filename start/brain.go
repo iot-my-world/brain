@@ -118,7 +118,7 @@ func main() {
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, SystemRecordHandler, CompanyRecordHandler, ClientRecordHandler)
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(TK102DeviceRecordHandler, CompanyRecordHandler, ClientRecordHandler)
 	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
-	TrackingReport := trackingBasicReport.New(CompanyRecordHandler, ClientRecordHandler, ReadingRecordHandler)
+	TrackingReport := trackingBasicReport.New(CompanyRecordHandler, ClientRecordHandler, ReadingRecordHandler, TK102DeviceRecordHandler)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)

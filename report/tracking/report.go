@@ -2,10 +2,8 @@ package tracking
 
 import (
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/party/client"
 	"gitlab.com/iotTracker/brain/tracker/reading"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type Report interface {
@@ -14,25 +12,21 @@ type Report interface {
 }
 
 type LiveRequest struct {
-	Claims          claims.Claims
-	ClientCriteria  []criterion.Criterion
-	CompanyCriteria []criterion.Criterion
+	Claims             claims.Claims
+	ClientIdentifiers  []identifier.Identifier
+	CompanyIdentifiers []identifier.Identifier
 }
 
 type LiveResponse struct {
-	Companies []company.Company
-	Clients   []client.Client
-	Readings  []reading.Reading
+	Readings []reading.Reading
 }
 
 type HistoricalRequest struct {
-	Claims          claims.Claims
-	ClientCriteria  []criterion.Criterion
-	CompanyCriteria []criterion.Criterion
+	Claims             claims.Claims
+	ClientIdentifiers  []identifier.Identifier
+	CompanyIdentifiers []identifier.Identifier
 }
 
 type HistoricalResponse struct {
-	Companies []company.Company
-	Clients   []client.Client
-	Readings  []reading.Reading
+	Readings []reading.Reading
 }
