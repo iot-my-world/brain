@@ -10,12 +10,18 @@ import (
 	"io/ioutil"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"github.com/satori/go.uuid"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gopkg.in/square/go-jose.v2"
+	"reflect"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 )
 
 type client struct {
-	url string
-	jwt string
+	url    string
+	jwt    string
+	claims claims.Claims
 }
 
 func New(
@@ -104,4 +110,45 @@ func (c *client) JsonRpcRequest(method string, request, response interface{}) er
 	}
 
 	return nil
+}
+
+func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
+	loginResponse := authJsonRpcAdaptor.LoginResponse{}
+
+	if err := c.JsonRpcRequest(
+		"Auth.Login",
+		loginRequest,
+		&loginResponse,
+	); err != nil {
+		return err
+	}
+
+	// save the token
+	c.jwt = loginResponse.Jwt
+
+	object, err := jose.ParseSigned(c.jwt)
+	if err != nil {
+		return errors.New("error parsing jwt " + err.Error())
+	}
+
+	// Access Underlying payload without verification
+	fv := reflect.ValueOf(object).Elem().FieldByName("payload")
+
+	wrapped := wrappedClaims.WrappedClaims{}
+	if err := json.Unmarshal(fv.Bytes(), &wrapped); err != nil {
+		return errors.New("error unmarshalling claims " + err.Error())
+	}
+
+	unwrappedClaims, err := wrapped.Unwrap()
+	if err != nil {
+		return errors.New("error unwrapping claims " + err.Error())
+	}
+
+	c.claims = unwrappedClaims
+
+	return nil
+}
+
+func (c *client) Claims() claims.Claims {
+ return c.claims
 }

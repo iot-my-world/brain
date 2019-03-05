@@ -1,10 +1,16 @@
 package client
 
-import "encoding/json"
+import (
+	"encoding/json"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/security/claims"
+)
 
 type Client interface {
 	Post(request *Request) (*Response, error)
 	JsonRpcRequest(method string, request, response interface{}) error
+	Login(authJsonRpcAdaptor.LoginRequest) error
+	Claims() claims.Claims
 }
 
 type Request struct {

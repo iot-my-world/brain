@@ -97,6 +97,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 	companyValidateResponse := companyRecordHandler.ValidateResponse{}
 
 	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
+		Claims:  request.Claims,
 		Company: request.Company,
 		Method:  companyRecordHandler.Create},
 		&companyValidateResponse); err != nil {
@@ -355,6 +356,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
 			if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
@@ -381,7 +383,9 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 				})
 			}
 
+			// check if there any users with this email address
 			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
