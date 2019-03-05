@@ -30,6 +30,18 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestCreateCompanies() {
+	// confirm that there are no companies in database, should be starting clean
+	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
+	if err := suite.jsonRpcClient.JsonRpcRequest(
+		"CompanyRecordHandler.Collect",
+		companyRecordHandlerJsonRpcAdaptor.CollectRequest{},
+		&companyCollectResponse); err != nil {
+		suite.Failf("collect companies failed", err.Error())
+	}
+	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
+		suite.Fail("company collection is not empty")
+	}
+
 	companyCreateRequest := companyRecordHandlerJsonRpcAdaptor.CreateRequest{
 		Company: company.Company{
 			Name:              "Monteagle Logistics",
