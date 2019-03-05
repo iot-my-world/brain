@@ -29,8 +29,9 @@ var systemAdminUser = user.User{
 	Username:     "root",
 	EmailAddress: "root@root.com",
 	// Password: // set during system user registration
-	Roles: []string{"root"},
-
+	Roles:           []string{"root"},
+	ParentPartyType: party.System,
+	// ParentId: // to be set after creating user
 	PartyType: party.System,
 	// PartyId:  // to be set after creating user
 }
@@ -96,6 +97,7 @@ func InitialSetup(handler systemRecordHandler.RecordHandler, registrar partyRegi
 
 	// assign the id for the system admin user
 	systemAdminUser.PartyId = id.Identifier{Id: systemEntityCreatedOrRetrieved.Id}
+	systemAdminUser.ParentId = id.Identifier{Id: systemEntityCreatedOrRetrieved.Id}
 
 	// try and register the system admin user
 	if err := registrar.RegisterSystemAdminUser(&partyRegistrar.RegisterSystemAdminUserRequest{

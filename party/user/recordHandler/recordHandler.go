@@ -5,6 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type RecordHandler interface {
@@ -48,6 +49,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 	User       user.User
 }
@@ -57,6 +59,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

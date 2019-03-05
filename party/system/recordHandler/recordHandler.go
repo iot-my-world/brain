@@ -7,6 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/party/system"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type RecordHandler interface {
@@ -25,6 +26,7 @@ const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
 
 type CollectRequest struct {
+	Claims   claims.Claims
 	Criteria []criterion.Criterion
 	Query    query.Query
 }
@@ -69,6 +71,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

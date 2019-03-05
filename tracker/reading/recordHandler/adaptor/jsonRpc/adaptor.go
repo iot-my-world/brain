@@ -32,14 +32,12 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	// unwrap criteria
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
 		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {

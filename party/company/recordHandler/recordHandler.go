@@ -26,6 +26,7 @@ const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
 
 type CollectRequest struct {
+	Claims   claims.Claims
 	Criteria []criterion.Criterion
 	Query    query.Query
 }
@@ -62,6 +63,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 	Company    company.Company
 }

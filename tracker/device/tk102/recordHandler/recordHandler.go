@@ -72,6 +72,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

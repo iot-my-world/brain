@@ -9,11 +9,13 @@ import (
 )
 
 type RegisterClientAdminUser struct {
-	IssueTime      int64         `json:"issueTime"`
-	ExpirationTime int64         `json:"expirationTime"`
-	PartyType      party.Type    `json:"partyType"`
-	PartyId        id.Identifier `json:"partyId"`
-	EmailAddress   string        `json:"emailAddress"`
+	IssueTime       int64         `json:"issueTime"`
+	ExpirationTime  int64         `json:"expirationTime"`
+	EmailAddress    string        `json:"emailAddress"`
+	ParentPartyType party.Type    `json:"parentPartyType"`
+	ParentId        id.Identifier `json:"parentId"`
+	PartyType       party.Type    `json:"partyType"`
+	PartyId         id.Identifier `json:"partyId"`
 }
 
 func (r RegisterClientAdminUser) Type() claims.Type {
@@ -26,8 +28,10 @@ func (r RegisterClientAdminUser) Expired() bool {
 
 func (r RegisterClientAdminUser) PartyDetails() party.Details {
 	return party.Details{
-		PartyType: r.PartyType,
-		PartyId:   r.PartyId,
+		ParentPartyType: r.ParentPartyType,
+		ParentId:        r.ParentId,
+		PartyType:       r.PartyType,
+		PartyId:         r.PartyId,
 	}
 }
 

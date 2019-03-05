@@ -32,7 +32,6 @@ type LiveResponse struct {
 }
 
 func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -83,7 +82,6 @@ type HistoricalResponse struct {
 }
 
 func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, response *HistoricalResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())

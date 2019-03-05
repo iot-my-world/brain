@@ -64,6 +64,12 @@ type RetrieveResponse struct {
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -72,6 +78,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
 		&companyRecordHandler.RetrieveRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&retrieveCompanyResponse); err != nil {
@@ -93,6 +100,12 @@ type UpdateResponse struct {
 }
 
 func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -101,6 +114,7 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 	updateCompanyResponse := companyRecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
 		&companyRecordHandler.UpdateRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&updateCompanyResponse); err != nil {
@@ -177,7 +191,12 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
-	// unwrap criteria
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
 		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {
@@ -191,6 +210,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 	if err := s.RecordHandler.Collect(&companyRecordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
+		Claims:   claims,
 	},
 		&collectCompanyResponse); err != nil {
 		return err

@@ -10,7 +10,6 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
@@ -335,6 +334,24 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		})
 	}
 
+	if (*userToValidate).ParentPartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentPartyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).ParentPartyType,
+		})
+	}
+
+	if (*userToValidate).ParentId.Id == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).PartyId,
+		})
+	}
+
 	if (*userToValidate).PartyType == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "partyType",
@@ -344,8 +361,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		})
 	}
 
-	blankIdIdentifier := id.Identifier{}
-	if (*userToValidate).PartyId == blankIdIdentifier {
+	if (*userToValidate).PartyId.Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "partyId",
 			Type:  reasonInvalid.Blank,
