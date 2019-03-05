@@ -25,8 +25,6 @@ import (
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
-	registrarInviteMongoRecordHandler "gitlab.com/iotTracker/brain/party/registrar/invite/recordHandler/mongo"
-
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 
@@ -113,10 +111,9 @@ func main() {
 	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
 	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
 	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
-	RegistrarInviteRecordHandler := registrarInviteMongoRecordHandler.New(mainMongoSession, databaseName, inviteCollection)
 	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
 	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
-	PartyBasicRegistrar := partyBasicRegistrar.New(RegistrarInviteRecordHandler, CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
+	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
 	SystemRecordHandler := systemMongoRecordHandler.New(mainMongoSession, databaseName, systemCollection, *rootPasswordFileLocation, PartyBasicRegistrar)
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, SystemRecordHandler, CompanyRecordHandler, ClientRecordHandler)
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(TK102DeviceRecordHandler, CompanyRecordHandler, ClientRecordHandler)
