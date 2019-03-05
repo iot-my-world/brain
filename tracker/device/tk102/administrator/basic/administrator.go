@@ -1,11 +1,11 @@
 package basic
 
 import (
+	brainException "gitlab.com/iotTracker/brain/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	tk102Administrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
-	brainException "gitlab.com/iotTracker/brain/exception"
+	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 )
 
 type basicAdministrator struct {

@@ -2,8 +2,8 @@ package company
 
 import (
 	"gitlab.com/iotTracker/brain/search"
-	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/validate"
 )
 
 type RecordHandler interface {

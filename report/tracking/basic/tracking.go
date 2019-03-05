@@ -2,20 +2,20 @@ package basic
 
 import (
 	brainException "gitlab.com/iotTracker/brain/exception"
-	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/party/client"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
+	"gitlab.com/iotTracker/brain/party/company"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	trackingReport "gitlab.com/iotTracker/brain/report/tracking"
 	trackingReportException "gitlab.com/iotTracker/brain/report/tracking/exception"
-	textListCriterion "gitlab.com/iotTracker/brain/search/criterion/list/text"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	exactTextCriterion "gitlab.com/iotTracker/brain/search/criterion/exact/text"
+	textListCriterion "gitlab.com/iotTracker/brain/search/criterion/list/text"
+	"gitlab.com/iotTracker/brain/search/criterion/or"
+	"gitlab.com/iotTracker/brain/search/query"
 	tk102DeviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/tracker/reading"
-	"gitlab.com/iotTracker/brain/party/client"
-	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/search/criterion/or"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/query"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 )
 
 type basicTrackingReport struct {

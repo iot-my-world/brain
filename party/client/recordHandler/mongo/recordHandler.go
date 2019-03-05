@@ -7,15 +7,16 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/client"
-	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {
@@ -181,8 +182,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	var clientRecord client.Client
-
-	filter := request.Identifier.ToFilter()
+	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := clientCollection.Find(filter).One(&clientRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return clientRecordHandlerException.NotFound{}
@@ -418,15 +418,8 @@ func (mrh *mongoRecordHandler) Collect(request *clientRecordHandler.CollectReque
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = claims.ContextualiseFilter(filter, request.Claims)
 
 	// Get Client Collection
 	mgoSession := mrh.mongoSession.Copy()

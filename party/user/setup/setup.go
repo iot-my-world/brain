@@ -3,13 +3,13 @@ package setup
 import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
+	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userSetupException "gitlab.com/iotTracker/brain/party/user/setup/exception"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"os"
 	"io/ioutil"
+	"os"
 )
 
 type newUser struct {

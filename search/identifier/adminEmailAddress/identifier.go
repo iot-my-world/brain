@@ -22,5 +22,5 @@ func (i Identifier) IsValid() error {
 }
 
 func (i Identifier) ToFilter() bson.M {
-	return bson.M{"adminEmailAddress" : i.AdminEmailAddress}
+	return bson.M{"adminEmailAddress": i.AdminEmailAddress}
 }

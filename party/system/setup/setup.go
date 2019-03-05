@@ -1,20 +1,20 @@
 package setup
 
 import (
-	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
-	systemSetupException "gitlab.com/iotTracker/brain/party/system/setup/exception"
+	"gitlab.com/iotTracker/brain/party"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	partyRegistrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	"gitlab.com/iotTracker/brain/party/system"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"os"
-	"io/ioutil"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
+	systemSetupException "gitlab.com/iotTracker/brain/party/system/setup/exception"
 	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"strings"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 var systemEntity = system.System{
@@ -35,6 +35,16 @@ var systemAdminUser = user.User{
 	// ParentId: // to be set after creating user
 	PartyType: party.System,
 	// PartyId:  // to be set after creating user
+}
+
+var systemClaims = login.Login{
+	//UserId          id.Identifier `json:"userId"`
+	//IssueTime       int64         `json:"issueTime"`
+	//ExpirationTime  int64         `json:"expirationTime"`
+	//ParentPartyType party.Type    `json:"parentPartyType"`
+	//ParentId        id.Identifier `json:"parentId"`
+	PartyType: party.System,
+	//PartyId         id.Identifier `json:"partyId"`
 }
 
 var defaultSystemPassword = "12345"
@@ -61,7 +71,7 @@ func InitialSetup(handler systemRecordHandler.RecordHandler, registrar partyRegi
 	var systemEntityCreatedOrRetrieved system.System
 	systemEntityRetrieveResponse := systemRecordHandler.RetrieveResponse{}
 	err := handler.Retrieve(&systemRecordHandler.RetrieveRequest{
-		Claims:     login.Login{},
+		Claims:     systemClaims,
 		Identifier: name.Identifier{Name: systemEntity.Name},
 	},
 		&systemEntityRetrieveResponse)
@@ -86,8 +96,7 @@ func InitialSetup(handler systemRecordHandler.RecordHandler, registrar partyRegi
 		systemEntityCreateResponse := systemRecordHandler.CreateResponse{}
 		if err := handler.Create(&systemRecordHandler.CreateRequest{
 			System: systemEntity,
-		}, &systemEntityCreateResponse);
-			err != nil {
+		}, &systemEntityCreateResponse); err != nil {
 			return systemSetupException.InitialSetup{Reasons: []string{"create error", err.Error()}}
 		}
 		systemEntityCreatedOrRetrieved = systemEntityCreateResponse.System
@@ -103,12 +112,11 @@ func InitialSetup(handler systemRecordHandler.RecordHandler, registrar partyRegi
 
 	// try and register the system admin user
 	if err := registrar.RegisterSystemAdminUser(&partyRegistrar.RegisterSystemAdminUserRequest{
-		Claims:   login.Login{},
+		Claims:   systemClaims,
 		User:     systemAdminUser,
 		Password: defaultSystemPassword,
 	},
-		&partyRegistrar.RegisterSystemAdminUserResponse{});
-		err != nil {
+		&partyRegistrar.RegisterSystemAdminUserResponse{}); err != nil {
 		switch err.(type) {
 		case partyRegistrarException.AlreadyRegistered:
 			// this is fine, no issues

@@ -1,8 +1,8 @@
 package tk102
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"errors"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gopkg.in/mgo.v2/bson"
 )
 

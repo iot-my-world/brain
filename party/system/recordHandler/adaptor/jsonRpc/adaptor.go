@@ -1,15 +1,15 @@
 package system
 
 import (
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/system"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
-	"net/http"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/log"
+	"net/http"
 )
 
 type adaptor struct {
@@ -45,7 +45,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
 		&systemRecordHandler.RetrieveRequest{
-			Claims: claims,
+			Claims:     claims,
 			Identifier: id,
 		},
 		&retrieveSystemResponse); err != nil {

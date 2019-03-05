@@ -6,18 +6,19 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
-	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
 	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
+	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type mongoRecordHandler struct {
@@ -190,7 +191,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequ
 
 	var tk102Record tk102.TK102
 
-	filter := request.Identifier.ToFilter()
+	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := tk102Collection.Find(filter).One(&tk102Record); err != nil {
 		if err == mgo.ErrNotFound {
 			return tk102ExceptionRecordHandlerException.NotFound{}
@@ -547,7 +548,8 @@ func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectReques
 		return err
 	}
 
-	filter := criterion.CriteriaToFilter(request.Criteria, request.Claims)
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = claims.ContextualiseFilter(filter, request.Claims)
 
 	// Get TK102 Collection
 	mgoSession := mrh.mongoSession.Copy()

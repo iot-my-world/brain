@@ -3,22 +3,22 @@ package server
 import (
 	"bufio"
 	"fmt"
+	"github.com/go-errors/errors"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/criterion/text"
+	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/tracker/device"
+	tk1022 "gitlab.com/iotTracker/brain/tracker/device/tk102"
+	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"net"
 	"strconv"
-	"time"
 	"strings"
-	"github.com/go-errors/errors"
-	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
-	tk1022 "gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/search/criterion/text"
-	"gitlab.com/iotTracker/brain/search/criterion"
+	"time"
 )
 
 type tk102Server struct {
@@ -179,7 +179,7 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 		} else {
 			newReading, tk102Identifier, err := convertData(data)
 			if err != nil {
-				invalidDataCount ++
+				invalidDataCount++
 				// only allow 3 instances of invalid data
 				if invalidDataCount < 3 {
 					continue
@@ -196,8 +196,7 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 				if err := ts.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
 					Identifier: *tk102Identifier,
 				},
-					&tk102RetrieveResponse);
-					err != nil {
+					&tk102RetrieveResponse); err != nil {
 					log.Warn("cannot find device for reading: ", err.Error())
 					break
 				}
@@ -221,8 +220,7 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 					Query:    collectQuery,
 					Criteria: []criterion.Criterion{collectCriterion},
 				},
-					&readingCollectResponse);
-					err != nil {
+					&readingCollectResponse); err != nil {
 					log.Warn("unable to perform collect for last reading: ", err.Error())
 				}
 				if len(readingCollectResponse.Records) > 0 {

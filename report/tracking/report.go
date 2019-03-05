@@ -1,9 +1,9 @@
 package tracking
 
 import (
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
-	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type Report interface {

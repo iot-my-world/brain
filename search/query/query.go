@@ -5,15 +5,15 @@ import (
 )
 
 type Query struct {
-	Limit  int      `json:"limit"`
-	Offset int      `json:"offset"`
+	Limit  int         `json:"limit"`
+	Offset int         `json:"offset"`
 	Order  []SortOrder `json:"order"`
-	SortBy []string `json:"sortBy"`
+	SortBy []string    `json:"sortBy"`
 }
 
 type SortOrder string
 
-const SortOrderAscending  SortOrder = "asc"
+const SortOrderAscending SortOrder = "asc"
 const SortOrderDescending SortOrder = "desc"
 
 func (q Query) ToMongoSortFormat() []string {

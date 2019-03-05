@@ -14,12 +14,12 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gitlab.com/iotTracker/brain/security/token"
 	"time"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
 type basicRegistrar struct {

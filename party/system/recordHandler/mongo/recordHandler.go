@@ -5,14 +5,15 @@ import (
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/system"
-	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
-	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
+	"gitlab.com/iotTracker/brain/party/system"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
+	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {
@@ -161,7 +162,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *systemRecordHandler.RetrieveReq
 
 	var systemRecord system.System
 
-	filter := request.Identifier.ToFilter()
+	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := systemCollection.Find(filter).One(&systemRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return systemException.NotFound{}
@@ -328,15 +329,8 @@ func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectReque
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = claims.ContextualiseFilter(filter, request.Claims)
 
 	// Get System Collection
 	mgoSession := mrh.mongoSession.Copy()

@@ -7,8 +7,8 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	permissionHandlerException "gitlab.com/iotTracker/brain/security/permission/handler/exception"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
+	permissionHandlerException "gitlab.com/iotTracker/brain/security/permission/handler/exception"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )

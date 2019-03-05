@@ -2,9 +2,9 @@ package administrator
 
 import (
 	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 )
 
 type Administrator interface {

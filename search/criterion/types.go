@@ -14,5 +14,3 @@ const ListText Type = "ListText"
 
 // exact criteria
 const ExactText Type = "ExactText"
-
-
