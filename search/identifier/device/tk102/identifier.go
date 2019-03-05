@@ -3,6 +3,7 @@ package tk102
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"errors"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Identifier struct {
@@ -20,8 +21,6 @@ func (i Identifier) IsValid() error {
 	return nil
 }
 
-func (i Identifier) ToFilter() map[string]interface{} {
-	filter := make(map[string]interface{})
-	filter["manufacturerId"] = i.ManufacturerId
-	return filter
+func (i Identifier) ToFilter() bson.M {
+	return bson.M{"manufacturerId": i.ManufacturerId}
 }
