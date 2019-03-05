@@ -14,6 +14,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"strings"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 var systemEntity = system.System{
@@ -60,6 +61,7 @@ func InitialSetup(handler systemRecordHandler.RecordHandler, registrar partyRegi
 	var systemEntityCreatedOrRetrieved system.System
 	systemEntityRetrieveResponse := systemRecordHandler.RetrieveResponse{}
 	err := handler.Retrieve(&systemRecordHandler.RetrieveRequest{
+		Claims:     login.Login{},
 		Identifier: name.Identifier{Name: systemEntity.Name},
 	},
 		&systemEntityRetrieveResponse)
@@ -101,6 +103,7 @@ func InitialSetup(handler systemRecordHandler.RecordHandler, registrar partyRegi
 
 	// try and register the system admin user
 	if err := registrar.RegisterSystemAdminUser(&partyRegistrar.RegisterSystemAdminUserRequest{
+		Claims:   login.Login{},
 		User:     systemAdminUser,
 		Password: defaultSystemPassword,
 	},

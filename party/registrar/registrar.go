@@ -15,6 +15,7 @@ type Registrar interface {
 }
 
 type RegisterSystemAdminUserRequest struct {
+	Claims   claims.Claims
 	User     user.User
 	Password string
 }
@@ -24,6 +25,7 @@ type RegisterSystemAdminUserResponse struct {
 }
 
 type InviteCompanyAdminUserRequest struct {
+	Claims          claims.Claims
 	PartyIdentifier identifier.Identifier
 }
 
@@ -41,6 +43,7 @@ type RegisterCompanyAdminUserResponse struct {
 }
 
 type InviteClientAdminUserRequest struct {
+	Claims          claims.Claims
 	PartyIdentifier identifier.Identifier
 }
 

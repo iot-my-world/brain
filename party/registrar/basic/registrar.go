@@ -53,6 +53,7 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 
 	// check if the system admin user already exists (i.e. has already been registered)
 	err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
 		Identifier: username.Identifier{Username: request.User.Username},
 	},
 		&userRecordHandler.RetrieveResponse{})
@@ -93,6 +94,10 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRegistrar.InviteCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -108,6 +113,7 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 	// retrieve the Company whose admin will receive invite
 	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
 	if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
 		Identifier: request.PartyIdentifier,
 	},
 		&companyRetrieveResponse); err != nil {
@@ -166,6 +172,7 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 	// retrieve party to confirm this
 	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
 	if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
 		Identifier: request.Claims.PartyDetails().PartyId,
 	},
 		&companyRetrieveResponse); err != nil {
@@ -223,6 +230,10 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -238,6 +249,7 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 	// retrieve the Client whose admin will receive invite
 	clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
 	if err := br.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
 		Identifier: request.PartyIdentifier,
 	},
 		&clientRetrieveResponse); err != nil {
@@ -279,19 +291,24 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	// user party type and id must be as was in claims otherwise someone is
-	// trying to abuse the registration token
-	if request.User.PartyType != request.Claims.PartyDetails().PartyType {
-		reasonsInvalid = append(reasonsInvalid, "user party type incorrect")
-	}
-	if request.User.PartyId != request.Claims.PartyDetails().PartyId {
-		reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// user party type and id must be as was in claims otherwise someone is
+		// trying to abuse the registration token
+		if request.User.PartyType != request.Claims.PartyDetails().PartyType {
+			reasonsInvalid = append(reasonsInvalid, "user party type incorrect")
+		}
+		if request.User.PartyId != request.Claims.PartyDetails().PartyId {
+			reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
+		}
 	}
 
 	// email address must be the same as the admin email address on the party entity
 	// retrieve party to confirm this
 	clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
 	if err := br.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
 		Identifier: request.Claims.PartyDetails().PartyId,
 	},
 		&clientRetrieveResponse); err != nil {
