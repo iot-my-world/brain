@@ -38,7 +38,6 @@ var initialRoles = func() []role.Role {
 		api.PartyRegistrarRegisterCompanyAdminUser,
 		api.TK102DeviceAdministratorChangeOwner,
 		api.TK102DeviceAdministratorChangeAssigned,
-		api.ReadingRecordHandlerCollect,
 	}
 
 	// The view permissions that root has
@@ -98,6 +97,7 @@ var CompanyAdmin = role.Role{
 		api.TK102DeviceAdministratorChangeAssigned,
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -115,6 +115,7 @@ var CompanyUser = role.Role{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
@@ -137,6 +138,7 @@ var ClientAdmin = role.Role{
 		api.TK102DeviceRecordHandlerCollect,
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -154,6 +156,7 @@ var ClientUser = role.Role{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+		api.ReadingRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
