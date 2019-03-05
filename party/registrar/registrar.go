@@ -39,7 +39,8 @@ type RegisterCompanyAdminUserRequest struct {
 }
 
 type RegisterCompanyAdminUserResponse struct {
-	User user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type InviteClientAdminUserRequest struct {

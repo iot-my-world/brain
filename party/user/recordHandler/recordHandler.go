@@ -68,6 +68,7 @@ type RetrieveResponse struct {
 }
 
 type ChangePasswordRequest struct {
+	Claims      claims.Claims
 	Identifier  identifier.Identifier
 	NewPassword string
 }

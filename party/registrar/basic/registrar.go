@@ -79,6 +79,7 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 	// change the users password
 	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: request.Password,
 	},
@@ -215,6 +216,7 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	// change the users password
 	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: request.Password,
 	},
@@ -351,6 +353,7 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	// change the users password
 	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: request.Password,
 	},

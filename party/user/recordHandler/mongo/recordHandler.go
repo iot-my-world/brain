@@ -464,6 +464,10 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *userRecordHandler.ChangePasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -478,7 +482,10 @@ func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangeP
 
 	// Retrieve User
 	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
+	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveUserResponse); err != nil {
 		return userRecordHandlerException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
