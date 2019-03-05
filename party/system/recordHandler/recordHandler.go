@@ -54,6 +54,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

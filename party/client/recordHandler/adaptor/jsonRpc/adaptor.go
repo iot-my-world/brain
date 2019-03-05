@@ -135,6 +135,12 @@ type DeleteResponse struct {
 }
 
 func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *DeleteResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -143,6 +149,7 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 	deleteClientResponse := clientRecordHandler.DeleteResponse{}
 	if err := s.RecordHandler.Delete(
 		&clientRecordHandler.DeleteRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&deleteClientResponse); err != nil {

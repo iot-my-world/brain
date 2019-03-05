@@ -11,7 +11,6 @@ import (
 	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
@@ -162,7 +161,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *systemRecordHandler.RetrieveReq
 
 	var systemRecord system.System
 
-	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := systemCollection.Find(filter).One(&systemRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return systemException.NotFound{}
@@ -197,7 +196,10 @@ func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest
 
 	// Retrieve System
 	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&systemRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveSystemResponse); err != nil {
+	if err := mrh.Retrieve(&systemRecordHandler.RetrieveRequest{
+		Identifier: request.Identifier,
+		Claims:     request.Claims,
+	}, &retrieveSystemResponse); err != nil {
 		return systemException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -205,7 +207,8 @@ func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest
 	// retrieveSystemResponse.System.Id = request.System.Id // cannot update ever
 	retrieveSystemResponse.System.Name = request.System.Name
 	retrieveSystemResponse.System.AdminEmailAddress = request.System.AdminEmailAddress
-	if err := systemCollection.Update(request.Identifier.ToFilter(), retrieveSystemResponse.System); err != nil {
+	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := systemCollection.Update(filter, retrieveSystemResponse.System); err != nil {
 		return systemException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
@@ -241,8 +244,8 @@ func (mrh *mongoRecordHandler) Delete(request *systemRecordHandler.DeleteRequest
 	defer mgoSession.Close()
 
 	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	if err := systemCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := systemCollection.Remove(filter); err != nil {
 		return err
 	}
 
@@ -330,7 +333,7 @@ func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectReque
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = system.ContextualiseFilter(filter, request.Claims)
 
 	// Get System Collection
 	mgoSession := mrh.mongoSession.Copy()

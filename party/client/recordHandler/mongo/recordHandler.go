@@ -14,7 +14,6 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
@@ -182,7 +181,9 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	var clientRecord client.Client
-	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+
+	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+
 	if err := clientCollection.Find(filter).One(&clientRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return clientRecordHandlerException.NotFound{}
@@ -221,7 +222,10 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 
 	// Retrieve Client
 	retrieveClientResponse := clientRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveClientResponse); err != nil {
+	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveClientResponse); err != nil {
 		return clientRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -229,7 +233,9 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 	// retrieveClientResponse.Client.Id = request.Client.Id // cannot update ever
 	retrieveClientResponse.Client.Name = request.Client.Name
 
-	if err := clientCollection.Update(request.Identifier.ToFilter(), retrieveClientResponse.Client); err != nil {
+	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+
+	if err := clientCollection.Update(filter, retrieveClientResponse.Client); err != nil {
 		return clientRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
@@ -266,7 +272,8 @@ func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest
 
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	if err := clientCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := clientCollection.Remove(filter); err != nil {
 		return err
 	}
 
@@ -419,7 +426,7 @@ func (mrh *mongoRecordHandler) Collect(request *clientRecordHandler.CollectReque
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = client.ContextualiseFilter(filter, request.Claims)
 
 	// Get Client Collection
 	mgoSession := mrh.mongoSession.Copy()
