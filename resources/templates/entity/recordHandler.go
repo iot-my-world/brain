@@ -3,6 +3,7 @@ package company
 import (
 	"gitlab.com/iotTracker/brain/search"
 	"gitlab.com/iotTracker/brain/validate"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type RecordHandler interface {
@@ -38,6 +39,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 	Company    Company
 }
@@ -47,6 +49,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

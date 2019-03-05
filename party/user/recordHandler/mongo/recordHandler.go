@@ -141,6 +141,10 @@ func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, 
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
@@ -183,6 +187,10 @@ func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveReque
 
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}

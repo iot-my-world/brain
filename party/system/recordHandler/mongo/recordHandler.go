@@ -130,6 +130,10 @@ func (mrh *mongoRecordHandler) Create(request *systemRecordHandler.CreateRequest
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *systemRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {

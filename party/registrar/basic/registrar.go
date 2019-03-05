@@ -149,13 +149,17 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	// user party type and id must be as was in claims otherwise someone is
-	// trying to abuse the registration token
-	if request.User.PartyType != request.Claims.PartyDetails().PartyType {
-		reasonsInvalid = append(reasonsInvalid, "user party type incorrect")
-	}
-	if request.User.PartyId != request.Claims.PartyDetails().PartyId {
-		reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// user party type and id must be as was in claims otherwise someone is
+		// trying to abuse the registration token
+		if request.User.PartyType != request.Claims.PartyDetails().PartyType {
+			reasonsInvalid = append(reasonsInvalid, "user party type incorrect")
+		}
+		if request.User.PartyId != request.Claims.PartyDetails().PartyId {
+			reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
+		}
 	}
 
 	// email address must be the same as the admin email address on the party entity
