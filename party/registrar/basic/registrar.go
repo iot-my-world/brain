@@ -12,6 +12,7 @@ import (
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	registrarInviteRecordHandler "gitlab.com/iotTracker/brain/party/registrar/invite/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
@@ -23,15 +24,17 @@ import (
 )
 
 type basicRegistrar struct {
-	companyRecordHandler companyRecordHandler.RecordHandler
-	userRecordHandler    userRecordHandler.RecordHandler
-	clientRecordHandler  clientRecordHandler.RecordHandler
-	mailer               mailer.Mailer
-	jwtGenerator         token.JWTGenerator
-	mailRedirectBaseUrl  string
+	registrarInviteRecordHandler registrarInviteRecordHandler.RecordHandler
+	companyRecordHandler         companyRecordHandler.RecordHandler
+	userRecordHandler            userRecordHandler.RecordHandler
+	clientRecordHandler          clientRecordHandler.RecordHandler
+	mailer                       mailer.Mailer
+	jwtGenerator                 token.JWTGenerator
+	mailRedirectBaseUrl          string
 }
 
 func New(
+	registrarInviteRecordHandler registrarInviteRecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
@@ -40,12 +43,13 @@ func New(
 	mailRedirectBaseUrl string,
 ) *basicRegistrar {
 	return &basicRegistrar{
-		companyRecordHandler: companyRecordHandler,
-		userRecordHandler:    userRecordHandler,
-		clientRecordHandler:  clientRecordHandler,
-		mailer:               mailer,
-		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
-		mailRedirectBaseUrl:  mailRedirectBaseUrl,
+		registrarInviteRecordHandler: registrarInviteRecordHandler,
+		companyRecordHandler:         companyRecordHandler,
+		userRecordHandler:            userRecordHandler,
+		clientRecordHandler:          clientRecordHandler,
+		mailer:                       mailer,
+		jwtGenerator:                 token.NewJWTGenerator(rsaPrivateKey),
+		mailRedirectBaseUrl:          mailRedirectBaseUrl,
 	}
 }
 
