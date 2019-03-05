@@ -9,18 +9,20 @@ import (
 	"strings"
 	"io/ioutil"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"github.com/satori/go.uuid"
 )
 
 type client struct {
-	url  string
-	jwt  string
+	url string
+	jwt string
 }
 
 func New(
 	url string,
 ) *client {
 	return &client{
-		url:  url,
+		url: url,
 	}
 }
 
@@ -82,4 +84,24 @@ func (c *client) Post(request *jsonRpcClient.Request) (*jsonRpcClient.Response, 
 	}
 
 	return &response, nil
+}
+
+func (c *client) JsonRpcRequest(method string, request, response interface{}) error {
+	id, err := uuid.NewV4()
+	if err != nil {
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
+
+	jsonRpcRequest := jsonRpcClient.NewRequest(id.String(), method, [1]interface{}{request})
+
+	jsonRpcResponse, err := c.Post(&jsonRpcRequest)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(jsonRpcResponse.Result, response); err != nil {
+		return err
+	}
+
+	return nil
 }

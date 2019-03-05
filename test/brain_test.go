@@ -31,19 +31,17 @@ func (suite *ExampleTestSuite) TestExample() {
 		UsernameOrEmailAddress: "root",
 		Password:               "12345",
 	}
+	loginResponse := authJsonRpcAdaptor.LoginResponse{}
 
-	jsonRpcRequest := jsonRpcClient.NewRequest(
-		"1234",
-			"Auth.Login",
-		)
-	jsonRpcRequest.Params = [1]interface{}{loginRequest}
-
-	response, err := suite.jsonRpcClient.Post(&jsonRpcRequest)
-	if err != nil {
+	if err := suite.jsonRpcClient.JsonRpcRequest(
+		"Auth.Login",
+		loginRequest,
+		&loginResponse,
+	); err != nil {
 		suite.T().Errorf(err.Error())
 	}
 
-	fmt.Println("success!", response)
+	fmt.Println("success!", loginResponse.Jwt)
 }
 
 // In order for 'go test' to run this suite, we need to create
