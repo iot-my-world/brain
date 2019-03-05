@@ -52,14 +52,16 @@ func New(
 func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSystemAdminUserRequest, response *partyRegistrar.RegisterSystemAdminUserResponse) error {
 
 	// check if the system admin user already exists (i.e. has already been registered)
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 	err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: username.Identifier{Username: request.User.Username},
 	},
-		&userRecordHandler.RetrieveResponse{})
+		&userRetrieveResponse)
 	switch err.(type) {
 	case nil:
 		// this means that the user already exists
+		response.User = userRetrieveResponse.User
 		return registrarException.AlreadyRegistered{}
 	case userRecordHandlerException.NotFound:
 		// this is fine, we will be creating the user now

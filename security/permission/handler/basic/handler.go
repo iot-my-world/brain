@@ -58,6 +58,7 @@ func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissio
 	// retrieve all of the users permissions
 	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
 	if err := bh.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
+		Claims:         request.Claims,
 		UserIdentifier: request.UserIdentifier,
 	},
 		&getAllUsersPermissionsResponse); err != nil {
@@ -103,7 +104,10 @@ func (bh *handler) GetAllUsersAPIPermissions(request *permissionHandler.GetAllUs
 
 	// try and retrieve the user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
+	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.UserIdentifier,
+	}, &userRetrieveResponse); err != nil {
 		return err
 	}
 
@@ -151,7 +155,10 @@ func (bh *handler) GetAllUsersViewPermissions(request *permissionHandler.GetAllU
 
 	// try and retrieve the user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
+	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.UserIdentifier,
+	}, &userRetrieveResponse); err != nil {
 		return err
 	}
 

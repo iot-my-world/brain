@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type Handler interface {
@@ -13,26 +14,29 @@ type Handler interface {
 }
 
 type UserHasPermissionRequest struct {
-	UserIdentifier identifier.Identifier `json:"userIdentifier"`
-	Permission     api.Permission        `json:"permission"`
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
+	Permission     api.Permission
 }
 
 type UserHasPermissionResponse struct {
-	Result bool `json:"result"`
+	Result bool
 }
 
 type GetAllUsersAPIPermissionsRequest struct {
-	UserIdentifier identifier.Identifier `json:"userIdentifier"`
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type GetAllUsersAPIPermissionsResponse struct {
-	Permissions []api.Permission `json:"permissions"`
+	Permissions []api.Permission
 }
 
 type GetAllUsersViewPermissionsRequest struct {
-	UserIdentifier identifier.Identifier `json:"userIdentifier"`
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type GetAllUsersViewPermissionsResponse struct {
-	Permissions []view.Permission `json:"permissions"`
+	Permissions []view.Permission
 }

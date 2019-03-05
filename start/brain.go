@@ -55,6 +55,8 @@ import (
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 	"strings"
+	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 var ServerPort = "9010"
@@ -106,19 +108,88 @@ func main() {
 		Host:     "smtp.gmail.com",
 	})
 
+	// Create system claims for the services that root privileges
+	var systemClaims = login.Login{
+		//UserId          id.Identifier `json:"userId"`
+		//IssueTime       int64         `json:"issueTime"`
+		//ExpirationTime  int64         `json:"expirationTime"`
+		//ParentPartyType party.Type    `json:"parentPartyType"`
+		//ParentId        id.Identifier `json:"parentId"`
+		PartyType: party.System,
+		//PartyId         id.Identifier `json:"partyId"`
+	}
+
 	// Create Service Providers
-	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, roleCollection)
-	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
-	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
-	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
-	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
-	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
-	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
-	SystemRecordHandler := systemMongoRecordHandler.New(mainMongoSession, databaseName, systemCollection, *rootPasswordFileLocation, PartyBasicRegistrar)
-	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, SystemRecordHandler, CompanyRecordHandler, ClientRecordHandler)
-	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(TK102DeviceRecordHandler, CompanyRecordHandler, ClientRecordHandler)
-	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
-	TrackingReport := trackingBasicReport.New(CompanyRecordHandler, ClientRecordHandler, ReadingRecordHandler, TK102DeviceRecordHandler)
+	RoleRecordHandler := roleMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		roleCollection,
+	)
+	UserRecordHandler := userMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		userCollection,
+	)
+	PermissionBasicHandler := permissionBasicHandler.New(
+		UserRecordHandler,
+		RoleRecordHandler,
+	)
+	AuthService := authBasicService.New(
+		UserRecordHandler,
+		rsaPrivateKey,
+	)
+	CompanyRecordHandler := companyMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		companyCollection,
+		UserRecordHandler,
+	)
+	ClientRecordHandler := clientMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		clientCollection,
+		UserRecordHandler,
+	)
+	PartyBasicRegistrar := partyBasicRegistrar.New(
+		CompanyRecordHandler,
+		UserRecordHandler,
+		ClientRecordHandler,
+		Mailer,
+		rsaPrivateKey,
+		*mailRedirectBaseUrl,
+	)
+	SystemRecordHandler := systemMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		systemCollection,
+		*rootPasswordFileLocation,
+		PartyBasicRegistrar,
+		&systemClaims,
+	)
+	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		tk102DeviceCollection,
+		SystemRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+	)
+	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
+		TK102DeviceRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+	)
+	ReadingRecordHandler := readingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		readingCollection,
+	)
+	TrackingReport := trackingBasicReport.New(
+		CompanyRecordHandler,
+		ClientRecordHandler,
+		ReadingRecordHandler,
+		TK102DeviceRecordHandler,
+	)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)

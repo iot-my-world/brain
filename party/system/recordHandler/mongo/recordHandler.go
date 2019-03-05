@@ -13,6 +13,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
+	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type mongoRecordHandler struct {
@@ -28,6 +29,7 @@ func New(
 	collection,
 	rootPasswordFileLocation string,
 	registrar partyRegistrar.Registrar,
+	systemClaims *loginClaims.Login,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -47,7 +49,7 @@ func New(
 		createIgnoredReasons: createIgnoredReasons,
 	}
 
-	if err := systemSetup.InitialSetup(&newSystemMongoRecordHandler, registrar, rootPasswordFileLocation); err != nil {
+	if err := systemSetup.InitialSetup(&newSystemMongoRecordHandler, registrar, rootPasswordFileLocation, systemClaims); err != nil {
 		log.Fatal("Unable to complete initial system setup!", err.Error())
 	}
 

@@ -35,6 +35,7 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 		// required permission to check access the api
 		userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
 		if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
+			Claims:         typedClaims,
 			UserIdentifier: typedClaims.UserId,
 			Permission:     api.Permission(jsonRpcMethod),
 		}, &userHasPermissionResponse); err != nil {
