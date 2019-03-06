@@ -18,11 +18,12 @@ import (
 )
 
 type mongoRecordHandler struct {
-	mongoSession         *mgo.Session
-	database             string
-	collection           string
-	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
-	inviteIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	mongoSession                  *mgo.Session
+	database                      string
+	collection                    string
+	createIgnoredReasons          reasonInvalid.IgnoredReasonsInvalid
+	inviteAdminUserIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	inviteUserIgnoredReasons      reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
@@ -44,7 +45,27 @@ func New(
 		},
 	}
 
-	inviteIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
+	inviteAdminUserIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
+		ReasonsInvalid: map[string][]reasonInvalid.Type{
+			"id": {
+				reasonInvalid.Blank,
+			},
+			"name": {
+				reasonInvalid.Blank,
+			},
+			"surname": {
+				reasonInvalid.Blank,
+			},
+			"username": {
+				reasonInvalid.Blank,
+			},
+			"password": {
+				reasonInvalid.Blank,
+			},
+		},
+	}
+
+	inviteUserIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
 		ReasonsInvalid: map[string][]reasonInvalid.Type{
 			"id": {
 				reasonInvalid.Blank,
@@ -65,11 +86,12 @@ func New(
 	}
 
 	newUserMongoRecordHandler := mongoRecordHandler{
-		mongoSession:         mongoSession,
-		database:             database,
-		collection:           collection,
-		createIgnoredReasons: createIgnoredReasons,
-		inviteIgnoredReasons: inviteIgnoredReasons,
+		mongoSession:                  mongoSession,
+		database:                      database,
+		collection:                    collection,
+		createIgnoredReasons:          createIgnoredReasons,
+		inviteAdminUserIgnoredReasons: inviteAdminUserIgnoredReasons,
+		inviteUserIgnoredReasons:      inviteUserIgnoredReasons,
 	}
 
 	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
@@ -477,7 +499,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 			}
 		}
 
-	case partyRegistrar.Invite:
+	case partyRegistrar.InviteAdminUser:
 
 		// Check if the users email already exists by checking if a user can be
 		// retrieved with it
@@ -513,7 +535,48 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 
 		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {
-			if !mrh.inviteIgnoredReasons.CanIgnore(reason) {
+			if !mrh.inviteAdminUserIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+
+	case partyRegistrar.InviteUser:
+
+		// Check if the users email already exists by checking if a user can be
+		// retrieved with it
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*userToValidate).EmailAddress,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
+
+		// Ignore reasons not applicable for this method
+		for _, reason := range allReasonsInvalid {
+			if !mrh.inviteUserIgnoredReasons.CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}

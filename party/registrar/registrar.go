@@ -2,7 +2,6 @@ package registrar
 
 import (
 	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/api"
 )
@@ -18,7 +17,8 @@ type Registrar interface {
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
 }
 
-const Invite api.Method = "Invite"
+const InviteAdminUser api.Method = "InviteAdminUser"
+const InviteUser api.Method = "InviteUser"
 
 type RegisterSystemAdminUserRequest struct {
 	Claims   claims.Claims
@@ -33,9 +33,8 @@ type RegisterSystemAdminUserResponse struct {
 type InviteCompanyAdminUserRequest struct {
 	// claims for company party retrieval
 	Claims claims.Claims
-	// an identifier to retrieve the company
-	// to which the admin user will belong
-	CompanyIdentifier identifier.Identifier
+	// the minimal company admin user
+	User user.User
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -55,12 +54,8 @@ type RegisterCompanyAdminUserResponse struct {
 type InviteCompanyUserRequest struct {
 	// claims for company party retrieval
 	Claims claims.Claims
-	// an identifier to retrieve the company
-	// to which the new user will belong
-	CompanyIdentifier identifier.Identifier
-	// Address to which the registration
-	// invite will be sent
-	EmailAddress string
+	// the minimal company user
+	User user.User
 }
 
 type InviteCompanyUserResponse struct {
@@ -69,10 +64,9 @@ type InviteCompanyUserResponse struct {
 
 type InviteClientAdminUserRequest struct {
 	// claims for client party retrieval
-	Claims          claims.Claims
-	// an identifier to retrieve the client
-	// to which the admin user will belong
-	ClientIdentifier identifier.Identifier
+	Claims claims.Claims
+	// the minimal client admin user
+	User user.User
 }
 
 type InviteClientAdminUserResponse struct {

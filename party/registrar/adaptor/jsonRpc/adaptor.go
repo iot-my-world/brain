@@ -4,7 +4,6 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/registrar"
 	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 )
@@ -22,7 +21,7 @@ func New(
 }
 
 type InviteCompanyAdminUserRequest struct {
-	CompanyIdentifier wrappedIdentifier.WrappedIdentifier `json:"companyIdentifier"`
+	User user.User `json:"user"`
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -36,15 +35,10 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 		return err
 	}
 
-	id, err := request.CompanyIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	inviteCompanyAdminUserResponse := registrar.InviteCompanyAdminUserResponse{}
 	if err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
-		Claims:            claims,
-		CompanyIdentifier: id,
+		Claims: claims,
+		User:   request.User,
 	},
 		&inviteCompanyAdminUserResponse); err != nil {
 		return err
@@ -86,7 +80,7 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 }
 
 type InviteClientAdminUserRequest struct {
-	ClientIdentifier wrappedIdentifier.WrappedIdentifier `json:"clientIdentifier"`
+	User user.User `json:"user"`
 }
 
 type InviteClientAdminUserResponse struct {
@@ -100,15 +94,10 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 		return err
 	}
 
-	id, err := request.ClientIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	inviteClientAdminUserResponse := registrar.InviteClientAdminUserResponse{}
 	if err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
-		Claims:           claims,
-		ClientIdentifier: id,
+		Claims: claims,
+		User:   request.User,
 	},
 		&inviteClientAdminUserResponse); err != nil {
 		return err

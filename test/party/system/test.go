@@ -8,7 +8,6 @@ import (
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	companyTest "gitlab.com/iotTracker/brain/test/party/company"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -18,6 +17,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"fmt"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
+	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type System struct {
@@ -79,12 +80,13 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 
-		// create an identifier for the company entity
-		companyIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{
-			Id: (*companyEntity).Id,
-		})
-		if err != nil {
-			suite.FailNow("creating wrapped company identifier failed", err.Error())
+		// create the minimal admin user
+		adminUser := user.User{
+			EmailAddress:    companyEntity.AdminEmailAddress,
+			ParentPartyType: suite.jsonRpcClient.Claims().PartyDetails().PartyType,
+			ParentId:        suite.jsonRpcClient.Claims().PartyDetails().PartyId,
+			PartyType:       party.Company,
+			PartyId:         id.Identifier{Id: companyEntity.Id},
 		}
 
 		// invite the admin user
@@ -92,7 +94,7 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"PartyRegistrar.InviteCompanyAdminUser",
 			partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
-				PartyIdentifier: *companyIdentifier,
+				User: adminUser,
 			},
 			&inviteCompanyAdminUserResponse,
 		); err != nil {
@@ -130,11 +132,11 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
 		switch typedClaims := unwrappedClaims.(type) {
 		case registerCompanyAdminUser.RegisterCompanyAdminUser:
-			(*companyAdminUserEntity).EmailAddress = typedClaims.EmailAddress
-			(*companyAdminUserEntity).ParentPartyType = typedClaims.ParentPartyType
-			(*companyAdminUserEntity).ParentId = typedClaims.ParentId
-			(*companyAdminUserEntity).PartyType = typedClaims.PartyType
-			(*companyAdminUserEntity).PartyId = typedClaims.PartyId
+			(*companyAdminUserEntity).EmailAddress = typedClaims.User.EmailAddress
+			(*companyAdminUserEntity).ParentPartyType = typedClaims.User.ParentPartyType
+			(*companyAdminUserEntity).ParentId = typedClaims.User.ParentId
+			(*companyAdminUserEntity).PartyType = typedClaims.User.PartyType
+			(*companyAdminUserEntity).PartyId = typedClaims.User.PartyId
 		default:
 			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
 		}
