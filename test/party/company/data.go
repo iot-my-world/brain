@@ -15,7 +15,7 @@ var EntitiesAndAdminUsersToCreate = []EntityAdminUser{
 		Company: company.Company{
 			// Id:
 			Name:              "Monteagle Logistics Limited",
-			AdminEmailAddress: "brbitzbussy@gmail.com",
+			AdminEmailAddress: "monty@monteagle.com",
 			// ParentPartyType:
 			// ParentId:
 		},

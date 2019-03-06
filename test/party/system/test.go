@@ -10,6 +10,13 @@ import (
 	companyTest "gitlab.com/iotTracker/brain/test/party/company"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gopkg.in/square/go-jose.v2"
+	"reflect"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"encoding/json"
+	"strings"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"fmt"
 )
 
 type System struct {
@@ -88,5 +95,30 @@ func (suite *System) TestCreateCompanies() {
 		); err != nil {
 			suite.FailNow("invite company admin user failed", err.Error())
 		}
+
+		// parse the token into register companyAdminUserClaims
+		jwt := inviteCompanyAdminUserResponse.URLToken[strings.Index(inviteCompanyAdminUserResponse.URLToken, "&t=")+3:]
+		object, err := jose.ParseSigned(jwt)
+		if err != nil {
+			suite.FailNow("error parsing jwt", err.Error())
+		}
+
+		// Access Underlying payload without verification
+		fv := reflect.ValueOf(object).Elem().FieldByName("payload")
+
+		wrapped := wrappedClaims.WrappedClaims{}
+		if err := json.Unmarshal(fv.Bytes(), &wrapped); err != nil {
+			suite.FailNow("error unmarshalling claims", err.Error())
+		}
+
+		unwrappedClaims, err := wrapped.Unwrap()
+		if err != nil {
+			suite.FailNow("error unwrapping claims", err.Error())
+		}
+
+		if !suite.Equal(claims.RegisterCompanyAdminUser, unwrappedClaims.Type(), "claims should be "+claims.RegisterCompanyAdminUser) {
+			suite.FailNow(fmt.Sprintf("claims are not of type %s", claims.RegisterCompanyAdminUser))
+		}
+
 	}
 }
