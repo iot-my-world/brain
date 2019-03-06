@@ -34,7 +34,8 @@ type ValidateResponse struct {
 }
 
 type CreateRequest struct {
-	User user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type CreateResponse struct {

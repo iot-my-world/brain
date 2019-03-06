@@ -9,7 +9,6 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	"fmt"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"strings"
 	"gopkg.in/square/go-jose.v2"
@@ -18,6 +17,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"encoding/json"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
+	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type Company struct {
@@ -85,12 +86,13 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 		for idx := range clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
 			clientEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
 
-			// create an identifier for the client entity
-			clientIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{
-				Id: (*clientEntity).Id,
-			})
-			if err != nil {
-				suite.FailNow("creating wrapped client identifier failed", err.Error())
+			// make minimal client admin user
+			clientAdminUser := user.User{
+				EmailAddress:    clientEntity.AdminEmailAddress,
+				ParentPartyType: suite.jsonRpcClient.Claims().PartyDetails().PartyType,
+				ParentId:        suite.jsonRpcClient.Claims().PartyDetails().ParentId,
+				PartyType:       party.Client,
+				PartyId:         id.Identifier{Id: (*clientEntity).Id},
 			}
 
 			// invite the admin user
@@ -98,7 +100,7 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			if err := suite.jsonRpcClient.JsonRpcRequest(
 				"PartyRegistrar.InviteClientAdminUser",
 				partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
-					PartyIdentifier: *clientIdentifier,
+					User: clientAdminUser,
 				},
 				&inviteClientAdminUserResponse,
 			); err != nil {

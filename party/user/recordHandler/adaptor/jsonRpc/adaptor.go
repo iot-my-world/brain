@@ -30,13 +30,18 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	createUserResponse := userRecordHandler.CreateResponse{}
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
+	createUserResponse := userRecordHandler.CreateResponse{}
 	if err := s.RecordHandler.Create(
 		&userRecordHandler.CreateRequest{
-			User: request.User,
-		},
-		&createUserResponse); err != nil {
+			Claims: claims,
+			User:   request.User,
+		}, &createUserResponse); err != nil {
 		return err
 	}
 

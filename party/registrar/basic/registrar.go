@@ -8,7 +8,9 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
@@ -21,6 +23,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 	"time"
 	"strings"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type basicRegistrar struct {
@@ -30,6 +34,7 @@ type basicRegistrar struct {
 	mailer               mailer.Mailer
 	jwtGenerator         token.JWTGenerator
 	mailRedirectBaseUrl  string
+	systemClaims         login.Login
 }
 
 func New(
@@ -39,6 +44,7 @@ func New(
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
+	systemClaims login.Login,
 ) *basicRegistrar {
 	return &basicRegistrar{
 		companyRecordHandler: companyRecordHandler,
@@ -47,6 +53,7 @@ func New(
 		mailer:               mailer,
 		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
 		mailRedirectBaseUrl:  mailRedirectBaseUrl,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -73,7 +80,8 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 	// create the user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		User: request.User,
+		Claims: request.Claims,
+		User:   request.User,
 	},
 		&userCreateResponse); err != nil {
 		return err
@@ -101,17 +109,84 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
-		// validate the admin user for this service
-		validateUserResponse := userRecordHandler.ValidateResponse{}
-		if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		if request.Claims.PartyDetails().PartyType != party.System {
+			// If the user validating for an invite is not root then the user's party must be the assigned parent party
+			if request.User.ParentPartyType != request.Claims.PartyDetails().PartyType {
+				reasonsInvalid = append(reasonsInvalid, "parentPartyType must be submitting party's type")
+			}
+			if request.User.ParentId.Id != request.Claims.PartyDetails().PartyId.Id {
+				reasonsInvalid = append(reasonsInvalid, "parentId must be submitting party's id")
+			}
+		}
+
+		if request.User.EmailAddress != "" {
+			// Check if the users email has already been assigned to another company entity as admin email
+			companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
+			if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims: br.systemClaims,
+				Identifier: adminEmailAddress.Identifier{
+					AdminEmailAddress: request.User.EmailAddress,
+				},
+			}, &companyRetrieveResponse); err != nil {
+				switch err.(type) {
+				case companyRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					reasonsInvalid = append(reasonsInvalid, "unable to confirm admin user email address uniqueness")
+				}
+			} else {
+				// there was no retrieval error, this email address is already taken some company entity
+				if companyRetrieveResponse.Company.Id != request.User.PartyId.Id {
+					// if the id of this other company entity is not the same as the party id of this user then
+					reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on another company entity")
+				}
+			}
+
+			// Check if the users email has already been assigned to another client entity as admin email
+			if request.User.EmailAddress != "" {
+				if err := br.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+					Claims: br.systemClaims,
+					Identifier: adminEmailAddress.Identifier{
+						AdminEmailAddress: request.User.EmailAddress,
+					},
+				},
+					&clientRecordHandler.RetrieveResponse{}); err != nil {
+					switch err.(type) {
+					case clientRecordHandlerException.NotFound:
+						// this is what we want, do nothing
+					default:
+						reasonsInvalid = append(reasonsInvalid, "unable to confirm admin user email address uniqueness")
+					}
+				} else {
+					// there was no error, this email address is already taken by some client entity
+					reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on a client entity")
+				}
+			}
+
+			// Check that the users email address is the same as the one assigned to this party
+			if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
+				Identifier: request.User.PartyId,
+			}, &companyRetrieveResponse); err != nil {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("unable to retrieve company party %s", err.Error()))
+			} else if companyRetrieveResponse.Company.AdminEmailAddress != request.User.EmailAddress {
+				reasonsInvalid = append(reasonsInvalid, "admin users email address is not consistent with company party entity")
+			}
+		}
+
+		// Validate the new user
+		userValidateResponse := userRecordHandler.ValidateResponse{}
+		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 			Claims: request.Claims,
 			User:   request.User,
 			Method: partyRegistrar.InviteAdminUser,
-		}, &validateUserResponse); err != nil {
-			reasonsInvalid = append(reasonsInvalid, "error validating user")
-		}
-		if len(validateUserResponse.ReasonsInvalid) > 0 {
-			reasonsInvalid = append(reasonsInvalid, "user invalid: "+strings.Join(reasonsInvalid, " ;"))
+		}, &userValidateResponse)
+		if err != nil {
+			reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
+		} else {
+			for _, reason := range userValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+			}
 		}
 	}
 
@@ -127,24 +202,14 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		return err
 	}
 
-	// retrieve the Company whose admin will receive invite
-	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-	if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: request.User.PartyId,
-	},
-		&companyRetrieveResponse); err != nil {
-		return registrarException.UnableToRetrieveParty{Reasons: []string{"company party", err.Error()}}
-	}
-
 	// Generate the registration token for that company admin user to register
 	registerCompanyAdminUserClaims := registerCompanyAdminUser.RegisterCompanyAdminUser{
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
-		ParentPartyType: request.Claims.PartyDetails().PartyType,
-		ParentId:        request.Claims.PartyDetails().PartyId,
-		PartyType:       party.Company,
-		PartyId:         id.Identifier{Id: companyRetrieveResponse.Company.Id},
+		ParentPartyType: request.User.ParentPartyType,
+		ParentId:        request.User.ParentId,
+		PartyType:       request.User.PartyType,
+		PartyId:         request.User.PartyId,
 		User:            request.User,
 	}
 
@@ -229,7 +294,8 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	// create the user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		User: request.User,
+		Claims: request.Claims,
+		User:   request.User,
 	},
 		&userCreateResponse); err != nil {
 		return err

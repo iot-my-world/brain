@@ -28,11 +28,9 @@ import (
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 
-	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
 
-	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
@@ -121,10 +119,6 @@ func main() {
 		//PartyId         id.Identifier `json:"partyId"`
 	}
 
-	// Create Service Provider Pointers
-	var CompanyRecordHandler companyRecordHandler.RecordHandler
-	var ClientRecordHandler clientRecordHandler.RecordHandler
-
 	// Create Service Providers
 	RoleRecordHandler := roleMongoRecordHandler.New(
 		mainMongoSession,
@@ -135,8 +129,6 @@ func main() {
 		mainMongoSession,
 		databaseName,
 		userCollection,
-		CompanyRecordHandler,
-		ClientRecordHandler,
 	)
 	PermissionBasicHandler := permissionBasicHandler.New(
 		UserRecordHandler,
@@ -146,13 +138,13 @@ func main() {
 		UserRecordHandler,
 		rsaPrivateKey,
 	)
-	CompanyRecordHandler = companyMongoRecordHandler.New(
+	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		companyCollection,
 		UserRecordHandler,
 	)
-	ClientRecordHandler = clientMongoRecordHandler.New(
+	ClientRecordHandler := clientMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		clientCollection,
@@ -165,6 +157,7 @@ func main() {
 		Mailer,
 		rsaPrivateKey,
 		*mailRedirectBaseUrl,
+		systemClaims,
 	)
 	SystemRecordHandler := systemMongoRecordHandler.New(
 		mainMongoSession,
