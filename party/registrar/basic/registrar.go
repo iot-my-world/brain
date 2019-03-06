@@ -100,19 +100,19 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
-
-	// validate the admin user
-	validateUserResponse := userRecordHandler.ValidateResponse{}
-	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
-		Claims: request.Claims,
-		User:   request.User,
-		Method: partyRegistrar.InviteAdminUser,
-	}, &validateUserResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "error validating user")
-	}
-	if len(validateUserResponse.ReasonsInvalid) > 0 {
-		reasonsInvalid = append(reasonsInvalid, "user invalid: "+strings.Join(reasonsInvalid, " ;"))
+	} else {
+		// validate the admin user for this service
+		validateUserResponse := userRecordHandler.ValidateResponse{}
+		if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+			Claims: request.Claims,
+			User:   request.User,
+			Method: partyRegistrar.InviteAdminUser,
+		}, &validateUserResponse); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error validating user")
+		}
+		if len(validateUserResponse.ReasonsInvalid) > 0 {
+			reasonsInvalid = append(reasonsInvalid, "user invalid: "+strings.Join(reasonsInvalid, " ;"))
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -137,7 +137,7 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		return registrarException.UnableToRetrieveParty{Reasons: []string{"company party", err.Error()}}
 	}
 
-	// Generate the registration token
+	// Generate the registration token for that company admin user to register
 	registerCompanyAdminUserClaims := registerCompanyAdminUser.RegisterCompanyAdminUser{
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
