@@ -10,11 +10,24 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"errors"
 )
 
 type WrappedIdentifier struct {
 	Type  identifier.Type `json:"type"`
 	Value json.RawMessage `json:"value"`
+}
+
+func WrapIdentifier(id identifier.Identifier) (*WrappedIdentifier, error) {
+	value, err := json.Marshal(id)
+	if err != nil {
+		return nil, errors.New("wrapping error " + err.Error())
+	}
+
+	return &WrappedIdentifier{
+		Type:  id.Type(),
+		Value: value,
+	}, nil
 }
 
 func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {

@@ -26,9 +26,15 @@ type InviteCompanyAdminUserRequest struct {
 }
 
 type InviteCompanyAdminUserResponse struct {
+	URLToken string `json:"urlToken"`
 }
 
 func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	id, err := request.PartyIdentifier.UnWrap()
 	if err != nil {
@@ -37,12 +43,13 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 
 	inviteCompanyAdminUserResponse := registrar.InviteCompanyAdminUserResponse{}
 	if err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
+		Claims:          claims,
 		PartyIdentifier: id,
 	},
 		&inviteCompanyAdminUserResponse); err != nil {
 		return err
 	}
-
+	response.URLToken = inviteCompanyAdminUserResponse.URLToken
 	return nil
 }
 
@@ -83,9 +90,15 @@ type InviteClientAdminUserRequest struct {
 }
 
 type InviteClientAdminUserResponse struct {
+	URLToken string `json:"urlToken"`
 }
 
 func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	id, err := request.PartyIdentifier.UnWrap()
 	if err != nil {
@@ -94,12 +107,13 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 
 	inviteClientAdminUserResponse := registrar.InviteClientAdminUserResponse{}
 	if err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
+		Claims:          claims,
 		PartyIdentifier: id,
 	},
 		&inviteClientAdminUserResponse); err != nil {
 		return err
 	}
-
+	response.URLToken = inviteClientAdminUserResponse.URLToken
 	return nil
 }
 

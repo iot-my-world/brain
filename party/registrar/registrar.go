@@ -30,6 +30,7 @@ type InviteCompanyAdminUserRequest struct {
 }
 
 type InviteCompanyAdminUserResponse struct {
+	URLToken string
 }
 
 type RegisterCompanyAdminUserRequest struct {
@@ -39,7 +40,6 @@ type RegisterCompanyAdminUserRequest struct {
 }
 
 type RegisterCompanyAdminUserResponse struct {
-	Claims claims.Claims
 	User   user.User
 }
 
@@ -49,6 +49,7 @@ type InviteClientAdminUserRequest struct {
 }
 
 type InviteClientAdminUserResponse struct {
+	URLToken string
 }
 
 type RegisterClientAdminUserRequest struct {
