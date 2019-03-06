@@ -107,7 +107,7 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		Claims: request.Claims,
 		User:   request.User,
-		Method: partyRegistrar.Invite,
+		Method: partyRegistrar.InviteAdminUser,
 	}, &validateUserResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating user")
 	}
@@ -263,7 +263,7 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		Claims: request.Claims,
 		User:   request.User,
-		Method: partyRegistrar.Invite,
+		Method: partyRegistrar.InviteUser,
 	}, &validateUserResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating user")
 	}
@@ -301,7 +301,7 @@ func (br *basicRegistrar) InviteCompanyUser(request *partyRegistrar.InviteCompan
 		ParentId:        request.Claims.PartyDetails().PartyId,
 		PartyType:       party.Company,
 		PartyId:         id.Identifier{Id: companyRetrieveResponse.Company.Id},
-		EmailAddress:    companyRetrieveResponse.Company.AdminEmailAddress,
+		// User:
 	}
 
 	registrationToken, err := br.jwtGenerator.GenerateToken(registerCompanyAdminUserClaims)
@@ -343,7 +343,7 @@ func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyReg
 	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		Claims: request.Claims,
 		User:   request.User,
-		Method: partyRegistrar.Invite,
+		Method: partyRegistrar.InviteAdminUser,
 	}, &validateUserResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating user")
 	}

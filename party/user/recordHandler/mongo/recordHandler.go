@@ -10,88 +10,97 @@ import (
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
+	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 )
 
 type mongoRecordHandler struct {
-	mongoSession                  *mgo.Session
-	database                      string
-	collection                    string
-	createIgnoredReasons          reasonInvalid.IgnoredReasonsInvalid
-	inviteAdminUserIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
-	inviteUserIgnoredReasons      reasonInvalid.IgnoredReasonsInvalid
+	mongoSession         *mgo.Session
+	database             string
+	collection           string
+	companyRecordHandler companyRecordHandler.RecordHandler
+	clientRecordHandler  clientRecordHandler.RecordHandler
+	ignoredReasons       map[api.Method]reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
 	mongoSession *mgo.Session,
 	database,
 	collection string,
+	companyRecordHandler companyRecordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
-		ReasonsInvalid: map[string][]reasonInvalid.Type{
-			"id": {
-				reasonInvalid.Blank,
-			},
-			"password": {
-				reasonInvalid.Blank,
-			},
-		},
-	}
-
-	inviteAdminUserIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
-		ReasonsInvalid: map[string][]reasonInvalid.Type{
-			"id": {
-				reasonInvalid.Blank,
-			},
-			"name": {
-				reasonInvalid.Blank,
-			},
-			"surname": {
-				reasonInvalid.Blank,
-			},
-			"username": {
-				reasonInvalid.Blank,
-			},
-			"password": {
-				reasonInvalid.Blank,
+	ignoredReasons := map[api.Method]reasonInvalid.IgnoredReasonsInvalid{
+		userRecordHandler.Create: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
 			},
 		},
-	}
 
-	inviteUserIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
-		ReasonsInvalid: map[string][]reasonInvalid.Type{
-			"id": {
-				reasonInvalid.Blank,
+		partyRegistrar.InviteAdminUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+				"name": {
+					reasonInvalid.Blank,
+				},
+				"surname": {
+					reasonInvalid.Blank,
+				},
+				"username": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
 			},
-			"name": {
-				reasonInvalid.Blank,
-			},
-			"surname": {
-				reasonInvalid.Blank,
-			},
-			"username": {
-				reasonInvalid.Blank,
-			},
-			"password": {
-				reasonInvalid.Blank,
+		},
+
+		partyRegistrar.InviteUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+				"name": {
+					reasonInvalid.Blank,
+				},
+				"surname": {
+					reasonInvalid.Blank,
+				},
+				"username": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
 			},
 		},
 	}
 
 	newUserMongoRecordHandler := mongoRecordHandler{
-		mongoSession:                  mongoSession,
-		database:                      database,
-		collection:                    collection,
-		createIgnoredReasons:          createIgnoredReasons,
-		inviteAdminUserIgnoredReasons: inviteAdminUserIgnoredReasons,
-		inviteUserIgnoredReasons:      inviteUserIgnoredReasons,
+		mongoSession:         mongoSession,
+		database:             database,
+		collection:           collection,
+		ignoredReasons:       ignoredReasons,
+		companyRecordHandler: companyRecordHandler,
+		clientRecordHandler:  clientRecordHandler,
 	}
 
 	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
@@ -146,7 +155,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newUser")
 	} else {
 		for _, reason := range userValidateResponse.ReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+			if !mrh.ignoredReasons[userRecordHandler.Create].CanIgnore(reason) {
 				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 			}
 		}
@@ -318,6 +327,10 @@ func (mrh *mongoRecordHandler) Delete(request *userRecordHandler.DeleteRequest, 
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -425,125 +438,85 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
+	// Ignore reasons applicable to method if relevant
+	if mrh.ignoredReasons[request.Method].ReasonsInvalid != nil {
+		for _, reason := range allReasonsInvalid {
+			if !mrh.ignoredReasons[userRecordHandler.Create].CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+	}
+
 	// Perform additional checks/ignores considering method field
 	switch request.Method {
 	case userRecordHandler.Create:
-		// Check if the users email already exists by checking if a user can be
-		// retrieved with it
-		if (*userToValidate).EmailAddress != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
-				Identifier: emailAddress.Identifier{
-					EmailAddress: (*userToValidate).EmailAddress,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "emailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*userToValidate).EmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email address is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "emailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).EmailAddress,
-				})
-			}
-		}
-
-		// Check if the users username already exists by checking if a user can be
-		// retrieved with it
-		if (*userToValidate).EmailAddress != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
-				Identifier: username.Identifier{
-					Username: (*userToValidate).Username,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "username",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*userToValidate).Username,
-					})
-				}
-			} else {
-				// there was no error, this username is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "username",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).Username,
-				})
-			}
-		}
-
-		// Ignore reasons not applicable for this method
-		for _, reason := range allReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
-				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
-			}
-		}
-
+		fallthrough
 	case partyRegistrar.InviteAdminUser:
-
-		// Check if the users email already exists by checking if a user can be
-		// retrieved with it
-		if (*userToValidate).EmailAddress != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
-				Identifier: emailAddress.Identifier{
-					EmailAddress: (*userToValidate).EmailAddress,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "emailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*userToValidate).EmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email address is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "emailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).EmailAddress,
-				})
-			}
-		}
-
-		// Ignore reasons not applicable for this method
-		for _, reason := range allReasonsInvalid {
-			if !mrh.inviteAdminUserIgnoredReasons.CanIgnore(reason) {
-				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
-			}
-		}
-
+		fallthrough
 	case partyRegistrar.InviteUser:
+		// Check if the users email has already been assigned to another company entity as admin email
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
+				Identifier: adminEmailAddress.Identifier{
+					AdminEmailAddress: (*userToValidate).EmailAddress,
+				},
+			},
+				&companyRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case companyRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
 
-		// Check if the users email already exists by checking if a user can be
-		// retrieved with it
+		// Check if the users email has already been assigned to another client entity as admin email
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
+				Identifier: adminEmailAddress.Identifier{
+					AdminEmailAddress: (*userToValidate).EmailAddress,
+				},
+			},
+				&clientRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case clientRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
+
+		// Check if the users email has already been assigned to another user
 		if (*userToValidate).EmailAddress != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
 				Claims: request.Claims,
@@ -571,13 +544,6 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 					Help:  "already exists",
 					Data:  (*userToValidate).EmailAddress,
 				})
-			}
-		}
-
-		// Ignore reasons not applicable for this method
-		for _, reason := range allReasonsInvalid {
-			if !mrh.inviteUserIgnoredReasons.CanIgnore(reason) {
-				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
 
