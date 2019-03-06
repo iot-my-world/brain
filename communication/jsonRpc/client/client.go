@@ -10,6 +10,7 @@ type Client interface {
 	Post(request *Request) (*Response, error)
 	JsonRpcRequest(method string, request, response interface{}) error
 	Login(authJsonRpcAdaptor.LoginRequest) error
+	Logout()
 	Claims() claims.Claims
 	SetJWT(jwt string) error
 	GetJWT() string

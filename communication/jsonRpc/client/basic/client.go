@@ -149,6 +149,11 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 	return nil
 }
 
+func (c *client) Logout() {
+	c.jwt = ""
+	c.claims = nil
+}
+
 func (c *client) Claims() claims.Claims {
 	return c.claims
 }
