@@ -87,10 +87,11 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandle
 	clientValidateResponse := clientRecordHandler.ValidateResponse{}
 
 	if err := mrh.Validate(&clientRecordHandler.ValidateRequest{
+		Claims: request.Claims,
 		Client: request.Client,
 		Method: clientRecordHandler.Create},
 		&clientValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newClient")
+		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("unable to validate newClient: %s", err.Error()))
 	} else {
 		for _, reason := range clientValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
@@ -283,6 +284,10 @@ func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *clientRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -335,6 +340,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 
 			// Check if there is another client that is already using the same admin email address
 			if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*clientToValidate).AdminEmailAddress,
 				},
@@ -363,6 +369,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 
 			// Check if there is another user that is already using the same admin email address
 			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*clientToValidate).AdminEmailAddress,
 				},

@@ -37,6 +37,7 @@ type CollectResponse struct {
 }
 
 type ValidateRequest struct {
+	Claims claims.Claims
 	Client client.Client
 	Method api.Method
 }

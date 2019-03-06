@@ -24,6 +24,7 @@ const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
 
 type ValidateRequest struct {
+	Claims claims.Claims
 	User   user.User
 	Method api.Method
 }
