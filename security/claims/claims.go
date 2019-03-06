@@ -9,7 +9,9 @@ type Type string
 
 const Login Type = "Login"
 const RegisterCompanyAdminUser Type = "RegisterCompanyAdminUser"
+const RegisterCompanyUser Type = "RegisterCompanyUser"
 const RegisterClientAdminUser Type = "RegisterClientAdminUser"
+const RegisterClientUser Type = "RegisterClientUser"
 
 const ValidTime = 90 * time.Minute
 
