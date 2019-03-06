@@ -4,15 +4,21 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/api"
 )
 
 type Registrar interface {
-	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
 	RegisterSystemAdminUser(request *RegisterSystemAdminUserRequest, response *RegisterSystemAdminUserResponse) error
+
+	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
 	RegisterCompanyAdminUser(request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error
+	InviteCompanyUser(request *InviteCompanyUserRequest, response *InviteCompanyUserResponse) error
+
 	InviteClientAdminUser(request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
 }
+
+const Invite api.Method = "Invite"
 
 type RegisterSystemAdminUserRequest struct {
 	Claims   claims.Claims
@@ -25,8 +31,11 @@ type RegisterSystemAdminUserResponse struct {
 }
 
 type InviteCompanyAdminUserRequest struct {
-	Claims          claims.Claims
-	PartyIdentifier identifier.Identifier
+	// claims for company party retrieval
+	Claims claims.Claims
+	// an identifier to retrieve the company
+	// to which the admin user will belong
+	CompanyIdentifier identifier.Identifier
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -40,12 +49,30 @@ type RegisterCompanyAdminUserRequest struct {
 }
 
 type RegisterCompanyAdminUserResponse struct {
-	User   user.User
+	User user.User
+}
+
+type InviteCompanyUserRequest struct {
+	// claims for company party retrieval
+	Claims claims.Claims
+	// an identifier to retrieve the company
+	// to which the new user will belong
+	CompanyIdentifier identifier.Identifier
+	// Address to which the registration
+	// invite will be sent
+	EmailAddress string
+}
+
+type InviteCompanyUserResponse struct {
+	URLToken string
 }
 
 type InviteClientAdminUserRequest struct {
+	// claims for client party retrieval
 	Claims          claims.Claims
-	PartyIdentifier identifier.Identifier
+	// an identifier to retrieve the client
+	// to which the admin user will belong
+	ClientIdentifier identifier.Identifier
 }
 
 type InviteClientAdminUserResponse struct {

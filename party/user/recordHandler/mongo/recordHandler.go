@@ -9,6 +9,7 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
+	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -21,6 +22,7 @@ type mongoRecordHandler struct {
 	database             string
 	collection           string
 	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
+	inviteIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
@@ -42,11 +44,32 @@ func New(
 		},
 	}
 
+	inviteIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
+		ReasonsInvalid: map[string][]reasonInvalid.Type{
+			"id": {
+				reasonInvalid.Blank,
+			},
+			"name": {
+				reasonInvalid.Blank,
+			},
+			"surname": {
+				reasonInvalid.Blank,
+			},
+			"username": {
+				reasonInvalid.Blank,
+			},
+			"password": {
+				reasonInvalid.Blank,
+			},
+		},
+	}
+
 	newUserMongoRecordHandler := mongoRecordHandler{
 		mongoSession:         mongoSession,
 		database:             database,
 		collection:           collection,
 		createIgnoredReasons: createIgnoredReasons,
+		inviteIgnoredReasons: inviteIgnoredReasons,
 	}
 
 	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
@@ -387,6 +410,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		// retrieved with it
 		if (*userToValidate).EmailAddress != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*userToValidate).EmailAddress,
 				},
@@ -418,6 +442,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		// retrieved with it
 		if (*userToValidate).EmailAddress != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: username.Identifier{
 					Username: (*userToValidate).Username,
 				},
@@ -448,6 +473,47 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
+			}
+		}
+
+	case partyRegistrar.Invite:
+
+		// Check if the users email already exists by checking if a user can be
+		// retrieved with it
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*userToValidate).EmailAddress,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).EmailAddress,
+				})
+			}
+		}
+
+		// Ignore reasons not applicable for this method
+		for _, reason := range allReasonsInvalid {
+			if !mrh.inviteIgnoredReasons.CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}

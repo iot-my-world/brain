@@ -22,7 +22,7 @@ func New(
 }
 
 type InviteCompanyAdminUserRequest struct {
-	PartyIdentifier wrappedIdentifier.WrappedIdentifier `json:"partyIdentifier"`
+	CompanyIdentifier wrappedIdentifier.WrappedIdentifier `json:"companyIdentifier"`
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -36,15 +36,15 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 		return err
 	}
 
-	id, err := request.PartyIdentifier.UnWrap()
+	id, err := request.CompanyIdentifier.UnWrap()
 	if err != nil {
 		return err
 	}
 
 	inviteCompanyAdminUserResponse := registrar.InviteCompanyAdminUserResponse{}
 	if err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
-		Claims:          claims,
-		PartyIdentifier: id,
+		Claims:            claims,
+		CompanyIdentifier: id,
 	},
 		&inviteCompanyAdminUserResponse); err != nil {
 		return err
@@ -86,7 +86,7 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 }
 
 type InviteClientAdminUserRequest struct {
-	PartyIdentifier wrappedIdentifier.WrappedIdentifier `json:"partyIdentifier"`
+	ClientIdentifier wrappedIdentifier.WrappedIdentifier `json:"clientIdentifier"`
 }
 
 type InviteClientAdminUserResponse struct {
@@ -100,15 +100,15 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 		return err
 	}
 
-	id, err := request.PartyIdentifier.UnWrap()
+	id, err := request.ClientIdentifier.UnWrap()
 	if err != nil {
 		return err
 	}
 
 	inviteClientAdminUserResponse := registrar.InviteClientAdminUserResponse{}
 	if err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
-		Claims:          claims,
-		PartyIdentifier: id,
+		Claims:           claims,
+		ClientIdentifier: id,
 	},
 		&inviteClientAdminUserResponse); err != nil {
 		return err
