@@ -11,6 +11,8 @@ type Client interface {
 	JsonRpcRequest(method string, request, response interface{}) error
 	Login(authJsonRpcAdaptor.LoginRequest) error
 	Claims() claims.Claims
+	SetJWT(jwt string) error
+	GetJWT() string
 }
 
 type Request struct {

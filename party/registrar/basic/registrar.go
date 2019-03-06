@@ -125,11 +125,13 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 
 	// Generate the registration token
 	registerCompanyAdminUserClaims := registerCompanyAdminUser.RegisterCompanyAdminUser{
-		IssueTime:      time.Now().UTC().Unix(),
-		ExpirationTime: time.Now().Add(90 * time.Minute).UTC().Unix(),
-		PartyType:      party.Company,
-		PartyId:        id.Identifier{Id: companyRetrieveResponse.Company.Id},
-		EmailAddress:   companyRetrieveResponse.Company.AdminEmailAddress,
+		IssueTime:       time.Now().UTC().Unix(),
+		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
+		ParentPartyType: request.Claims.PartyDetails().PartyType,
+		ParentId:        request.Claims.PartyDetails().PartyId,
+		PartyType:       party.Company,
+		PartyId:         id.Identifier{Id: companyRetrieveResponse.Company.Id},
+		EmailAddress:    companyRetrieveResponse.Company.AdminEmailAddress,
 	}
 
 	registrationToken, err := br.jwtGenerator.GenerateToken(registerCompanyAdminUserClaims)
@@ -266,11 +268,13 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 
 	// Generate the registration token
 	registerClientAdminUserClaims := registerClientAdminUser.RegisterClientAdminUser{
-		IssueTime:      time.Now().UTC().Unix(),
-		ExpirationTime: time.Now().Add(90 * time.Minute).UTC().Unix(),
-		PartyType:      party.Client,
-		PartyId:        id.Identifier{Id: clientRetrieveResponse.Client.Id},
-		EmailAddress:   clientRetrieveResponse.Client.AdminEmailAddress,
+		IssueTime:       time.Now().UTC().Unix(),
+		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
+		ParentPartyType: request.Claims.PartyDetails().PartyType,
+		ParentId:        request.Claims.PartyDetails().PartyId,
+		PartyType:       party.Client,
+		PartyId:         id.Identifier{Id: clientRetrieveResponse.Client.Id},
+		EmailAddress:    clientRetrieveResponse.Client.AdminEmailAddress,
 	}
 
 	registrationToken, err := br.jwtGenerator.GenerateToken(registerClientAdminUserClaims)

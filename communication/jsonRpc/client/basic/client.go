@@ -150,5 +150,36 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 }
 
 func (c *client) Claims() claims.Claims {
- return c.claims
+	return c.claims
+}
+
+func (c *client) SetJWT(jwt string) error {
+	// save the token
+	c.jwt = jwt
+
+	object, err := jose.ParseSigned(c.jwt)
+	if err != nil {
+		return errors.New("error parsing jwt " + err.Error())
+	}
+
+	// Access Underlying payload without verification
+	fv := reflect.ValueOf(object).Elem().FieldByName("payload")
+
+	wrapped := wrappedClaims.WrappedClaims{}
+	if err := json.Unmarshal(fv.Bytes(), &wrapped); err != nil {
+		return errors.New("error unmarshalling claims " + err.Error())
+	}
+
+	unwrappedClaims, err := wrapped.Unwrap()
+	if err != nil {
+		return errors.New("error unwrapping claims " + err.Error())
+	}
+
+	c.claims = unwrappedClaims
+
+	return nil
+}
+
+func (c *client) GetJWT() string {
+	return c.jwt
 }

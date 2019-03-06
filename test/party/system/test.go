@@ -17,6 +17,7 @@ import (
 	"strings"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"fmt"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 )
 
 type System struct {
@@ -53,18 +54,18 @@ func (suite *System) TestCreateCompanies() {
 	}
 
 	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
-		companyData := &companyTest.EntitiesAndAdminUsersToCreate[idx]
+		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 
 		// update the new company's details as would be done from the front end
-		(*companyData).Company.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
-		(*companyData).Company.ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+		(*companyEntity).ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+		(*companyEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
 
 		// create the company
 		companyCreateResponse := companyRecordHandlerJsonRpcAdaptor.CreateResponse{}
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"CompanyRecordHandler.Create",
 			companyRecordHandlerJsonRpcAdaptor.CreateRequest{
-				Company: (*companyData).Company,
+				Company: *companyEntity,
 			},
 			&companyCreateResponse,
 		); err != nil {
@@ -72,13 +73,19 @@ func (suite *System) TestCreateCompanies() {
 		}
 
 		// update the company
-		(*companyData).Company.Id = companyCreateResponse.Company.Id
+		(*companyEntity).Id = companyCreateResponse.Company.Id
 
-		suite.T().Logf("successfully created company %s", (*companyData).Company.Name)
+		suite.T().Logf("successfully created company %s", (*companyEntity).Name)
+	}
+}
+
+func (suite *System) TestRegisterCompanyAdminUsers() {
+	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
+		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 
 		// create an identifier for the company entity
 		companyIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{
-			Id: (*companyData).Company.Id,
+			Id: (*companyEntity).Id,
 		})
 		if err != nil {
 			suite.FailNow("creating wrapped company identifier failed", err.Error())
@@ -120,5 +127,45 @@ func (suite *System) TestCreateCompanies() {
 			suite.FailNow(fmt.Sprintf("claims are not of type %s", claims.RegisterCompanyAdminUser))
 		}
 
+		// update the company admin user entity with details from the claims
+		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
+		switch typedClaims := unwrappedClaims.(type) {
+		case registerCompanyAdminUser.RegisterCompanyAdminUser:
+			(*companyAdminUserEntity).EmailAddress = typedClaims.EmailAddress
+			(*companyAdminUserEntity).ParentPartyType = typedClaims.ParentPartyType
+			(*companyAdminUserEntity).ParentId = typedClaims.ParentId
+			(*companyAdminUserEntity).PartyType = typedClaims.PartyType
+			(*companyAdminUserEntity).PartyId = typedClaims.PartyId
+		default:
+			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
+		}
+
+		// create a new client to register the user with
+		registerJsonRpcClient := basicJsonRpcClient.New("http://localhost:9010/api")
+		if err := registerJsonRpcClient.SetJWT(jwt); err != nil {
+			suite.FailNow("failed to set jwt in registration client", err.Error())
+		}
+
+		// register the company admin user
+		registerCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserResponse{}
+		password := string(companyAdminUserEntity.Password)
+		(*companyAdminUserEntity).Password = []byte{}
+		if err := registerJsonRpcClient.JsonRpcRequest(
+			"PartyRegistrar.RegisterCompanyAdminUser",
+			partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
+				User:     *companyAdminUserEntity,
+				Password: password,
+			},
+			&registerCompanyAdminUserResponse,
+		); err != nil {
+			suite.FailNow("error registering company admin user", err.Error())
+		}
+
+		// update the company admin user entity
+		(*companyAdminUserEntity).Id = registerCompanyAdminUserResponse.User.Id
+		(*companyAdminUserEntity).Roles = registerCompanyAdminUserResponse.User.Roles
+		(*companyAdminUserEntity).Password = []byte(password)
+
+		suite.T().Logf("successfully registered company admin user %s", (*companyAdminUserEntity).Username)
 	}
 }
