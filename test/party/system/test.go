@@ -40,7 +40,7 @@ func (suite *System) SetupTest() {
 	suite.T().Log("system successfully logged in")
 }
 
-func (suite *System) TestCreateCompanies() {
+func (suite *System) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
 	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := suite.jsonRpcClient.JsonRpcRequest(
@@ -79,7 +79,7 @@ func (suite *System) TestCreateCompanies() {
 	}
 }
 
-func (suite *System) TestRegisterCompanyAdminUsers() {
+func (suite *System) TestSystemRegisterCompanyAdminUsers() {
 	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 

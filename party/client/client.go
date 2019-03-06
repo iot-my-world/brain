@@ -12,7 +12,7 @@ type Client struct {
 
 	// The email address which will be used to invite the admin
 	// user of the company
-	// I.e. the first user of the system from the company
+	// I.e. the first user of the system from the client
 	AdminEmailAddress string `json:"adminEmailAddress" bson:"adminEmailAddress"`
 
 	ParentPartyType party.Type    `json:"parentPartyType" bson:"parentPartyType"`
