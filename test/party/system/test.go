@@ -36,8 +36,6 @@ func (suite *System) SetupTest() {
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
-
-	suite.T().Log("system successfully logged in")
 }
 
 func (suite *System) TestSystemCreateCompanies() {
@@ -74,12 +72,10 @@ func (suite *System) TestSystemCreateCompanies() {
 
 		// update the company
 		(*companyEntity).Id = companyCreateResponse.Company.Id
-
-		suite.T().Logf("successfully created company %s", (*companyEntity).Name)
 	}
 }
 
-func (suite *System) TestSystemRegisterCompanyAdminUsers() {
+func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 
@@ -103,31 +99,34 @@ func (suite *System) TestSystemRegisterCompanyAdminUsers() {
 			suite.FailNow("invite company admin user failed", err.Error())
 		}
 
-		// parse the token into register companyAdminUserClaims
+		// parse the urlToken into a jsonWebToken object
 		jwt := inviteCompanyAdminUserResponse.URLToken[strings.Index(inviteCompanyAdminUserResponse.URLToken, "&t=")+3:]
-		object, err := jose.ParseSigned(jwt)
+		jwtObject, err := jose.ParseSigned(jwt)
 		if err != nil {
 			suite.FailNow("error parsing jwt", err.Error())
 		}
 
-		// Access Underlying payload without verification
-		fv := reflect.ValueOf(object).Elem().FieldByName("payload")
+		// Access Underlying jwt payload bytes without verification
+		jwtPayload := reflect.ValueOf(jwtObject).Elem().FieldByName("payload")
 
+		// parse the bytes into wrapped claims
 		wrapped := wrappedClaims.WrappedClaims{}
-		if err := json.Unmarshal(fv.Bytes(), &wrapped); err != nil {
+		if err := json.Unmarshal(jwtPayload.Bytes(), &wrapped); err != nil {
 			suite.FailNow("error unmarshalling claims", err.Error())
 		}
 
+		// unwrap the claims into a claims.Claims interface
 		unwrappedClaims, err := wrapped.Unwrap()
 		if err != nil {
 			suite.FailNow("error unwrapping claims", err.Error())
 		}
 
+		// confirm that the claims Type is correct
 		if !suite.Equal(claims.RegisterCompanyAdminUser, unwrappedClaims.Type(), "claims should be "+claims.RegisterCompanyAdminUser) {
 			suite.FailNow(fmt.Sprintf("claims are not of type %s", claims.RegisterCompanyAdminUser))
 		}
 
-		// update the company admin user entity with details from the claims
+		// infer the interfaces type and update the company admin user entity with details from them
 		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
 		switch typedClaims := unwrappedClaims.(type) {
 		case registerCompanyAdminUser.RegisterCompanyAdminUser:
@@ -140,7 +139,7 @@ func (suite *System) TestSystemRegisterCompanyAdminUsers() {
 			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
 		}
 
-		// create a new client to register the user with
+		// create a new json rpc client to register the user with
 		registerJsonRpcClient := basicJsonRpcClient.New("http://localhost:9010/api")
 		if err := registerJsonRpcClient.SetJWT(jwt); err != nil {
 			suite.FailNow("failed to set jwt in registration client", err.Error())
@@ -165,7 +164,5 @@ func (suite *System) TestSystemRegisterCompanyAdminUsers() {
 		(*companyAdminUserEntity).Id = registerCompanyAdminUserResponse.User.Id
 		(*companyAdminUserEntity).Roles = registerCompanyAdminUserResponse.User.Roles
 		(*companyAdminUserEntity).Password = []byte(password)
-
-		suite.T().Logf("successfully registered company admin user %s", (*companyAdminUserEntity).Username)
 	}
 }
