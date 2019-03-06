@@ -5,24 +5,21 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 )
 
-type EntityAdminUser struct {
+type TestData struct {
 	Company   company.Company
 	AdminUser user.User
 }
 
-var EntitiesAndAdminUsersToCreate = []EntityAdminUser{
+var EntitiesAndAdminUsersToCreate = []TestData{
 	{
 		Company: company.Company{
-			// Id:
 			Name:              "Monteagle Logistics Limited",
-			AdminEmailAddress: "monty@monteagle.com",
-			// ParentPartyType:
-			// ParentId:
+			AdminEmailAddress: "admin@monteagle.com",
 		},
 		AdminUser: user.User{
 			Name:     "Murray",
 			Surname:  "Griffin",
-			Username: "murray",
+			Username: "monteagleAdmin",
 			Password: []byte("123"),
 		},
 	},
@@ -30,14 +27,14 @@ var EntitiesAndAdminUsersToCreate = []EntityAdminUser{
 		Company: company.Company{
 			// Id:
 			Name:              "DHL",
-			AdminEmailAddress: "dhlTest@dhl.com",
+			AdminEmailAddress: "admin@dhl.com",
 			// ParentPartyType:
 			// ParentId:
 		},
 		AdminUser: user.User{
 			Name:     "Simon",
 			Surname:  "Rubin",
-			Username: "simon",
+			Username: "dhlAdmin",
 			Password: []byte("123"),
 		},
 	},
@@ -45,14 +42,14 @@ var EntitiesAndAdminUsersToCreate = []EntityAdminUser{
 		Company: company.Company{
 			// Id:
 			Name:              "Reinhard Trucking",
-			AdminEmailAddress: "reinhardTest@reinhard.com",
+			AdminEmailAddress: "admin@reinhard.com",
 			// ParentPartyType:
 			// ParentId:
 		},
 		AdminUser: user.User{
 			Name:     "Bob",
 			Surname:  "Smith",
-			Username: "bob",
+			Username: "reinhardAdmin",
 			Password: []byte("123"),
 		},
 	},

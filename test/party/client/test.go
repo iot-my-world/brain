@@ -1,4 +1,4 @@
-package company
+package client
 
 import (
 	"github.com/stretchr/testify/suite"
