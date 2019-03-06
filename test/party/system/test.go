@@ -6,7 +6,7 @@ import (
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
-	"gitlab.com/iotTracker/brain/party/company"
+	companyTest "gitlab.com/iotTracker/brain/test/party/company"
 )
 
 type System struct {
@@ -20,8 +20,8 @@ func (suite *System) SetupTest() {
 
 	// log in the client
 	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
-		UsernameOrEmailAddress: "root",
-		Password:               "12345",
+		UsernameOrEmailAddress: User.Username,
+		Password:               string(User.Password),
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
@@ -39,23 +39,26 @@ func (suite *System) TestCreateCompanies() {
 		suite.Failf("collect companies failed", err.Error())
 	}
 	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
-		suite.Fail("company collection is not empty")
+		suite.FailNow("company collection not empty")
 	}
 
-	companyCreateRequest := companyRecordHandlerJsonRpcAdaptor.CreateRequest{
-		Company: company.Company{
-			Name:              "Monteagle Logistics",
-			AdminEmailAddress: "brbitzbussy@gmail.com",
-			ParentPartyType:   suite.jsonRpcClient.Claims().PartyDetails().PartyType,
-			ParentId:          suite.jsonRpcClient.Claims().PartyDetails().PartyId,
-		},
-	}
-	companyCreateResponse := companyRecordHandlerJsonRpcAdaptor.CreateResponse{}
+	for _, companyAdminUser := range companyTest.EntitiesAndAdminUsersToCreate {
 
-	if err := suite.jsonRpcClient.JsonRpcRequest(
-		"CompanyRecordHandler.Create",
-		companyCreateRequest,
-		&companyCreateResponse); err != nil {
-		suite.Failf("create company failed", err.Error())
+		// update the new company's details as would be done from the front end
+		companyAdminUser.Company.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+		companyAdminUser.Company.ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+
+		// create the company
+		companyCreateResponse := companyRecordHandlerJsonRpcAdaptor.CreateResponse{}
+		if err := suite.jsonRpcClient.JsonRpcRequest(
+			"CompanyRecordHandler.Create",
+			companyRecordHandlerJsonRpcAdaptor.CreateRequest{
+				Company: companyAdminUser.Company,
+			},
+			&companyCreateResponse); err != nil {
+			suite.FailNow("create company failed", err.Error())
+		}
+
+		suite.T().Logf("successfully created company %s", companyAdminUser.Company.Name)
 	}
 }
