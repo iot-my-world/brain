@@ -105,19 +105,27 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRegistrar.InviteCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	// the user in the invite request must not be registered
+	if request.User.Registered {
+		reasonsInvalid = append(reasonsInvalid, "user cannot be set to registered yet")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 
-		if request.Claims.PartyDetails().PartyType != party.System {
-			// if the user performing the invite is not root then the user's party must be the new users assigned parent party
-			if request.User.ParentId.Id != request.Claims.PartyDetails().PartyId.Id {
-				reasonsInvalid = append(reasonsInvalid, "parentId must be submitting party's id")
-			}
-
-			if request.User.ParentPartyType != request.Claims.PartyDetails().PartyType {
-				reasonsInvalid = append(reasonsInvalid, "parentPartyType must be submitting party's type")
-			}
+		// at the moment only system can invite companies,
+		// so the new users parent party details must be set accordingly
+		if request.User.ParentId.Id != br.systemClaims.PartyId.Id {
+			reasonsInvalid = append(reasonsInvalid, "parentId must be system id")
+		}
+		if request.User.ParentPartyType != br.systemClaims.PartyType {
+			reasonsInvalid = append(reasonsInvalid, "parentPartyType must be system")
 		}
 
 		// regardless of who is performing the invite the partyType of the user must be company
@@ -148,7 +156,7 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 			companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
 			if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 				// system claims since we want all companies to be visible for this retrieval check
-				Claims: br.systemClaims,
+				Claims: *br.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: request.User.EmailAddress,
 				},
@@ -171,7 +179,8 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 			// Check if the users email has already been assigned to another client entity as admin email
 			if request.User.EmailAddress != "" {
 				if err := br.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
-					Claims: br.systemClaims,
+					// system claims since we want all companies to be visible for this retrieval check
+					Claims: *br.systemClaims,
 					Identifier: adminEmailAddress.Identifier{
 						AdminEmailAddress: request.User.EmailAddress,
 					},
@@ -202,6 +211,19 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 	if err := br.ValidateInviteCompanyAdminUserRequest(request); err != nil {
 		return err
 	}
+
+	// Create the minimal company admin user
+	userCreateResponse := userRecordHandler.CreateResponse{}
+	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		Claims: request.Claims,
+		User:   request.User,
+	},
+		&userCreateResponse); err != nil {
+		return err
+	}
+
+	// Update the id on the user
+	request.User.Id = userCreateResponse.User.Id
 
 	// Generate the registration token for the company admin user to register
 	registerCompanyAdminUserClaims := registerCompanyAdminUser.RegisterCompanyAdminUser{
@@ -242,6 +264,16 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	// user must not be set to registered
+	if request.User.Registered {
+		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -252,6 +284,9 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 
 		case registerCompanyAdminUser.RegisterCompanyAdminUser:
 			// confirm that all fields that were set on the user when the claims were generated have not been changed
+			if request.User.Id != typedClaims.User.Id {
+				reasonsInvalid = append(reasonsInvalid, "id has changed")
+			}
 			if request.User.EmailAddress != typedClaims.User.EmailAddress {
 				reasonsInvalid = append(reasonsInvalid, "email address has changed")
 			}
@@ -270,16 +305,11 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 		}
 	}
 
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
-	}
-
 	// validate the user for the registration process
 	userValidateResponse := userRecordHandler.ValidateResponse{}
 	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
-		Claims: br.systemClaims,
+		Claims: *br.systemClaims,
 		User:   request.User,
 		Method: partyRegistrar.RegisterCompanyAdminUser,
 	}, &userValidateResponse)
@@ -303,32 +333,45 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 		return err
 	}
 
-	// give the user the necessary roles
-	request.User.Roles = append(request.User.Roles, roleSetup.CompanyAdmin.Name)
-	request.User.Roles = append(request.User.Roles, roleSetup.CompanyUser.Name)
-
-	// create the user
-	userCreateResponse := userRecordHandler.CreateResponse{}
-	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
-		User:   request.User,
-	},
-		&userCreateResponse); err != nil {
-		return err
-	}
-
 	// change the users password
 	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
-		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
+		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: request.Password,
 	},
 		&userChangePasswordResponse); err != nil {
 		return err
 	}
 
-	response.User = userCreateResponse.User
+	// retrieve the minimal user
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+	},
+		&userRetrieveResponse); err != nil {
+		return err
+	}
+
+	// give the user the necessary roles
+	request.User.Roles = []string{roleSetup.CompanyAdmin.Name, roleSetup.CompanyUser.Name}
+
+	// set the user to registered
+	request.User.Registered = true
+
+	// update the user
+	userUpdateResponse := userRecordHandler.UpdateResponse{}
+	if err := br.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		User:       request.User,
+		Identifier: id.Identifier{Id: request.User.Id},
+	},
+		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	response.User = userUpdateResponse.User
 
 	return nil
 }

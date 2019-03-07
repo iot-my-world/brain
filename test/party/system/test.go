@@ -79,6 +79,13 @@ func (suite *System) TestSystemCreateCompanies() {
 func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
+		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
+
+		// save the unhashed password for setting the entity back to it later
+		unhashedPassword := string(companyAdminUserEntity.Password)
+
+		// clear the password field, must be clear for inviting new user
+		(*companyAdminUserEntity).Password = []byte{}
 
 		// create the minimal admin user
 		adminUser := user.User{
@@ -129,9 +136,9 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		}
 
 		// infer the interfaces type and update the company admin user entity with details from them
-		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
 		switch typedClaims := unwrappedClaims.(type) {
 		case registerCompanyAdminUser.RegisterCompanyAdminUser:
+			(*companyAdminUserEntity).Id = typedClaims.User.Id
 			(*companyAdminUserEntity).EmailAddress = typedClaims.User.EmailAddress
 			(*companyAdminUserEntity).ParentPartyType = typedClaims.User.ParentPartyType
 			(*companyAdminUserEntity).ParentId = typedClaims.User.ParentId
@@ -149,13 +156,11 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 
 		// register the company admin user
 		registerCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserResponse{}
-		password := string(companyAdminUserEntity.Password)
-		(*companyAdminUserEntity).Password = []byte{}
 		if err := registerJsonRpcClient.JsonRpcRequest(
 			"PartyRegistrar.RegisterCompanyAdminUser",
 			partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
 				User:     *companyAdminUserEntity,
-				Password: password,
+				Password: unhashedPassword,
 			},
 			&registerCompanyAdminUserResponse,
 		); err != nil {
@@ -165,6 +170,6 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		// update the company admin user entity
 		(*companyAdminUserEntity).Id = registerCompanyAdminUserResponse.User.Id
 		(*companyAdminUserEntity).Roles = registerCompanyAdminUserResponse.User.Roles
-		(*companyAdminUserEntity).Password = []byte(password)
+		(*companyAdminUserEntity).Password = []byte(unhashedPassword)
 	}
 }

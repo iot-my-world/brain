@@ -290,6 +290,21 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// validate the user
+		userValidateResponse := userRecordHandler.ValidateResponse{}
+		err := mrh.Validate(&userRecordHandler.ValidateRequest{
+			Claims: request.Claims,
+			User:   request.User,
+			Method: userRecordHandler.Update,
+		}, &userValidateResponse)
+		if err != nil {
+			reasonsInvalid = append(reasonsInvalid, "unable to validate user to update")
+		} else {
+			for _, reason := range userValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+			}
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -311,7 +326,10 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 
 	// Retrieve User
 	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveUserResponse); err != nil {
+	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveUserResponse); err != nil {
 		return userRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -319,12 +337,13 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 	// retrieveUserResponse.User.Id = request.User.Id // cannot update ever
 	retrieveUserResponse.User.Name = request.User.Name
 	retrieveUserResponse.User.Surname = request.User.Surname
-	// retrieveUserResponse.User.Username = request.User.Username // cannot update yet
+	retrieveUserResponse.User.Username = request.User.Username
 	// retrieveUserResponse.User.EmailAddress = request.User.EmailAddress // cannot update yet
 	retrieveUserResponse.User.Password = request.User.Password
 	retrieveUserResponse.User.Roles = request.User.Roles
 	// retrieveUserResponse.User.PartyType = request.User.PartyType // cannot update yet
 	// retrieveUserResponse.User.PartyId = request.User.PartyId // cannot update yet
+	retrieveUserResponse.User.Registered = request.User.Registered
 
 	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
 		return userRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
@@ -409,6 +428,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 			Data:  (*userToValidate).EmailAddress,
 		})
 	}
+
 	if (*userToValidate).Name == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
@@ -517,17 +537,6 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 				})
 			}
 		}
-
-		// when registering a user the registered flag must be set
-		if !(*userToValidate).Registered {
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "registered",
-				Type:  reasonInvalid.MustBeSet,
-				Help:  "is not set",
-				Data:  (*userToValidate).Registered,
-			})
-		}
-		fallthrough // in addition the validation applied when inviting a user is also applied
 
 	case userRecordHandler.Create,
 		partyRegistrar.InviteCompanyAdminUser, partyRegistrar.InviteCompanyUser,
