@@ -132,7 +132,7 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 			// system claims since we want all users to be visible for the email address check done in validate user
 			Claims: br.systemClaims,
 			User:   request.User,
-			Method: partyRegistrar.InviteAdminUser,
+			Method: partyRegistrar.InviteCompanyAdminUser,
 		}, &userValidateResponse)
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
@@ -246,33 +246,50 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
-		// user party type and id must be as was in claims otherwise someone is
-		// trying to abuse the registration token
-		if request.User.PartyType != request.Claims.PartyDetails().PartyType {
-			reasonsInvalid = append(reasonsInvalid, "user party type incorrect")
-		}
-		if request.User.PartyId != request.Claims.PartyDetails().PartyId {
-			reasonsInvalid = append(reasonsInvalid, "user party id incorrect")
-		}
-	}
 
-	// email address must be the same as the admin email address on the party entity
-	// retrieve party to confirm this
-	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-	if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: request.Claims.PartyDetails().PartyId,
-	},
-		&companyRetrieveResponse); err != nil {
-		return registrarException.UnableToRetrieveParty{Reasons: []string{"company party", err.Error()}}
-	}
-	if companyRetrieveResponse.Company.AdminEmailAddress != request.User.EmailAddress {
-		reasonsInvalid = append(reasonsInvalid, "user email address incorrect")
+		switch typedClaims := request.Claims.(type) {
+		default:
+			reasonsInvalid = append(reasonsInvalid, "cannot infer correct type from claims")
+
+		case registerCompanyAdminUser.RegisterCompanyAdminUser:
+			// confirm that all fields that were set on the user when the claims were generated have not been changed
+			if request.User.EmailAddress != typedClaims.User.EmailAddress {
+				reasonsInvalid = append(reasonsInvalid, "email address has changed")
+			}
+			if request.User.ParentPartyType != typedClaims.User.ParentPartyType {
+				reasonsInvalid = append(reasonsInvalid, "parent party type has changed")
+			}
+			if request.User.ParentId != typedClaims.User.PartyId {
+				reasonsInvalid = append(reasonsInvalid, "parent id has changed")
+			}
+			if request.User.PartyType != typedClaims.User.PartyType {
+				reasonsInvalid = append(reasonsInvalid, "party type has changed")
+			}
+			if request.User.PartyId != typedClaims.User.PartyId {
+				reasonsInvalid = append(reasonsInvalid, "party id has changed")
+			}
+		}
 	}
 
 	// password field must be blank
 	if len(request.User.Password) != 0 {
 		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
+	// validate the user for the registration process
+	userValidateResponse := userRecordHandler.ValidateResponse{}
+	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		// system claims since we want all users to be visible for the email address check done in validate user
+		Claims: br.systemClaims,
+		User:   request.User,
+		Method: partyRegistrar.RegisterCompanyAdminUser,
+	}, &userValidateResponse)
+	if err != nil {
+		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
+	} else {
+		for _, reason := range userValidateResponse.ReasonsInvalid {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -329,7 +346,7 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		Claims: request.Claims,
 		User:   request.User,
-		Method: partyRegistrar.InviteUser,
+		Method: partyRegistrar.InviteCompanyUser,
 	}, &validateUserResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating user")
 	}
@@ -409,7 +426,7 @@ func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyReg
 	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		Claims: request.Claims,
 		User:   request.User,
-		Method: partyRegistrar.InviteAdminUser,
+		Method: partyRegistrar.InviteClientAdminUser,
 	}, &validateUserResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating user")
 	}

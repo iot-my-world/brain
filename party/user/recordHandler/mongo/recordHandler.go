@@ -16,6 +16,7 @@ import (
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
 type mongoRecordHandler struct {
@@ -45,7 +46,7 @@ func New(
 			},
 		},
 
-		partyRegistrar.InviteAdminUser: {
+		partyRegistrar.InviteCompanyAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
@@ -65,18 +66,9 @@ func New(
 			},
 		},
 
-		partyRegistrar.InviteUser: {
+		partyRegistrar.RegisterCompanyAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
-					reasonInvalid.Blank,
-				},
-				"name": {
-					reasonInvalid.Blank,
-				},
-				"surname": {
-					reasonInvalid.Blank,
-				},
-				"username": {
 					reasonInvalid.Blank,
 				},
 				"password": {
@@ -442,7 +434,40 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	switch request.Method {
-	case userRecordHandler.Create, partyRegistrar.InviteAdminUser, partyRegistrar.InviteUser:
+	case userRecordHandler.Create, partyRegistrar.RegisterCompanyAdminUser:
+		// Check if the users username has already been assigned to another user
+		if (*userToValidate).Username != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
+				Identifier: username.Identifier{
+					Username: (*userToValidate).Username,
+				},
+			},
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Unknown,
+						Help:  "retrieve failed",
+						Data:  (*userToValidate).Username,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "username",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*userToValidate).Username,
+				})
+			}
+		}
+		fallthrough
+
+	case partyRegistrar.InviteCompanyAdminUser:
 		// Check if the users email has already been assigned to another user
 		if (*userToValidate).EmailAddress != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -459,7 +484,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "emailAddress",
 						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
+						Help:  "retrieve failed",
 						Data:  (*userToValidate).EmailAddress,
 					})
 				}

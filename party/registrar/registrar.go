@@ -17,8 +17,11 @@ type Registrar interface {
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
 }
 
-const InviteAdminUser api.Method = "InviteAdminUser"
-const InviteUser api.Method = "InviteUser"
+const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
+const RegisterCompanyAdminUser api.Method = "RegisterCompanyAdminUser"
+const InviteCompanyUser api.Method = "InviteCompanyUser"
+const InviteClientAdminUser api.Method = "InviteClientAdminUser"
+const RegisterClientAdminUser api.Method = "RegisterClientAdminUser"
 
 type RegisterSystemAdminUserRequest struct {
 	Claims   claims.Claims
