@@ -109,20 +109,46 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
+
 		if request.Claims.PartyDetails().PartyType != party.System {
-			// If the user validating for an invite is not root then the user's party must be the assigned parent party
+			// if the user performing the invite is not root then the user's party must be the new users assigned parent party
+			if request.User.ParentId.Id != request.Claims.PartyDetails().PartyId.Id {
+				reasonsInvalid = append(reasonsInvalid, "parentId must be submitting party's id")
+			}
+
 			if request.User.ParentPartyType != request.Claims.PartyDetails().PartyType {
 				reasonsInvalid = append(reasonsInvalid, "parentPartyType must be submitting party's type")
 			}
-			if request.User.ParentId.Id != request.Claims.PartyDetails().PartyId.Id {
-				reasonsInvalid = append(reasonsInvalid, "parentId must be submitting party's id")
+		}
+
+		// regardless of who is performing the invite the partyType of the user must be company
+		if request.User.PartyType != party.Company {
+			reasonsInvalid = append(reasonsInvalid, "user's partyType must be company")
+		}
+
+		// validate the new user for the invite admin user method
+		userValidateResponse := userRecordHandler.ValidateResponse{}
+		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+			// system claims since we want all users to be visible for the email address check done in validate user
+			Claims: br.systemClaims,
+			User:   request.User,
+			Method: partyRegistrar.InviteAdminUser,
+		}, &userValidateResponse)
+		if err != nil {
+			reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
+		} else {
+			for _, reason := range userValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 			}
 		}
 
 		if request.User.EmailAddress != "" {
-			// Check if the users email has already been assigned to another company entity as admin email
+
+			// Check that the admin users email address is correct
+			// [1] try and retrieve the company party with the email address
 			companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
 			if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				// system claims since we want all companies to be visible for this retrieval check
 				Claims: br.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: request.User.EmailAddress,
@@ -130,12 +156,13 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 			}, &companyRetrieveResponse); err != nil {
 				switch err.(type) {
 				case companyRecordHandlerException.NotFound:
-					// this is what we want, do nothing
+					// [2] if no company entity is found this is an issue
+					reasonsInvalid = append(reasonsInvalid, "company entity could not be retrieved by the given admin users email address")
 				default:
-					reasonsInvalid = append(reasonsInvalid, "unable to confirm admin user email address uniqueness")
+					reasonsInvalid = append(reasonsInvalid, "unable to perform company retrieve to confirm correct email address: "+err.Error())
 				}
 			} else {
-				// there was no retrieval error, this email address is already taken some company entity
+				// [3] if a company was found the id of the company must be the users partyId
 				if companyRetrieveResponse.Company.Id != request.User.PartyId.Id {
 					// if the id of this other company entity is not the same as the party id of this user then
 					reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on another company entity")
@@ -162,31 +189,6 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 					reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on a client entity")
 				}
 			}
-
-			// Check that the users email address is the same as the one assigned to this party
-			if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-				Claims:     request.Claims,
-				Identifier: request.User.PartyId,
-			}, &companyRetrieveResponse); err != nil {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("unable to retrieve company party %s", err.Error()))
-			} else if companyRetrieveResponse.Company.AdminEmailAddress != request.User.EmailAddress {
-				reasonsInvalid = append(reasonsInvalid, "admin users email address is not consistent with company party entity")
-			}
-		}
-
-		// Validate the new user
-		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
-			Claims: request.Claims,
-			User:   request.User,
-			Method: partyRegistrar.InviteAdminUser,
-		}, &userValidateResponse)
-		if err != nil {
-			reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
-		} else {
-			for _, reason := range userValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
 		}
 	}
 
@@ -202,7 +204,7 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		return err
 	}
 
-	// Generate the registration token for that company admin user to register
+	// Generate the registration token for the company admin user to register
 	registerCompanyAdminUserClaims := registerCompanyAdminUser.RegisterCompanyAdminUser{
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
@@ -212,11 +214,9 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		PartyId:         request.User.PartyId,
 		User:            request.User,
 	}
-
 	registrationToken, err := br.jwtGenerator.GenerateToken(registerCompanyAdminUserClaims)
 	if err != nil {
-		//Unexpected Error!
-		return errors.New("log In failed")
+		return registrarException.TokenGeneration{Reasons: []string{"inviteCompanyAdminUser", err.Error()}}
 	}
 
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU

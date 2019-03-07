@@ -441,34 +441,37 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		})
 	}
 
-	// Check if the users email has already been assigned to another user
-	if (*userToValidate).EmailAddress != "" {
-		if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-			Claims: request.Claims,
-			Identifier: emailAddress.Identifier{
-				EmailAddress: (*userToValidate).EmailAddress,
+	switch request.Method {
+	case userRecordHandler.Create, partyRegistrar.InviteAdminUser, partyRegistrar.InviteUser:
+		// Check if the users email has already been assigned to another user
+		if (*userToValidate).EmailAddress != "" {
+			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
+				Identifier: emailAddress.Identifier{
+					EmailAddress: (*userToValidate).EmailAddress,
+				},
 			},
-		},
-			&userRecordHandler.RetrieveResponse{}); err != nil {
-			switch err.(type) {
-			case userRecordHandlerException.NotFound:
-				// this is what we want, do nothing
-			default:
+				&userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want, do nothing
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "unknown error",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// there was no error, this email address is already taken by another user
 				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 					Field: "emailAddress",
-					Type:  reasonInvalid.Unknown,
-					Help:  "unknown error",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
 					Data:  (*userToValidate).EmailAddress,
 				})
 			}
-		} else {
-			// there was no error, this email address is already taken by another user
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "emailAddress",
-				Type:  reasonInvalid.Duplicate,
-				Help:  "already exists",
-				Data:  (*userToValidate).EmailAddress,
-			})
 		}
 	}
 
