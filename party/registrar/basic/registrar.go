@@ -259,7 +259,7 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 			if request.User.ParentPartyType != typedClaims.User.ParentPartyType {
 				reasonsInvalid = append(reasonsInvalid, "parent party type has changed")
 			}
-			if request.User.ParentId != typedClaims.User.PartyId {
+			if request.User.ParentId != typedClaims.User.ParentId {
 				reasonsInvalid = append(reasonsInvalid, "parent id has changed")
 			}
 			if request.User.PartyType != typedClaims.User.PartyType {
