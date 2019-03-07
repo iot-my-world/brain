@@ -8,6 +8,7 @@ import (
 type TestData struct {
 	Company   company.Company
 	AdminUser user.User
+	Users     []user.User
 }
 
 var EntitiesAndAdminUsersToCreate = []TestData{
@@ -21,6 +22,20 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			Surname:  "Griffin",
 			Username: "monteagleAdmin",
 			Password: []byte("123"),
+		},
+		Users: []user.User{
+			{
+				Name:     "monteagleUser1",
+				Surname:  "test1",
+				Username: "monteagleTestUser1",
+				Password: []byte("123"),
+			},
+			{
+				Name:     "monteagleUser2",
+				Surname:  "test2",
+				Username: "monteagleTestUser2",
+				Password: []byte("123"),
+			},
 		},
 	},
 	{
@@ -37,6 +52,20 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			Username: "dhlAdmin",
 			Password: []byte("123"),
 		},
+		Users: []user.User{
+			{
+				Name:     "dhlUser1",
+				Surname:  "test1",
+				Username: "dhlTestUser1",
+				Password: []byte("123"),
+			},
+			{
+				Name:     "dhlUser2",
+				Surname:  "test2",
+				Username: "dhlTestUser2",
+				Password: []byte("123"),
+			},
+		},
 	},
 	{
 		Company: company.Company{
@@ -51,6 +80,20 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			Surname:  "Smith",
 			Username: "reinhardAdmin",
 			Password: []byte("123"),
+		},
+		Users: []user.User{
+			{
+				Name:     "reinhardUser1",
+				Surname:  "test1",
+				Username: "reinhardTestUser1",
+				Password: []byte("123"),
+			},
+			{
+				Name:     "reinhardUser2",
+				Surname:  "test2",
+				Username: "reinhardTestUser2",
+				Password: []byte("123"),
+			},
 		},
 	},
 }

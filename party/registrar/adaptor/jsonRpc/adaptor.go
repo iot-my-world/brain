@@ -79,6 +79,33 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 	return nil
 }
 
+type InviteCompanyUserRequest struct {
+	User user.User `json:"user"`
+}
+
+type InviteCompanyUserResponse struct {
+	URLToken string `json:"urlToken"`
+}
+
+func (a *adaptor) InviteCompanyUser(r *http.Request, request *InviteCompanyUserRequest, response *InviteCompanyUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	inviteCompanyUserResponse := registrar.InviteCompanyUserResponse{}
+	if err := a.registrar.InviteCompanyUser(&registrar.InviteCompanyUserRequest{
+		Claims: claims,
+		User:   request.User,
+	},
+		&inviteCompanyUserResponse); err != nil {
+		return err
+	}
+	response.URLToken = inviteCompanyUserResponse.URLToken
+	return nil
+}
+
 type InviteClientAdminUserRequest struct {
 	User user.User `json:"user"`
 }

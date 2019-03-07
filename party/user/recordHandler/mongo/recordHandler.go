@@ -17,12 +17,14 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type mongoRecordHandler struct {
 	mongoSession   *mgo.Session
 	database       string
 	collection     string
+	systemClaims   *login.Login
 	ignoredReasons map[api.Method]reasonInvalid.IgnoredReasonsInvalid
 }
 
@@ -30,6 +32,7 @@ func New(
 	mongoSession *mgo.Session,
 	database,
 	collection string,
+	systemClaims *login.Login,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -38,6 +41,15 @@ func New(
 		userRecordHandler.Create: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
+					reasonInvalid.Blank,
+				},
+				"name": {
+					reasonInvalid.Blank,
+				},
+				"surname": {
+					reasonInvalid.Blank,
+				},
+				"username": {
 					reasonInvalid.Blank,
 				},
 				"password": {
@@ -68,7 +80,24 @@ func New(
 
 		partyRegistrar.RegisterCompanyAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"password": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
+
+		partyRegistrar.InviteCompanyUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
+					reasonInvalid.Blank,
+				},
+				"name": {
+					reasonInvalid.Blank,
+				},
+				"surname": {
+					reasonInvalid.Blank,
+				},
+				"username": {
 					reasonInvalid.Blank,
 				},
 				"password": {
@@ -99,9 +128,6 @@ func New(
 
 		partyRegistrar.RegisterClientAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
 				"password": {
 					reasonInvalid.Blank,
 				},
@@ -114,6 +140,7 @@ func New(
 		database:       database,
 		collection:     collection,
 		ignoredReasons: ignoredReasons,
+		systemClaims:   systemClaims,
 	}
 
 	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
@@ -136,15 +163,6 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 	if err := userCollection.EnsureIndex(idUnique); err != nil {
 		log.Fatal("Could not ensure id uniqueness: ", err)
-	}
-
-	//Ensure username Uniqueness
-	usernameUnique := mgo.Index{
-		Key:    []string{"username"},
-		Unique: true,
-	}
-	if err := userCollection.EnsureIndex(usernameUnique); err != nil {
-		log.Fatal("Could not ensure username uniqueness: ", err)
 	}
 
 	//Ensure emailAddress Uniqueness
@@ -383,6 +401,14 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		})
 	}
 
+	if (*userToValidate).EmailAddress == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "emailAddress",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*userToValidate).EmailAddress,
+		})
+	}
 	if (*userToValidate).Name == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "name",
@@ -407,15 +433,6 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
 			Data:  (*userToValidate).Username,
-		})
-	}
-
-	if (*userToValidate).EmailAddress == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "emailAddress",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).EmailAddress,
 		})
 	}
 
@@ -465,11 +482,15 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	switch request.Method {
-	case userRecordHandler.Create, partyRegistrar.RegisterCompanyAdminUser, partyRegistrar.RegisterClientAdminUser:
-		// Check if the users username has already been assigned to another user
+
+	case partyRegistrar.RegisterCompanyAdminUser, partyRegistrar.RegisterCompanyUser,
+		partyRegistrar.RegisterClientAdminUser, partyRegistrar.RegisterClientUser:
+		// when registering a user the username is scrutinised to ensure that it has not yet been used
+		// this is done by checking if the users username has already been assigned to another user
 		if (*userToValidate).Username != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
+				// we use system claims to make sure that all users are visible for this check
+				Claims: *mrh.systemClaims,
 				Identifier: username.Identifier{
 					Username: (*userToValidate).Username,
 				},
@@ -496,13 +517,27 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 				})
 			}
 		}
-		fallthrough
 
-	case partyRegistrar.InviteCompanyAdminUser, partyRegistrar.InviteClientAdminUser:
-		// Check if the users email has already been assigned to another user
+		// when registering a user the registered flag must be set
+		if !(*userToValidate).Registered {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "registered",
+				Type:  reasonInvalid.MustBeSet,
+				Help:  "is not set",
+				Data:  (*userToValidate).Registered,
+			})
+		}
+		fallthrough // in addition the validation applied when inviting a user is also applied
+
+	case userRecordHandler.Create,
+		partyRegistrar.InviteCompanyAdminUser, partyRegistrar.InviteCompanyUser,
+		partyRegistrar.InviteClientAdminUser, partyRegistrar.InviteClientUser:
+		// when inviting a user or creating one, which happens during inviting, the email address is scrutinised
+		// we check if the users email has already been assigned to another user
 		if (*userToValidate).EmailAddress != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
+				// we use system claims to make sure that all users are visible for this check
+				Claims: *mrh.systemClaims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*userToValidate).EmailAddress,
 				},

@@ -88,6 +88,7 @@ var CompanyAdmin = role.Role{
 		api.ClientRecordHandlerDelete,
 		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
+		api.PartyRegistrarInviteCompanyUser,
 		api.PartyRegistrarInviteClientAdminUser,
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
@@ -139,6 +140,7 @@ var ClientAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.PartyRegistrarInviteClientUser,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,

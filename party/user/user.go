@@ -24,4 +24,6 @@ type User struct {
 	ParentId        id.Identifier `json:"parentId" bson:"parentId"`
 	PartyType       party.Type    `json:"partyType" bson:"partyType"`
 	PartyId         id.Identifier `json:"partyId" bson:"partyId"`
+
+	Registered bool `json:"registered" bson:"registered"`
 }

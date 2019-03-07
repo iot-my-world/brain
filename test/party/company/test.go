@@ -178,3 +178,25 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 		suite.jsonRpcClient.Logout()
 	}
 }
+
+func (suite *Company) TestCompanyInviteAndRegisterUsers() {
+	// for each test company entity
+	for companyIdx := range EntitiesAndAdminUsersToCreate {
+		companyTestDataEntity := &EntitiesAndAdminUsersToCreate[companyIdx]
+		// log in
+		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+			UsernameOrEmailAddress: companyTestDataEntity.AdminUser.Username,
+			Password:               string(companyTestDataEntity.AdminUser.Password),
+		}); err != nil {
+			suite.FailNow(fmt.Sprintf("failed to log in as %s", companyTestDataEntity.AdminUser.Username), err.Error())
+		}
+
+		// for each user assigned to this company
+		for userIdx := range (*companyTestDataEntity).Users {
+			userEntity := &(*companyTestDataEntity).Users[userIdx]
+
+			// invite the user
+			inviteCompanyUserResponse
+		}
+	}
+}

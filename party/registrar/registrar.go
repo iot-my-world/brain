@@ -20,8 +20,12 @@ type Registrar interface {
 const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
 const RegisterCompanyAdminUser api.Method = "RegisterCompanyAdminUser"
 const InviteCompanyUser api.Method = "InviteCompanyUser"
+const RegisterCompanyUser api.Method = "RegisterCompanyUser"
+
 const InviteClientAdminUser api.Method = "InviteClientAdminUser"
 const RegisterClientAdminUser api.Method = "RegisterClientAdminUser"
+const InviteClientUser api.Method = "InviteClientUser"
+const RegisterClientUser api.Method = "RegisterClientUser"
 
 type RegisterSystemAdminUserRequest struct {
 	Claims   claims.Claims

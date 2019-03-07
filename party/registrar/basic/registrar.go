@@ -22,7 +22,6 @@ import (
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gitlab.com/iotTracker/brain/security/token"
 	"time"
-	"strings"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 )
@@ -34,7 +33,7 @@ type basicRegistrar struct {
 	mailer               mailer.Mailer
 	jwtGenerator         token.JWTGenerator
 	mailRedirectBaseUrl  string
-	systemClaims         login.Login
+	systemClaims         *login.Login
 }
 
 func New(
@@ -44,7 +43,7 @@ func New(
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
-	systemClaims login.Login,
+	systemClaims *login.Login,
 ) *basicRegistrar {
 	return &basicRegistrar{
 		companyRecordHandler: companyRecordHandler,
@@ -126,7 +125,7 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 			reasonsInvalid = append(reasonsInvalid, "user's partyType must be company")
 		}
 
-		// validate the new user for the invite admin user method
+		// validate the new user for the invite company admin user method
 		userValidateResponse := userRecordHandler.ValidateResponse{}
 		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 			// system claims since we want all users to be visible for the email address check done in validate user
@@ -339,19 +338,44 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
+	} else {
+		if request.Claims.PartyDetails().PartyType != party.System {
+			// if the user performing the invite is not root then the new user's party details must be the same as the
+			// user performing the invite
+			if request.User.ParentId.Id != request.Claims.PartyDetails().ParentId.Id {
+				reasonsInvalid = append(reasonsInvalid, "parentPartyId must be same as submitting party's")
+			}
+			if request.User.ParentPartyType != request.Claims.PartyDetails().ParentPartyType {
+				reasonsInvalid = append(reasonsInvalid, "parentPartyType must be same as submitting party's")
+			}
+			if request.User.PartyId.Id != request.Claims.PartyDetails().PartyId.Id {
+				reasonsInvalid = append(reasonsInvalid, "partyId must be same as submitting party's")
+			}
+			if request.User.PartyType != request.Claims.PartyDetails().PartyType {
+				reasonsInvalid = append(reasonsInvalid, "partyType must be same as submitting party's")
+			}
+		}
 
-	// validate the user
-	validateUserResponse := userRecordHandler.ValidateResponse{}
-	if err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
-		Claims: request.Claims,
-		User:   request.User,
-		Method: partyRegistrar.InviteCompanyUser,
-	}, &validateUserResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "error validating user")
-	}
-	if len(validateUserResponse.ReasonsInvalid) > 0 {
-		reasonsInvalid = append(reasonsInvalid, "user invalid: "+strings.Join(reasonsInvalid, " ;"))
+		// regardless of who is performing the invite the partyType of the user must be company
+		if request.User.PartyType != party.Company {
+			reasonsInvalid = append(reasonsInvalid, "user's partyType must be company")
+		}
+
+		// validate the new user for the invite company user method
+		userValidateResponse := userRecordHandler.ValidateResponse{}
+		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+			// system claims since we want all users to be visible for the email address check done in validate user
+			Claims: *br.systemClaims,
+			User:   request.User,
+			Method: partyRegistrar.InviteCompanyUser,
+		}, &userValidateResponse)
+		if err != nil {
+			reasonsInvalid = append(reasonsInvalid, "unable to validate new User")
+		} else {
+			for _, reason := range userValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+			}
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -441,7 +465,7 @@ func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyReg
 		userValidateResponse := userRecordHandler.ValidateResponse{}
 		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 			// system claims since we want all users to be visible for the email address check done in validate user
-			Claims: br.systemClaims,
+			Claims: *br.systemClaims,
 			User:   request.User,
 			Method: partyRegistrar.InviteClientAdminUser,
 		}, &userValidateResponse)
@@ -460,7 +484,7 @@ func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyReg
 			clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
 			if err := br.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 				// system claims since we want all clients to be visible for this retrieval check
-				Claims: br.systemClaims,
+				Claims: *br.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: request.User.EmailAddress,
 				},
@@ -483,7 +507,7 @@ func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyReg
 			// Check if the users email has already been assigned to another company entity as admin email
 			if request.User.EmailAddress != "" {
 				if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-					Claims: br.systemClaims,
+					Claims: *br.systemClaims,
 					Identifier: adminEmailAddress.Identifier{
 						AdminEmailAddress: request.User.EmailAddress,
 					},
@@ -593,7 +617,7 @@ func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyR
 	userValidateResponse := userRecordHandler.ValidateResponse{}
 	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
-		Claims: br.systemClaims,
+		Claims: *br.systemClaims,
 		User:   request.User,
 		Method: partyRegistrar.RegisterClientAdminUser,
 	}, &userValidateResponse)

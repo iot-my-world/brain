@@ -129,6 +129,7 @@ func main() {
 		mainMongoSession,
 		databaseName,
 		userCollection,
+		&systemClaims,
 	)
 	PermissionBasicHandler := permissionBasicHandler.New(
 		UserRecordHandler,
@@ -157,7 +158,7 @@ func main() {
 		Mailer,
 		rsaPrivateKey,
 		*mailRedirectBaseUrl,
-		systemClaims,
+		&systemClaims,
 	)
 	SystemRecordHandler := systemMongoRecordHandler.New(
 		mainMongoSession,
