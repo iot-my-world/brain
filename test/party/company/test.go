@@ -138,11 +138,11 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			clientAdminUserEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].AdminUser
 			switch typedClaims := unwrappedClaims.(type) {
 			case registerClientAdminUser.RegisterClientAdminUser:
-				(*clientAdminUserEntity).EmailAddress = typedClaims.EmailAddress
-				(*clientAdminUserEntity).ParentPartyType = typedClaims.ParentPartyType
-				(*clientAdminUserEntity).ParentId = typedClaims.ParentId
-				(*clientAdminUserEntity).PartyType = typedClaims.PartyType
-				(*clientAdminUserEntity).PartyId = typedClaims.PartyId
+				(*clientAdminUserEntity).EmailAddress = typedClaims.User.EmailAddress
+				(*clientAdminUserEntity).ParentPartyType = typedClaims.User.ParentPartyType
+				(*clientAdminUserEntity).ParentId = typedClaims.User.ParentId
+				(*clientAdminUserEntity).PartyType = typedClaims.User.PartyType
+				(*clientAdminUserEntity).PartyId = typedClaims.User.PartyId
 			default:
 				suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterClientAdminUser))
 			}

@@ -76,6 +76,37 @@ func New(
 				},
 			},
 		},
+
+		partyRegistrar.InviteClientAdminUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+				"name": {
+					reasonInvalid.Blank,
+				},
+				"surname": {
+					reasonInvalid.Blank,
+				},
+				"username": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
+
+		partyRegistrar.RegisterClientAdminUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
 	}
 
 	newUserMongoRecordHandler := mongoRecordHandler{
@@ -434,7 +465,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	switch request.Method {
-	case userRecordHandler.Create, partyRegistrar.RegisterCompanyAdminUser:
+	case userRecordHandler.Create, partyRegistrar.RegisterCompanyAdminUser, partyRegistrar.RegisterClientAdminUser:
 		// Check if the users username has already been assigned to another user
 		if (*userToValidate).Username != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -467,7 +498,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 		}
 		fallthrough
 
-	case partyRegistrar.InviteCompanyAdminUser:
+	case partyRegistrar.InviteCompanyAdminUser, partyRegistrar.InviteClientAdminUser:
 		// Check if the users email has already been assigned to another user
 		if (*userToValidate).EmailAddress != "" {
 			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{

@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"time"
+	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type RegisterClientAdminUser struct {
@@ -16,6 +17,7 @@ type RegisterClientAdminUser struct {
 	ParentId        id.Identifier `json:"parentId"`
 	PartyType       party.Type    `json:"partyType"`
 	PartyId         id.Identifier `json:"partyId"`
+	User            user.User     `json:"user"`
 }
 
 func (r RegisterClientAdminUser) Type() claims.Type {
