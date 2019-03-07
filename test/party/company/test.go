@@ -90,7 +90,7 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			clientAdminUser := user.User{
 				EmailAddress:    clientEntity.AdminEmailAddress,
 				ParentPartyType: suite.jsonRpcClient.Claims().PartyDetails().PartyType,
-				ParentId:        suite.jsonRpcClient.Claims().PartyDetails().ParentId,
+				ParentId:        suite.jsonRpcClient.Claims().PartyDetails().PartyId,
 				PartyType:       party.Client,
 				PartyId:         id.Identifier{Id: (*clientEntity).Id},
 			}
