@@ -8,10 +8,11 @@ import (
 type TestData struct {
 	Client    client.Client
 	AdminUser user.User
+	Users     []user.User
 }
 
 var EntitiesAndAdminUsersToCreate = map[string][]TestData{
-	"Monteagle Logistics Limited": []TestData{
+	"Monteagle Logistics Limited": {
 		{
 			Client: client.Client{
 				Name:              "Pick 'n Pay",
@@ -22,6 +23,22 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Surname:  "Govender",
 				Username: "picknpayAdmin",
 				Password: []byte("123"),
+			},
+			Users: []user.User{
+				{
+					Name:         "picknpayUser1",
+					Surname:      "test1",
+					Username:     "picknpayTestUser1",
+					Password:     []byte("123"),
+					EmailAddress: "picknpayUser1@picknpay.com",
+				},
+				{
+					Name:         "picknpayUser2",
+					Surname:      "test2",
+					Username:     "picknpayTestUser2",
+					Password:     []byte("123"),
+					EmailAddress: "picknpayUser2@picknpay.com",
+				},
 			},
 		},
 		{
@@ -35,9 +52,25 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Username: "woolworthsAdmin",
 				Password: []byte("123"),
 			},
+			Users: []user.User{
+				{
+					Name:         "woolworthsUser1",
+					Surname:      "test1",
+					Username:     "woolworthsTestUser1",
+					Password:     []byte("123"),
+					EmailAddress: "woolworthsUser1@woolworths.com",
+				},
+				{
+					Name:         "woolworthsUser2",
+					Surname:      "test2",
+					Username:     "woolworthsTestUser2",
+					Password:     []byte("123"),
+					EmailAddress: "woolworthsUser2@woolworths.com",
+				},
+			},
 		},
 	},
-	"DHL": []TestData{
+	"DHL": {
 		{
 			Client: client.Client{
 				Name:              "Makro",
@@ -48,6 +81,22 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Surname:  "Smith",
 				Username: "makroAdmin",
 				Password: []byte("123"),
+			},
+			Users: []user.User{
+				{
+					Name:         "makroUser1",
+					Surname:      "test1",
+					Username:     "makroTestUser1",
+					Password:     []byte("123"),
+					EmailAddress: "makroUser1@makro.com",
+				},
+				{
+					Name:         "makroUser2",
+					Surname:      "test2",
+					Username:     "makroTestUser2",
+					Password:     []byte("123"),
+					EmailAddress: "woolworthsUser2@woolworths.com",
+				},
 			},
 		},
 		{
@@ -63,7 +112,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 			},
 		},
 	},
-	"Reinhard Trucking": []TestData{
+	"Reinhard Trucking": {
 		{
 			Client: client.Client{
 				Name:              "Spar",
