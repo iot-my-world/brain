@@ -115,6 +115,11 @@ func (br *basicRegistrar) ValidateInviteCompanyAdminUserRequest(request *partyRe
 		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
 	}
 
+	// roles must be empty
+	if len(request.User.Roles) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user cannot have any roles yet")
+	}
+
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -302,6 +307,21 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 			if request.User.PartyId != typedClaims.User.PartyId {
 				reasonsInvalid = append(reasonsInvalid, "party id has changed")
 			}
+			if len(request.User.Roles) != len(typedClaims.User.Roles) {
+				reasonsInvalid = append(reasonsInvalid, "no of roles has changed")
+			} else {
+				// no of roles the same, compare roles
+				for _, requestUserRole := range request.User.Roles {
+					for roleIdx, claimsUserRole := range typedClaims.User.Roles {
+						if claimsUserRole == requestUserRole {
+							break
+						}
+						if roleIdx == len(typedClaims.User.Roles)-1 {
+							reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("could not find role %s in user in claims", requestUserRole))
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -484,6 +504,21 @@ func (br *basicRegistrar) InviteCompanyUser(request *partyRegistrar.InviteCompan
 func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	// the user in the invite request must not be registered
+	if request.User.Registered {
+		reasonsInvalid = append(reasonsInvalid, "user cannot be set to registered yet")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
+	// roles must be empty
+	if len(request.User.Roles) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user cannot have any roles yet")
+	}
+
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -550,6 +585,7 @@ func (br *basicRegistrar) ValidateInviteClientAdminUserRequest(request *partyReg
 			// Check if the users email has already been assigned to another company entity as admin email
 			if request.User.EmailAddress != "" {
 				if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+					// system claims since we want all companies to be visible for this retrieval check
 					Claims: *br.systemClaims,
 					Identifier: adminEmailAddress.Identifier{
 						AdminEmailAddress: request.User.EmailAddress,
@@ -582,6 +618,19 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 		return err
 	}
 
+	// Create the minimal client admin user
+	userCreateResponse := userRecordHandler.CreateResponse{}
+	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		Claims: request.Claims,
+		User:   request.User,
+	},
+		&userCreateResponse); err != nil {
+		return err
+	}
+
+	// update the id on the user
+	request.User.Id = userCreateResponse.User.Id
+
 	// Generate the registration token for the client admin user to register
 	registerClientAdminUserClaims := registerClientAdminUser.RegisterClientAdminUser{
 		IssueTime:       time.Now().UTC().Unix(),
@@ -592,7 +641,6 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 		PartyId:         request.User.PartyId,
 		User:            request.User,
 	}
-
 	registrationToken, err := br.jwtGenerator.GenerateToken(registerClientAdminUserClaims)
 	if err != nil {
 		//Unexpected Error!
@@ -623,6 +671,16 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	// user must not be set to registered
+	if request.User.Registered {
+		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -633,6 +691,9 @@ func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyR
 
 		case registerClientAdminUser.RegisterClientAdminUser:
 			// confirm that all fields that were set on the user when the claims were generated have not been changed
+			if request.User.Id != typedClaims.User.Id {
+				reasonsInvalid = append(reasonsInvalid, "id has changed")
+			}
 			if request.User.EmailAddress != typedClaims.User.EmailAddress {
 				reasonsInvalid = append(reasonsInvalid, "email address has changed")
 			}
@@ -648,12 +709,22 @@ func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyR
 			if request.User.PartyId != typedClaims.User.PartyId {
 				reasonsInvalid = append(reasonsInvalid, "party id has changed")
 			}
+			if len(request.User.Roles) != len(typedClaims.User.Roles) {
+				reasonsInvalid = append(reasonsInvalid, "no of roles has changed")
+			} else {
+				// no of roles the same, compare roles
+				for _, requestUserRole := range request.User.Roles {
+					for roleIdx, claimsUserRole := range typedClaims.User.Roles {
+						if claimsUserRole == requestUserRole {
+							break
+						}
+						if roleIdx == len(typedClaims.User.Roles)-1 {
+							reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("could not find role %s in user in claims", requestUserRole))
+						}
+					}
+				}
+			}
 		}
-	}
-
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
 	}
 
 	// validate the user for the registration process
@@ -684,32 +755,46 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 		return err
 	}
 
-	// give the user the necessary roles
-	request.User.Roles = append(request.User.Roles, roleSetup.ClientAdmin.Name)
-	request.User.Roles = append(request.User.Roles, roleSetup.ClientUser.Name)
-
-	// create the user
-	userCreateResponse := userRecordHandler.CreateResponse{}
-	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
-		User:   request.User,
-	},
-		&userCreateResponse); err != nil {
-		return err
-	}
-
 	// change the users password
 	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
-		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
+		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: request.Password,
 	},
 		&userChangePasswordResponse); err != nil {
 		return err
 	}
 
-	response.User = userCreateResponse.User
+	// retrieve the minimal user
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+	},
+		&userRetrieveResponse); err != nil {
+		return err
+	}
+
+	// give the user the necessary roles
+	request.User.Roles = append(request.User.Roles, roleSetup.ClientAdmin.Name)
+	request.User.Roles = append(request.User.Roles, roleSetup.ClientUser.Name)
+
+	// set the user to registered
+	request.User.Registered = true
+
+	// update the user
+	userUpdateResponse := userRecordHandler.UpdateResponse{}
+	if err := br.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		User:       request.User,
+		Identifier: id.Identifier{Id: request.User.Id},
+	},
+		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	response.User = userUpdateResponse.User
 
 	return nil
 }
