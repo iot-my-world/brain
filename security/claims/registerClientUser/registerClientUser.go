@@ -1,4 +1,4 @@
-package registerClientAdminUser
+package registerClientUser
 
 import (
 	"gitlab.com/iotTracker/brain/party"
@@ -6,12 +6,13 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"time"
+	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type RegisterClientUser struct {
 	IssueTime       int64         `json:"issueTime"`
 	ExpirationTime  int64         `json:"expirationTime"`
-	EmailAddress    string        `json:"emailAddress"`
+	User            user.User     `json:"user"`
 	ParentPartyType party.Type    `json:"parentPartyType"`
 	ParentId        id.Identifier `json:"parentId"`
 	PartyType       party.Type    `json:"partyType"`

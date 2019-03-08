@@ -16,6 +16,8 @@ type Registrar interface {
 
 	InviteClientAdminUser(request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
+	InviteClientUser(request *InviteClientUserRequest, response *InviteClientUserResponse) error
+	RegisterClientUser(request *RegisterClientUserRequest, response *RegisterClientUserResponse) error
 }
 
 const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
@@ -39,10 +41,8 @@ type RegisterSystemAdminUserResponse struct {
 }
 
 type InviteCompanyAdminUserRequest struct {
-	// claims for company party retrieval
 	Claims claims.Claims
-	// the minimal company admin user
-	User user.User
+	User   user.User
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -60,10 +60,8 @@ type RegisterCompanyAdminUserResponse struct {
 }
 
 type InviteCompanyUserRequest struct {
-	// claims for company party retrieval
 	Claims claims.Claims
-	// the minimal company user
-	User user.User
+	User   user.User
 }
 
 type InviteCompanyUserResponse struct {
@@ -81,10 +79,8 @@ type RegisterCompanyUserResponse struct {
 }
 
 type InviteClientAdminUserRequest struct {
-	// claims for client party retrieval
 	Claims claims.Claims
-	// the minimal client admin user
-	User user.User
+	User   user.User
 }
 
 type InviteClientAdminUserResponse struct {
@@ -98,5 +94,24 @@ type RegisterClientAdminUserRequest struct {
 }
 
 type RegisterClientAdminUserResponse struct {
+	User user.User
+}
+
+type InviteClientUserRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type InviteClientUserResponse struct {
+	URLToken string
+}
+
+type RegisterClientUserRequest struct {
+	Claims   claims.Claims
+	User     user.User
+	Password string
+}
+
+type RegisterClientUserResponse struct {
 	User user.User
 }

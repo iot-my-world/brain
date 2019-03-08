@@ -196,3 +196,62 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 
 	return nil
 }
+
+type InviteClientUserRequest struct {
+	User user.User `json:"user"`
+}
+
+type InviteClientUserResponse struct {
+	URLToken string `json:"urlToken"`
+}
+
+func (a *adaptor) InviteClientUser(r *http.Request, request *InviteClientUserRequest, response *InviteClientUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	inviteClientUserResponse := registrar.InviteClientUserResponse{}
+	if err := a.registrar.InviteClientUser(&registrar.InviteClientUserRequest{
+		Claims: claims,
+		User:   request.User,
+	},
+		&inviteClientUserResponse); err != nil {
+		return err
+	}
+	response.URLToken = inviteClientUserResponse.URLToken
+	return nil
+}
+
+type RegisterClientUserRequest struct {
+	User     user.User `json:"user"`
+	Password string    `json:"password"`
+}
+
+type RegisterClientUserResponse struct {
+	User user.User `json:"user"`
+}
+
+func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUserRequest, response *RegisterClientUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	registerClientUserResponse := registrar.RegisterClientUserResponse{}
+	if err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
+		Claims:   claims,
+		User:     request.User,
+		Password: request.Password,
+	},
+		&registerClientUserResponse); err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	response.User = registerClientUserResponse.User
+
+	return nil
+}

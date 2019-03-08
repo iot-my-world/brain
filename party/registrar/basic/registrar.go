@@ -24,6 +24,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 )
 
 type basicRegistrar struct {
@@ -427,17 +428,34 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 
+		// unless the user performing the invite is system, the partyDetails of the new user must be the
+		// same as the user performing the invite
+		if request.Claims.PartyDetails().PartyType != party.System {
+			if request.User.ParentPartyType != request.Claims.PartyDetails().ParentPartyType {
+				reasonsInvalid = append(reasonsInvalid, "partentPartyType of user must be the same as the user performing invite")
+			}
+			if request.User.ParentId != request.Claims.PartyDetails().ParentId {
+				reasonsInvalid = append(reasonsInvalid, "parentId of user must be the same as the user performing invite")
+			}
+			if request.User.PartyType != request.Claims.PartyDetails().PartyType {
+				reasonsInvalid = append(reasonsInvalid, "partyType of user must be the same as the user performing invite")
+			}
+			if request.User.PartyId != request.Claims.PartyDetails().PartyId {
+				reasonsInvalid = append(reasonsInvalid, "partyId of user must be the same as the user performing invite")
+			}
+		}
+
+		// regardless of who is performing the invite the partyType of the user must be company
+		if request.User.PartyType != party.Company {
+			reasonsInvalid = append(reasonsInvalid, "user's partyType must be company")
+		}
+
 		// at the moment only system is allowed to be the parent of company users
 		if request.User.ParentId.Id != br.systemClaims.PartyId.Id {
 			reasonsInvalid = append(reasonsInvalid, "parentId must be system id")
 		}
 		if request.User.ParentPartyType != br.systemClaims.PartyType {
 			reasonsInvalid = append(reasonsInvalid, "parentPartyType must be system")
-		}
-
-		// regardless of who is performing the invite the partyType of the user must be company
-		if request.User.PartyType != party.Company {
-			reasonsInvalid = append(reasonsInvalid, "user's partyType must be company")
 		}
 
 		// validate the new user for the invite company user method
@@ -513,7 +531,7 @@ func (br *basicRegistrar) InviteCompanyUser(request *partyRegistrar.InviteCompan
 	if err := br.ValidateInviteCompanyUserRequest(request); err != nil {
 		return err
 	}
-	// Create the minimal company admin user
+	// Create the minimal company user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		Claims: request.Claims,
@@ -975,6 +993,307 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	// give the user the necessary roles
 	request.User.Roles = append(request.User.Roles, roleSetup.ClientAdmin.Name)
 	request.User.Roles = append(request.User.Roles, roleSetup.ClientUser.Name)
+
+	// set the user to registered
+	request.User.Registered = true
+
+	// update the user
+	userUpdateResponse := userRecordHandler.UpdateResponse{}
+	if err := br.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		User:       request.User,
+		Identifier: id.Identifier{Id: request.User.Id},
+	},
+		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	response.User = userUpdateResponse.User
+
+	return nil
+}
+
+func (br *basicRegistrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	// the user in the invite request must not be registered
+	if request.User.Registered {
+		reasonsInvalid = append(reasonsInvalid, "user cannot be set to registered yet")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
+	// username field must be blank
+	if request.User.Username != "" {
+		reasonsInvalid = append(reasonsInvalid, "username must be blank")
+	}
+
+	// roles must be empty
+	if len(request.User.Roles) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user cannot have any roles yet")
+	}
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+
+		// unless the user performing the invite is system, the party details of the new user must be the
+		// same as the user performing the invite
+		if request.Claims.PartyDetails().PartyType != party.System {
+			if request.User.ParentPartyType != request.Claims.PartyDetails().ParentPartyType {
+				reasonsInvalid = append(reasonsInvalid, "partentPartyType of user must be the same as the user performing invite")
+			}
+			if request.User.ParentId != request.Claims.PartyDetails().ParentId {
+				reasonsInvalid = append(reasonsInvalid, "parentId of user must be the same as the user performing invite")
+			}
+			if request.User.PartyType != request.Claims.PartyDetails().PartyType {
+				reasonsInvalid = append(reasonsInvalid, "partyType of user must be the same as the user performing invite")
+			}
+			if request.User.PartyId != request.Claims.PartyDetails().PartyId {
+				reasonsInvalid = append(reasonsInvalid, "partyId of user must be the same as the user performing invite")
+			}
+		}
+
+		// regardless of who is performing the invite the partyType of the user must be client
+		if request.User.PartyType != party.Client {
+			reasonsInvalid = append(reasonsInvalid, "user's partyType must be client")
+		}
+
+		// validate the new user for the invite client user method
+		userValidateResponse := userRecordHandler.ValidateResponse{}
+		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+			// system claims since we want all users to be visible for the email address check done in validate user
+			Claims: br.systemClaims,
+			User:   request.User,
+			Method: partyRegistrar.InviteClientUser,
+		}, &userValidateResponse)
+		if err != nil {
+			reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
+		} else {
+			for _, reason := range userValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+			}
+		}
+
+		if request.User.EmailAddress != "" {
+
+			// Check if the users email has already been assigned to a company entity as admin email
+			companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
+			if err := br.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				// system claims since we want all companies to be visible for this retrieval check
+				Claims: *br.systemClaims,
+				Identifier: adminEmailAddress.Identifier{
+					AdminEmailAddress: request.User.EmailAddress,
+				},
+			}, &companyRetrieveResponse); err != nil {
+				switch err.(type) {
+				case companyRecordHandlerException.NotFound:
+					// [2] this is what we want, do nothing
+				default:
+					reasonsInvalid = append(reasonsInvalid, "unable to perform company retrieve to confirm correct email address: "+err.Error())
+				}
+			} else {
+				// [3] if a company was found, this email address is therefore already being used
+				reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on a company entity")
+			}
+
+			// Check if the users email has already been assigned to a client entity as admin email
+			if request.User.EmailAddress != "" {
+				if err := br.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+					// system claims since we want all companies to be visible for this retrieval check
+					Claims: *br.systemClaims,
+					Identifier: adminEmailAddress.Identifier{
+						AdminEmailAddress: request.User.EmailAddress,
+					},
+				},
+					&clientRecordHandler.RetrieveResponse{}); err != nil {
+					switch err.(type) {
+					case clientRecordHandlerException.NotFound:
+						// this is what we want, do nothing
+					default:
+						reasonsInvalid = append(reasonsInvalid, "unable to confirm admin user email address uniqueness")
+					}
+				} else {
+					// there was no error, this email address is already taken by some client entity
+					reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on a client entity")
+				}
+			}
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (br *basicRegistrar) InviteClientUser(request *partyRegistrar.InviteClientUserRequest, response *partyRegistrar.InviteClientUserResponse) error {
+	if err := br.ValidateInviteClientUserRequest(request); err != nil {
+		return err
+	}
+	// Create the minimal client user
+	userCreateResponse := userRecordHandler.CreateResponse{}
+	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		Claims: request.Claims,
+		User:   request.User,
+	},
+		&userCreateResponse); err != nil {
+		return err
+	}
+
+	// Update the id on the user
+	request.User.Id = userCreateResponse.User.Id
+
+	// Generate the registration token for the company user to register
+	registerClientUserClaims := registerClientUser.RegisterClientUser{
+		IssueTime:       time.Now().UTC().Unix(),
+		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
+		ParentPartyType: request.User.ParentPartyType,
+		ParentId:        request.User.ParentId,
+		PartyType:       request.User.PartyType,
+		PartyId:         request.User.PartyId,
+		User:            request.User,
+	}
+	registrationToken, err := br.jwtGenerator.GenerateToken(registerClientUserClaims)
+	if err != nil {
+		return registrarException.TokenGeneration{Reasons: []string{"inviteClientUser", err.Error()}}
+	}
+
+	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
+	urlToken := fmt.Sprintf("%s/register?&t=%s", br.mailRedirectBaseUrl, registrationToken)
+
+	sendMailResponse := mailer.SendResponse{}
+	if err := br.mailer.Send(&mailer.SendRequest{
+		//From    string
+		To: request.User.EmailAddress,
+		//Cc      string
+		Subject: "Welcome to SpotNav",
+		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s", urlToken),
+		//Bcc     []string
+	},
+		&sendMailResponse); err != nil {
+		return err
+	}
+
+	response.URLToken = urlToken
+
+	return nil
+}
+
+func (br *basicRegistrar) ValidateRegisterClientUserRequest(request *partyRegistrar.RegisterClientUserRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	// user must not be set to registered
+	if request.User.Registered {
+		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
+	}
+
+	// password field must be blank
+	if len(request.User.Password) != 0 {
+		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
+	}
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+
+		switch typedClaims := request.Claims.(type) {
+		default:
+			reasonsInvalid = append(reasonsInvalid, "cannot infer correct type from claims")
+
+		case registerCompanyUser.RegisterCompanyUser:
+			// confirm that all fields that were set on the user when the claims were generated have not been changed
+			if request.User.Id != typedClaims.User.Id {
+				reasonsInvalid = append(reasonsInvalid, "id has changed")
+			}
+			if request.User.EmailAddress != typedClaims.User.EmailAddress {
+				reasonsInvalid = append(reasonsInvalid, "email address has changed")
+			}
+			if request.User.ParentPartyType != typedClaims.User.ParentPartyType {
+				reasonsInvalid = append(reasonsInvalid, "parent party type has changed")
+			}
+			if request.User.ParentId != typedClaims.User.ParentId {
+				reasonsInvalid = append(reasonsInvalid, "parent id has changed")
+			}
+			if request.User.PartyType != typedClaims.User.PartyType {
+				reasonsInvalid = append(reasonsInvalid, "party type has changed")
+			}
+			if request.User.PartyId != typedClaims.User.PartyId {
+				reasonsInvalid = append(reasonsInvalid, "party id has changed")
+			}
+			if len(request.User.Roles) != len(typedClaims.User.Roles) {
+				reasonsInvalid = append(reasonsInvalid, "no of roles has changed")
+			} else {
+				// no of roles the same, compare roles
+				for _, requestUserRole := range request.User.Roles {
+					for roleIdx, claimsUserRole := range typedClaims.User.Roles {
+						if claimsUserRole == requestUserRole {
+							break
+						}
+						if roleIdx == len(typedClaims.User.Roles)-1 {
+							reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("could not find role %s in user in claims", requestUserRole))
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// validate the user for the registration process
+	userValidateResponse := userRecordHandler.ValidateResponse{}
+	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		// system claims since we want all users to be visible for the email address check done in validate user
+		Claims: *br.systemClaims,
+		User:   request.User,
+		Method: partyRegistrar.RegisterClientUser,
+	}, &userValidateResponse)
+	if err != nil {
+		reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
+	} else {
+		for _, reason := range userValidateResponse.ReasonsInvalid {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (br *basicRegistrar) RegisterClientUser(request *partyRegistrar.RegisterClientUserRequest, response *partyRegistrar.RegisterClientUserResponse) error {
+	if err := br.ValidateRegisterClientUserRequest(request); err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
+	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+		Claims:      request.Claims,
+		Identifier:  id.Identifier{Id: request.User.Id},
+		NewPassword: request.Password,
+	},
+		&userChangePasswordResponse); err != nil {
+		return err
+	}
+
+	// retrieve the minimal user
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+	},
+		&userRetrieveResponse); err != nil {
+		return err
+	}
+
+	// give the user the necessary roles
+	request.User.Roles = []string{roleSetup.ClientUser.Name}
 
 	// set the user to registered
 	request.User.Registered = true

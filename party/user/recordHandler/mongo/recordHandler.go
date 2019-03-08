@@ -140,6 +140,34 @@ func New(
 				},
 			},
 		},
+
+		partyRegistrar.InviteClientUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+				"name": {
+					reasonInvalid.Blank,
+				},
+				"surname": {
+					reasonInvalid.Blank,
+				},
+				"username": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
+
+		partyRegistrar.RegisterClientUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"password": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
 	}
 
 	newUserMongoRecordHandler := mongoRecordHandler{
