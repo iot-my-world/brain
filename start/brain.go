@@ -138,6 +138,7 @@ func main() {
 	AuthService := authBasicService.New(
 		UserRecordHandler,
 		rsaPrivateKey,
+		&systemClaims,
 	)
 	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,

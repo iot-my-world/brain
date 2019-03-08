@@ -339,8 +339,10 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 	retrieveUserResponse.User.Surname = request.User.Surname
 	retrieveUserResponse.User.Username = request.User.Username
 	// retrieveUserResponse.User.EmailAddress = request.User.EmailAddress // cannot update yet
-	retrieveUserResponse.User.Password = request.User.Password
+	// retrieveUserResponse.User.Password = request.User.Password // updated using the change password service
 	retrieveUserResponse.User.Roles = request.User.Roles
+	// retrieveUserResponse.User.ParentPartyType = request.User.ParentPartyType // cannot update yet
+	// retrieveUserResponse.User.ParentId = request.User.ParentId // cannot update yet
 	// retrieveUserResponse.User.PartyType = request.User.PartyType // cannot update yet
 	// retrieveUserResponse.User.PartyId = request.User.PartyId // cannot update yet
 	retrieveUserResponse.User.Registered = request.User.Registered

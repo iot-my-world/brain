@@ -85,6 +85,13 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 		// for each client assigned to be owned by this company
 		for idx := range clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
 			clientEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
+			clientAdminUserEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].AdminUser
+
+			// save the unhashed password for setting the entity back to it later
+			unhashedPassword := string(clientAdminUserEntity.Password)
+
+			// clear the password field, must be clear for inviting the new user
+			(*clientAdminUserEntity).Password = []byte{}
 
 			// make minimal client admin user
 			clientAdminUser := user.User{
@@ -135,9 +142,9 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			}
 
 			// infer the interfaces type and update the client admin user entity with details from them
-			clientAdminUserEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].AdminUser
 			switch typedClaims := unwrappedClaims.(type) {
 			case registerClientAdminUser.RegisterClientAdminUser:
+				(*clientAdminUserEntity).Id = typedClaims.User.Id
 				(*clientAdminUserEntity).EmailAddress = typedClaims.User.EmailAddress
 				(*clientAdminUserEntity).ParentPartyType = typedClaims.User.ParentPartyType
 				(*clientAdminUserEntity).ParentId = typedClaims.User.ParentId
@@ -155,13 +162,12 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 
 			// register the client admin user
 			registerClientAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterClientAdminUserResponse{}
-			password := string(clientAdminUserEntity.Password)
 			(*clientAdminUserEntity).Password = []byte{}
 			if err := registerJsonRpcClient.JsonRpcRequest(
 				"PartyRegistrar.RegisterClientAdminUser",
 				partyRegistrarJsonRpcAdaptor.RegisterClientAdminUserRequest{
 					User:     *clientAdminUserEntity,
-					Password: password,
+					Password: unhashedPassword,
 				},
 				&registerClientAdminUserResponse,
 			); err != nil {
@@ -171,7 +177,7 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			// update the client admin user entity
 			(*clientAdminUserEntity).Id = registerClientAdminUserResponse.User.Id
 			(*clientAdminUserEntity).Roles = registerClientAdminUserResponse.User.Roles
-			(*clientAdminUserEntity).Password = []byte(password)
+			(*clientAdminUserEntity).Password = []byte(unhashedPassword)
 		}
 
 		// log out
