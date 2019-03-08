@@ -14,7 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gitlab.com/iotTracker/brain/api"
-	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
@@ -106,6 +105,14 @@ func New(
 			},
 		},
 
+		partyRegistrar.RegisterCompanyUser: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"password": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
+
 		partyRegistrar.InviteClientAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
@@ -181,15 +188,6 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
-		if request.Claims.PartyDetails().PartyType != party.System {
-			// If the user validating for a create is not root then the user's party must be the the party of the user
-			if request.User.PartyType != request.Claims.PartyDetails().PartyType {
-				reasonsInvalid = append(reasonsInvalid, "partyType must be submitting party's type")
-			}
-			if request.User.PartyId.Id != request.Claims.PartyDetails().PartyId.Id {
-				reasonsInvalid = append(reasonsInvalid, "partyId must be submitting party's id")
-			}
-		}
 
 		// Validate the new user
 		userValidateResponse := userRecordHandler.ValidateResponse{}
@@ -520,7 +518,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 				&userRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
+					// this is what we want
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "username",
@@ -530,7 +528,7 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 					})
 				}
 			} else {
-				// there was no error, this email address is already taken by another user
+				// there was no error, the username is already taken by another user
 				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 					Field: "username",
 					Type:  reasonInvalid.Duplicate,

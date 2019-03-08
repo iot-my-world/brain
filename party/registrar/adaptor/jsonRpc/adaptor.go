@@ -106,6 +106,38 @@ func (a *adaptor) InviteCompanyUser(r *http.Request, request *InviteCompanyUserR
 	return nil
 }
 
+type RegisterCompanyUserRequest struct {
+	User     user.User `json:"user"`
+	Password string    `json:"password"`
+}
+
+type RegisterCompanyUserResponse struct {
+	User user.User `json:"user"`
+}
+
+func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	registerCompanyUserResponse := registrar.RegisterCompanyUserResponse{}
+	if err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
+		Claims:   claims,
+		User:     request.User,
+		Password: request.Password,
+	},
+		&registerCompanyUserResponse); err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	response.User = registerCompanyUserResponse.User
+
+	return nil
+}
+
 type InviteClientAdminUserRequest struct {
 	User user.User `json:"user"`
 }

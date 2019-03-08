@@ -12,6 +12,7 @@ type Registrar interface {
 	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
 	RegisterCompanyAdminUser(request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error
 	InviteCompanyUser(request *InviteCompanyUserRequest, response *InviteCompanyUserResponse) error
+	RegisterCompanyUser(request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error
 
 	InviteClientAdminUser(request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
@@ -67,6 +68,16 @@ type InviteCompanyUserRequest struct {
 
 type InviteCompanyUserResponse struct {
 	URLToken string
+}
+
+type RegisterCompanyUserRequest struct {
+	Claims   claims.Claims
+	User     user.User
+	Password string
+}
+
+type RegisterCompanyUserResponse struct {
+	User user.User
 }
 
 type InviteClientAdminUserRequest struct {
