@@ -9,6 +9,9 @@ import (
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
 )
 
 type adaptor struct {
@@ -176,5 +179,46 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 
 	response.ReasonsInvalid = validateUserResponse.ReasonsInvalid
 
+	return nil
+}
+
+type CollectRequest struct {
+	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
+	Query    query.Query                         `json:"query"`
+}
+
+type CollectResponse struct {
+	Records []user.User `json:"records"`
+	Total   int         `json:"total"`
+}
+
+func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	criteria := make([]criterion.Criterion, 0)
+	for criterionIdx := range request.Criteria {
+		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {
+			criteria = append(criteria, c)
+		} else {
+			return err
+		}
+	}
+
+	collectCompanyResponse := userRecordHandler.CollectResponse{}
+	if err := s.RecordHandler.Collect(&userRecordHandler.CollectRequest{
+		Criteria: criteria,
+		Query:    request.Query,
+		Claims:   claims,
+	},
+		&collectCompanyResponse); err != nil {
+		return err
+	}
+
+	response.Records = collectCompanyResponse.Records
+	response.Total = collectCompanyResponse.Total
 	return nil
 }

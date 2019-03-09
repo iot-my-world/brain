@@ -17,6 +17,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type mongoRecordHandler struct {
@@ -653,6 +654,63 @@ func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangeP
 	}
 
 	response.User = retrieveUserResponse.User
+
+	return nil
+}
+
+func (mrh *mongoRecordHandler) ValidateCollectRequest(request *userRecordHandler.CollectRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (mrh *mongoRecordHandler) Collect(request *userRecordHandler.CollectRequest, response *userRecordHandler.CollectResponse) error {
+	if err := mrh.ValidateCollectRequest(request); err != nil {
+		return err
+	}
+
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = user.ContextualiseFilter(filter, request.Claims)
+
+	// Get User Collection
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	// Perform Query
+	query := userCollection.Find(filter)
+
+	// Apply the count
+	if total, err := query.Count(); err == nil {
+		response.Total = total
+	} else {
+		return err
+	}
+
+	// Apply limit if applicable
+	if request.Query.Limit > 0 {
+		query.Limit(request.Query.Limit)
+	}
+
+	// Determine the Sort Order
+	mongoSortOrder := request.Query.ToMongoSortFormat()
+
+	// Populate records
+	response.Records = make([]user.User, 0)
+	if err := query.
+		Skip(request.Query.Offset).
+		Sort(mongoSortOrder...).
+		All(&response.Records); err != nil {
+		return err
+	}
 
 	return nil
 }

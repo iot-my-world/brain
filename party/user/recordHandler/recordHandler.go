@@ -6,6 +6,8 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
 )
 
 type RecordHandler interface {
@@ -14,6 +16,7 @@ type RecordHandler interface {
 	Update(request *UpdateRequest, response *UpdateResponse) error
 	Delete(request *DeleteRequest, response *DeleteResponse) error
 	Validate(request *ValidateRequest, response *ValidateResponse) error
+	Collect(request *CollectRequest, response *CollectResponse) error
 	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
 }
 
@@ -77,4 +80,15 @@ type ChangePasswordRequest struct {
 
 type ChangePasswordResponse struct {
 	User user.User
+}
+
+type CollectRequest struct {
+	Claims   claims.Claims
+	Criteria []criterion.Criterion
+	Query    query.Query
+}
+
+type CollectResponse struct {
+	Records []user.User
+	Total   int
 }

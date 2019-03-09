@@ -99,6 +99,7 @@ var CompanyAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.UserRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -141,6 +142,7 @@ var ClientAdmin = role.Role{
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
 		api.PartyRegistrarInviteClientUser,
+		api.UserRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
