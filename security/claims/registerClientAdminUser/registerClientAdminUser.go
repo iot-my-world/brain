@@ -12,7 +12,6 @@ import (
 type RegisterClientAdminUser struct {
 	IssueTime       int64         `json:"issueTime"`
 	ExpirationTime  int64         `json:"expirationTime"`
-	EmailAddress    string        `json:"emailAddress"`
 	ParentPartyType party.Type    `json:"parentPartyType"`
 	ParentId        id.Identifier `json:"parentId"`
 	PartyType       party.Type    `json:"partyType"`
