@@ -17,14 +17,15 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
+	"gitlab.com/iotTracker/brain/api"
 )
 
 type mongoRecordHandler struct {
-	mongoSession         *mgo.Session
-	database             string
-	collection           string
-	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
-	userRecordHandler    userRecordHandler.RecordHandler
+	mongoSession      *mgo.Session
+	database          string
+	collection        string
+	userRecordHandler userRecordHandler.RecordHandler
+	ignoredReasons    map[api.Method]reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
@@ -36,20 +37,22 @@ func New(
 
 	setupIndices(mongoSession, database, collection)
 
-	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
-		ReasonsInvalid: map[string][]reasonInvalid.Type{
-			"id": {
-				reasonInvalid.Blank,
+	ignoredReasons := map[api.Method]reasonInvalid.IgnoredReasonsInvalid{
+		companyRecordHandler.Create: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
 			},
 		},
 	}
 
 	newCompanyMongoRecordHandler := mongoRecordHandler{
-		mongoSession:         mongoSession,
-		database:             database,
-		collection:           collection,
-		createIgnoredReasons: createIgnoredReasons,
-		userRecordHandler:    userRecordHandler,
+		mongoSession:      mongoSession,
+		database:          database,
+		collection:        collection,
+		ignoredReasons:    ignoredReasons,
+		userRecordHandler: userRecordHandler,
 	}
 
 	return &newCompanyMongoRecordHandler
@@ -104,9 +107,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
 	} else {
 		for _, reason := range companyValidateResponse.ReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 		}
 	}
 
@@ -286,6 +287,10 @@ func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteReques
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *companyRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -412,15 +417,15 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 				})
 			}
 		}
+	}
 
-		// Ignore reasons not applicable for this method
+	// Ignore reasons applicable to method if relevant
+	if mrh.ignoredReasons[request.Method].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+			if !mrh.ignoredReasons[request.Method].CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
-	default:
-		returnedReasonsInvalid = allReasonsInvalid
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid

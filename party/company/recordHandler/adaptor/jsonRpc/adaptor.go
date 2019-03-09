@@ -171,13 +171,18 @@ type ValidateResponse struct {
 }
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	validateCompanyResponse := companyRecordHandler.ValidateResponse{}
-	if err := s.RecordHandler.Validate(
-		&companyRecordHandler.ValidateRequest{
-			Company: request.Company,
-			Method:  request.Method,
-		},
+	if err := s.RecordHandler.Validate(&companyRecordHandler.ValidateRequest{
+		Claims:  claims,
+		Company: request.Company,
+		Method:  request.Method,
+	},
 		&validateCompanyResponse); err != nil {
 		return err
 	}
