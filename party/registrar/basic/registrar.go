@@ -1205,7 +1205,7 @@ func (br *basicRegistrar) ValidateRegisterClientUserRequest(request *partyRegist
 		default:
 			reasonsInvalid = append(reasonsInvalid, "cannot infer correct type from claims")
 
-		case registerCompanyUser.RegisterCompanyUser:
+		case registerClientUser.RegisterClientUser:
 			// confirm that all fields that were set on the user when the claims were generated have not been changed
 			if request.User.Id != typedClaims.User.Id {
 				reasonsInvalid = append(reasonsInvalid, "id has changed")

@@ -16,7 +16,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 		{
 			Client: client.Client{
 				Name:              "Pick 'n Pay",
-				AdminEmailAddress: "admin@picknpay.com",
+				AdminEmailAddress: "picknpayAdmin@picknpay.com",
 			},
 			AdminUser: user.User{
 				Name:     "Yoland",
@@ -44,7 +44,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 		{
 			Client: client.Client{
 				Name:              "Woolworths",
-				AdminEmailAddress: "admin@woolworths.com",
+				AdminEmailAddress: "woolworthsAdmin@woolworths.com",
 			},
 			AdminUser: user.User{
 				Name:     "Pauline",
@@ -74,7 +74,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 		{
 			Client: client.Client{
 				Name:              "Makro",
-				AdminEmailAddress: "admin@makro.com",
+				AdminEmailAddress: "makroAdmin@makro.com",
 			},
 			AdminUser: user.User{
 				Name:     "Johan",
@@ -102,7 +102,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 		{
 			Client: client.Client{
 				Name:              "Fruit n Veg",
-				AdminEmailAddress: "admin@fruitnveg.com",
+				AdminEmailAddress: "fruitnvegAdmin@fruitnveg.com",
 			},
 			AdminUser: user.User{
 				Name:     "Vicky",
@@ -132,7 +132,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 		{
 			Client: client.Client{
 				Name:              "Spar",
-				AdminEmailAddress: "admin@spar.com",
+				AdminEmailAddress: "sparAdmin@spar.com",
 			},
 			AdminUser: user.User{
 				Name:     "Sipho",
@@ -160,7 +160,7 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 		{
 			Client: client.Client{
 				Name:              "Game",
-				AdminEmailAddress: "admin@game.com",
+				AdminEmailAddress: "gameAdmin@game.com",
 			},
 			AdminUser: user.User{
 				Name:     "Michael",

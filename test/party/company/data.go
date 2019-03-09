@@ -15,7 +15,7 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 	{
 		Company: company.Company{
 			Name:              "Monteagle Logistics Limited",
-			AdminEmailAddress: "admin@monteagle.com",
+			AdminEmailAddress: "monteagleAdmin@monteagle.com",
 		},
 		AdminUser: user.User{
 			Name:     "Murray",
@@ -27,14 +27,14 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			{
 				Name:         "monteagleUser1",
 				Surname:      "test1",
-				Username:     "monteagleTestUser1",
+				Username:     "monteagleUser1",
 				Password:     []byte("123"),
 				EmailAddress: "monteagleUser1@monteagle.com",
 			},
 			{
 				Name:         "monteagleUser2",
 				Surname:      "test2",
-				Username:     "monteagleTestUser2",
+				Username:     "monteagleUser2",
 				Password:     []byte("123"),
 				EmailAddress: "monteagleUser2@monteagle.com",
 			},
@@ -44,7 +44,7 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 		Company: company.Company{
 			// Id:
 			Name:              "DHL",
-			AdminEmailAddress: "admin@dhl.com",
+			AdminEmailAddress: "dhlAdmin@dhl.com",
 			// ParentPartyType:
 			// ParentId:
 		},
@@ -58,14 +58,14 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			{
 				Name:         "dhlUser1",
 				Surname:      "test1",
-				Username:     "dhlTestUser1",
+				Username:     "dhlUser1",
 				Password:     []byte("123"),
 				EmailAddress: "dhlUser1@dhl.com",
 			},
 			{
 				Name:         "dhlUser2",
 				Surname:      "test2",
-				Username:     "dhlTestUser2",
+				Username:     "dhlUser2",
 				Password:     []byte("123"),
 				EmailAddress: "dhlUser2@dhl.com",
 			},
@@ -75,7 +75,7 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 		Company: company.Company{
 			// Id:
 			Name:              "Reinhard Trucking",
-			AdminEmailAddress: "admin@reinhard.com",
+			AdminEmailAddress: "reinhardAdmin@reinhard.com",
 			// ParentPartyType:
 			// ParentId:
 		},
@@ -89,14 +89,14 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			{
 				Name:         "reinhardUser1",
 				Surname:      "test1",
-				Username:     "reinhardTestUser1",
+				Username:     "reinhardUser1",
 				Password:     []byte("123"),
 				EmailAddress: "reinhardUser1@reinhard.com",
 			},
 			{
 				Name:         "reinhardUser2",
 				Surname:      "test2",
-				Username:     "reinhardTestUser2",
+				Username:     "reinhardUser2",
 				Password:     []byte("123"),
 				EmailAddress: "reinhardUser2@reinhard.com",
 			},
