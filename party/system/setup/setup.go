@@ -29,9 +29,9 @@ var systemAdminUser = user.User{
 	Name:    "root",
 	Surname: "root",
 
-	Username:     "root",
-	EmailAddress: "root@root.com",
-	// Password: // set during system user registration
+	Username:        "root",
+	EmailAddress:    "root@root.com",
+	Password:        []byte("12345"),
 	Roles:           []string{"root"},
 	ParentPartyType: party.System,
 	// ParentId: // to be set after creating user
@@ -48,8 +48,6 @@ var systemClaims = login.Login{
 	PartyType: party.System,
 	//PartyId         id.Identifier `json:"partyId"`
 }
-
-var defaultSystemPassword = "12345"
 
 func consumePasswordFile(location string) ([]byte, error) {
 	if _, err := os.Stat(location); err != nil {
@@ -96,7 +94,7 @@ func InitialSetup(
 			if err != nil {
 				return systemSetupException.InitialSetup{Reasons: []string{"consume password error", err.Error()}}
 			}
-			defaultSystemPassword = strings.TrimSuffix(string(pwd), "\n")
+			systemAdminUser.Password = []byte(strings.TrimSuffix(string(pwd), "\n"))
 		}
 
 		// now try create the system
@@ -120,9 +118,8 @@ func InitialSetup(
 	// try and register the system admin user
 	registerSystemAdminUserResponse := partyRegistrar.RegisterSystemAdminUserResponse{}
 	if err := registrar.RegisterSystemAdminUser(&partyRegistrar.RegisterSystemAdminUserRequest{
-		Claims:   systemClaims,
-		User:     systemAdminUser,
-		Password: defaultSystemPassword,
+		Claims: systemClaims,
+		User:   systemAdminUser,
 	},
 		&registerSystemAdminUserResponse); err != nil {
 		switch err.(type) {

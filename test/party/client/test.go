@@ -52,12 +52,6 @@ func (suite *Client) TestClientInviteAndRegisterUsers() {
 					PartyId:         suite.jsonRpcClient.Claims().PartyDetails().PartyId,
 				}
 
-				// save the unhashed password for setting the entity back to it later
-				unhashedPassword := string(userEntity.Password)
-
-				// clear the password field, must be clear for inviting the new user
-				(*userEntity).Password = []byte{}
-
 				// invite the user
 				inviteClientUserResponse := partyRegistrarJsonRpcAdaptor.InviteClientUserResponse{}
 				if err := suite.jsonRpcClient.JsonRpcRequest(
@@ -121,13 +115,15 @@ func (suite *Client) TestClientInviteAndRegisterUsers() {
 				if err := registerJsonRpcClient.JsonRpcRequest(
 					"PartyRegistrar.RegisterClientUser",
 					partyRegistrarJsonRpcAdaptor.RegisterClientUserRequest{
-						User:     *userEntity,
-						Password: unhashedPassword,
+						User: *userEntity,
 					},
 					&registerClientResponse,
 				); err != nil {
 					suite.FailNow("error registering client user", err.Error())
 				}
+
+				// update the user
+				(*userEntity).Roles = registerClientResponse.User.Roles
 			}
 
 			// log out

@@ -49,7 +49,6 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 
 type RegisterCompanyAdminUserRequest struct {
 	User     user.User `json:"user"`
-	Password string    `json:"password"`
 }
 
 type RegisterCompanyAdminUserResponse struct {
@@ -67,7 +66,6 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 	if err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
 		Claims:   claims,
 		User:     request.User,
-		Password: request.Password,
 	},
 		&registerCompanyAdminUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -108,7 +106,6 @@ func (a *adaptor) InviteCompanyUser(r *http.Request, request *InviteCompanyUserR
 
 type RegisterCompanyUserRequest struct {
 	User     user.User `json:"user"`
-	Password string    `json:"password"`
 }
 
 type RegisterCompanyUserResponse struct {
@@ -126,7 +123,6 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 	if err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
 		Claims:   claims,
 		User:     request.User,
-		Password: request.Password,
 	},
 		&registerCompanyUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -167,7 +163,6 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 
 type RegisterClientAdminUserRequest struct {
 	User     user.User `json:"user"`
-	Password string    `json:"password"`
 }
 
 type RegisterClientAdminUserResponse struct {
@@ -185,7 +180,6 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 	if err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
 		Claims:   claims,
 		User:     request.User,
-		Password: request.Password,
 	},
 		&registerClientAdminUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -226,7 +220,6 @@ func (a *adaptor) InviteClientUser(r *http.Request, request *InviteClientUserReq
 
 type RegisterClientUserRequest struct {
 	User     user.User `json:"user"`
-	Password string    `json:"password"`
 }
 
 type RegisterClientUserResponse struct {
@@ -244,7 +237,6 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 	if err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
 		Claims:   claims,
 		User:     request.User,
-		Password: request.Password,
 	},
 		&registerClientUserResponse); err != nil {
 		log.Warn(err.Error())

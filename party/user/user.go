@@ -16,7 +16,7 @@ type User struct {
 	// System Details
 	Username     string   `json:"username" bson:"username"`
 	EmailAddress string   `json:"emailAddress" bson:"emailAddress"`
-	Password     []byte   `json:"pwd" bson:"pwd"`
+	Password     []byte   `json:"password" bson:"password"`
 	Roles        []string `json:"roles" bson:"roles"`
 
 	// Party Details

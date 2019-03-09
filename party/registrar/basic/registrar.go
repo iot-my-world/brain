@@ -92,7 +92,7 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
-		NewPassword: request.Password,
+		NewPassword: string(request.User.Password),
 	},
 		&userChangePasswordResponse); err != nil {
 		return err
@@ -279,11 +279,6 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
 	}
 
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
-	}
-
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -363,7 +358,7 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: request.Password,
+		NewPassword: string(request.User.Password),
 	},
 		&userChangePasswordResponse); err != nil {
 		return err
@@ -588,11 +583,6 @@ func (br *basicRegistrar) ValidateRegisterCompanyUserRequest(request *partyRegis
 		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
 	}
 
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
-	}
-
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -672,7 +662,7 @@ func (br *basicRegistrar) RegisterCompanyUser(request *partyRegistrar.RegisterCo
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: request.Password,
+		NewPassword: string(request.User.Password),
 	},
 		&userChangePasswordResponse); err != nil {
 		return err
@@ -890,11 +880,6 @@ func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyR
 		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
 	}
 
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
-	}
-
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -974,7 +959,7 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: request.Password,
+		NewPassword: string(request.User.Password),
 	},
 		&userChangePasswordResponse); err != nil {
 		return err
@@ -1192,11 +1177,6 @@ func (br *basicRegistrar) ValidateRegisterClientUserRequest(request *partyRegist
 		reasonsInvalid = append(reasonsInvalid, "user must not yet be registered")
 	}
 
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
-	}
-
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
@@ -1276,7 +1256,7 @@ func (br *basicRegistrar) RegisterClientUser(request *partyRegistrar.RegisterCli
 	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: request.Password,
+		NewPassword: string(request.User.Password),
 	},
 		&userChangePasswordResponse); err != nil {
 		return err

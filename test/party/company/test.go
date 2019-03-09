@@ -60,12 +60,6 @@ func (suite *Company) TestCompanyInviteAndRegisterUsers() {
 				PartyId:         suite.jsonRpcClient.Claims().PartyDetails().PartyId,
 			}
 
-			// save the unhashed password for setting the entity back to it later
-			unhashedPassword := string(userEntity.Password)
-
-			// clear the password field, must be clear for inviting the new user
-			(*userEntity).Password = []byte{}
-
 			// invite the user
 			inviteCompanyUserResponse := partyRegistrarJsonRpcAdaptor.InviteCompanyUserResponse{}
 			if err := suite.jsonRpcClient.JsonRpcRequest(
@@ -129,13 +123,15 @@ func (suite *Company) TestCompanyInviteAndRegisterUsers() {
 			if err := registerJsonRpcClient.JsonRpcRequest(
 				"PartyRegistrar.RegisterCompanyUser",
 				partyRegistrarJsonRpcAdaptor.RegisterCompanyUserRequest{
-					User:     *userEntity,
-					Password: unhashedPassword,
+					User: *userEntity,
 				},
 				&registerCompanyResponse,
 			); err != nil {
 				suite.FailNow("error registering company user", err.Error())
 			}
+
+			// update the user with the response
+			(*userEntity).Roles = registerCompanyResponse.User.Roles
 		}
 
 		suite.jsonRpcClient.Logout()
@@ -197,12 +193,6 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 		for idx := range clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
 			clientEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
 			clientAdminUserEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].AdminUser
-
-			// save the unhashed password for setting the entity back to it later
-			unhashedPassword := string(clientAdminUserEntity.Password)
-
-			// clear the password field, must be clear for inviting the new user
-			(*clientAdminUserEntity).Password = []byte{}
 
 			// make minimal client admin user
 			clientAdminUser := user.User{
@@ -276,8 +266,7 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			if err := registerJsonRpcClient.JsonRpcRequest(
 				"PartyRegistrar.RegisterClientAdminUser",
 				partyRegistrarJsonRpcAdaptor.RegisterClientAdminUserRequest{
-					User:     *clientAdminUserEntity,
-					Password: unhashedPassword,
+					User: *clientAdminUserEntity,
 				},
 				&registerClientAdminUserResponse,
 			); err != nil {
@@ -287,7 +276,6 @@ func (suite *Company) TestCompanyInviteAndRegisterClients() {
 			// update the client admin user entity
 			(*clientAdminUserEntity).Id = registerClientAdminUserResponse.User.Id
 			(*clientAdminUserEntity).Roles = registerClientAdminUserResponse.User.Roles
-			(*clientAdminUserEntity).Password = []byte(unhashedPassword)
 		}
 
 		// log out

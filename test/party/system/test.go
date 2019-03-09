@@ -81,12 +81,6 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
 
-		// save the unhashed password for setting the entity back to it later
-		unhashedPassword := string(companyAdminUserEntity.Password)
-
-		// clear the password field, must be clear for inviting new user
-		(*companyAdminUserEntity).Password = []byte{}
-
 		// create the minimal admin user
 		adminUser := user.User{
 			EmailAddress:    companyEntity.AdminEmailAddress,
@@ -159,8 +153,7 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		if err := registerJsonRpcClient.JsonRpcRequest(
 			"PartyRegistrar.RegisterCompanyAdminUser",
 			partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
-				User:     *companyAdminUserEntity,
-				Password: unhashedPassword,
+				User: *companyAdminUserEntity,
 			},
 			&registerCompanyAdminUserResponse,
 		); err != nil {
@@ -170,6 +163,5 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		// update the company admin user entity
 		(*companyAdminUserEntity).Id = registerCompanyAdminUserResponse.User.Id
 		(*companyAdminUserEntity).Roles = registerCompanyAdminUserResponse.User.Roles
-		(*companyAdminUserEntity).Password = []byte(unhashedPassword)
 	}
 }

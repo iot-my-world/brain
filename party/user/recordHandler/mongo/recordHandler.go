@@ -79,9 +79,6 @@ func New(
 
 		partyRegistrar.RegisterCompanyAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"password": {
-					reasonInvalid.Blank,
-				},
 			},
 		},
 
@@ -107,9 +104,6 @@ func New(
 
 		partyRegistrar.RegisterCompanyUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"password": {
-					reasonInvalid.Blank,
-				},
 			},
 		},
 
@@ -135,9 +129,6 @@ func New(
 
 		partyRegistrar.RegisterClientAdminUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"password": {
-					reasonInvalid.Blank,
-				},
 			},
 		},
 
@@ -163,9 +154,6 @@ func New(
 
 		partyRegistrar.RegisterClientUser: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"password": {
-					reasonInvalid.Blank,
-				},
 			},
 		},
 	}

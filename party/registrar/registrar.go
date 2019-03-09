@@ -33,7 +33,6 @@ const RegisterClientUser api.Method = "RegisterClientUser"
 type RegisterSystemAdminUserRequest struct {
 	Claims   claims.Claims
 	User     user.User
-	Password string
 }
 
 type RegisterSystemAdminUserResponse struct {
@@ -52,7 +51,6 @@ type InviteCompanyAdminUserResponse struct {
 type RegisterCompanyAdminUserRequest struct {
 	Claims   claims.Claims
 	User     user.User
-	Password string
 }
 
 type RegisterCompanyAdminUserResponse struct {
@@ -71,7 +69,6 @@ type InviteCompanyUserResponse struct {
 type RegisterCompanyUserRequest struct {
 	Claims   claims.Claims
 	User     user.User
-	Password string
 }
 
 type RegisterCompanyUserResponse struct {
@@ -90,7 +87,6 @@ type InviteClientAdminUserResponse struct {
 type RegisterClientAdminUserRequest struct {
 	Claims   claims.Claims
 	User     user.User
-	Password string
 }
 
 type RegisterClientAdminUserResponse struct {
@@ -109,7 +105,6 @@ type InviteClientUserResponse struct {
 type RegisterClientUserRequest struct {
 	Claims   claims.Claims
 	User     user.User
-	Password string
 }
 
 type RegisterClientUserResponse struct {
