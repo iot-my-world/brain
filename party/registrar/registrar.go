@@ -5,6 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type Registrar interface {
@@ -43,8 +44,8 @@ type RegisterSystemAdminUserResponse struct {
 }
 
 type InviteCompanyAdminUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims            claims.Claims
+	CompanyIdentifier identifier.Identifier
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -79,8 +80,8 @@ type RegisterCompanyUserResponse struct {
 }
 
 type InviteClientAdminUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims           claims.Claims
+	ClientIdentifier identifier.Identifier
 }
 
 type InviteClientAdminUserResponse struct {

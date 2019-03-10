@@ -17,8 +17,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"fmt"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
-	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 )
 
 type System struct {
@@ -81,13 +80,10 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
 
-		// create the minimal admin user
-		adminUser := user.User{
-			EmailAddress:    companyEntity.AdminEmailAddress,
-			ParentPartyType: suite.jsonRpcClient.Claims().PartyDetails().PartyType,
-			ParentId:        suite.jsonRpcClient.Claims().PartyDetails().PartyId,
-			PartyType:       party.Company,
-			PartyId:         id.Identifier{Id: companyEntity.Id},
+		// create identifier for the company entity
+		companyIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: companyEntity.Id})
+		if err != nil {
+			suite.FailNow("error wrapping companyIdentifier", err.Error())
 		}
 
 		// invite the admin user
@@ -95,7 +91,7 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"PartyRegistrar.InviteCompanyAdminUser",
 			partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
-				User: adminUser,
+				CompanyIdentifier: *companyIdentifier,
 			},
 			&inviteCompanyAdminUserResponse,
 		); err != nil {

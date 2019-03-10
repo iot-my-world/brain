@@ -7,6 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 )
 
 type adaptor struct {
@@ -22,7 +23,7 @@ func New(
 }
 
 type InviteCompanyAdminUserRequest struct {
-	User user.User `json:"user"`
+	CompanyIdentifier wrappedIdentifier.WrappedIdentifier `json:"companyIdentifier"`
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -30,6 +31,11 @@ type InviteCompanyAdminUserResponse struct {
 }
 
 func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error {
+	companyIdentifier, err := request.CompanyIdentifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -38,8 +44,8 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 
 	inviteCompanyAdminUserResponse := registrar.InviteCompanyAdminUserResponse{}
 	if err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
-		Claims: claims,
-		User:   request.User,
+		Claims:            claims,
+		CompanyIdentifier: companyIdentifier,
 	},
 		&inviteCompanyAdminUserResponse); err != nil {
 		return err
@@ -136,7 +142,7 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 }
 
 type InviteClientAdminUserRequest struct {
-	User user.User `json:"user"`
+	ClientIdentifier wrappedIdentifier.WrappedIdentifier `json:"clientIdentifier"`
 }
 
 type InviteClientAdminUserResponse struct {
@@ -144,6 +150,11 @@ type InviteClientAdminUserResponse struct {
 }
 
 func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error {
+	clientIdentifier, err := request.ClientIdentifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -152,8 +163,8 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 
 	inviteClientAdminUserResponse := registrar.InviteClientAdminUserResponse{}
 	if err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
-		Claims: claims,
-		User:   request.User,
+		Claims:           claims,
+		ClientIdentifier: clientIdentifier,
 	},
 		&inviteClientAdminUserResponse); err != nil {
 		return err

@@ -18,6 +18,7 @@ import (
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type mongoRecordHandler struct {
@@ -136,6 +137,20 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 
 	if err := companyCollection.Insert(request.Company); err != nil {
 		return companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+	}
+
+	// create minimal admin user for the company
+	if err := mrh.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		Claims: request.Claims,
+		User: user.User{
+			EmailAddress:    request.Company.AdminEmailAddress,
+			ParentPartyType: request.Company.ParentPartyType,
+			ParentId:        request.Company.ParentId,
+			PartyType:       party.Company,
+			PartyId:         id.Identifier{Id: request.Company.Id},
+		},
+	}, &userRecordHandler.CreateResponse{}); err != nil {
+		return companyRecordHandlerException.Create{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
 	response.Company = request.Company
