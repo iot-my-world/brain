@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type adaptor struct {
@@ -48,7 +49,7 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 }
 
 type RegisterCompanyAdminUserRequest struct {
-	User     user.User `json:"user"`
+	User user.User `json:"user"`
 }
 
 type RegisterCompanyAdminUserResponse struct {
@@ -64,8 +65,8 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 
 	registerCompanyAdminUserResponse := registrar.RegisterCompanyAdminUserResponse{}
 	if err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
-		Claims:   claims,
-		User:     request.User,
+		Claims: claims,
+		User:   request.User,
 	},
 		&registerCompanyAdminUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -105,7 +106,7 @@ func (a *adaptor) InviteCompanyUser(r *http.Request, request *InviteCompanyUserR
 }
 
 type RegisterCompanyUserRequest struct {
-	User     user.User `json:"user"`
+	User user.User `json:"user"`
 }
 
 type RegisterCompanyUserResponse struct {
@@ -121,8 +122,8 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 
 	registerCompanyUserResponse := registrar.RegisterCompanyUserResponse{}
 	if err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
-		Claims:   claims,
-		User:     request.User,
+		Claims: claims,
+		User:   request.User,
 	},
 		&registerCompanyUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -162,7 +163,7 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 }
 
 type RegisterClientAdminUserRequest struct {
-	User     user.User `json:"user"`
+	User user.User `json:"user"`
 }
 
 type RegisterClientAdminUserResponse struct {
@@ -178,8 +179,8 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 
 	registerClientAdminUserResponse := registrar.RegisterClientAdminUserResponse{}
 	if err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
-		Claims:   claims,
-		User:     request.User,
+		Claims: claims,
+		User:   request.User,
 	},
 		&registerClientAdminUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -219,7 +220,7 @@ func (a *adaptor) InviteClientUser(r *http.Request, request *InviteClientUserReq
 }
 
 type RegisterClientUserRequest struct {
-	User     user.User `json:"user"`
+	User user.User `json:"user"`
 }
 
 type RegisterClientUserResponse struct {
@@ -235,8 +236,8 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 
 	registerClientUserResponse := registrar.RegisterClientUserResponse{}
 	if err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
-		Claims:   claims,
-		User:     request.User,
+		Claims: claims,
+		User:   request.User,
 	},
 		&registerClientUserResponse); err != nil {
 		log.Warn(err.Error())
@@ -244,6 +245,35 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 	}
 
 	response.User = registerClientUserResponse.User
+
+	return nil
+}
+
+type AreAdminsRegisteredRequest struct {
+	PartyDetails []party.Detail `json:"partyDetails"`
+}
+
+type AreAdminsRegisteredResponse struct {
+	Result map[string]bool `json:"result"`
+}
+
+func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	areAdminsRegisteredResponse := registrar.AreAdminsRegisteredResponse{}
+	if err := a.registrar.AreAdminsRegistered(&registrar.AreAdminsRegisteredRequest{
+		Claims:       claims,
+		PartyDetails: request.PartyDetails,
+	}, &areAdminsRegisteredResponse); err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	response.Result = areAdminsRegisteredResponse.Result
 
 	return nil
 }

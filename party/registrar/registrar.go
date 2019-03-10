@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/party"
 )
 
 type Registrar interface {
@@ -18,6 +19,8 @@ type Registrar interface {
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
 	InviteClientUser(request *InviteClientUserRequest, response *InviteClientUserResponse) error
 	RegisterClientUser(request *RegisterClientUserRequest, response *RegisterClientUserResponse) error
+
+	AreAdminsRegistered(request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error
 }
 
 const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
@@ -31,8 +34,8 @@ const InviteClientUser api.Method = "InviteClientUser"
 const RegisterClientUser api.Method = "RegisterClientUser"
 
 type RegisterSystemAdminUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterSystemAdminUserResponse struct {
@@ -49,8 +52,8 @@ type InviteCompanyAdminUserResponse struct {
 }
 
 type RegisterCompanyAdminUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterCompanyAdminUserResponse struct {
@@ -67,8 +70,8 @@ type InviteCompanyUserResponse struct {
 }
 
 type RegisterCompanyUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterCompanyUserResponse struct {
@@ -85,8 +88,8 @@ type InviteClientAdminUserResponse struct {
 }
 
 type RegisterClientAdminUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterClientAdminUserResponse struct {
@@ -103,10 +106,19 @@ type InviteClientUserResponse struct {
 }
 
 type RegisterClientUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterClientUserResponse struct {
 	User user.User
+}
+
+type AreAdminsRegisteredRequest struct {
+	Claims       claims.Claims
+	PartyDetails []party.Detail
+}
+
+type AreAdminsRegisteredResponse struct {
+	Result map[string]bool
 }

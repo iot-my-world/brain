@@ -39,6 +39,7 @@ const PartyRegistrarInviteClientAdminUser Permission = "PartyRegistrar.InviteCli
 const PartyRegistrarRegisterClientAdminUser Permission = "PartyRegistrar.RegisterClientAdminUser"
 const PartyRegistrarInviteClientUser Permission = "PartyRegistrar.InviteClientUser"
 const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClientUser"
+const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 

@@ -25,6 +25,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
+	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
+	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type basicRegistrar struct {
@@ -1291,5 +1293,152 @@ func (br *basicRegistrar) RegisterClientUser(request *partyRegistrar.RegisterCli
 
 	response.User = userUpdateResponse.User
 
+	return nil
+}
+
+func (br *basicRegistrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	} else {
+		return nil
+	}
+}
+
+func (br *basicRegistrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegisteredRequest, response *partyRegistrar.AreAdminsRegisteredResponse) error {
+	if err := br.ValidateAreAdminsRegisteredRequest(request); err != nil {
+		return err
+	}
+
+	result := make(map[string]bool)
+	companyIds := make([]string, 0)
+	companyAdminEmails := make([]string, 0)
+	clientIds := make([]string, 0)
+	clientAdminEmails := make([]string, 0)
+
+	// compose id lists for exact list criteria
+	for _, partyDetail := range request.PartyDetails {
+		switch partyDetail.PartyType {
+		case party.System:
+			result[partyDetail.PartyId.Id] = true
+		case party.Company:
+			companyIds = append(companyIds, partyDetail.PartyId.Id)
+		case party.Client:
+			clientIds = append(clientIds, partyDetail.PartyId.Id)
+		default:
+			return registrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyDetail.PartyType)}}
+		}
+	}
+
+	// collect companies in request
+	companyCollectResponse := companyRecordHandler.CollectResponse{}
+	if err := br.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+		Claims: request.Claims,
+		Criteria: []criterion.Criterion{
+			listText.Criterion{
+				Field: "id",
+				List:  companyIds,
+			},
+		},
+	}, &companyCollectResponse); err != nil {
+		return registrarException.UnableToCollectParties{Reasons: []string{"company", err.Error()}}
+	} else {
+		// confirm that for every id received a company was returned
+		if len(companyCollectResponse.Records) != len(companyIds) {
+			return brainException.Unexpected{Reasons: []string{
+				"no company records returned different to number of ids given",
+				fmt.Sprintf("%d vs %d", len(companyCollectResponse.Records), len(companyIds)),
+			}}
+		}
+	}
+	// compose list of admin email addresses
+	for companyIdx := range companyCollectResponse.Records {
+		companyAdminEmails = append(companyAdminEmails, companyCollectResponse.Records[companyIdx].AdminEmailAddress)
+	}
+	// collect users with these admin email addresses
+	companyAdminUserCollectResponse := userRecordHandler.CollectResponse{}
+	if err := br.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
+		Claims: request.Claims,
+		Criteria: []criterion.Criterion{
+			listText.Criterion{
+				Field: "emailAddress",
+				List:  companyAdminEmails,
+			},
+		},
+	}, &companyAdminUserCollectResponse); err != nil {
+		return registrarException.UnableToCollectParties{Reasons: []string{"companyAdminUsers", err.Error()}}
+	} else {
+		// confirm that for every admin email a user was returned
+		if len(companyAdminUserCollectResponse.Records) != len(companyAdminEmails) {
+			return brainException.Unexpected{Reasons: []string{
+				"no company admin users found different from number of admin emails found",
+				fmt.Sprintf("%d vs %d", len(companyAdminUserCollectResponse.Records), len(companyAdminEmails)),
+			}}
+		}
+	}
+	// update result for the company admin users retrieved
+	for companyAdminUserIdx := range companyAdminUserCollectResponse.Records {
+		result[companyAdminUserCollectResponse.Records[companyAdminUserIdx].PartyId.Id] =
+			companyAdminUserCollectResponse.Records[companyAdminUserIdx].Registered
+	}
+
+	// collect clients in request
+	clientCollectResponse := clientRecordHandler.CollectResponse{}
+	if err := br.clientRecordHandler.Collect(&clientRecordHandler.CollectRequest{
+		Claims: request.Claims,
+		Criteria: []criterion.Criterion{
+			listText.Criterion{
+				Field: "id",
+				List:  clientIds,
+			},
+		},
+	}, &clientCollectResponse); err != nil {
+		return registrarException.UnableToCollectParties{Reasons: []string{"client", err.Error()}}
+	} else {
+		// confirm that for every id received a client was returned
+		if len(clientCollectResponse.Records) != len(clientIds) {
+			return brainException.Unexpected{Reasons: []string{
+				"no client records returned different to number of ids given",
+				fmt.Sprintf("%d vs %d", len(clientCollectResponse.Records), len(clientIds)),
+			}}
+		}
+	}
+	// compose list of admin email addresses
+	for clientIdx := range clientCollectResponse.Records {
+		clientAdminEmails = append(clientAdminEmails, clientCollectResponse.Records[clientIdx].AdminEmailAddress)
+	}
+	// collect users with these admin email addresses
+	clientAdminUserCollectResponse := userRecordHandler.CollectResponse{}
+	if err := br.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
+		Claims: request.Claims,
+		Criteria: []criterion.Criterion{
+			listText.Criterion{
+				Field: "emailAddress",
+				List:  clientAdminEmails,
+			},
+		},
+	}, &clientAdminUserCollectResponse); err != nil {
+		return registrarException.UnableToCollectParties{Reasons: []string{"clientAdminUsers", err.Error()}}
+	} else {
+		// confirm that for every admin email user was returned
+		if len(clientAdminUserCollectResponse.Records) != len(clientAdminEmails) {
+			return brainException.Unexpected{Reasons: []string{
+				"no client admin users found different from number of admin emails found",
+				fmt.Sprintf("%d vs %d", len(clientAdminUserCollectResponse.Records), len(clientAdminEmails)),
+			}}
+		}
+	}
+	// update result for the client admin users retrieved
+	for clientAdminUserIdx := range clientAdminUserCollectResponse.Records {
+		result[clientAdminUserCollectResponse.Records[clientAdminUserIdx].PartyId.Id] =
+			clientAdminUserCollectResponse.Records[clientAdminUserIdx].Registered
+	}
+
+	response.Result = result
 	return nil
 }

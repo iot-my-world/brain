@@ -27,9 +27,13 @@ func (l Login) Expired() bool {
 
 func (l Login) PartyDetails() party.Details {
 	return party.Details{
-		ParentPartyType: l.ParentPartyType,
-		ParentId:        l.ParentId,
-		PartyType:       l.PartyType,
-		PartyId:         l.PartyId,
+		Detail: party.Detail{
+			PartyType: l.PartyType,
+			PartyId:   l.PartyId,
+		},
+		ParentDetail: party.ParentDetail{
+			ParentPartyType: l.ParentPartyType,
+			ParentId:        l.ParentId,
+		},
 	}
 }

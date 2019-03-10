@@ -29,10 +29,14 @@ func (r RegisterClientAdminUser) Expired() bool {
 
 func (r RegisterClientAdminUser) PartyDetails() party.Details {
 	return party.Details{
-		ParentPartyType: r.ParentPartyType,
-		ParentId:        r.ParentId,
-		PartyType:       r.PartyType,
-		PartyId:         r.PartyId,
+		Detail: party.Detail{
+			PartyType: r.PartyType,
+			PartyId:   r.PartyId,
+		},
+		ParentDetail: party.ParentDetail{
+			ParentPartyType: r.ParentPartyType,
+			ParentId:        r.ParentId,
+		},
 	}
 }
 
