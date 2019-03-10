@@ -24,6 +24,12 @@ func (e AlreadyRegistered) Error() string {
 	return "user already registered"
 }
 
+type AlreadyExists struct{}
+
+func (e AlreadyExists) Error() string {
+	return "user already exists"
+}
+
 type TokenGeneration struct {
 	Reasons []string
 }

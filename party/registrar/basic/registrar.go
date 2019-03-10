@@ -145,9 +145,14 @@ func (br *basicRegistrar) InviteCompanyAdminUser(request *partyRegistrar.InviteC
 		Identifier: emailAddress.Identifier{
 			EmailAddress: companyRetrieveResponse.Company.AdminEmailAddress,
 		},
-	},
-		&userRetrieveResponse); err != nil {
-		return err
+	}, &userRetrieveResponse); err == nil {
+		// user should already exist as it is created when the company is created
+		// we check if the user is already registered, this is an error
+		if userRetrieveResponse.User.Registered {
+			return registrarException.AlreadyRegistered{}
+		}
+	} else {
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
 	// Generate the registration token for the company admin user to register
@@ -197,6 +202,20 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
+
+		// try and retrieve a user with this id to see if they have already been invited
+		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+		if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: id.Identifier{Id: request.User.Id},
+		}, &userRetrieveResponse); err == nil {
+			// user should exist but should not yet be registered
+			if userRetrieveResponse.User.Registered {
+				return registrarException.AlreadyRegistered{}
+			}
+		} else {
+			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		}
 
 		switch typedClaims := request.Claims.(type) {
 		default:
@@ -284,9 +303,8 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.User.Id},
-	},
-		&userRetrieveResponse); err != nil {
-		return err
+	}, &userRetrieveResponse); err != nil {
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
 	// give the user the necessary roles
@@ -338,6 +356,23 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 
+		// try and retrieve a user with this email address to see if they have already been invited
+		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+		err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: emailAddress.Identifier{EmailAddress: request.User.EmailAddress},
+		}, &userRetrieveResponse)
+		switch err.(type) {
+		case userRecordHandlerException.NotFound:
+			// this is what we want, the user will be created during the invite process
+		case nil:
+			// user should not yet exist as they are created during the invite process
+			return registrarException.AlreadyExists{}
+		default:
+			// something went wrong during retrieval
+			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		}
+
 		// unless the user performing the invite is system, the partyDetails of the new user must be the
 		// same as the user performing the invite
 		if request.Claims.PartyDetails().PartyType != party.System {
@@ -370,7 +405,7 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 
 		// validate the new user for the invite company user method
 		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		err = br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 			// system claims since we want all users to be visible for the email address check done in validate user
 			Claims: br.systemClaims,
 			User:   request.User,
@@ -441,6 +476,7 @@ func (br *basicRegistrar) InviteCompanyUser(request *partyRegistrar.InviteCompan
 	if err := br.ValidateInviteCompanyUserRequest(request); err != nil {
 		return err
 	}
+
 	// Create the minimal company user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
@@ -501,6 +537,20 @@ func (br *basicRegistrar) ValidateRegisterCompanyUserRequest(request *partyRegis
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
+
+		// try and retrieve a user with this id to see if they have already been invited
+		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+		if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: id.Identifier{Id: request.User.Id},
+		}, &userRetrieveResponse); err == nil {
+			// user should exist but should not yet be registered
+			if userRetrieveResponse.User.Registered {
+				return registrarException.AlreadyRegistered{}
+			}
+		} else {
+			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		}
 
 		switch typedClaims := request.Claims.(type) {
 		default:
@@ -588,9 +638,8 @@ func (br *basicRegistrar) RegisterCompanyUser(request *partyRegistrar.RegisterCo
 	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.User.Id},
-	},
-		&userRetrieveResponse); err != nil {
-		return err
+	}, &userRetrieveResponse); err != nil {
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
 	// give the user the necessary roles
@@ -654,9 +703,14 @@ func (br *basicRegistrar) InviteClientAdminUser(request *partyRegistrar.InviteCl
 		Identifier: emailAddress.Identifier{
 			EmailAddress: clientRetrieveResponse.Client.AdminEmailAddress,
 		},
-	},
-		&userRetrieveResponse); err != nil {
-		return err
+	}, &userRetrieveResponse); err == nil {
+		// user should already exist as it is created when the client is created
+		// we check if the user is already registered, this is an error
+		if userRetrieveResponse.User.Registered {
+			return registrarException.AlreadyRegistered{}
+		}
+	} else {
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
 	// Generate the registration token for the client admin user to register
@@ -707,6 +761,20 @@ func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyR
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
+
+		// try and retrieve a user with this id to see if they have already been invited
+		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+		if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: id.Identifier{Id: request.User.Id},
+		}, &userRetrieveResponse); err == nil {
+			// user should exist but should not yet be registered
+			if userRetrieveResponse.User.Registered {
+				return registrarException.AlreadyRegistered{}
+			}
+		} else {
+			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		}
 
 		switch typedClaims := request.Claims.(type) {
 		default:
@@ -794,9 +862,8 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.User.Id},
-	},
-		&userRetrieveResponse); err != nil {
-		return err
+	}, &userRetrieveResponse); err != nil {
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
 	// give the user the necessary roles
@@ -849,6 +916,23 @@ func (br *basicRegistrar) ValidateInviteClientUserRequest(request *partyRegistra
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 
+		// try and retrieve a user with this email address to see if they have already been invited
+		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+		err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: emailAddress.Identifier{EmailAddress: request.User.EmailAddress},
+		}, &userRetrieveResponse)
+		switch err.(type) {
+		case userRecordHandlerException.NotFound:
+			// this is what we want, the user will be created during the invite process
+		case nil:
+			// user should not yet exist as they are created during the invite process
+			return registrarException.AlreadyExists{}
+		default:
+			// something went wrong during retrieval
+			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		}
+
 		// unless the user performing the invite is system, the party details of the new user must be the
 		// same as the user performing the invite
 		if request.Claims.PartyDetails().PartyType != party.System {
@@ -873,7 +957,7 @@ func (br *basicRegistrar) ValidateInviteClientUserRequest(request *partyRegistra
 
 		// validate the new user for the invite client user method
 		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		err = br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
 			// system claims since we want all users to be visible for the email address check done in validate user
 			Claims: br.systemClaims,
 			User:   request.User,
@@ -1005,6 +1089,20 @@ func (br *basicRegistrar) ValidateRegisterClientUserRequest(request *partyRegist
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 
+		// try and retrieve a user with this id to see if they have already been invited
+		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+		if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: id.Identifier{Id: request.User.Id},
+		}, &userRetrieveResponse); err == nil {
+			// user should exist but should not yet be registered
+			if userRetrieveResponse.User.Registered {
+				return registrarException.AlreadyRegistered{}
+			}
+		} else {
+			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		}
+
 		switch typedClaims := request.Claims.(type) {
 		default:
 			reasonsInvalid = append(reasonsInvalid, "cannot infer correct type from claims")
@@ -1093,7 +1191,7 @@ func (br *basicRegistrar) RegisterClientUser(request *partyRegistrar.RegisterCli
 		Identifier: id.Identifier{Id: request.User.Id},
 	},
 		&userRetrieveResponse); err != nil {
-		return err
+		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
 	// give the user the necessary roles
