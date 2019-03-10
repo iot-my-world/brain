@@ -41,12 +41,10 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 
 	createTK102Response := tk102RecordHandler.CreateResponse{}
 
-	if err := s.RecordHandler.Create(
-		&tk102RecordHandler.CreateRequest{
-			TK102:  request.TK102,
-			Claims: claims,
-		},
-		&createTK102Response); err != nil {
+	if err := s.RecordHandler.Create(&tk102RecordHandler.CreateRequest{
+		TK102:  request.TK102,
+		Claims: claims,
+	}, &createTK102Response); err != nil {
 		return err
 	}
 
@@ -128,14 +126,18 @@ type ValidateResponse struct {
 }
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	validateTK102Response := tk102RecordHandler.ValidateResponse{}
-	if err := s.RecordHandler.Validate(
-		&tk102RecordHandler.ValidateRequest{
-			TK102:  request.TK102,
-			Method: request.Method,
-		},
-		&validateTK102Response); err != nil {
+	if err := s.RecordHandler.Validate(&tk102RecordHandler.ValidateRequest{
+		Claims: claims,
+		TK102:  request.TK102,
+		Method: request.Method,
+	}, &validateTK102Response); err != nil {
 		return err
 	}
 

@@ -101,6 +101,7 @@ var CompanyAdmin = role.Role{
 		api.ReadingRecordHandlerCollect,
 		api.UserRecordHandlerCollect,
 		api.PartyRegistrarAreAdminsRegistered,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -119,6 +120,7 @@ var CompanyUser = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
@@ -145,6 +147,7 @@ var ClientAdmin = role.Role{
 		api.PartyRegistrarInviteClientUser,
 		api.UserRecordHandlerCollect,
 		api.PartyRegistrarAreAdminsRegistered,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -163,6 +166,7 @@ var ClientUser = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,

@@ -284,6 +284,10 @@ func (mrh *mongoRecordHandler) Delete(request *tk102RecordHandler.DeleteRequest,
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *tk102RecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -350,9 +354,9 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.System:
 			// system owner must exist, try and retrieve to confirm
 			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).OwnerId,
-			},
-				&systemRecordHandler.RetrieveResponse{}); err != nil {
+			}, &systemRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case systemRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -369,9 +373,9 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Company:
 			// company owner must exist, try and retrieve to confirm
 			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).OwnerId,
-			},
-				&companyRecordHandler.RetrieveResponse{}); err != nil {
+			}, &companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -388,9 +392,9 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Client:
 			// client owner must exist, try and retrieve to confirm
 			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).OwnerId,
-			},
-				&clientRecordHandler.RetrieveResponse{}); err != nil {
+			}, &clientRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case clientRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -435,6 +439,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.System:
 			// system assigned must exist, try and retrieve to confirm
 			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).AssignedId,
 			},
 				&systemRecordHandler.RetrieveResponse{}); err != nil {
@@ -454,6 +459,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Company:
 			// company assigned must exist, try and retrieve to confirm
 			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).AssignedId,
 			},
 				&companyRecordHandler.RetrieveResponse{}); err != nil {
@@ -473,6 +479,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Client:
 			// client assigned must exist, try and retrieve to confirm
 			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).AssignedId,
 			},
 				&clientRecordHandler.RetrieveResponse{}); err != nil {

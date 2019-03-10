@@ -54,6 +54,10 @@ import (
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
+
+	partyBasicHandler "gitlab.com/iotTracker/brain/party/handler/basic"
+	partyHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/handler/adaptor/jsonRpc"
+
 	"strings"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/party"
@@ -193,6 +197,11 @@ func main() {
 		ReadingRecordHandler,
 		TK102DeviceRecordHandler,
 	)
+	PartyBasicHandler := partyBasicHandler.New(
+		ClientRecordHandler,
+		CompanyRecordHandler,
+		SystemRecordHandler,
+	)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
@@ -207,6 +216,7 @@ func main() {
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
+	PartyHandlerAdaptor := partyHandlerJsonRpcAdaptor.New(PartyBasicHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -252,6 +262,9 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
+	}
+	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyHandler"); err != nil {
+		log.Fatal("Unable to Register Party Handler Service")
 	}
 
 	// Set up Router for secureAPIServer

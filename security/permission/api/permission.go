@@ -41,6 +41,8 @@ const PartyRegistrarInviteClientUser Permission = "PartyRegistrar.InviteClientUs
 const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClientUser"
 const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
+const PartyHandlerGetMyParty Permission = "PartyHandler.GetMyParty"
+
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 
 const TK102DeviceRecordHandlerCreate Permission = "TK102DeviceRecordHandler.Create"
