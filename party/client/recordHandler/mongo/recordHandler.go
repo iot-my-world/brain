@@ -337,6 +337,24 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 		})
 	}
 
+	if (*clientToValidate).ParentPartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentPartyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*clientToValidate).ParentPartyType,
+		})
+	}
+
+	if (*clientToValidate).ParentId.Id == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*clientToValidate).ParentId,
+		})
+	}
+
 	if (*clientToValidate).AdminEmailAddress == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "adminEmailAddress",
