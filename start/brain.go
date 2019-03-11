@@ -63,7 +63,7 @@ import (
 	"strings"
 )
 
-var ServerPort = "9010"
+var serverPort = "9010"
 
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
@@ -192,6 +192,7 @@ func main() {
 		readingCollection,
 	)
 	TrackingReport := trackingBasicReport.New(
+		SystemRecordHandler,
 		CompanyRecordHandler,
 		ClientRecordHandler,
 		ReadingRecordHandler,
@@ -272,9 +273,9 @@ func main() {
 	secureAPIServerMux.Methods("OPTIONS").HandlerFunc(preFlightHandler)
 	secureAPIServerMux.Handle("/api", apiAuthApplier(secureAPIServer)).Methods("POST")
 	// Start secureAPIServer
-	log.Info("Starting secureAPIServer on port " + ServerPort)
+	log.Info("Starting secureAPIServer on port " + serverPort)
 	go func() {
-		err := http.ListenAndServe(":"+ServerPort, secureAPIServerMux)
+		err := http.ListenAndServe(":"+serverPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()

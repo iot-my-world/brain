@@ -15,6 +15,7 @@ type LiveRequest struct {
 	Claims             claims.Claims
 	ClientIdentifiers  []identifier.Identifier
 	CompanyIdentifiers []identifier.Identifier
+	SystemIdentifiers  []identifier.Identifier
 }
 
 type LiveResponse struct {

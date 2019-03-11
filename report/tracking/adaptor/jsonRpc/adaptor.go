@@ -23,6 +23,7 @@ func New(
 }
 
 type LiveRequest struct {
+	SystemIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"systemIdentifiers"`
 	CompanyIdentifiers []wrappedIdentifier.WrappedIdentifier `json:"companyIdentifiers"`
 	ClientIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"clientIdentifiers"`
 }
@@ -38,6 +39,15 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 		return err
 	}
 
+	// unwrap system identifiers
+	systemIdentifiers := make([]identifier.Identifier, 0)
+	for idIdx := range request.SystemIdentifiers {
+		if c, err := request.SystemIdentifiers[idIdx].UnWrap(); err == nil {
+			systemIdentifiers = append(systemIdentifiers, c)
+		} else {
+			return err
+		}
+	}
 	// unwrap company identifiers
 	companyIdentifiers := make([]identifier.Identifier, 0)
 	for idIdx := range request.CompanyIdentifiers {
@@ -61,6 +71,7 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 	liveTrackingReportResponse := trackingReport.LiveResponse{}
 	if err := a.trackingReport.Live(&trackingReport.LiveRequest{
 		Claims:             claims,
+		SystemIdentifiers:  systemIdentifiers,
 		CompanyIdentifiers: companyIdentifiers,
 		ClientIdentifiers:  clientIdentifiers,
 	}, &liveTrackingReportResponse); err != nil {

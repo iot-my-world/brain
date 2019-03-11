@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+type RetrievingSystem struct {
+	Reasons []string
+}
+
+func (e RetrievingSystem) Error() string {
+	return fmt.Sprintf("error retrieving system: %s", strings.Join(e.Reasons, "; "))
+}
+
 type RetrievingCompany struct {
 	Reasons []string
 }
