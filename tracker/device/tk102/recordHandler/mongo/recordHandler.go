@@ -114,10 +114,11 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *tk102RecordHandler
 	tk102ValidateResponse := tk102RecordHandler.ValidateResponse{}
 
 	if err := mrh.Validate(&tk102RecordHandler.ValidateRequest{
+		Claims: request.Claims,
 		TK102:  request.TK102,
 		Method: tk102RecordHandler.Create},
 		&tk102ValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newTK102")
+		reasonsInvalid = append(reasonsInvalid, "unable to validate newTK102"+err.Error())
 	} else {
 		for _, reason := range tk102ValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
