@@ -55,12 +55,12 @@ import (
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 
-	partyBasicHandler "gitlab.com/iotTracker/brain/party/handler/basic"
 	partyHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/handler/adaptor/jsonRpc"
+	partyBasicHandler "gitlab.com/iotTracker/brain/party/handler/basic"
 
-	"strings"
-	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/security/claims/login"
+	"strings"
 )
 
 var ServerPort = "9010"
@@ -280,7 +280,7 @@ func main() {
 	}()
 
 	// Set up tracker tcp server
-	tk102DeviceServerInstance := tk102DeviceServer.New(ReadingRecordHandler, TK102DeviceRecordHandler, "0.0.0.0", "7018")
+	tk102DeviceServerInstance := tk102DeviceServer.New(ReadingRecordHandler, &systemClaims, TK102DeviceRecordHandler, "0.0.0.0", "7018")
 	log.Info("Starting TK102 Device Server")
 	go func() {
 		err := tk102DeviceServerInstance.Start()
