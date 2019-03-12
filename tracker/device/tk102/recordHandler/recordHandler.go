@@ -37,6 +37,7 @@ type CollectResponse struct {
 }
 
 type ValidateRequest struct {
+	Claims claims.Claims
 	TK102  tk102.TK102
 	Method api.Method
 }
@@ -63,6 +64,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 	TK102      tk102.TK102
 }
@@ -72,6 +74,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

@@ -1,9 +1,9 @@
 package tracking
 
 import (
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
-	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type Report interface {
@@ -15,6 +15,7 @@ type LiveRequest struct {
 	Claims             claims.Claims
 	ClientIdentifiers  []identifier.Identifier
 	CompanyIdentifiers []identifier.Identifier
+	SystemIdentifiers  []identifier.Identifier
 }
 
 type LiveResponse struct {

@@ -3,53 +3,58 @@ package mongo
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
+	"gitlab.com/iotTracker/brain/api"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/company"
-	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type mongoRecordHandler struct {
-	mongoSession         *mgo.Session
-	database             string
-	collection           string
-	createIgnoredReasons reasonInvalid.IgnoredReasonsInvalid
-	userRecordHandler    userRecordHandler.RecordHandler
+	mongoSession      *mgo.Session
+	database          string
+	collection        string
+	userRecordHandler userRecordHandler.RecordHandler
+	ignoredReasons    map[api.Method]reasonInvalid.IgnoredReasonsInvalid
 }
 
+// New mongo record handler
 func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
 	userRecordHandler userRecordHandler.RecordHandler,
-) *mongoRecordHandler {
+) companyRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	createIgnoredReasons := reasonInvalid.IgnoredReasonsInvalid{
-		ReasonsInvalid: map[string][]reasonInvalid.Type{
-			"id": {
-				reasonInvalid.Blank,
+	ignoredReasons := map[api.Method]reasonInvalid.IgnoredReasonsInvalid{
+		companyRecordHandler.Create: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
 			},
 		},
 	}
 
 	newCompanyMongoRecordHandler := mongoRecordHandler{
-		mongoSession:         mongoSession,
-		database:             database,
-		collection:           collection,
-		createIgnoredReasons: createIgnoredReasons,
-		userRecordHandler:    userRecordHandler,
+		mongoSession:      mongoSession,
+		database:          database,
+		collection:        collection,
+		ignoredReasons:    ignoredReasons,
+		userRecordHandler: userRecordHandler,
 	}
 
 	return &newCompanyMongoRecordHandler
@@ -97,23 +102,21 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 	companyValidateResponse := companyRecordHandler.ValidateResponse{}
 
 	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
+		Claims:  request.Claims,
 		Company: request.Company,
 		Method:  companyRecordHandler.Create},
 		&companyValidateResponse); err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
 	} else {
 		for _, reason := range companyValidateResponse.ReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 		}
 	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest, response *companyRecordHandler.CreateResponse) error {
@@ -126,14 +129,28 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	newId, err := uuid.NewV4()
+	newID, err := uuid.NewV4()
 	if err != nil {
 		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
-	request.Company.Id = newId.String()
+	request.Company.Id = newID.String()
 
 	if err := companyCollection.Insert(request.Company); err != nil {
 		return companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+	}
+
+	// create minimal admin user for the company
+	if err := mrh.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		Claims: request.Claims,
+		User: user.User{
+			EmailAddress:    request.Company.AdminEmailAddress,
+			ParentPartyType: request.Company.ParentPartyType,
+			ParentId:        request.Company.ParentId,
+			PartyType:       party.Company,
+			PartyId:         id.Identifier{Id: request.Company.Id},
+		},
+	}, &userRecordHandler.CreateResponse{}); err != nil {
+		return companyRecordHandlerException.Create{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
 	response.Company = request.Company
@@ -142,6 +159,10 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
@@ -153,9 +174,8 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHan
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest, response *companyRecordHandler.RetrieveResponse) error {
@@ -171,12 +191,13 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 	var companyRecord company.Company
 
 	filter := request.Identifier.ToFilter()
+	filter = company.ContextualiseFilter(filter, request.Claims)
+
 	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return companyRecordHandlerException.NotFound{}
-		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
+		return brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
 
 	response.Company = companyRecord
@@ -186,11 +207,22 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	} else {
+		if !company.IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for company", request.Identifier.Type()))
+		}
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateRequest, response *companyRecordHandler.UpdateResponse) error {
@@ -205,7 +237,10 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 
 	// Retrieve Company
 	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveCompanyResponse); err != nil {
+	if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveCompanyResponse); err != nil {
 		return companyRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -213,7 +248,9 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 	// retrieveCompanyResponse.Company.Id = request.Company.Id // cannot update ever
 	retrieveCompanyResponse.Company.Name = request.Company.Name
 
-	if err := companyCollection.Update(request.Identifier.ToFilter(), retrieveCompanyResponse.Company); err != nil {
+	filter := request.Identifier.ToFilter()
+	filter = company.ContextualiseFilter(filter, request.Claims)
+	if err := companyCollection.Update(filter, retrieveCompanyResponse.Company); err != nil {
 		return companyRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
@@ -235,9 +272,8 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandl
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteRequest, response *companyRecordHandler.DeleteResponse) error {
@@ -250,7 +286,9 @@ func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteReques
 
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	if err := companyCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	filter := request.Identifier.ToFilter()
+	filter = company.ContextualiseFilter(filter, request.Claims)
+	if err := companyCollection.Remove(filter); err != nil {
 		return err
 	}
 
@@ -260,11 +298,14 @@ func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteReques
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *companyRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRequest, response *companyRecordHandler.ValidateResponse) error {
@@ -311,8 +352,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 		})
 	}
 
-	blankIdIdentifier := id.Identifier{}
-	if (*companyToValidate).ParentId == blankIdIdentifier {
+	if (*companyToValidate).ParentId.Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "parentId",
 			Type:  reasonInvalid.Blank,
@@ -330,6 +370,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
 			if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
@@ -356,7 +397,9 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 				})
 			}
 
+			// check if there any users with this email address
 			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
@@ -383,15 +426,15 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 				})
 			}
 		}
+	}
 
-		// Ignore reasons not applicable for this method
+	// Ignore reasons applicable to method if relevant
+	if mrh.ignoredReasons[request.Method].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+			if !mrh.ignoredReasons[request.Method].CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
-	default:
-		returnedReasonsInvalid = allReasonsInvalid
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid
@@ -401,11 +444,14 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest, response *companyRecordHandler.CollectResponse) error {
@@ -413,15 +459,8 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = company.ContextualiseFilter(filter, request.Claims)
 
 	// Get Company Collection
 	mgoSession := mrh.mongoSession.Copy()

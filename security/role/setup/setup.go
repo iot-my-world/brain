@@ -7,9 +7,9 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	"gitlab.com/iotTracker/brain/security/role"
+	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
 	roleSetupException "gitlab.com/iotTracker/brain/security/role/setup/exception"
-	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
 
 var initialRoles = func() []role.Role {
@@ -88,6 +88,7 @@ var CompanyAdmin = role.Role{
 		api.ClientRecordHandlerDelete,
 		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
+		api.PartyRegistrarInviteCompanyUser,
 		api.PartyRegistrarInviteClientAdminUser,
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
@@ -98,6 +99,9 @@ var CompanyAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.UserRecordHandlerCollect,
+		api.PartyRegistrarAreAdminsRegistered,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -116,6 +120,7 @@ var CompanyUser = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
@@ -139,6 +144,10 @@ var ClientAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.PartyRegistrarInviteClientUser,
+		api.UserRecordHandlerCollect,
+		api.PartyRegistrarAreAdminsRegistered,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -157,6 +166,7 @@ var ClientUser = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
+		api.PartyHandlerGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,

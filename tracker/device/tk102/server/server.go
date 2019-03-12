@@ -3,43 +3,49 @@ package server
 import (
 	"bufio"
 	"fmt"
+	"github.com/go-errors/errors"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/criterion/text"
+	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/tracker/device"
+	tk1022 "gitlab.com/iotTracker/brain/tracker/device/tk102"
+	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"net"
 	"strconv"
-	"time"
 	"strings"
-	"github.com/go-errors/errors"
-	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
-	tk1022 "gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/search/criterion/text"
-	"gitlab.com/iotTracker/brain/search/criterion"
+	"time"
 )
 
-type tk102Server struct {
+// TK102Server is a TK102 Tracking Device tcp/id unix socket server
+type TK102Server struct {
 	readingRecordHandler readingRecordHandler.RecordHandler
 	tk102RecordHandler   tk102RecordHandler.RecordHandler
+	systemClaims         *login.Login
 	ip                   string
 	port                 string
 }
 
+// New TK102 Server
 func New(
 	readingRecordHandler readingRecordHandler.RecordHandler,
+	systemClaims *login.Login,
 	tk102RecordHandler tk102RecordHandler.RecordHandler,
 	ip string,
 	port string,
-) *tk102Server {
+) *TK102Server {
 
-	return &tk102Server{
+	return &TK102Server{
 		tk102RecordHandler:   tk102RecordHandler,
 		readingRecordHandler: readingRecordHandler,
 		ip:                   ip,
 		port:                 port,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -78,42 +84,41 @@ func convertData(raw string) (*reading.Reading, *tk102.Identifier, error) {
 		// confirm N only appears once
 		if strings.Count(raw, "N") > 1 {
 			return nil, nil, errors.New("more than 1 N in raw data")
-		} else {
-			// perform processing for N
-			nOrS = "N"
-			north := raw[strings.Index(raw, "A")+1 : strings.Index(raw, "N")]
-			minutes := north[strings.Index(north, ".")-2:]
-			degrees := north[:strings.Index(north, ".")-2]
-			floatDegrees, err := strconv.ParseFloat(degrees, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
-			}
-			floatMinutes, err := strconv.ParseFloat(minutes, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
-			}
-			newReading.Latitude = float32(floatDegrees + (floatMinutes / 60))
 		}
+
+		// perform processing for N
+		nOrS = "N"
+		north := raw[strings.Index(raw, "A")+1 : strings.Index(raw, "N")]
+		minutes := north[strings.Index(north, ".")-2:]
+		degrees := north[:strings.Index(north, ".")-2]
+		floatDegrees, err := strconv.ParseFloat(degrees, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
+		}
+		floatMinutes, err := strconv.ParseFloat(minutes, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
+		}
+		newReading.Latitude = float32(floatDegrees + (floatMinutes / 60))
 	} else if strings.Contains(raw, "S") {
 		// confirm S only appears once
 		if strings.Count(raw, "S") > 1 {
 			return nil, nil, errors.New("more than 1 S in raw data")
-		} else {
-			nOrS = "S"
-			// perform processing for S
-			south := raw[strings.Index(raw, "A")+1 : strings.Index(raw, "S")]
-			minutes := south[strings.Index(south, ".")-2:]
-			degrees := south[:strings.Index(south, ".")-2]
-			floatDegrees, err := strconv.ParseFloat(degrees, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
-			}
-			floatMinutes, err := strconv.ParseFloat(minutes, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
-			}
-			newReading.Latitude = -1 * float32(floatDegrees+(floatMinutes/60))
 		}
+		nOrS = "S"
+		// perform processing for S
+		south := raw[strings.Index(raw, "A")+1 : strings.Index(raw, "S")]
+		minutes := south[strings.Index(south, ".")-2:]
+		degrees := south[:strings.Index(south, ".")-2]
+		floatDegrees, err := strconv.ParseFloat(degrees, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
+		}
+		floatMinutes, err := strconv.ParseFloat(minutes, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
+		}
+		newReading.Latitude = -1 * float32(floatDegrees+(floatMinutes/60))
 	} else {
 		return nil, nil, errors.New("could not find N or S in raw data data")
 	}
@@ -123,40 +128,38 @@ func convertData(raw string) (*reading.Reading, *tk102.Identifier, error) {
 		// confirm N only appears once
 		if strings.Count(raw, "E") > 1 {
 			return nil, nil, errors.New("more than 1 E in raw data")
-		} else {
-			// process E
-			east := raw[strings.Index(raw, nOrS)+1 : strings.Index(raw, "E")]
-			minutes := east[strings.Index(east, ".")-2:]
-			degrees := east[:strings.Index(east, ".")-2]
-			floatDegrees, err := strconv.ParseFloat(degrees, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
-			}
-			floatMinutes, err := strconv.ParseFloat(minutes, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
-			}
-			newReading.Longitude = float32(floatDegrees + (floatMinutes / 60))
 		}
+		// process E
+		east := raw[strings.Index(raw, nOrS)+1 : strings.Index(raw, "E")]
+		minutes := east[strings.Index(east, ".")-2:]
+		degrees := east[:strings.Index(east, ".")-2]
+		floatDegrees, err := strconv.ParseFloat(degrees, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
+		}
+		floatMinutes, err := strconv.ParseFloat(minutes, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
+		}
+		newReading.Longitude = float32(floatDegrees + (floatMinutes / 60))
 	} else if strings.Contains(raw, "W") {
 		// confirm S only appears once
 		if strings.Count(raw, "W") > 1 {
 			return nil, nil, errors.New("more than 1 W in raw data")
-		} else {
-			// process W
-			west := raw[strings.Index(raw, nOrS)+1 : strings.Index(raw, "W")]
-			minutes := west[strings.Index(west, ".")-2:]
-			degrees := west[:strings.Index(west, ".")-2]
-			floatDegrees, err := strconv.ParseFloat(degrees, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
-			}
-			floatMinutes, err := strconv.ParseFloat(minutes, 32)
-			if err != nil {
-				return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
-			}
-			newReading.Latitude = float32(floatDegrees + (floatMinutes / 60))
 		}
+		// process W
+		west := raw[strings.Index(raw, nOrS)+1 : strings.Index(raw, "W")]
+		minutes := west[strings.Index(west, ".")-2:]
+		degrees := west[:strings.Index(west, ".")-2]
+		floatDegrees, err := strconv.ParseFloat(degrees, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting degrees string to float: " + err.Error())
+		}
+		floatMinutes, err := strconv.ParseFloat(minutes, 32)
+		if err != nil {
+			return nil, nil, errors.New("error converting string minutes to float: " + err.Error())
+		}
+		newReading.Latitude = float32(floatDegrees + (floatMinutes / 60))
 	} else {
 		return nil, nil, errors.New("could not find W or E in raw data data")
 	}
@@ -164,7 +167,7 @@ func convertData(raw string) (*reading.Reading, *tk102.Identifier, error) {
 	return &newReading, &tk102Identifier, nil
 }
 
-func (ts *tk102Server) handleConnection(c net.Conn) {
+func (ts *TK102Server) handleConnection(c net.Conn) {
 	log.Info(fmt.Sprintf("TK102 server serving %s", c.RemoteAddr().String()))
 	// initialise session variables
 	lastReading := reading.Reading{}
@@ -179,7 +182,7 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 		} else {
 			newReading, tk102Identifier, err := convertData(data)
 			if err != nil {
-				invalidDataCount ++
+				invalidDataCount++
 				// only allow 3 instances of invalid data
 				if invalidDataCount < 3 {
 					continue
@@ -194,10 +197,10 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 				// if not, retrieve the associated device
 				tk102RetrieveResponse := tk102RecordHandler.RetrieveResponse{}
 				if err := ts.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
+					Claims:     *ts.systemClaims,
 					Identifier: *tk102Identifier,
 				},
-					&tk102RetrieveResponse);
-					err != nil {
+					&tk102RetrieveResponse); err != nil {
 					log.Warn("cannot find device for reading: ", err.Error())
 					break
 				}
@@ -218,11 +221,11 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 				}
 				readingCollectResponse := readingRecordHandler.CollectResponse{}
 				if err := ts.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+					Claims:   ts.systemClaims,
 					Query:    collectQuery,
 					Criteria: []criterion.Criterion{collectCriterion},
 				},
-					&readingCollectResponse);
-					err != nil {
+					&readingCollectResponse); err != nil {
 					log.Warn("unable to perform collect for last reading: ", err.Error())
 				}
 				if len(readingCollectResponse.Records) > 0 {
@@ -267,7 +270,8 @@ func (ts *tk102Server) handleConnection(c net.Conn) {
 	fmt.Printf("%s disconnected\n", c.RemoteAddr().String())
 }
 
-func (ts *tk102Server) Start() error {
+// Start the TK102 Device Server
+func (ts *TK102Server) Start() error {
 	listener, err := net.Listen("tcp4", fmt.Sprintf("%s:%s", ts.ip, ts.port))
 	if err != nil {
 		return err

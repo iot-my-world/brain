@@ -3,6 +3,8 @@ package company
 import (
 	"gitlab.com/iotTracker/brain/party/company"
 	"gitlab.com/iotTracker/brain/search"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/validate"
 	"net/http"
 )
@@ -50,6 +52,12 @@ type RetrieveResponse struct {
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -58,6 +66,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	retrieveCompanyResponse := company.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
 		&company.RetrieveRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&retrieveCompanyResponse); err != nil {
@@ -79,6 +88,12 @@ type UpdateResponse struct {
 }
 
 func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -87,6 +102,7 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 	updateCompanyResponse := company.UpdateResponse{}
 	if err := s.RecordHandler.Update(
 		&company.UpdateRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&updateCompanyResponse); err != nil {

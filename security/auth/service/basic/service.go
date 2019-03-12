@@ -4,8 +4,8 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
@@ -19,12 +19,18 @@ import (
 type service struct {
 	userRecordHandler userRecordHandler.RecordHandler
 	jwtGenerator      token.JWTGenerator
+	systemClaims      *login.Login
 }
 
-func New(userRecordHandler userRecordHandler.RecordHandler, rsaPrivateKey *rsa.PrivateKey) *service {
+func New(
+	userRecordHandler userRecordHandler.RecordHandler,
+	rsaPrivateKey *rsa.PrivateKey,
+	systemClaims *login.Login,
+) *service {
 	return &service{
 		userRecordHandler: userRecordHandler,
 		jwtGenerator:      token.NewJWTGenerator(rsaPrivateKey),
+		systemClaims:      systemClaims,
 	}
 }
 
@@ -39,12 +45,14 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	//try and retrieve User record with username
 	if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     *s.systemClaims,
 		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
 	}, &retrieveUserResponse); err != nil {
 		switch err.(type) {
 		case userRecordHandlerException.NotFound:
 			//try and retrieve User record with email address
 			if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims:     *s.systemClaims,
 				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 			}, &retrieveUserResponse); err != nil {
 				return errors.New("log in failed")
@@ -62,11 +70,13 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 
 	// Password is correct. Try and generate loginToken
 	loginToken, err := s.jwtGenerator.GenerateToken(login.Login{
-		UserId:         id.Identifier{Id: retrieveUserResponse.User.Id},
-		IssueTime:      time.Now().UTC().Unix(),
-		ExpirationTime: time.Now().Add(90 * time.Minute).UTC().Unix(),
-		PartyType:      retrieveUserResponse.User.PartyType,
-		PartyId:        retrieveUserResponse.User.PartyId,
+		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
+		IssueTime:       time.Now().UTC().Unix(),
+		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
+		ParentPartyType: retrieveUserResponse.User.ParentPartyType,
+		ParentId:        retrieveUserResponse.User.ParentId,
+		PartyType:       retrieveUserResponse.User.PartyType,
+		PartyId:         retrieveUserResponse.User.PartyId,
 	})
 	if err != nil {
 		//Unexpected Error!

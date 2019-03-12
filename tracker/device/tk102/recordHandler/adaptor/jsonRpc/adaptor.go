@@ -41,12 +41,10 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 
 	createTK102Response := tk102RecordHandler.CreateResponse{}
 
-	if err := s.RecordHandler.Create(
-		&tk102RecordHandler.CreateRequest{
-			TK102:  request.TK102,
-			Claims: claims,
-		},
-		&createTK102Response); err != nil {
+	if err := s.RecordHandler.Create(&tk102RecordHandler.CreateRequest{
+		TK102:  request.TK102,
+		Claims: claims,
+	}, &createTK102Response); err != nil {
 		return err
 	}
 
@@ -64,6 +62,12 @@ type RetrieveResponse struct {
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -72,6 +76,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
 		&tk102RecordHandler.RetrieveRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&retrieveTK102Response); err != nil {
@@ -121,14 +126,18 @@ type ValidateResponse struct {
 }
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	validateTK102Response := tk102RecordHandler.ValidateResponse{}
-	if err := s.RecordHandler.Validate(
-		&tk102RecordHandler.ValidateRequest{
-			TK102:  request.TK102,
-			Method: request.Method,
-		},
-		&validateTK102Response); err != nil {
+	if err := s.RecordHandler.Validate(&tk102RecordHandler.ValidateRequest{
+		Claims: claims,
+		TK102:  request.TK102,
+		Method: request.Method,
+	}, &validateTK102Response); err != nil {
 		return err
 	}
 
@@ -148,14 +157,12 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	// unwrap criteria
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
 		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {

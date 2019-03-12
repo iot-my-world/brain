@@ -7,8 +7,8 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	permissionHandlerException "gitlab.com/iotTracker/brain/security/permission/handler/exception"
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
+	permissionHandlerException "gitlab.com/iotTracker/brain/security/permission/handler/exception"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
@@ -58,6 +58,7 @@ func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissio
 	// retrieve all of the users permissions
 	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
 	if err := bh.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
+		Claims:         request.Claims,
 		UserIdentifier: request.UserIdentifier,
 	},
 		&getAllUsersPermissionsResponse); err != nil {
@@ -103,7 +104,10 @@ func (bh *handler) GetAllUsersAPIPermissions(request *permissionHandler.GetAllUs
 
 	// try and retrieve the user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
+	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.UserIdentifier,
+	}, &userRetrieveResponse); err != nil {
 		return err
 	}
 
@@ -151,7 +155,10 @@ func (bh *handler) GetAllUsersViewPermissions(request *permissionHandler.GetAllU
 
 	// try and retrieve the user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{Identifier: request.UserIdentifier}, &userRetrieveResponse); err != nil {
+	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.UserIdentifier,
+	}, &userRetrieveResponse); err != nil {
 		return err
 	}
 

@@ -13,8 +13,8 @@ type Criterion struct {
 }
 
 type DateRange struct {
-	Date      int64 `json:"date"`
-	Ignore    bool  `json:"ignore"`
+	Date   int64 `json:"date"`
+	Ignore bool  `json:"ignore"`
 }
 
 func (c Criterion) IsValid() error {

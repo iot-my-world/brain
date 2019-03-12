@@ -34,30 +34,36 @@ import (
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
-	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
+	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
+	tk102DeviceServer "gitlab.com/iotTracker/brain/tracker/device/tk102/server"
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
-	tk102DeviceServer "gitlab.com/iotTracker/brain/tracker/device/tk102/server"
 
+	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
+	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
-	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
-	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
 
-	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
+	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
 
 	"flag"
 	"gitlab.com/iotTracker/brain/email/mailer"
 	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
+
+	partyHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/handler/adaptor/jsonRpc"
+	partyBasicHandler "gitlab.com/iotTracker/brain/party/handler/basic"
+
+	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 	"strings"
 )
 
-var ServerPort = "9010"
+var serverPort = "9010"
 
 var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
 
@@ -106,19 +112,97 @@ func main() {
 		Host:     "smtp.gmail.com",
 	})
 
+	// Create system claims for the services that root privileges
+	var systemClaims = login.Login{
+		//UserId          id.Identifier `json:"userId"`
+		//IssueTime       int64         `json:"issueTime"`
+		//ExpirationTime  int64         `json:"expirationTime"`
+		//ParentPartyType party.Type    `json:"parentPartyType"`
+		//ParentId        id.Identifier `json:"parentId"`
+		PartyType: party.System,
+		//PartyId         id.Identifier `json:"partyId"`
+	}
+
 	// Create Service Providers
-	RoleRecordHandler := roleMongoRecordHandler.New(mainMongoSession, databaseName, roleCollection)
-	UserRecordHandler := userMongoRecordHandler.New(mainMongoSession, databaseName, userCollection)
-	PermissionBasicHandler := permissionBasicHandler.New(UserRecordHandler, RoleRecordHandler)
-	AuthService := authBasicService.New(UserRecordHandler, rsaPrivateKey)
-	CompanyRecordHandler := companyMongoRecordHandler.New(mainMongoSession, databaseName, companyCollection, UserRecordHandler)
-	ClientRecordHandler := clientMongoRecordHandler.New(mainMongoSession, databaseName, clientCollection, UserRecordHandler)
-	PartyBasicRegistrar := partyBasicRegistrar.New(CompanyRecordHandler, UserRecordHandler, ClientRecordHandler, Mailer, rsaPrivateKey, *mailRedirectBaseUrl)
-	SystemRecordHandler := systemMongoRecordHandler.New(mainMongoSession, databaseName, systemCollection, *rootPasswordFileLocation, PartyBasicRegistrar)
-	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(mainMongoSession, databaseName, tk102DeviceCollection, SystemRecordHandler, CompanyRecordHandler, ClientRecordHandler)
-	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(TK102DeviceRecordHandler, CompanyRecordHandler, ClientRecordHandler)
-	ReadingRecordHandler := readingMongoRecordHandler.New(mainMongoSession, databaseName, readingCollection)
-	TrackingReport := trackingBasicReport.New(CompanyRecordHandler, ClientRecordHandler, ReadingRecordHandler, TK102DeviceRecordHandler)
+	RoleRecordHandler := roleMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		roleCollection,
+	)
+	UserRecordHandler := userMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		userCollection,
+		&systemClaims,
+	)
+	PermissionBasicHandler := permissionBasicHandler.New(
+		UserRecordHandler,
+		RoleRecordHandler,
+	)
+	AuthService := authBasicService.New(
+		UserRecordHandler,
+		rsaPrivateKey,
+		&systemClaims,
+	)
+	CompanyRecordHandler := companyMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		companyCollection,
+		UserRecordHandler,
+	)
+	ClientRecordHandler := clientMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		clientCollection,
+		UserRecordHandler,
+	)
+	PartyBasicRegistrar := partyBasicRegistrar.New(
+		CompanyRecordHandler,
+		UserRecordHandler,
+		ClientRecordHandler,
+		Mailer,
+		rsaPrivateKey,
+		*mailRedirectBaseUrl,
+		&systemClaims,
+	)
+	SystemRecordHandler := systemMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		systemCollection,
+		*rootPasswordFileLocation,
+		PartyBasicRegistrar,
+		&systemClaims,
+	)
+	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		tk102DeviceCollection,
+		SystemRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+	)
+	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
+		TK102DeviceRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+	)
+	ReadingRecordHandler := readingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		readingCollection,
+	)
+	TrackingReport := trackingBasicReport.New(
+		SystemRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+		ReadingRecordHandler,
+		TK102DeviceRecordHandler,
+	)
+	PartyBasicHandler := partyBasicHandler.New(
+		ClientRecordHandler,
+		CompanyRecordHandler,
+		SystemRecordHandler,
+	)
 
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
@@ -133,6 +217,7 @@ func main() {
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
+	PartyHandlerAdaptor := partyHandlerJsonRpcAdaptor.New(PartyBasicHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -179,21 +264,24 @@ func main() {
 	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
 	}
+	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyHandler"); err != nil {
+		log.Fatal("Unable to Register Party Handler Service")
+	}
 
 	// Set up Router for secureAPIServer
 	secureAPIServerMux := mux.NewRouter()
 	secureAPIServerMux.Methods("OPTIONS").HandlerFunc(preFlightHandler)
 	secureAPIServerMux.Handle("/api", apiAuthApplier(secureAPIServer)).Methods("POST")
 	// Start secureAPIServer
-	log.Info("Starting secureAPIServer on port " + ServerPort)
+	log.Info("Starting secureAPIServer on port " + serverPort)
 	go func() {
-		err := http.ListenAndServe(":"+ServerPort, secureAPIServerMux)
+		err := http.ListenAndServe(":"+serverPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()
 
 	// Set up tracker tcp server
-	tk102DeviceServerInstance := tk102DeviceServer.New(ReadingRecordHandler, TK102DeviceRecordHandler, "0.0.0.0", "7018")
+	tk102DeviceServerInstance := tk102DeviceServer.New(ReadingRecordHandler, &systemClaims, TK102DeviceRecordHandler, "0.0.0.0", "7018")
 	log.Info("Starting TK102 Device Server")
 	go func() {
 		err := tk102DeviceServerInstance.Start()

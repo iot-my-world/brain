@@ -6,18 +6,19 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
-	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
 	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
+	tk102ExceptionRecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type mongoRecordHandler struct {
@@ -113,10 +114,11 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *tk102RecordHandler
 	tk102ValidateResponse := tk102RecordHandler.ValidateResponse{}
 
 	if err := mrh.Validate(&tk102RecordHandler.ValidateRequest{
+		Claims: request.Claims,
 		TK102:  request.TK102,
 		Method: tk102RecordHandler.Create},
 		&tk102ValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newTK102")
+		reasonsInvalid = append(reasonsInvalid, "unable to validate newTK102"+err.Error())
 	} else {
 		for _, reason := range tk102ValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
@@ -159,6 +161,10 @@ func (mrh *mongoRecordHandler) Create(request *tk102RecordHandler.CreateRequest,
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *tk102RecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
@@ -186,7 +192,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequ
 
 	var tk102Record tk102.TK102
 
-	filter := request.Identifier.ToFilter()
+	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := tk102Collection.Find(filter).One(&tk102Record); err != nil {
 		if err == mgo.ErrNotFound {
 			return tk102ExceptionRecordHandlerException.NotFound{}
@@ -201,6 +207,10 @@ func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequ
 
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *tk102RecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
@@ -275,6 +285,10 @@ func (mrh *mongoRecordHandler) Delete(request *tk102RecordHandler.DeleteRequest,
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *tk102RecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -341,9 +355,9 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.System:
 			// system owner must exist, try and retrieve to confirm
 			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).OwnerId,
-			},
-				&systemRecordHandler.RetrieveResponse{}); err != nil {
+			}, &systemRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case systemRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -360,9 +374,9 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Company:
 			// company owner must exist, try and retrieve to confirm
 			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).OwnerId,
-			},
-				&companyRecordHandler.RetrieveResponse{}); err != nil {
+			}, &companyRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case companyRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -379,9 +393,9 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Client:
 			// client owner must exist, try and retrieve to confirm
 			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).OwnerId,
-			},
-				&clientRecordHandler.RetrieveResponse{}); err != nil {
+			}, &clientRecordHandler.RetrieveResponse{}); err != nil {
 				switch err.(type) {
 				case clientRecordHandlerException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -426,6 +440,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.System:
 			// system assigned must exist, try and retrieve to confirm
 			if err := mrh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).AssignedId,
 			},
 				&systemRecordHandler.RetrieveResponse{}); err != nil {
@@ -445,6 +460,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Company:
 			// company assigned must exist, try and retrieve to confirm
 			if err := mrh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).AssignedId,
 			},
 				&companyRecordHandler.RetrieveResponse{}); err != nil {
@@ -464,6 +480,7 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 		case party.Client:
 			// client assigned must exist, try and retrieve to confirm
 			if err := mrh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims:     request.Claims,
 				Identifier: (*tk102ToValidate).AssignedId,
 			},
 				&clientRecordHandler.RetrieveResponse{}); err != nil {
@@ -523,6 +540,10 @@ func (mrh *mongoRecordHandler) Validate(request *tk102RecordHandler.ValidateRequ
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *tk102RecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -535,7 +556,8 @@ func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectReques
 		return err
 	}
 
-	filter := criterion.CriteriaToFilter(request.Criteria, request.Claims)
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = claims.ContextualiseFilter(filter, request.Claims)
 
 	// Get TK102 Collection
 	mgoSession := mrh.mongoSession.Copy()

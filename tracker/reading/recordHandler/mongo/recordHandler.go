@@ -4,10 +4,11 @@ import (
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/search/criterion"
 )
 
 type mongoRecordHandler struct {
@@ -85,6 +86,10 @@ func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateReques
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *readingRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -97,7 +102,8 @@ func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequ
 		return err
 	}
 
-	filter := criterion.CriteriaToFilter(request.Criteria, request.Claims)
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = claims.ContextualiseFilter(filter, request.Claims)
 
 	// Get Reading Collection
 	mgoSession := mrh.mongoSession.Copy()

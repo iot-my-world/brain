@@ -6,14 +6,17 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"time"
+	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type RegisterCompanyAdminUser struct {
-	IssueTime      int64         `json:"issueTime"`
-	ExpirationTime int64         `json:"expirationTime"`
-	PartyType      party.Type    `json:"partyType"`
-	PartyId        id.Identifier `json:"partyId"`
-	EmailAddress   string        `json:"emailAddress"`
+	IssueTime       int64         `json:"issueTime"`
+	ExpirationTime  int64         `json:"expirationTime"`
+	User            user.User     `json:"user"`
+	ParentPartyType party.Type    `json:"parentPartyType"`
+	ParentId        id.Identifier `json:"parentId"`
+	PartyType       party.Type    `json:"partyType"`
+	PartyId         id.Identifier `json:"partyId"`
 }
 
 func (r RegisterCompanyAdminUser) Type() claims.Type {
@@ -26,8 +29,14 @@ func (r RegisterCompanyAdminUser) Expired() bool {
 
 func (r RegisterCompanyAdminUser) PartyDetails() party.Details {
 	return party.Details{
-		PartyType: r.PartyType,
-		PartyId:   r.PartyId,
+		Detail: party.Detail{
+			PartyType: r.PartyType,
+			PartyId:   r.PartyId,
+		},
+		ParentDetail: party.ParentDetail{
+			ParentPartyType: r.ParentPartyType,
+			ParentId:        r.ParentId,
+		},
 	}
 }
 

@@ -10,7 +10,8 @@ import (
 	"net/http"
 )
 
-type JsonRpcReq struct {
+// JSONRPCReq is a Json Rpc request
+type JSONRPCReq struct {
 	// To unmarshal the received json
 	Id     string `json:"id"`
 	Method string `json:"method"`
@@ -77,7 +78,7 @@ func getJsonRpcServiceMethod(r *http.Request) (string, error) {
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	// Retrieve id and method of json rpc request
-	req := JsonRpcReq{}
+	req := JSONRPCReq{}
 	if err := json.Unmarshal(bodyBytes, &req); err != nil {
 		return "", err
 	}

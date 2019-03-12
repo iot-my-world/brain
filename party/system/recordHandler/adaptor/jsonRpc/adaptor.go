@@ -1,13 +1,15 @@
 package system
 
 import (
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/system"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
-	"net/http"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"net/http"
 )
 
 type adaptor struct {
@@ -29,6 +31,12 @@ type RetrieveResponse struct {
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -37,6 +45,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
 		&systemRecordHandler.RetrieveRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&retrieveSystemResponse); err != nil {
@@ -59,7 +68,12 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
-	// unwrap criteria
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
 		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {
@@ -73,6 +87,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 	if err := s.RecordHandler.Collect(&systemRecordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
+		Claims:   claims,
 	},
 		&collectSystemResponse); err != nil {
 		return err

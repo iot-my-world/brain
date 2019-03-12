@@ -1,14 +1,14 @@
 package jsonRpc
 
 import (
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"net/http"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/log"
 )
 
 type adaptor struct {
@@ -32,14 +32,12 @@ type CollectResponse struct {
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	// unwrap criteria
 	criteria := make([]criterion.Criterion, 0)
 	for criterionIdx := range request.Criteria {
 		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {

@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyException "gitlab.com/iotTracker/brain/party/company/exception"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/validate"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
@@ -135,7 +136,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *company.RetrieveRequest, respon
 
 	var companyRecord company.Company
 
-	if err := companyCollection.Find(request.Identifier.ToFilter()).One(&companyRecord); err != nil {
+	if err := companyCollection.Find(identifier.IdentifierToFilter(request.Identifier, request.Claims)).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return companyException.NotFound{}
 		} else {

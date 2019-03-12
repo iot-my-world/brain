@@ -5,9 +5,9 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	criterionException "gitlab.com/iotTracker/brain/search/criterion/exception"
-	"gitlab.com/iotTracker/brain/search/criterion/text"
 	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
 	"gitlab.com/iotTracker/brain/search/criterion/or"
+	"gitlab.com/iotTracker/brain/search/criterion/text"
 )
 
 type WrappedCriterion struct {
@@ -16,7 +16,7 @@ type WrappedCriterion struct {
 }
 
 type OrWrappedCriterion struct {
-	Criteria [] WrappedCriterion `json:"criteria"`
+	Criteria []WrappedCriterion `json:"criteria"`
 }
 
 func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {

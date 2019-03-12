@@ -1,13 +1,13 @@
 package jsonRpc
 
 import (
+	"gitlab.com/iotTracker/brain/log"
 	trackingReport "gitlab.com/iotTracker/brain/report/tracking"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	"net/http"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
-	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type adaptor struct {
@@ -23,6 +23,7 @@ func New(
 }
 
 type LiveRequest struct {
+	SystemIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"systemIdentifiers"`
 	CompanyIdentifiers []wrappedIdentifier.WrappedIdentifier `json:"companyIdentifiers"`
 	ClientIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"clientIdentifiers"`
 }
@@ -32,13 +33,21 @@ type LiveResponse struct {
 }
 
 func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
+	// unwrap system identifiers
+	systemIdentifiers := make([]identifier.Identifier, 0)
+	for idIdx := range request.SystemIdentifiers {
+		if c, err := request.SystemIdentifiers[idIdx].UnWrap(); err == nil {
+			systemIdentifiers = append(systemIdentifiers, c)
+		} else {
+			return err
+		}
+	}
 	// unwrap company identifiers
 	companyIdentifiers := make([]identifier.Identifier, 0)
 	for idIdx := range request.CompanyIdentifiers {
@@ -62,6 +71,7 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 	liveTrackingReportResponse := trackingReport.LiveResponse{}
 	if err := a.trackingReport.Live(&trackingReport.LiveRequest{
 		Claims:             claims,
+		SystemIdentifiers:  systemIdentifiers,
 		CompanyIdentifiers: companyIdentifiers,
 		ClientIdentifiers:  clientIdentifiers,
 	}, &liveTrackingReportResponse); err != nil {
@@ -83,7 +93,6 @@ type HistoricalResponse struct {
 }
 
 func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, response *HistoricalResponse) error {
-	// unwrap claims
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())

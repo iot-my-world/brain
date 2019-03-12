@@ -16,10 +16,14 @@ type User struct {
 	// System Details
 	Username     string   `json:"username" bson:"username"`
 	EmailAddress string   `json:"emailAddress" bson:"emailAddress"`
-	Password     []byte   `json:"pwd" bson:"pwd"`
+	Password     []byte   `json:"password" bson:"password"`
 	Roles        []string `json:"roles" bson:"roles"`
 
 	// Party Details
-	PartyType party.Type    `json:"partyType" bson:"partyType"`
-	PartyId   id.Identifier `json:"partyId" bson:"partyId"`
+	ParentPartyType party.Type    `json:"parentPartyType" bson:"parentPartyType"`
+	ParentId        id.Identifier `json:"parentId" bson:"parentId"`
+	PartyType       party.Type    `json:"partyType" bson:"partyType"`
+	PartyId         id.Identifier `json:"partyId" bson:"partyId"`
+
+	Registered bool `json:"registered" bson:"registered"`
 }

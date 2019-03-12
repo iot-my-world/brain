@@ -8,11 +8,13 @@ import (
 )
 
 type Login struct {
-	UserId         id.Identifier `json:"userId"`
-	IssueTime      int64         `json:"issueTime"`
-	ExpirationTime int64         `json:"expirationTime"`
-	PartyType      party.Type    `json:"partyType"`
-	PartyId        id.Identifier `json:"partyId"`
+	UserId          id.Identifier `json:"userId"`
+	IssueTime       int64         `json:"issueTime"`
+	ExpirationTime  int64         `json:"expirationTime"`
+	ParentPartyType party.Type    `json:"parentPartyType"`
+	ParentId        id.Identifier `json:"parentId"`
+	PartyType       party.Type    `json:"partyType"`
+	PartyId         id.Identifier `json:"partyId"`
 }
 
 func (l Login) Type() claims.Type {
@@ -25,7 +27,13 @@ func (l Login) Expired() bool {
 
 func (l Login) PartyDetails() party.Details {
 	return party.Details{
-		PartyType: l.PartyType,
-		PartyId:   l.PartyId,
+		Detail: party.Detail{
+			PartyType: l.PartyType,
+			PartyId:   l.PartyId,
+		},
+		ParentDetail: party.ParentDetail{
+			ParentPartyType: l.ParentPartyType,
+			ParentId:        l.ParentId,
+		},
 	}
 }

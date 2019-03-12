@@ -6,6 +6,8 @@ import (
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	"net/http"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/log"
 )
 
 type adaptor struct {
@@ -27,6 +29,12 @@ type GetAllUsersAPIPermissionsResponse struct {
 }
 
 func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUsersAPIPermissionsRequest, response *GetAllUsersAPIPermissionsResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.UserIdentifier.UnWrap()
 	if err != nil {
 		return err
@@ -34,6 +42,7 @@ func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUser
 
 	getAllUsersAPIPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
 	if err := s.permissionHandler.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
+		Claims:         claims,
 		UserIdentifier: id,
 	}, &getAllUsersAPIPermissionsResponse); err != nil {
 		return err
@@ -51,6 +60,12 @@ type GetAllUsersViewPermissionsResponse struct {
 }
 
 func (s *adaptor) GetAllUsersViewPermissions(r *http.Request, request *GetAllUsersViewPermissionsRequest, response *GetAllUsersViewPermissionsResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.UserIdentifier.UnWrap()
 	if err != nil {
 		return err
@@ -58,6 +73,7 @@ func (s *adaptor) GetAllUsersViewPermissions(r *http.Request, request *GetAllUse
 
 	getAllUsersViewPermissionsResponse := permissionHandler.GetAllUsersViewPermissionsResponse{}
 	if err := s.permissionHandler.GetAllUsersViewPermissions(&permissionHandler.GetAllUsersViewPermissionsRequest{
+		Claims:         claims,
 		UserIdentifier: id,
 	}, &getAllUsersViewPermissionsResponse); err != nil {
 		return err

@@ -26,6 +26,7 @@ const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
 
 type CollectRequest struct {
+	Claims   claims.Claims
 	Criteria []criterion.Criterion
 	Query    query.Query
 }
@@ -36,6 +37,7 @@ type CollectResponse struct {
 }
 
 type ValidateRequest struct {
+	Claims claims.Claims
 	Client client.Client
 	Method api.Method
 }
@@ -54,6 +56,7 @@ type CreateResponse struct {
 }
 
 type DeleteRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 
@@ -62,6 +65,7 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 	Client     client.Client
 }
@@ -71,6 +75,7 @@ type UpdateResponse struct {
 }
 
 type RetrieveRequest struct {
+	Claims     claims.Claims
 	Identifier identifier.Identifier
 }
 

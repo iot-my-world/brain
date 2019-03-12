@@ -5,14 +5,15 @@ import (
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/system"
-	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
-	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
+	"gitlab.com/iotTracker/brain/party/system"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
+	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type mongoRecordHandler struct {
@@ -28,6 +29,7 @@ func New(
 	collection,
 	rootPasswordFileLocation string,
 	registrar partyRegistrar.Registrar,
+	systemClaims *loginClaims.Login,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
@@ -47,7 +49,7 @@ func New(
 		createIgnoredReasons: createIgnoredReasons,
 	}
 
-	if err := systemSetup.InitialSetup(&newSystemMongoRecordHandler, registrar, rootPasswordFileLocation); err != nil {
+	if err := systemSetup.InitialSetup(&newSystemMongoRecordHandler, registrar, rootPasswordFileLocation, systemClaims); err != nil {
 		log.Fatal("Unable to complete initial system setup!", err.Error())
 	}
 
@@ -130,6 +132,10 @@ func (mrh *mongoRecordHandler) Create(request *systemRecordHandler.CreateRequest
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *systemRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
@@ -157,7 +163,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *systemRecordHandler.RetrieveReq
 
 	var systemRecord system.System
 
-	filter := request.Identifier.ToFilter()
+	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := systemCollection.Find(filter).One(&systemRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return systemException.NotFound{}
@@ -192,7 +198,10 @@ func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest
 
 	// Retrieve System
 	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&systemRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveSystemResponse); err != nil {
+	if err := mrh.Retrieve(&systemRecordHandler.RetrieveRequest{
+		Identifier: request.Identifier,
+		Claims:     request.Claims,
+	}, &retrieveSystemResponse); err != nil {
 		return systemException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -200,7 +209,8 @@ func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest
 	// retrieveSystemResponse.System.Id = request.System.Id // cannot update ever
 	retrieveSystemResponse.System.Name = request.System.Name
 	retrieveSystemResponse.System.AdminEmailAddress = request.System.AdminEmailAddress
-	if err := systemCollection.Update(request.Identifier.ToFilter(), retrieveSystemResponse.System); err != nil {
+	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := systemCollection.Update(filter, retrieveSystemResponse.System); err != nil {
 		return systemException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
@@ -236,8 +246,8 @@ func (mrh *mongoRecordHandler) Delete(request *systemRecordHandler.DeleteRequest
 	defer mgoSession.Close()
 
 	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	if err := systemCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := systemCollection.Remove(filter); err != nil {
 		return err
 	}
 
@@ -324,15 +334,8 @@ func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectReque
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = system.ContextualiseFilter(filter, request.Claims)
 
 	// Get System Collection
 	mgoSession := mrh.mongoSession.Copy()

@@ -3,8 +3,8 @@ package or
 import (
 	"github.com/go-errors/errors"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	"strings"
 	"gopkg.in/mgo.v2/bson"
+	"strings"
 )
 
 type Criterion struct {

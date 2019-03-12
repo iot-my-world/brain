@@ -10,6 +10,8 @@ import (
 	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 )
 
 type APIAuthorizer struct {
@@ -35,6 +37,7 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 		// required permission to check access the api
 		userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
 		if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
+			Claims:         typedClaims,
 			UserIdentifier: typedClaims.UserId,
 			Permission:     api.Permission(jsonRpcMethod),
 		}, &userHasPermissionResponse); err != nil {
@@ -59,6 +62,19 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 			}
 		}
 
+	case registerCompanyUser.RegisterCompanyUser:
+		permissionForMethod := api.Permission(jsonRpcMethod)
+		// check the permissions granted by the RegisterCompanyUser claims to see if this
+		// method is allowed
+		for allowedPermIdx := range registerCompanyUser.GrantedAPIPermissions {
+			if registerCompanyUser.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
+				return wrappedJWTClaims, nil
+			}
+			if allowedPermIdx == len(registerCompanyUser.GrantedAPIPermissions)-1 {
+				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+			}
+		}
+
 	case registerClientAdminUser.RegisterClientAdminUser:
 		permissionForMethod := api.Permission(jsonRpcMethod)
 		// check the permissions granted by the RegisterClientAdminUser claims to see if this
@@ -68,6 +84,19 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerClientAdminUser.GrantedAPIPermissions)-1 {
+				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+			}
+		}
+
+	case registerClientUser.RegisterClientUser:
+		permissionForMethod := api.Permission(jsonRpcMethod)
+		// check the permissions granted by the RegisterClientUser claims to see if this
+		// method is allowed
+		for allowedPermIdx := range registerClientUser.GrantedAPIPermissions {
+			if registerClientUser.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
+				return wrappedJWTClaims, nil
+			}
+			if allowedPermIdx == len(registerClientUser.GrantedAPIPermissions)-1 {
 				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}

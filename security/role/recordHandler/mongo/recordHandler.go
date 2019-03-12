@@ -6,8 +6,8 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/role"
-	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gopkg.in/mgo.v2"
 )

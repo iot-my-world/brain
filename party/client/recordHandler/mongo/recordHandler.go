@@ -7,15 +7,17 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/client"
-	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 type mongoRecordHandler struct {
@@ -87,10 +89,11 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandle
 	clientValidateResponse := clientRecordHandler.ValidateResponse{}
 
 	if err := mrh.Validate(&clientRecordHandler.ValidateRequest{
+		Claims: request.Claims,
 		Client: request.Client,
 		Method: clientRecordHandler.Create},
 		&clientValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newClient")
+		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("unable to validate newClient: %s", err.Error()))
 	} else {
 		for _, reason := range clientValidateResponse.ReasonsInvalid {
 			if !mrh.createIgnoredReasons.CanIgnore(reason) {
@@ -144,12 +147,30 @@ func (mrh *mongoRecordHandler) Create(request *clientRecordHandler.CreateRequest
 		return clientRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
+	// create minimal admin user for the client
+	if err := mrh.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		Claims: request.Claims,
+		User: user.User{
+			EmailAddress:    request.Client.AdminEmailAddress,
+			ParentPartyType: request.Client.ParentPartyType,
+			ParentId:        request.Client.ParentId,
+			PartyType:       party.Client,
+			PartyId:         id.Identifier{Id: request.Client.Id},
+		},
+	}, &userRecordHandler.CreateResponse{}); err != nil {
+		return clientRecordHandlerException.Create{Reasons: []string{"creating admin user", err.Error()}}
+	}
+
 	response.Client = request.Client
 	return nil
 }
 
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *clientRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
@@ -178,7 +199,8 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 
 	var clientRecord client.Client
 
-	filter := request.Identifier.ToFilter()
+	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+
 	if err := clientCollection.Find(filter).One(&clientRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return clientRecordHandlerException.NotFound{}
@@ -193,6 +215,10 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *clientRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
@@ -213,7 +239,10 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 
 	// Retrieve Client
 	retrieveClientResponse := clientRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveClientResponse); err != nil {
+	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveClientResponse); err != nil {
 		return clientRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
@@ -221,7 +250,9 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 	// retrieveClientResponse.Client.Id = request.Client.Id // cannot update ever
 	retrieveClientResponse.Client.Name = request.Client.Name
 
-	if err := clientCollection.Update(request.Identifier.ToFilter(), retrieveClientResponse.Client); err != nil {
+	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+
+	if err := clientCollection.Update(filter, retrieveClientResponse.Client); err != nil {
 		return clientRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
@@ -258,7 +289,8 @@ func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest
 
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	if err := clientCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := clientCollection.Remove(filter); err != nil {
 		return err
 	}
 
@@ -267,6 +299,10 @@ func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest
 
 func (mrh *mongoRecordHandler) ValidateValidateRequest(request *clientRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
@@ -301,6 +337,24 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 		})
 	}
 
+	if (*clientToValidate).ParentPartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentPartyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*clientToValidate).ParentPartyType,
+		})
+	}
+
+	if (*clientToValidate).ParentId.Id == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "parentId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*clientToValidate).ParentId,
+		})
+	}
+
 	if (*clientToValidate).AdminEmailAddress == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "adminEmailAddress",
@@ -320,6 +374,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 
 			// Check if there is another client that is already using the same admin email address
 			if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*clientToValidate).AdminEmailAddress,
 				},
@@ -348,6 +403,7 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 
 			// Check if there is another user that is already using the same admin email address
 			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				Claims: request.Claims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*clientToValidate).AdminEmailAddress,
 				},
@@ -394,6 +450,10 @@ func (mrh *mongoRecordHandler) Validate(request *clientRecordHandler.ValidateReq
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *clientRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
@@ -406,15 +466,8 @@ func (mrh *mongoRecordHandler) Collect(request *clientRecordHandler.CollectReque
 		return err
 	}
 
-	// Build filters from criteria
-	filter := bson.M{}
-	criteriaFilters := make([]bson.M, 0)
-	for criterionIdx := range request.Criteria {
-		criteriaFilters = append(criteriaFilters, request.Criteria[criterionIdx].ToFilter())
-	}
-	if len(criteriaFilters) > 0 {
-		filter["$and"] = criteriaFilters
-	}
+	filter := criterion.CriteriaToFilter(request.Criteria)
+	filter = client.ContextualiseFilter(filter, request.Claims)
 
 	// Get Client Collection
 	mgoSession := mrh.mongoSession.Copy()

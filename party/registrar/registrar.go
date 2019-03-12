@@ -2,21 +2,41 @@ package registrar
 
 import (
 	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 type Registrar interface {
-	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
 	RegisterSystemAdminUser(request *RegisterSystemAdminUserRequest, response *RegisterSystemAdminUserResponse) error
+
+	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
 	RegisterCompanyAdminUser(request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error
+	InviteCompanyUser(request *InviteCompanyUserRequest, response *InviteCompanyUserResponse) error
+	RegisterCompanyUser(request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error
+
 	InviteClientAdminUser(request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error
 	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
+	InviteClientUser(request *InviteClientUserRequest, response *InviteClientUserResponse) error
+	RegisterClientUser(request *RegisterClientUserRequest, response *RegisterClientUserResponse) error
+
+	AreAdminsRegistered(request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error
 }
 
+const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
+const RegisterCompanyAdminUser api.Method = "RegisterCompanyAdminUser"
+const InviteCompanyUser api.Method = "InviteCompanyUser"
+const RegisterCompanyUser api.Method = "RegisterCompanyUser"
+
+const InviteClientAdminUser api.Method = "InviteClientAdminUser"
+const RegisterClientAdminUser api.Method = "RegisterClientAdminUser"
+const InviteClientUser api.Method = "InviteClientUser"
+const RegisterClientUser api.Method = "RegisterClientUser"
+
 type RegisterSystemAdminUserRequest struct {
-	User     user.User
-	Password string
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterSystemAdminUserResponse struct {
@@ -24,35 +44,82 @@ type RegisterSystemAdminUserResponse struct {
 }
 
 type InviteCompanyAdminUserRequest struct {
-	PartyIdentifier identifier.Identifier
+	Claims            claims.Claims
+	CompanyIdentifier identifier.Identifier
 }
 
 type InviteCompanyAdminUserResponse struct {
+	URLToken string
 }
 
 type RegisterCompanyAdminUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
-	Password string
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterCompanyAdminUserResponse struct {
 	User user.User
 }
 
+type InviteCompanyUserRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type InviteCompanyUserResponse struct {
+	URLToken string
+}
+
+type RegisterCompanyUserRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type RegisterCompanyUserResponse struct {
+	User user.User
+}
+
 type InviteClientAdminUserRequest struct {
-	PartyIdentifier identifier.Identifier
+	Claims           claims.Claims
+	ClientIdentifier identifier.Identifier
 }
 
 type InviteClientAdminUserResponse struct {
+	URLToken string
 }
 
 type RegisterClientAdminUserRequest struct {
-	Claims   claims.Claims
-	User     user.User
-	Password string
+	Claims claims.Claims
+	User   user.User
 }
 
 type RegisterClientAdminUserResponse struct {
 	User user.User
+}
+
+type InviteClientUserRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type InviteClientUserResponse struct {
+	URLToken string
+}
+
+type RegisterClientUserRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type RegisterClientUserResponse struct {
+	User user.User
+}
+
+type AreAdminsRegisteredRequest struct {
+	Claims       claims.Claims
+	PartyDetails []party.Detail
+}
+
+type AreAdminsRegisteredResponse struct {
+	Result map[string]bool
 }

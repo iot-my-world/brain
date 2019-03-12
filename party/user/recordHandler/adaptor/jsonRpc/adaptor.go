@@ -2,11 +2,16 @@ package user
 
 import (
 	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
+	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/query"
 )
 
 type adaptor struct {
@@ -28,13 +33,18 @@ type CreateResponse struct {
 }
 
 func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	createUserResponse := userRecordHandler.CreateResponse{}
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
+	createUserResponse := userRecordHandler.CreateResponse{}
 	if err := s.RecordHandler.Create(
 		&userRecordHandler.CreateRequest{
-			User: request.User,
-		},
-		&createUserResponse); err != nil {
+			Claims: claims,
+			User:   request.User,
+		}, &createUserResponse); err != nil {
 		return err
 	}
 
@@ -52,6 +62,12 @@ type RetrieveResponse struct {
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -60,6 +76,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
 	if err := s.RecordHandler.Retrieve(
 		&userRecordHandler.RetrieveRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&retrieveUserResponse); err != nil {
@@ -81,6 +98,12 @@ type UpdateResponse struct {
 }
 
 func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	id, err := request.Identifier.UnWrap()
 	if err != nil {
 		return err
@@ -89,6 +112,7 @@ func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *Upda
 	updateUserResponse := userRecordHandler.UpdateResponse{}
 	if err := s.RecordHandler.Update(
 		&userRecordHandler.UpdateRequest{
+			Claims:     claims,
 			Identifier: id,
 		},
 		&updateUserResponse); err != nil {
@@ -138,18 +162,63 @@ type ValidateResponse struct {
 }
 
 func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	validateUserResponse := userRecordHandler.ValidateResponse{}
-	if err := s.RecordHandler.Validate(
-		&userRecordHandler.ValidateRequest{
-			User:   request.User,
-			Method: request.Method,
-		},
-		&validateUserResponse); err != nil {
+	if err := s.RecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		Claims: claims,
+		User:   request.User,
+		Method: request.Method,
+	}, &validateUserResponse); err != nil {
 		return err
 	}
 
 	response.ReasonsInvalid = validateUserResponse.ReasonsInvalid
 
+	return nil
+}
+
+type CollectRequest struct {
+	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
+	Query    query.Query                         `json:"query"`
+}
+
+type CollectResponse struct {
+	Records []user.User `json:"records"`
+	Total   int         `json:"total"`
+}
+
+func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	criteria := make([]criterion.Criterion, 0)
+	for criterionIdx := range request.Criteria {
+		if c, err := request.Criteria[criterionIdx].UnWrap(); err == nil {
+			criteria = append(criteria, c)
+		} else {
+			return err
+		}
+	}
+
+	collectCompanyResponse := userRecordHandler.CollectResponse{}
+	if err := s.RecordHandler.Collect(&userRecordHandler.CollectRequest{
+		Criteria: criteria,
+		Query:    request.Query,
+		Claims:   claims,
+	},
+		&collectCompanyResponse); err != nil {
+		return err
+	}
+
+	response.Records = collectCompanyResponse.Records
+	response.Total = collectCompanyResponse.Total
 	return nil
 }
