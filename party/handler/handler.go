@@ -22,9 +22,12 @@ type GetMyPartyResponse struct {
 }
 
 type RetrievePartyRequest struct {
+	Claims     claims.Claims
 	PartyType  party.Type
 	Identifier identifier.Identifier
 }
 
 type RetrievePartyResponse struct {
+	Party     interface{}
+	PartyType party.Type
 }

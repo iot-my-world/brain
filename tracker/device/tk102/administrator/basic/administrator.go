@@ -4,7 +4,9 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	partyHandler "gitlab.com/iotTracker/brain/party/handler"
 	tk102Administrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
+	tk102AdministratorException "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 )
 
@@ -12,6 +14,7 @@ type basicAdministrator struct {
 	tk102RecordHandler   tk102RecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
+	partyHandler         partyHandler.Handler
 }
 
 // New tk102 basic administrator
@@ -19,11 +22,13 @@ func New(
 	tk102RecordHandler tk102RecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
+	partyHandler partyHandler.Handler,
 ) tk102Administrator.Administrator {
 	return &basicAdministrator{
 		tk102RecordHandler:   tk102RecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
+		partyHandler:         partyHandler,
 	}
 }
 
@@ -33,11 +38,22 @@ func (ba *basicAdministrator) ValidateChangeOwnerRequest(request *tk102Administr
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	}
+
 	if request.TK02Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "tk102 identifier is nil")
 	}
+
 	if request.NewOwnerIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "newOwnerIdentifier is nil")
+	} else if request.Claims == nil {
+		// confirm that the new owner exists by trying to retrieve their party
+		if err := ba.partyHandler.RetrieveParty(&partyHandler.RetrievePartyRequest{
+			Claims:     request.Claims,
+			PartyType:  request.NewOwnerPartyType,
+			Identifier: request.NewOwnerIdentifier,
+		}, &partyHandler.RetrievePartyResponse{}); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error retrieving new owners party: "+err.Error())
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -52,6 +68,15 @@ func (ba *basicAdministrator) ChangeOwner(request *tk102Administrator.ChangeOwne
 	}
 
 	// 1. retrieve the tk102 device
+	tk102RetrieveResponse := tk102RecordHandler.RetrieveResponse{}
+	if err := ba.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.TK02Identifier,
+	}, &tk102RetrieveResponse); err != nil {
+		return tk102AdministratorException.DeviceRetrieval{Reasons: []string{err.Error()}}
+	}
+
+	// 2. collect readings for the device
 
 	return nil
 }

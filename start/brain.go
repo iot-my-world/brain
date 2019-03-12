@@ -181,11 +181,6 @@ func main() {
 		CompanyRecordHandler,
 		ClientRecordHandler,
 	)
-	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
-		TK102DeviceRecordHandler,
-		CompanyRecordHandler,
-		ClientRecordHandler,
-	)
 	ReadingRecordHandler := readingMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
@@ -202,6 +197,12 @@ func main() {
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
+	)
+	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
+		TK102DeviceRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+		PartyBasicHandler,
 	)
 
 	// Create Service Provider Adaptors
