@@ -5,6 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
+// Company models companies in the system
 type Company struct {
 	Id   string `json:"id" bson:"id"`
 	Name string `json:"name" bson:"name"`

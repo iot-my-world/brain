@@ -1,12 +1,15 @@
 package handler
 
 import (
-	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
+// Handler is a generic way in which to
 type Handler interface {
 	GetMyParty(request *GetMyPartyRequest, response *GetMyPartyResponse) error
+	RetrieveParty(request *RetrievePartyRequest, resposne *RetrievePartyResponse) error
 }
 
 type GetMyPartyRequest struct {
@@ -16,4 +19,12 @@ type GetMyPartyRequest struct {
 type GetMyPartyResponse struct {
 	Party     interface{}
 	PartyType party.Type
+}
+
+type RetrievePartyRequest struct {
+	PartyType  party.Type
+	Identifier identifier.Identifier
+}
+
+type RetrievePartyResponse struct {
 }

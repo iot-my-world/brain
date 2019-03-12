@@ -14,11 +14,12 @@ type basicAdministrator struct {
 	clientRecordHandler  clientRecordHandler.RecordHandler
 }
 
+// New tk102 basic administrator
 func New(
 	tk102RecordHandler tk102RecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
-) *basicAdministrator {
+) tk102Administrator.Administrator {
 	return &basicAdministrator{
 		tk102RecordHandler:   tk102RecordHandler,
 		companyRecordHandler: companyRecordHandler,
@@ -29,17 +30,28 @@ func New(
 func (ba *basicAdministrator) ValidateChangeOwnerRequest(request *tk102Administrator.ChangeOwnerRequest) error {
 	reasonsInvalid := make([]string, 0)
 
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+	if request.TK02Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "tk102 identifier is nil")
+	}
+	if request.NewOwnerIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "newOwnerIdentifier is nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (ba *basicAdministrator) ChangeOwner(request *tk102Administrator.ChangeOwnerRequest, response *tk102Administrator.ChangeOwnerResponse) error {
 	if err := ba.ValidateChangeOwnerRequest(request); err != nil {
 		return err
 	}
+
+	// 1. retrieve the tk102 device
 
 	return nil
 }
@@ -49,9 +61,8 @@ func (ba *basicAdministrator) ValidateChangeAssignedRequest(request *tk102Admini
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (ba *basicAdministrator) ChangeAssigned(request *tk102Administrator.ChangeAssignedRequest, response *tk102Administrator.ChangeAssignedResponse) error {
