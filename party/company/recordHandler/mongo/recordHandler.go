@@ -3,12 +3,14 @@ package mongo
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
+	"gitlab.com/iotTracker/brain/api"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
@@ -17,8 +19,6 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/api"
-	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type mongoRecordHandler struct {
@@ -29,12 +29,13 @@ type mongoRecordHandler struct {
 	ignoredReasons    map[api.Method]reasonInvalid.IgnoredReasonsInvalid
 }
 
+// New mongo record handler
 func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
 	userRecordHandler userRecordHandler.RecordHandler,
-) *mongoRecordHandler {
+) companyRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
@@ -114,9 +115,8 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest, response *companyRecordHandler.CreateResponse) error {
@@ -129,11 +129,11 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	newId, err := uuid.NewV4()
+	newID, err := uuid.NewV4()
 	if err != nil {
 		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
-	request.Company.Id = newId.String()
+	request.Company.Id = newID.String()
 
 	if err := companyCollection.Insert(request.Company); err != nil {
 		return companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
@@ -174,9 +174,8 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHan
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest, response *companyRecordHandler.RetrieveResponse) error {
@@ -197,9 +196,8 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return companyRecordHandlerException.NotFound{}
-		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
+		return brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
 
 	response.Company = companyRecord
@@ -223,9 +221,8 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandl
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateRequest, response *companyRecordHandler.UpdateResponse) error {
@@ -275,9 +272,8 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandl
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteRequest, response *companyRecordHandler.DeleteResponse) error {
@@ -308,9 +304,8 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *companyRecordHan
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRequest, response *companyRecordHandler.ValidateResponse) error {
@@ -357,8 +352,7 @@ func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRe
 		})
 	}
 
-	blankIdIdentifier := id.Identifier{}
-	if (*companyToValidate).ParentId == blankIdIdentifier {
+	if (*companyToValidate).ParentId.Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "parentId",
 			Type:  reasonInvalid.Blank,
@@ -456,9 +450,8 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHand
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest, response *companyRecordHandler.CollectResponse) error {
