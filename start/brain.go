@@ -203,6 +203,7 @@ func main() {
 		CompanyRecordHandler,
 		ClientRecordHandler,
 		PartyBasicHandler,
+		ReadingRecordHandler,
 	)
 
 	// Create Service Provider Adaptors
