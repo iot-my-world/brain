@@ -1,21 +1,21 @@
 package basic
 
 import (
-	"encoding/json"
-	"github.com/go-errors/errors"
 	"bytes"
-	"net/http"
+	"encoding/json"
 	"fmt"
-	"strings"
-	"io/ioutil"
+	"github.com/go-errors/errors"
+	"github.com/satori/go.uuid"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
-	"github.com/satori/go.uuid"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gopkg.in/square/go-jose.v2"
-	"reflect"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gopkg.in/square/go-jose.v2"
+	"io/ioutil"
+	"net/http"
+	"reflect"
+	"strings"
 )
 
 type client struct {
@@ -24,9 +24,10 @@ type client struct {
 	claims claims.Claims
 }
 
+// Create New basic json rpc client
 func New(
 	url string,
-) *client {
+) jsonRpcClient.Client {
 	return &client{
 		url: url,
 	}
