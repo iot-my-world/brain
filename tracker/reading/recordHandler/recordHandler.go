@@ -20,6 +20,7 @@ type RecordHandler interface {
 
 // CreateRequest is the RecordHandlers's Create request object
 type CreateRequest struct {
+	Claims  claims.Claims
 	Reading reading.Reading
 }
 
