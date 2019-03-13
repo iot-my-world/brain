@@ -14,6 +14,7 @@ import (
 type RecordHandler interface {
 	Create(request *CreateRequest, response *CreateResponse) error
 	Collect(request *CollectRequest, response *CollectResponse) error
+	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
 	Update(request *UpdateRequest, respose *UpdateResponse) error
 	Validate(request *ValidateRequest, response *ValidateResponse) error
 }
@@ -26,6 +27,17 @@ type CreateRequest struct {
 
 // CreateResponse is the RecordHandlers's Create response object
 type CreateResponse struct {
+	Reading reading.Reading
+}
+
+// RetrieveRequest is the RecordHandlers's Retrieve request object
+type RetrieveRequest struct {
+	Claims     claims.Claims
+	Identifier identifier.Identifier
+}
+
+// RetrieveResponse is the RecordHandlers's Retrieve response object
+type RetrieveResponse struct {
 	Reading reading.Reading
 }
 
