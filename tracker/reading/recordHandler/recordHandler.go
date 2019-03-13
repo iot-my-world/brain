@@ -13,10 +13,10 @@ import (
 // RecordHandler handles the reading records
 type RecordHandler interface {
 	Create(request *CreateRequest, response *CreateResponse) error
-	Collect(request *CollectRequest, response *CollectResponse) error
 	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
 	Update(request *UpdateRequest, respose *UpdateResponse) error
 	Validate(request *ValidateRequest, response *ValidateResponse) error
+	Collect(request *CollectRequest, response *CollectResponse) error
 }
 
 // CreateRequest is the RecordHandlers's Create request object

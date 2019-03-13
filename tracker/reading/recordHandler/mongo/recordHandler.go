@@ -9,6 +9,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
+	readingRecordHandlerException "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/exception"
 	"gopkg.in/mgo.v2"
 )
 
@@ -100,6 +101,54 @@ func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateReques
 	return nil
 }
 
+func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *readingRecordHandler.RetrieveRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	} else {
+		if !reading.IsValidIdentifier(request.Identifier) {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for reading", request.Identifier.Type()))
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (mrh *mongoRecordHandler) Retrieve(request *readingRecordHandler.RetrieveRequest, response *readingRecordHandler.RetrieveResponse) error {
+	if err := mrh.ValidateRetrieveRequest(request); err != nil {
+		return err
+	}
+
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	var readingRecord reading.Reading
+
+	filter := request.Identifier.ToFilter()
+	filter = claims.ContextualiseFilter(filter, request.Claims)
+
+	if err := readingCollection.Find(filter).One(&readingRecord); err != nil {
+		if err == mgo.ErrNotFound {
+			return readingRecordHandlerException.NotFound{}
+		}
+		return brainException.Unexpected{Reasons: []string{err.Error()}}
+	}
+
+	response.Reading = readingRecord
+
+	return nil
+}
+
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *readingRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
@@ -162,9 +211,13 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *readingRecordHandl
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	}
+
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	} else if !reading.IsValidIdentifier(request.Identifier) {
+		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for reading", request.Identifier.Type()))
 	}
+
 	readingValidateResponse := readingRecordHandler.ValidateResponse{}
 	if err := mrh.Validate(&readingRecordHandler.ValidateRequest{
 		Claims:  request.Claims,
@@ -187,6 +240,39 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *readingRecordHandl
 func (mrh *mongoRecordHandler) Update(request *readingRecordHandler.UpdateRequest, respose *readingRecordHandler.UpdateResponse) error {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return err
+	}
+
+	mgoSession := mrh.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+
+	// Retrieve reading
+	retrieveReadingResponse := readingRecordHandler.RetrieveResponse{}
+	if err := mrh.Retrieve(&readingRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveReadingResponse); err != nil {
+		return readingRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	}
+
+	// Update fields
+	// retrieveReadingResponse.Reading.Id = request.Reading.Id // cannot update ever
+	// retrieveReadingResponse.DeviceId = request.Reading.DeviceId // cannot update ever
+	// retrieveReadingResponse.Reading.DeviceType = request.Reading.DeviceType // cannot update ever
+	retrieveReadingResponse.Reading.OwnerPartyType = request.Reading.OwnerPartyType
+	retrieveReadingResponse.Reading.OwnerId = request.Reading.OwnerId
+	retrieveReadingResponse.Reading.AssignedPartyType = request.Reading.AssignedPartyType
+	retrieveReadingResponse.Reading.AssignedId = request.Reading.AssignedId
+	// retrieveReadingResponse.Reading.Raw = request.Reading.Raw // cannot update ever
+	// retrieveReadingResponse.Reading.TimeStamp = request.Reading.TimeStamp // cannot update ever
+	// retrieveReadingResponse.Reading.Latitude = request.Reading.Latitude // cannot update ever
+	// retrieveReadingResponse.Reading.Longitude = request.Reading.Longitude // cannot update ever
+
+	filter := request.Identifier.ToFilter()
+	filter = claims.ContextualiseFilter(filter, request.Claims)
+	if err := readingCollection.Update(filter, retrieveReadingResponse.Reading); err != nil {
+		return readingRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	return nil
