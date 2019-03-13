@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"fmt"
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
@@ -17,11 +18,12 @@ type mongoRecordHandler struct {
 	collection   string
 }
 
+// New reading mongo record handler
 func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
-) *mongoRecordHandler {
+) readingRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
@@ -54,9 +56,8 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *readingRecordHandl
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateRequest, response *readingRecordHandler.CreateResponse) error {
@@ -69,11 +70,11 @@ func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateReques
 
 	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	newId, err := uuid.NewV4()
+	newID, err := uuid.NewV4()
 	if err != nil {
 		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
-	request.Reading.Id = newId.String()
+	request.Reading.Id = newID.String()
 
 	if err := readingCollection.Insert(request.Reading); err != nil {
 		return err
@@ -92,9 +93,8 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *readingRecordHand
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequest, response *readingRecordHandler.CollectResponse) error {
@@ -134,6 +134,60 @@ func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequ
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *readingRecordHandler.UpdateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	}
+	readingValidateResponse := readingRecordHandler.ValidateResponse{}
+	if err := mrh.Validate(&readingRecordHandler.ValidateRequest{
+		Claims:  request.Claims,
+		Reading: request.Reading,
+	}, &readingValidateResponse); err != nil {
+		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
+	}
+	if len(readingValidateResponse.ReasonsInvalid) > 0 {
+		for _, reason := range readingValidateResponse.ReasonsInvalid {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid reading: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (mrh *mongoRecordHandler) Update(request *readingRecordHandler.UpdateRequest, respose *readingRecordHandler.UpdateResponse) error {
+	if err := mrh.ValidateUpdateRequest(request); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (mrh *mongoRecordHandler) ValidateValidateRequest(request *readingRecordHandler.ValidateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+
+	return nil
+}
+
+func (mrh *mongoRecordHandler) Validate(request *readingRecordHandler.ValidateRequest, response *readingRecordHandler.ValidateResponse) error {
+	if err := mrh.ValidateValidateRequest(request); err != nil {
 		return err
 	}
 

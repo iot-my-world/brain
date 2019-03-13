@@ -10,13 +10,13 @@ type Administrator interface {
 	ChangeOwnershipAndAssignment(request *ChangeOwnershipAndAssignmentRequest, response *ChangeOwnershipAndAssignmentResponse) error
 }
 
-// ChangeOwnershipAndAssignmentRequest contains input required for change of device ownership or assignment
+// ChangeOwnershipAndAssignmentRequest is the Administrator's ChangeOwnershipAndAssignment request object
 type ChangeOwnershipAndAssignmentRequest struct {
 	Claims claims.Claims
 	TK102  tk102.TK102
 }
 
-// ChangeOwnershipAndAssignmentResponse contains the device with updated ownership and/or assignment
+// ChangeOwnershipAndAssignmentResponse is the Administrator's ChangeOwnershipAndAssignment response object
 type ChangeOwnershipAndAssignmentResponse struct {
 	TK102 tk102.TK102
 }
