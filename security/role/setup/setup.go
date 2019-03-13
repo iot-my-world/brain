@@ -36,8 +36,7 @@ var initialRoles = func() []role.Role {
 		api.CompanyRecordHandlerValidate,
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
-		api.TK102DeviceAdministratorChangeOwner,
-		api.TK102DeviceAdministratorChangeAssigned,
+		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
 	}
 
 	// The view permissions that root has
@@ -95,7 +94,6 @@ var CompanyAdmin = role.Role{
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
-		api.TK102DeviceAdministratorChangeAssigned,
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 		api.ReadingRecordHandlerCollect,
