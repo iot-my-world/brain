@@ -13,7 +13,7 @@ type Administrator interface {
 // ChangeOwnershipAndAssignmentRequest contains input required for change of device ownership or assignment
 type ChangeOwnershipAndAssignmentRequest struct {
 	Claims claims.Claims
-	TK02   tk102.TK102
+	TK102  tk102.TK102
 }
 
 // ChangeOwnershipAndAssignmentResponse contains the device with updated ownership and/or assignment

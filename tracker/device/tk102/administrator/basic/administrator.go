@@ -1,7 +1,9 @@
 package basic
 
 import (
+	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	partyHandler "gitlab.com/iotTracker/brain/party/handler"
@@ -44,6 +46,38 @@ func (ba *basicAdministrator) ValidateChangeOwnerRequest(request *tk102DeviceAdm
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// the device must be valid
+		tk102ValidateResponse := tk102RecordHandler.ValidateResponse{}
+		if err := ba.tk102RecordHandler.Validate(&tk102RecordHandler.ValidateRequest{
+			Claims: request.Claims,
+			TK102:  request.TK102,
+		}, &tk102ValidateResponse); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error validating device: "+err.Error())
+		}
+		if len(tk102ValidateResponse.ReasonsInvalid) > 0 {
+			for _, reason := range tk102ValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+			}
+		} else {
+			// retrieve the owner and assigned parties to check the relationship is valid
+			ownerPartyRetrieveResponse := partyHandler.RetrievePartyResponse{}
+			if err := ba.partyHandler.RetrieveParty(&partyHandler.RetrievePartyRequest{
+				Claims:     request.Claims,
+				Identifier: request.TK102.OwnerId,
+				PartyType:  request.TK102.OwnerPartyType,
+			}, &ownerPartyRetrieveResponse); err != nil {
+				reasonsInvalid = append(reasonsInvalid, "error retrieving owner party: "+err.Error())
+			}
+			assignedPartyRetrieveResponse := partyHandler.RetrievePartyResponse{}
+			if err := ba.partyHandler.RetrieveParty(&partyHandler.RetrievePartyRequest{
+				Claims:     request.Claims,
+				Identifier: request.TK102.AssignedId,
+				PartyType:  request.TK102.AssignedPartyType,
+			}, &assignedPartyRetrieveResponse); err != nil {
+				reasonsInvalid = append(reasonsInvalid, "error retrieving assigned party: "+err.Error())
+			}
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -67,7 +101,7 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 	tk102RetrieveResponse := tk102RecordHandler.RetrieveResponse{}
 	if err := ba.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
-		Identifier: id.Identifier{Id: request.TK02.Id},
+		Identifier: id.Identifier{Id: request.TK102.Id},
 	}, &tk102RetrieveResponse); err != nil {
 		return tk102DeviceAdministratorException.DeviceRetrieval{Reasons: []string{err.Error()}}
 	}

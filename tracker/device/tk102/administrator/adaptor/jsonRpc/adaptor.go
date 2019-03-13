@@ -22,7 +22,7 @@ func New(administrator tk102Administrator.Administrator) *Adaptor {
 
 // ChangeOwnershipAndAssignmentRequest contains parameters for a change ownership and assignment operation
 type ChangeOwnershipAndAssignmentRequest struct {
-	TK02 tk102.TK102 `json:"tk102"`
+	TK102 tk102.TK102 `json:"tk102"`
 }
 
 // ChangeOwnershipAndAssignmentResponse contains the tk102 device with changed ownership and assignment
@@ -41,7 +41,7 @@ func (a *Adaptor) ChangeOwnershipAndAssignment(r *http.Request, request *ChangeO
 	changeOwnershipAndAssignmentResponse := tk102Administrator.ChangeOwnershipAndAssignmentResponse{}
 	if err := a.administrator.ChangeOwnershipAndAssignment(&tk102Administrator.ChangeOwnershipAndAssignmentRequest{
 		Claims: claims,
-		TK02:   request.TK02,
+		TK102:  request.TK102,
 	},
 		&changeOwnershipAndAssignmentResponse); err != nil {
 		return err
