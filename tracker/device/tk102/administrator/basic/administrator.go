@@ -3,7 +3,6 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	partyHandler "gitlab.com/iotTracker/brain/party/handler"
