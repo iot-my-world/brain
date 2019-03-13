@@ -19,7 +19,7 @@ type Company struct {
 }
 
 // Details returns the party details of the company party
-func (c *Company) Details() party.Details {
+func (c Company) Details() party.Details {
 	return party.Details{
 		ParentDetail: party.ParentDetail{
 			ParentId:        c.ParentId,

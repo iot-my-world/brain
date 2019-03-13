@@ -21,7 +21,7 @@ type Client struct {
 }
 
 // Details returns the party details of the client party
-func (c *Client) Details() party.Details {
+func (c Client) Details() party.Details {
 	return party.Details{
 		ParentDetail: party.ParentDetail{
 			ParentId:        c.ParentId,

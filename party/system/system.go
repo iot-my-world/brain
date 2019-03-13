@@ -13,7 +13,7 @@ type System struct {
 }
 
 // Details returns the party details of the system party
-func (s *System) Details() party.Details {
+func (s System) Details() party.Details {
 	return party.Details{
 		ParentDetail: party.ParentDetail{
 			ParentId:        id.Identifier{Id: s.Id},
