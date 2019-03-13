@@ -154,11 +154,13 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 		if err := ba.readingRecordHandler.Update(&readingRecordHandler.UpdateRequest{
 			Claims:     request.Claims,
 			Identifier: id.Identifier{Id: readingCollectResponse.Records[readingIdx].Id},
-			Reading:    id.Identifier{Id: readingCollectResponse.Records[readingIdx]},
+			Reading:    readingCollectResponse.Records[readingIdx],
 		}, &readingRecordHandler.UpdateResponse{}); err != nil {
-
+			return tk102DeviceAdministratorException.ReadingUpdate{Reasons: []string{err.Error()}}
 		}
 	}
+
+	response.TK102 = tk102UpdateResponse.TK102
 
 	return nil
 }
