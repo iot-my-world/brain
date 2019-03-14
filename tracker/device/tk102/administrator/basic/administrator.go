@@ -41,6 +41,7 @@ func New(
 	}
 }
 
+// ValidateChangeOwnershipAndAssignmentRequest
 func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest) error {
 	reasonsInvalid := make([]string, 0)
 
