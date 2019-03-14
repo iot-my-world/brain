@@ -40,7 +40,7 @@ func New(
 	}
 }
 
-func (ba *basicAdministrator) ValidateChangeOwnerRequest(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest) error {
+func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -51,6 +51,7 @@ func (ba *basicAdministrator) ValidateChangeOwnerRequest(request *tk102DeviceAdm
 		if err := ba.tk102RecordHandler.Validate(&tk102RecordHandler.ValidateRequest{
 			Claims: request.Claims,
 			TK102:  request.TK102,
+			// Method: // no method. the device must be generally valid
 		}, &tk102ValidateResponse); err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating device: "+err.Error())
 		}
@@ -97,13 +98,14 @@ func (ba *basicAdministrator) ValidateChangeOwnerRequest(request *tk102DeviceAdm
 }
 
 /*
+ChangeOwnershipAndAssignment of a TK102 Tracking device
 	1. retrieve the tk102 device
 	2. collect readings for the device
 	3. update the device
 	4. update the readings
 */
 func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest, response *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentResponse) error {
-	if err := ba.ValidateChangeOwnerRequest(request); err != nil {
+	if err := ba.ValidateChangeOwnershipAndAssignmentRequest(request); err != nil {
 		return err
 	}
 
