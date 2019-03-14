@@ -1,4 +1,4 @@
-package jsonrpc
+package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
