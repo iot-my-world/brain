@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	partyHandler "gitlab.com/iotTracker/brain/party/handler"
@@ -60,6 +61,15 @@ func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(reques
 				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
 			}
 		} else {
+			// if the party is not system, then the owner needs to be the party performing this request,
+			// i.e. only system has the ability to change ownership
+			if request.Claims.PartyDetails().PartyType != party.System {
+				if !(request.TK102.OwnerId == request.Claims.PartyDetails().PartyId &&
+					request.TK102.OwnerPartyType == request.Claims.PartyDetails().PartyType) {
+					reasonsInvalid = append(reasonsInvalid, "only system can change tk102 device ownership")
+				}
+			}
+
 			// if the assigned party is set OR
 			if request.TK102.AssignedId.Id != "" ||
 				// if the owner and assigned parties are not the same
@@ -124,7 +134,7 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 		Claims: request.Claims,
 		Criteria: []criterion.Criterion{
 			exactTextCriterion.Criterion{
-				Field: "id",
+				Field: "deviceId.id",
 				Text:  tk102RetrieveResponse.TK102.Id,
 			},
 		},
