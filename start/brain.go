@@ -41,7 +41,7 @@ import (
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
 
-	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
+	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonrpc"
 	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
@@ -181,11 +181,6 @@ func main() {
 		CompanyRecordHandler,
 		ClientRecordHandler,
 	)
-	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
-		TK102DeviceRecordHandler,
-		CompanyRecordHandler,
-		ClientRecordHandler,
-	)
 	ReadingRecordHandler := readingMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
@@ -202,6 +197,13 @@ func main() {
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
+	)
+	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
+		TK102DeviceRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+		PartyBasicHandler,
+		ReadingRecordHandler,
 	)
 
 	// Create Service Provider Adaptors

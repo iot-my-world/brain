@@ -210,6 +210,21 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *tk102RecordHandler
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// validate the device for update
+		validateResponse := tk102RecordHandler.ValidateResponse{}
+		if err := mrh.Validate(&tk102RecordHandler.ValidateRequest{
+			TK102:  request.TK102,
+			Claims: request.Claims,
+			Method: tk102RecordHandler.Update,
+		}, &validateResponse); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "validation error: "+err.Error())
+		}
+		if len(validateResponse.ReasonsInvalid) > 0 {
+			for _, reason := range validateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+			}
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -231,12 +246,22 @@ func (mrh *mongoRecordHandler) Update(request *tk102RecordHandler.UpdateRequest,
 
 	// Retrieve TK102
 	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&tk102RecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveTK102Response); err != nil {
+	if err := mrh.Retrieve(&tk102RecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	}, &retrieveTK102Response); err != nil {
 		return tk102ExceptionRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
 	// retrieveTK102Response.TK102.Id = request.TK102.Id // cannot update ever
+	retrieveTK102Response.TK102.ManufacturerId = request.TK102.ManufacturerId
+	retrieveTK102Response.TK102.SimCountryCode = request.TK102.SimCountryCode
+	retrieveTK102Response.TK102.SimNumber = request.TK102.SimNumber
+	retrieveTK102Response.TK102.OwnerPartyType = request.TK102.OwnerPartyType
+	retrieveTK102Response.TK102.OwnerId = request.TK102.OwnerId
+	retrieveTK102Response.TK102.AssignedPartyType = request.TK102.AssignedPartyType
+	retrieveTK102Response.TK102.AssignedId = request.TK102.AssignedId
 
 	if err := tk102Collection.Update(request.Identifier.ToFilter(), retrieveTK102Response.TK102); err != nil {
 		return tk102ExceptionRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}

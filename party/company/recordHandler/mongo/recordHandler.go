@@ -213,9 +213,20 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandl
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
-	} else {
-		if !company.IsValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for company", request.Identifier.Type()))
+	} else if !company.IsValidIdentifier(request.Identifier) {
+		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for company", request.Identifier.Type()))
+	}
+
+	companyValidateResponse := companyRecordHandler.ValidateResponse{}
+	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
+		Claims:  request.Claims,
+		Company: request.Company,
+	}, &companyValidateResponse); err != nil {
+		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
+	}
+	if len(companyValidateResponse.ReasonsInvalid) > 0 {
+		for _, reason := range companyValidateResponse.ReasonsInvalid {
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid company: %s - %s - %s", reason.Field, reason.Type, reason.Help))
 		}
 	}
 

@@ -51,8 +51,7 @@ const TK102DeviceRecordHandlerDelete Permission = "TK102DeviceRecordHandler.Dele
 const TK102DeviceRecordHandlerValidate Permission = "TK102DeviceRecordHandler.Validate"
 const TK102DeviceRecordHandlerCollect Permission = "TK102DeviceRecordHandler.Collect"
 
-const TK102DeviceAdministratorChangeOwner Permission = "TK102DeviceAdministrator.ChangeOwner"
-const TK102DeviceAdministratorChangeAssigned Permission = "TK102DeviceAdministrator.ChangeAssigned"
+const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
 
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
 

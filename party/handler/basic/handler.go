@@ -1,13 +1,14 @@
 package basic
 
 import (
+	"fmt"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
 	partyHandler "gitlab.com/iotTracker/brain/party/handler"
-	brainException "gitlab.com/iotTracker/brain/exception"
 	partyHandlerException "gitlab.com/iotTracker/brain/party/handler/exception"
-	"gitlab.com/iotTracker/brain/party"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
 )
 
 type basicHandler struct {
@@ -75,6 +76,71 @@ func (bh *basicHandler) GetMyParty(request *partyHandler.GetMyPartyRequest, resp
 		if err := bh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
+		}, &clientRecordHandlerRetrieveResponse); err != nil {
+			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+		}
+		response.PartyType = party.Client
+		response.Party = clientRecordHandlerRetrieveResponse.Client
+
+	default:
+		return partyHandlerException.InvalidParty{Reasons: []string{string(request.Claims.PartyDetails().PartyType)}}
+	}
+
+	return nil
+}
+
+func (bh *basicHandler) ValidateRetrievePartyRequest(request *partyHandler.RetrievePartyRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	}
+	if !party.IsValidType(request.PartyType) {
+		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("party type '%s' is invalid", string(request.PartyType)))
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (bh *basicHandler) RetrieveParty(request *partyHandler.RetrievePartyRequest, response *partyHandler.RetrievePartyResponse) error {
+	if err := bh.ValidateRetrievePartyRequest(request); err != nil {
+		return err
+	}
+
+	switch request.PartyType {
+	case party.System:
+		systemRecordHandlerRetrieveResponse := systemRecordHandler.RetrieveResponse{}
+		if err := bh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: request.Identifier,
+		}, &systemRecordHandlerRetrieveResponse); err != nil {
+			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+		}
+		response.PartyType = party.System
+		response.Party = systemRecordHandlerRetrieveResponse.System
+
+	case party.Company:
+		companyRecordHandlerRetrieveResponse := companyRecordHandler.RetrieveResponse{}
+		if err := bh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: request.Identifier,
+		}, &companyRecordHandlerRetrieveResponse); err != nil {
+			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+		}
+		response.PartyType = party.Company
+		response.Party = companyRecordHandlerRetrieveResponse.Company
+
+	case party.Client:
+		clientRecordHandlerRetrieveResponse := clientRecordHandler.RetrieveResponse{}
+		if err := bh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: request.Identifier,
 		}, &clientRecordHandlerRetrieveResponse); err != nil {
 			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
 		}

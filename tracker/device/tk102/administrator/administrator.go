@@ -1,35 +1,22 @@
 package administrator
 
 import (
-	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 )
 
+// Administrator performs administrative tasks on a TK102 Device
 type Administrator interface {
-	ChangeOwner(request *ChangeOwnerRequest, response *ChangeOwnerResponse) error
-	ChangeAssigned(request *ChangeAssignedRequest, response *ChangeAssignedResponse) error
+	ChangeOwnershipAndAssignment(request *ChangeOwnershipAndAssignmentRequest, response *ChangeOwnershipAndAssignmentResponse) error
 }
 
-type ChangeOwnerRequest struct {
-	Claims             claims.Claims
-	TK02Identifier     identifier.Identifier
-	NewOwnerPartyType  party.Type
-	NewOwnerIdentifier identifier.Identifier
+// ChangeOwnershipAndAssignmentRequest is the Administrator's ChangeOwnershipAndAssignment request object
+type ChangeOwnershipAndAssignmentRequest struct {
+	Claims claims.Claims
+	TK102  tk102.TK102
 }
 
-type ChangeOwnerResponse struct {
-	TK102 tk102.TK102
-}
-
-type ChangeAssignedRequest struct {
-	Claims                claims.Claims
-	TK02Identifier        identifier.Identifier
-	NewAssignedPartyType  party.Type
-	NewAssignedIdentifier identifier.Identifier
-}
-
-type ChangeAssignedResponse struct {
+// ChangeOwnershipAndAssignmentResponse is the Administrator's ChangeOwnershipAndAssignment response object
+type ChangeOwnershipAndAssignmentResponse struct {
 	TK102 tk102.TK102
 }
