@@ -4,38 +4,32 @@ import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
+	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
+	partyHandlerException "gitlab.com/iotTracker/brain/party/administrator/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	partyHandler "gitlab.com/iotTracker/brain/party/handler"
-	partyHandlerException "gitlab.com/iotTracker/brain/party/handler/exception"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type basicHandler struct {
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	systemRecordHandler  systemRecordHandler.RecordHandler
-	userRecordHandler    userRecordHandler.RecordHandler
 }
 
 func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	systemRecordHandler systemRecordHandler.RecordHandler,
-	userRecordHandler userRecordHandler.RecordHandler,
 ) *basicHandler {
 	return &basicHandler{
 		clientRecordHandler:  clientRecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		systemRecordHandler:  systemRecordHandler,
-		userRecordHandler:    userRecordHandler,
 	}
 }
 
-func (bh *basicHandler) ValidateGetMyPartyRequest(request *partyHandler.GetMyPartyRequest) error {
+func (bh *basicHandler) ValidateGetMyPartyRequest(request *partyAdministrator.GetMyPartyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -49,7 +43,7 @@ func (bh *basicHandler) ValidateGetMyPartyRequest(request *partyHandler.GetMyPar
 	}
 }
 
-func (bh *basicHandler) GetMyParty(request *partyHandler.GetMyPartyRequest, response *partyHandler.GetMyPartyResponse) error {
+func (bh *basicHandler) GetMyParty(request *partyAdministrator.GetMyPartyRequest, response *partyAdministrator.GetMyPartyResponse) error {
 	if err := bh.ValidateGetMyPartyRequest(request); err != nil {
 		return err
 	}
@@ -95,49 +89,7 @@ func (bh *basicHandler) GetMyParty(request *partyHandler.GetMyPartyRequest, resp
 	return nil
 }
 
-func (bh *basicHandler) ValidateGetMyUserRequest(request *partyHandler.GetMyUserRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	} else {
-		// claims must be login claims to be able to get user
-		if request.Claims.Type() != claims.Login {
-			reasonsInvalid = append(reasonsInvalid, "claims must be of type login")
-		}
-	}
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	}
-	return nil
-}
-
-func (bh *basicHandler) GetMyUser(request *partyHandler.GetMyUserRequest, response *partyHandler.GetMyUserResponse) error {
-	if err := bh.ValidateGetMyUserRequest(request); err != nil {
-		return err
-	}
-
-	// parse the claims to login claims
-	loginClaims, ok := request.Claims.(login.Login)
-	if !ok {
-		return partyHandlerException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
-	}
-
-	// retrieve user
-	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: loginClaims.UserId,
-	}, &userRetrieveResponse); err != nil {
-		return partyHandlerException.PartyRetrieval{Reasons: []string{"user retrieval", err.Error()}}
-	}
-
-	response.User = userRetrieveResponse.User
-
-	return nil
-}
-
-func (bh *basicHandler) ValidateRetrievePartyRequest(request *partyHandler.RetrievePartyRequest) error {
+func (bh *basicHandler) ValidateRetrievePartyRequest(request *partyAdministrator.RetrievePartyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -156,7 +108,7 @@ func (bh *basicHandler) ValidateRetrievePartyRequest(request *partyHandler.Retri
 	return nil
 }
 
-func (bh *basicHandler) RetrieveParty(request *partyHandler.RetrievePartyRequest, response *partyHandler.RetrievePartyResponse) error {
+func (bh *basicHandler) RetrieveParty(request *partyAdministrator.RetrievePartyRequest, response *partyAdministrator.RetrievePartyResponse) error {
 	if err := bh.ValidateRetrievePartyRequest(request); err != nil {
 		return err
 	}

@@ -6,9 +6,9 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
+	permissionAdministratorException "gitlab.com/iotTracker/brain/security/permission/administrator/exception"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
-	permissionHandlerException "gitlab.com/iotTracker/brain/security/permission/handler/exception"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
 )
@@ -28,7 +28,7 @@ func New(
 	}
 }
 
-func (bh *handler) ValidateUserHasPermissionRequest(request *permissionHandler.UserHasPermissionRequest) error {
+func (bh *handler) ValidateUserHasPermissionRequest(request *permissionAdministrator.UserHasPermissionRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -50,19 +50,19 @@ func (bh *handler) ValidateUserHasPermissionRequest(request *permissionHandler.U
 	}
 }
 
-func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissionRequest, response *permissionHandler.UserHasPermissionResponse) error {
+func (bh *handler) UserHasPermission(request *permissionAdministrator.UserHasPermissionRequest, response *permissionAdministrator.UserHasPermissionResponse) error {
 	if err := bh.ValidateUserHasPermissionRequest(request); err != nil {
 		return err
 	}
 
 	// retrieve all of the users permissions
-	getAllUsersPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
-	if err := bh.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
+	getAllUsersPermissionsResponse := permissionAdministrator.GetAllUsersAPIPermissionsResponse{}
+	if err := bh.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
 		Claims:         request.Claims,
 		UserIdentifier: request.UserIdentifier,
 	},
 		&getAllUsersPermissionsResponse); err != nil {
-		return permissionHandlerException.GetAllPermissions{Reasons: []string{err.Error()}}
+		return permissionAdministratorException.GetAllPermissions{Reasons: []string{err.Error()}}
 	}
 
 	// assume user does not have permission
@@ -79,7 +79,7 @@ func (bh *handler) UserHasPermission(request *permissionHandler.UserHasPermissio
 	return nil
 }
 
-func (bh *handler) ValidateGetAllUsersAPIPermissionsRequest(request *permissionHandler.GetAllUsersAPIPermissionsRequest) error {
+func (bh *handler) ValidateGetAllUsersAPIPermissionsRequest(request *permissionAdministrator.GetAllUsersAPIPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -97,7 +97,7 @@ func (bh *handler) ValidateGetAllUsersAPIPermissionsRequest(request *permissionH
 	}
 }
 
-func (bh *handler) GetAllUsersAPIPermissions(request *permissionHandler.GetAllUsersAPIPermissionsRequest, response *permissionHandler.GetAllUsersAPIPermissionsResponse) error {
+func (bh *handler) GetAllUsersAPIPermissions(request *permissionAdministrator.GetAllUsersAPIPermissionsRequest, response *permissionAdministrator.GetAllUsersAPIPermissionsResponse) error {
 	if err := bh.ValidateGetAllUsersAPIPermissionsRequest(request); err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (bh *handler) GetAllUsersAPIPermissions(request *permissionHandler.GetAllUs
 	return nil
 }
 
-func (bh *handler) ValidateGetAllUsersViewPermissionsRequest(request *permissionHandler.GetAllUsersViewPermissionsRequest) error {
+func (bh *handler) ValidateGetAllUsersViewPermissionsRequest(request *permissionAdministrator.GetAllUsersViewPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -148,7 +148,7 @@ func (bh *handler) ValidateGetAllUsersViewPermissionsRequest(request *permission
 	}
 }
 
-func (bh *handler) GetAllUsersViewPermissions(request *permissionHandler.GetAllUsersViewPermissionsRequest, response *permissionHandler.GetAllUsersViewPermissionsResponse) error {
+func (bh *handler) GetAllUsersViewPermissions(request *permissionAdministrator.GetAllUsersViewPermissionsRequest, response *permissionAdministrator.GetAllUsersViewPermissionsResponse) error {
 	if err := bh.ValidateGetAllUsersViewPermissionsRequest(request); err != nil {
 		return err
 	}

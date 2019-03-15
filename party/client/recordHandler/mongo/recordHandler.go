@@ -9,15 +9,15 @@ import (
 	"gitlab.com/iotTracker/brain/party/client"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 type mongoRecordHandler struct {

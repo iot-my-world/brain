@@ -3,21 +3,21 @@ package mongo
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
+	"gitlab.com/iotTracker/brain/api"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
+	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
-	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/mgo.v2"
-	"gitlab.com/iotTracker/brain/api"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
-	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/mgo.v2"
 )
 
 type mongoRecordHandler struct {
@@ -79,8 +79,7 @@ func New(
 		},
 
 		partyRegistrar.RegisterCompanyAdminUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-			},
+			ReasonsInvalid: map[string][]reasonInvalid.Type{},
 		},
 
 		partyRegistrar.InviteCompanyUser: {
@@ -104,8 +103,7 @@ func New(
 		},
 
 		partyRegistrar.RegisterCompanyUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-			},
+			ReasonsInvalid: map[string][]reasonInvalid.Type{},
 		},
 
 		partyRegistrar.InviteClientAdminUser: {
@@ -129,8 +127,7 @@ func New(
 		},
 
 		partyRegistrar.RegisterClientAdminUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-			},
+			ReasonsInvalid: map[string][]reasonInvalid.Type{},
 		},
 
 		partyRegistrar.InviteClientUser: {
@@ -154,8 +151,7 @@ func New(
 		},
 
 		partyRegistrar.RegisterClientUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-			},
+			ReasonsInvalid: map[string][]reasonInvalid.Type{},
 		},
 	}
 

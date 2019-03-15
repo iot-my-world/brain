@@ -1,10 +1,10 @@
 package client
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
-	"gopkg.in/mgo.v2/bson"
-	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func IsValidIdentifier(id identifier.Identifier) bool {

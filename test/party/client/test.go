@@ -1,20 +1,20 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
-	"fmt"
 	"gitlab.com/iotTracker/brain/party/user"
-	"strings"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"encoding/json"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
+	"strings"
 )
 
 type Client struct {

@@ -2,11 +2,11 @@ package registerClientAdminUser
 
 import (
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"time"
-	"gitlab.com/iotTracker/brain/party/user"
 )
 
 type RegisterClientAdminUser struct {

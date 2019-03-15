@@ -19,12 +19,14 @@ import (
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
 
-	permissionServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/handler/adaptor/jsonRpc"
-	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
+	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
+	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
 
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
+	userBasicAdministrator "gitlab.com/iotTracker/brain/party/user/administrator/basic"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 
@@ -55,8 +57,8 @@ import (
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 
-	partyHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/handler/adaptor/jsonRpc"
-	partyBasicHandler "gitlab.com/iotTracker/brain/party/handler/basic"
+	partyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
+	partyBasicAdministrator "gitlab.com/iotTracker/brain/party/administrator/basic"
 
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
@@ -129,33 +131,47 @@ func main() {
 		databaseName,
 		roleCollection,
 	)
+	// User
 	UserRecordHandler := userMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		userCollection,
 		&systemClaims,
 	)
-	PermissionBasicHandler := permissionBasicHandler.New(
+	UserBasicAdministrator := userBasicAdministrator.New(
+		UserRecordHandler,
+	)
+
+	// Permission
+	PermissionBasicHandler := permissionBasicAdministrator.New(
 		UserRecordHandler,
 		RoleRecordHandler,
 	)
+
+	// Auth
 	AuthService := authBasicService.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
 	)
+
+	// Company
 	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		companyCollection,
 		UserRecordHandler,
 	)
+
+	// Client
 	ClientRecordHandler := clientMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		clientCollection,
 		UserRecordHandler,
 	)
+
+	// Party
 	PartyBasicRegistrar := partyBasicRegistrar.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
@@ -165,6 +181,8 @@ func main() {
 		*mailRedirectBaseUrl,
 		&systemClaims,
 	)
+
+	// System
 	SystemRecordHandler := systemMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
@@ -173,6 +191,8 @@ func main() {
 		PartyBasicRegistrar,
 		&systemClaims,
 	)
+
+	// TK102 Device
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
@@ -181,11 +201,15 @@ func main() {
 		CompanyRecordHandler,
 		ClientRecordHandler,
 	)
+
+	// Reading
 	ReadingRecordHandler := readingMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		readingCollection,
 	)
+
+	// Report
 	TrackingReport := trackingBasicReport.New(
 		SystemRecordHandler,
 		CompanyRecordHandler,
@@ -193,12 +217,14 @@ func main() {
 		ReadingRecordHandler,
 		TK102DeviceRecordHandler,
 	)
-	PartyBasicHandler := partyBasicHandler.New(
+
+	// Party
+	PartyBasicHandler := partyBasicAdministrator.New(
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
-		UserRecordHandler,
 	)
+
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
 		TK102DeviceRecordHandler,
 		CompanyRecordHandler,
@@ -210,8 +236,9 @@ func main() {
 	// Create Service Provider Adaptors
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
+	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
 	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
-	PermissionHandlerAdaptor := permissionServiceJsonRpcAdaptor.New(PermissionBasicHandler)
+	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
@@ -220,7 +247,7 @@ func main() {
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
-	PartyHandlerAdaptor := partyHandlerJsonRpcAdaptor.New(PartyBasicHandler)
+	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -231,42 +258,68 @@ func main() {
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// Register Service Provider Adaptors with secureAPIServer
+	// Role
 	if err := secureAPIServer.RegisterService(RoleRecordHandlerAdaptor, "RoleRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Role Record Handler Service")
 	}
+
+	// User
 	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
+	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
+		log.Fatal("Unable to Register User Record Handler Service")
+	}
+
+	// Auth
 	if err := secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
+
+	// Permission
 	if err := secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
+
+	// Company
 	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
+
+	// Client
 	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
+
+	// Party
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
+
+	// System
 	if err := secureAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
+
+	// TK102 Device
 	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
 	}
 	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
+
+	// Reading
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
 	}
+
+	// Reports
 	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
 	}
+
+	// Party Handler
 	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyHandler"); err != nil {
 		log.Fatal("Unable to Register Party Handler Service")
 	}

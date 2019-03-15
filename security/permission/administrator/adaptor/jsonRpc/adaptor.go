@@ -1,22 +1,22 @@
 package jsonRpc
 
 import (
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
-	"gitlab.com/iotTracker/brain/security/permission/view"
-	"net/http"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/view"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"net/http"
 )
 
 type adaptor struct {
-	permissionHandler permissionHandler.Handler
+	permissionAdministrator permissionAdministrator.Handler
 }
 
-func New(permissionHandler permissionHandler.Handler) *adaptor {
+func New(permissionAdministrator permissionAdministrator.Handler) *adaptor {
 	return &adaptor{
-		permissionHandler: permissionHandler,
+		permissionAdministrator: permissionAdministrator,
 	}
 }
 
@@ -40,8 +40,8 @@ func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUser
 		return err
 	}
 
-	getAllUsersAPIPermissionsResponse := permissionHandler.GetAllUsersAPIPermissionsResponse{}
-	if err := s.permissionHandler.GetAllUsersAPIPermissions(&permissionHandler.GetAllUsersAPIPermissionsRequest{
+	getAllUsersAPIPermissionsResponse := permissionAdministrator.GetAllUsersAPIPermissionsResponse{}
+	if err := s.permissionAdministrator.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
 		Claims:         claims,
 		UserIdentifier: id,
 	}, &getAllUsersAPIPermissionsResponse); err != nil {
@@ -71,8 +71,8 @@ func (s *adaptor) GetAllUsersViewPermissions(r *http.Request, request *GetAllUse
 		return err
 	}
 
-	getAllUsersViewPermissionsResponse := permissionHandler.GetAllUsersViewPermissionsResponse{}
-	if err := s.permissionHandler.GetAllUsersViewPermissions(&permissionHandler.GetAllUsersViewPermissionsRequest{
+	getAllUsersViewPermissionsResponse := permissionAdministrator.GetAllUsersViewPermissionsResponse{}
+	if err := s.permissionAdministrator.GetAllUsersViewPermissions(&permissionAdministrator.GetAllUsersViewPermissionsRequest{
 		Claims:         claims,
 		UserIdentifier: id,
 	}, &getAllUsersViewPermissionsResponse); err != nil {

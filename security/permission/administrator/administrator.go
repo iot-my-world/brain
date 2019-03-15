@@ -1,10 +1,10 @@
-package handler
+package administrator
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
-	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type Handler interface {

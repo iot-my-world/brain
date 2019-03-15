@@ -1,25 +1,25 @@
 package company
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
-	clientTest "gitlab.com/iotTracker/brain/test/party/client"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
-	"fmt"
+	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"strings"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	clientTest "gitlab.com/iotTracker/brain/test/party/client"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"encoding/json"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
-	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	"strings"
 )
 
 type Company struct {

@@ -5,18 +5,18 @@ import (
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	permissionHandler "gitlab.com/iotTracker/brain/security/permission/handler"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 )
 
 type APIAuthorizer struct {
 	JWTValidator      token.JWTValidator
-	PermissionHandler permissionHandler.Handler
+	PermissionHandler permissionAdministrator.Handler
 }
 
 func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedClaims.WrappedClaims, error) {
@@ -35,8 +35,8 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 	case login.Login:
 		// if these are login claims we check in the normal way if the user has the
 		// required permission to check access the api
-		userHasPermissionResponse := permissionHandler.UserHasPermissionResponse{}
-		if err := a.PermissionHandler.UserHasPermission(&permissionHandler.UserHasPermissionRequest{
+		userHasPermissionResponse := permissionAdministrator.UserHasPermissionResponse{}
+		if err := a.PermissionHandler.UserHasPermission(&permissionAdministrator.UserHasPermissionRequest{
 			Claims:         typedClaims,
 			UserIdentifier: typedClaims.UserId,
 			Permission:     api.Permission(jsonRpcMethod),

@@ -2,12 +2,12 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/registrar"
 	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
-	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 )
 
 type adaptor struct {

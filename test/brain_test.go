@@ -1,11 +1,11 @@
 package main
 
 import (
-	"testing"
 	"github.com/stretchr/testify/suite"
-	systemTest "gitlab.com/iotTracker/brain/test/party/system"
-	companyTest "gitlab.com/iotTracker/brain/test/party/company"
 	clientTest "gitlab.com/iotTracker/brain/test/party/client"
+	companyTest "gitlab.com/iotTracker/brain/test/party/company"
+	systemTest "gitlab.com/iotTracker/brain/test/party/system"
+	"testing"
 )
 
 // In order for 'go test' to run this suite, we need to create

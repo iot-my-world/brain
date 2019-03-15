@@ -42,7 +42,7 @@ const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClie
 const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
 const PartyHandlerGetMyParty Permission = "PartyHandler.GetMyParty"
-const PartyHandlerGetMyUser Permission = "PartyHandler.GetMyUser"
+const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 
