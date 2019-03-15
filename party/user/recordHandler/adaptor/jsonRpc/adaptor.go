@@ -88,42 +88,6 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	return nil
 }
 
-type UpdateRequest struct {
-	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-	User       user.User                           `json:"user"`
-}
-
-type UpdateResponse struct {
-	User user.User `json:"user"`
-}
-
-func (s *adaptor) Update(r *http.Request, request *UpdateRequest, response *UpdateResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	id, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
-	updateUserResponse := userRecordHandler.UpdateResponse{}
-	if err := s.RecordHandler.Update(
-		&userRecordHandler.UpdateRequest{
-			Claims:     claims,
-			Identifier: id,
-		},
-		&updateUserResponse); err != nil {
-		return err
-	}
-
-	response.User = updateUserResponse.User
-
-	return nil
-}
-
 type DeleteRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 }
