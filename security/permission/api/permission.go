@@ -11,6 +11,8 @@ const UserRecordHandlerRetrieve Permission = "UserRecordHandler.Retrieve"
 const UserRecordHandlerValidate Permission = "UserRecordHandler.Validate"
 const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"
 
+const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
+
 const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 
 const CompanyRecordHandlerCreate Permission = "CompanyRecordHandler.Create"
@@ -35,8 +37,7 @@ const PartyRegistrarInviteClientUser Permission = "PartyRegistrar.InviteClientUs
 const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClientUser"
 const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
-const PartyHandlerGetMyParty Permission = "PartyHandler.GetMyParty"
-const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
+const PartyAdministratorGetMyParty Permission = "PartyAdministrator.GetMyParty"
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 

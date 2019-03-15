@@ -219,7 +219,7 @@ func main() {
 	)
 
 	// Party
-	PartyBasicHandler := partyBasicAdministrator.New(
+	PartyBasicAdministrator := partyBasicAdministrator.New(
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
@@ -229,7 +229,7 @@ func main() {
 		TK102DeviceRecordHandler,
 		CompanyRecordHandler,
 		ClientRecordHandler,
-		PartyBasicHandler,
+		PartyBasicAdministrator,
 		ReadingRecordHandler,
 	)
 
@@ -247,7 +247,7 @@ func main() {
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
-	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicHandler)
+	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicAdministrator)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -295,6 +295,9 @@ func main() {
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
+	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
+		log.Fatal("Unable to Register Party Administrator Service")
+	}
 
 	// System
 	if err := secureAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
@@ -317,11 +320,6 @@ func main() {
 	// Reports
 	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
-	}
-
-	// Party Handler
-	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyHandler"); err != nil {
-		log.Fatal("Unable to Register Party Handler Service")
 	}
 
 	// Set up Router for secureAPIServer
