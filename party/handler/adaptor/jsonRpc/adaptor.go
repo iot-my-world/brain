@@ -1,11 +1,12 @@
 package jsonRpc
 
 import (
-	partyHandler "gitlab.com/iotTracker/brain/party/handler"
-	"net/http"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
+	partyHandler "gitlab.com/iotTracker/brain/party/handler"
+	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"net/http"
 )
 
 type adaptor struct {
@@ -43,6 +44,31 @@ func (a *adaptor) GetMyParty(r *http.Request, request *GetMyPartyRequest, respon
 
 	response.Party = getMyPartyResponse.Party
 	response.PartyType = getMyPartyResponse.PartyType
+
+	return nil
+}
+
+type GetMyUserRequest struct{}
+
+type GetMyUserResponse struct {
+	User user.User `json:"user"`
+}
+
+func (a *adaptor) GetMyUser(r *http.Request, request *GetMyUserRequest, response *GetMyUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	getMyUserResponse := partyHandler.GetMyUserResponse{}
+	if err := a.partyHandler.GetMyUser(&partyHandler.GetMyUserRequest{
+		Claims: claims,
+	}, &getMyUserResponse); err != nil {
+		return err
+	}
+
+	response.User = getMyUserResponse.User
 
 	return nil
 }

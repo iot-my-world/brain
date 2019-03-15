@@ -197,6 +197,7 @@ func main() {
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
+		UserRecordHandler,
 	)
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
 		TK102DeviceRecordHandler,

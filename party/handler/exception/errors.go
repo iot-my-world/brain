@@ -17,3 +17,11 @@ type PartyRetrieval struct {
 func (e PartyRetrieval) Error() string {
 	return "party retrieval error: " + strings.Join(e.Reasons, "; ")
 }
+
+type InvalidClaims struct {
+	Reasons []string
+}
+
+func (e InvalidClaims) Error() string {
+	return "invalid claims: " + strings.Join(e.Reasons, "; ")
+}
