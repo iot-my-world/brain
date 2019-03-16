@@ -3,162 +3,33 @@ package mongo
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
-	"gitlab.com/iotTracker/brain/api"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/security/claims/login"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
 
 type mongoRecordHandler struct {
-	mongoSession   *mgo.Session
-	database       string
-	collection     string
-	systemClaims   *login.Login
-	ignoredReasons map[api.Method]reasonInvalid.IgnoredReasonsInvalid
+	mongoSession *mgo.Session
+	database     string
+	collection   string
 }
 
 func New(
 	mongoSession *mgo.Session,
 	database,
 	collection string,
-	systemClaims *login.Login,
 ) *mongoRecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	ignoredReasons := map[api.Method]reasonInvalid.IgnoredReasonsInvalid{
-		userRecordHandler.Create: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
-				"name": {
-					reasonInvalid.Blank,
-				},
-				"surname": {
-					reasonInvalid.Blank,
-				},
-				"username": {
-					reasonInvalid.Blank,
-				},
-				"password": {
-					reasonInvalid.Blank,
-				},
-			},
-		},
-
-		partyRegistrar.InviteCompanyAdminUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
-				"name": {
-					reasonInvalid.Blank,
-				},
-				"surname": {
-					reasonInvalid.Blank,
-				},
-				"username": {
-					reasonInvalid.Blank,
-				},
-				"password": {
-					reasonInvalid.Blank,
-				},
-			},
-		},
-
-		partyRegistrar.RegisterCompanyAdminUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{},
-		},
-
-		partyRegistrar.InviteCompanyUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
-				"name": {
-					reasonInvalid.Blank,
-				},
-				"surname": {
-					reasonInvalid.Blank,
-				},
-				"username": {
-					reasonInvalid.Blank,
-				},
-				"password": {
-					reasonInvalid.Blank,
-				},
-			},
-		},
-
-		partyRegistrar.RegisterCompanyUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{},
-		},
-
-		partyRegistrar.InviteClientAdminUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
-				"name": {
-					reasonInvalid.Blank,
-				},
-				"surname": {
-					reasonInvalid.Blank,
-				},
-				"username": {
-					reasonInvalid.Blank,
-				},
-				"password": {
-					reasonInvalid.Blank,
-				},
-			},
-		},
-
-		partyRegistrar.RegisterClientAdminUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{},
-		},
-
-		partyRegistrar.InviteClientUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
-				"name": {
-					reasonInvalid.Blank,
-				},
-				"surname": {
-					reasonInvalid.Blank,
-				},
-				"username": {
-					reasonInvalid.Blank,
-				},
-				"password": {
-					reasonInvalid.Blank,
-				},
-			},
-		},
-
-		partyRegistrar.RegisterClientUser: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{},
-		},
-	}
-
 	newUserMongoRecordHandler := mongoRecordHandler{
-		mongoSession:   mongoSession,
-		database:       database,
-		collection:     collection,
-		ignoredReasons: ignoredReasons,
-		systemClaims:   systemClaims,
+		mongoSession: mongoSession,
+		database:     database,
+		collection:   collection,
 	}
 
 	return &newUserMongoRecordHandler
@@ -194,22 +65,6 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	} else {
-
-		// Validate the new user
-		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err := mrh.Validate(&userRecordHandler.ValidateRequest{
-			Claims: request.Claims,
-			User:   request.User,
-			Method: userRecordHandler.Create,
-		}, &userValidateResponse)
-		if err != nil {
-			reasonsInvalid = append(reasonsInvalid, "unable to validate newUser")
-		} else {
-			for _, reason := range userValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
-		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -295,21 +150,6 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	} else {
-		// validate the user
-		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err := mrh.Validate(&userRecordHandler.ValidateRequest{
-			Claims: request.Claims,
-			User:   request.User,
-			Method: userRecordHandler.Update,
-		}, &userValidateResponse)
-		if err != nil {
-			reasonsInvalid = append(reasonsInvalid, "unable to validate user to update")
-		} else {
-			for _, reason := range userValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
-		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -395,207 +235,6 @@ func (mrh *mongoRecordHandler) Delete(request *userRecordHandler.DeleteRequest, 
 		return err
 	}
 
-	return nil
-}
-
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *userRecordHandler.ValidateRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
-	}
-}
-
-func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateRequest, response *userRecordHandler.ValidateResponse) error {
-	if err := mrh.ValidateValidateRequest(request); err != nil {
-		return err
-	}
-
-	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	userToValidate := &request.User
-
-	if (*userToValidate).Id == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "id",
-			Type:  reasonInvalid.Blank,
-			Help:  "id cannot be blank",
-			Data:  (*userToValidate).Id,
-		})
-	}
-
-	if (*userToValidate).EmailAddress == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "emailAddress",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).EmailAddress,
-		})
-	}
-
-	if (*userToValidate).Name == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "name",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).Name,
-		})
-	}
-
-	if (*userToValidate).Surname == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "surname",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).Name,
-		})
-	}
-
-	if (*userToValidate).Username == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "username",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).Username,
-		})
-	}
-
-	if len((*userToValidate).Password) == 0 {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "password",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).Password,
-		})
-	}
-
-	if (*userToValidate).ParentPartyType == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "parentPartyType",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).ParentPartyType,
-		})
-	}
-
-	if (*userToValidate).ParentId.Id == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "parentId",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).PartyId,
-		})
-	}
-
-	if (*userToValidate).PartyType == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "partyType",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).PartyType,
-		})
-	}
-
-	if (*userToValidate).PartyId.Id == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "partyId",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*userToValidate).PartyId,
-		})
-	}
-
-	switch request.Method {
-
-	case partyRegistrar.RegisterCompanyAdminUser, partyRegistrar.RegisterCompanyUser,
-		partyRegistrar.RegisterClientAdminUser, partyRegistrar.RegisterClientUser:
-		// when registering a user the username is scrutinised to ensure that it has not yet been used
-		// this is done by checking if the users username has already been assigned to another user
-		if (*userToValidate).Username != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				// we use system claims to make sure that all users are visible for this check
-				Claims: *mrh.systemClaims,
-				Identifier: username.Identifier{
-					Username: (*userToValidate).Username,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "username",
-						Type:  reasonInvalid.Unknown,
-						Help:  "retrieve failed",
-						Data:  (*userToValidate).Username,
-					})
-				}
-			} else {
-				// there was no error, the username is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "username",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).Username,
-				})
-			}
-		}
-
-	case userRecordHandler.Create,
-		partyRegistrar.InviteCompanyAdminUser, partyRegistrar.InviteCompanyUser,
-		partyRegistrar.InviteClientAdminUser, partyRegistrar.InviteClientUser:
-		// when inviting a user or creating one, which happens during inviting, the email address is scrutinised
-		// we check if the users email has already been assigned to another user
-		if (*userToValidate).EmailAddress != "" {
-			if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-				// we use system claims to make sure that all users are visible for this check
-				Claims: *mrh.systemClaims,
-				Identifier: emailAddress.Identifier{
-					EmailAddress: (*userToValidate).EmailAddress,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "emailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "retrieve failed",
-						Data:  (*userToValidate).EmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email address is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "emailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).EmailAddress,
-				})
-			}
-		}
-	}
-
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-
-	// Ignore reasons applicable to method if relevant
-	if mrh.ignoredReasons[request.Method].ReasonsInvalid != nil {
-		for _, reason := range allReasonsInvalid {
-			if !mrh.ignoredReasons[request.Method].CanIgnore(reason) {
-				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
-			}
-		}
-	}
-
-	response.ReasonsInvalid = returnedReasonsInvalid
 	return nil
 }
 

@@ -29,6 +29,7 @@ import (
 	userBasicAdministrator "gitlab.com/iotTracker/brain/party/user/administrator/basic"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
+	userBasicValidator "gitlab.com/iotTracker/brain/party/user/validator/basic"
 
 	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
@@ -140,6 +141,9 @@ func main() {
 		mainMongoSession,
 		databaseName,
 		userCollection,
+	)
+	UserValidator := userBasicValidator.New(
+		UserRecordHandler,
 		&systemClaims,
 	)
 	UserBasicAdministrator := userBasicAdministrator.New(
@@ -185,6 +189,7 @@ func main() {
 	PartyBasicRegistrar := partyBasicRegistrar.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
+		UserValidator,
 		UserBasicAdministrator,
 		ClientRecordHandler,
 		Mailer,

@@ -1,7 +1,6 @@
 package registrar
 
 import (
-	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier"
@@ -23,16 +22,6 @@ type Registrar interface {
 
 	AreAdminsRegistered(request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error
 }
-
-const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
-const RegisterCompanyAdminUser api.Method = "RegisterCompanyAdminUser"
-const InviteCompanyUser api.Method = "InviteCompanyUser"
-const RegisterCompanyUser api.Method = "RegisterCompanyUser"
-
-const InviteClientAdminUser api.Method = "InviteClientAdminUser"
-const RegisterClientAdminUser api.Method = "RegisterClientAdminUser"
-const InviteClientUser api.Method = "InviteClientUser"
-const RegisterClientUser api.Method = "RegisterClientUser"
 
 type RegisterSystemAdminUserRequest struct {
 	Claims claims.Claims

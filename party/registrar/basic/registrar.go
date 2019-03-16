@@ -11,10 +11,12 @@ import (
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
+	partyRegistrarAction "gitlab.com/iotTracker/brain/party/registrar/action"
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	userAdministrator "gitlab.com/iotTracker/brain/party/user/administrator"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/party/user/validator"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
@@ -34,6 +36,7 @@ import (
 type basicRegistrar struct {
 	companyRecordHandler companyRecordHandler.RecordHandler
 	userRecordHandler    userRecordHandler.RecordHandler
+	userValidator        userValidator.Validator
 	userAdministrator    userAdministrator.Administrator
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	mailer               mailer.Mailer
@@ -45,6 +48,7 @@ type basicRegistrar struct {
 func New(
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
+	userValidator userValidator.Validator,
 	userAdministrator userAdministrator.Administrator,
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	mailer mailer.Mailer,
@@ -264,12 +268,12 @@ func (br *basicRegistrar) ValidateRegisterCompanyAdminUserRequest(request *party
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userRecordHandler.ValidateResponse{}
-	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+	userValidateResponse := userValidator.ValidateResponse{}
+	err := br.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *br.systemClaims,
 		User:   request.User,
-		Method: partyRegistrar.RegisterCompanyAdminUser,
+		Action: partyRegistrarAction.RegisterCompanyAdminUser,
 	}, &userValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
@@ -408,12 +412,12 @@ func (br *basicRegistrar) ValidateInviteCompanyUserRequest(request *partyRegistr
 		}
 
 		// validate the new user for the invite company user method
-		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err = br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		userValidateResponse := userValidator.ValidateResponse{}
+		err = br.userValidator.Validate(&userValidator.ValidateRequest{
 			// system claims since we want all users to be visible for the email address check done in validate user
 			Claims: br.systemClaims,
 			User:   request.User,
-			Method: partyRegistrar.InviteCompanyUser,
+			Action: partyRegistrarAction.InviteCompanyUser,
 		}, &userValidateResponse)
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
@@ -599,12 +603,12 @@ func (br *basicRegistrar) ValidateRegisterCompanyUserRequest(request *partyRegis
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userRecordHandler.ValidateResponse{}
-	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+	userValidateResponse := userValidator.ValidateResponse{}
+	err := br.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *br.systemClaims,
 		User:   request.User,
-		Method: partyRegistrar.RegisterCompanyUser,
+		Action: partyRegistrarAction.RegisterCompanyUser,
 	}, &userValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
@@ -823,12 +827,12 @@ func (br *basicRegistrar) ValidateRegisterClientAdminUserRequest(request *partyR
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userRecordHandler.ValidateResponse{}
-	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+	userValidateResponse := userValidator.ValidateResponse{}
+	err := br.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *br.systemClaims,
 		User:   request.User,
-		Method: partyRegistrar.RegisterClientAdminUser,
+		Action: partyRegistrarAction.RegisterClientAdminUser,
 	}, &userValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
@@ -960,12 +964,12 @@ func (br *basicRegistrar) ValidateInviteClientUserRequest(request *partyRegistra
 		}
 
 		// validate the new user for the invite client user method
-		userValidateResponse := userRecordHandler.ValidateResponse{}
-		err = br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+		userValidateResponse := userValidator.ValidateResponse{}
+		err = br.userValidator.Validate(&userValidator.ValidateRequest{
 			// system claims since we want all users to be visible for the email address check done in validate user
 			Claims: br.systemClaims,
 			User:   request.User,
-			Method: partyRegistrar.InviteClientUser,
+			Action: partyRegistrarAction.InviteClientUser,
 		}, &userValidateResponse)
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
@@ -1150,12 +1154,12 @@ func (br *basicRegistrar) ValidateRegisterClientUserRequest(request *partyRegist
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userRecordHandler.ValidateResponse{}
-	err := br.userRecordHandler.Validate(&userRecordHandler.ValidateRequest{
+	userValidateResponse := userValidator.ValidateResponse{}
+	err := br.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *br.systemClaims,
 		User:   request.User,
-		Method: partyRegistrar.RegisterClientUser,
+		Action: partyRegistrarAction.RegisterClientUser,
 	}, &userValidateResponse)
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
