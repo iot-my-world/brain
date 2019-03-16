@@ -44,3 +44,31 @@ func (a *adaptor) GetMyUser(r *http.Request, request *GetMyUserRequest, response
 
 	return nil
 }
+
+type UpdateAllowedFieldsRequest struct {
+	User user.User `json:"user"`
+}
+
+type UpdateAllowedFieldsResponse struct {
+	User user.User `json:"user"`
+}
+
+func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	updateAllowedFieldsResponse := userAdministrator.UpdateAllowedFieldsResponse{}
+	if err := a.userAdministrator.UpdateAllowedFields(&userAdministrator.UpdateAllowedFieldsRequest{
+		Claims: claims,
+		User:   request.User,
+	}, &updateAllowedFieldsResponse); err != nil {
+		return err
+	}
+
+	response.User = updateAllowedFieldsResponse.User
+
+	return nil
+}
