@@ -11,7 +11,6 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/security/claims/login"
 	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
 	"io/ioutil"
 	"os"
@@ -37,16 +36,6 @@ var systemAdminUser = user.User{
 	// ParentId: // to be set after creating user
 	PartyType: party.System,
 	// PartyId:  // to be set after creating user
-}
-
-var systemClaims = login.Login{
-	//UserId          id.Identifier `json:"userId"`
-	//IssueTime       int64         `json:"issueTime"`
-	//ExpirationTime  int64         `json:"expirationTime"`
-	//ParentPartyType party.Type    `json:"parentPartyType"`
-	//ParentId        id.Identifier `json:"parentId"`
-	PartyType: party.System,
-	//PartyId         id.Identifier `json:"partyId"`
 }
 
 func consumePasswordFile(location string) ([]byte, error) {

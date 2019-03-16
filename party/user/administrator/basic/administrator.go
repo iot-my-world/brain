@@ -128,6 +128,7 @@ func (ba *basicAdministrator) ChangePassword(request *userAdministrator.ChangePa
 
 	updateUserResponse := userRecordHandler.UpdateResponse{}
 	if err := ba.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
 		Identifier: request.Identifier,
 		User:       retrieveUserResponse.User,
 	}, &updateUserResponse); err != nil {
