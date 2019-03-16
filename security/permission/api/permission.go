@@ -12,8 +12,11 @@ const UserRecordHandlerValidate Permission = "UserRecordHandler.Validate"
 const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"
 
 const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
+const UserAdministratorUpdateAllowedFields Permission = "UserAdministrator.UpdateAllowedFields"
 
 const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
+
+const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.UpdateAllowedFields"
 
 const CompanyRecordHandlerCreate Permission = "CompanyRecordHandler.Create"
 const CompanyRecordHandlerRetrieve Permission = "CompanyRecordHandler.Retrieve"
@@ -21,11 +24,15 @@ const CompanyRecordHandlerDelete Permission = "CompanyRecordHandler.Delete"
 const CompanyRecordHandlerValidate Permission = "CompanyRecordHandler.Validate"
 const CompanyRecordHandlerCollect Permission = "CompanyRecordHandler.Collect"
 
+const CompanyAdministratorUpdateAllowedFields Permission = "CompanyAdministrator.UpdateAllowedFields"
+
 const ClientRecordHandlerCreate Permission = "ClientRecordHandler.Create"
 const ClientRecordHandlerRetrieve Permission = "ClientRecordHandler.Retrieve"
 const ClientRecordHandlerDelete Permission = "ClientRecordHandler.Delete"
 const ClientRecordHandlerValidate Permission = "ClientRecordHandler.Validate"
 const ClientRecordHandlerCollect Permission = "ClientRecordHandler.Collect"
+
+const ClientAdministratorUpdateAllowedFields Permission = "ClientAdministrator.UpdateAllowedFields"
 
 const PartyRegistrarInviteCompanyAdminUser Permission = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser Permission = "PartyRegistrar.RegisterCompanyAdminUser"

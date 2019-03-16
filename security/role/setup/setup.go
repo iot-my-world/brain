@@ -29,10 +29,14 @@ var initialRoles = func() []role.Role {
 		api.RoleRetrieve,
 		api.RoleUpdate,
 		api.RoleDelete,
+
 		api.CompanyRecordHandlerCreate,
 		api.CompanyRecordHandlerRetrieve,
 		api.CompanyRecordHandlerDelete,
 		api.CompanyRecordHandlerValidate,
+
+		api.SystemAdministratorUpdateAllowedFields,
+
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
 		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
@@ -78,27 +82,40 @@ var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.SystemRecordHandlerCollect,
+
 		api.CompanyRecordHandlerCollect,
+
+		api.CompanyAdministratorUpdateAllowedFields,
+
 		api.ClientRecordHandlerCreate,
 		api.ClientRecordHandlerRetrieve,
 		api.ClientRecordHandlerDelete,
 		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
+
 		api.PartyRegistrarInviteCompanyUser,
 		api.PartyRegistrarInviteClientAdminUser,
+		api.PartyRegistrarAreAdminsRegistered,
+
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
+
 		api.UserRecordHandlerCollect,
-		api.PartyRegistrarAreAdminsRegistered,
+
 		api.PartyAdministratorGetMyParty,
+
 		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -114,11 +131,16 @@ var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
+
 		api.PartyAdministratorGetMyParty,
+
 		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
@@ -131,22 +153,35 @@ var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
 		api.SystemRecordHandlerCollect,
+
 		api.CompanyRecordHandlerCollect,
+
 		api.ClientRecordHandlerCollect,
+
+		api.ClientAdministratorUpdateAllowedFields,
+
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
+
 		api.PartyRegistrarInviteClientUser,
-		api.UserRecordHandlerCollect,
 		api.PartyRegistrarAreAdminsRegistered,
-		api.PartyAdministratorGetMyParty,
+
+		api.UserRecordHandlerCollect,
+
 		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
+
+		api.PartyAdministratorGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -162,11 +197,16 @@ var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
+
 		api.PartyAdministratorGetMyParty,
+
 		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,

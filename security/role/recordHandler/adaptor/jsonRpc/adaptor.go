@@ -22,7 +22,3 @@ func (s *adaptor) Create(r *http.Request, request *roleRecordHandler.CreateReque
 func (s *adaptor) Retrieve(r *http.Request, request *roleRecordHandler.RetrieveRequest, response *roleRecordHandler.RetrieveResponse) error {
 	return s.RecordHandler.Retrieve(request, response)
 }
-
-func (s *adaptor) Update(r *http.Request, request *roleRecordHandler.UpdateRequest, response *roleRecordHandler.UpdateResponse) error {
-	return s.RecordHandler.Update(request, response)
-}
