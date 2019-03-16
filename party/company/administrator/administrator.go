@@ -7,6 +7,7 @@ import (
 
 type Administrator interface {
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error
+	Create(request *CreateRequest, response *CreateResponse) error
 }
 
 type UpdateAllowedFieldsRequest struct {
@@ -15,5 +16,14 @@ type UpdateAllowedFieldsRequest struct {
 }
 
 type UpdateAllowedFieldsResponse struct {
+	Company company.Company
+}
+
+type CreateRequest struct {
+	Claims  claims.Claims
+	Company company.Company
+}
+
+type CreateResponse struct {
 	Company company.Company
 }

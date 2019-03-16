@@ -2,6 +2,14 @@ package exception
 
 import "strings"
 
+type CompanyCreation struct {
+	Reasons []string
+}
+
+func (e CompanyCreation) Error() string {
+	return "company creation error: " + strings.Join(e.Reasons, "; ")
+}
+
 type CompanyRetrieval struct {
 	Reasons []string
 }

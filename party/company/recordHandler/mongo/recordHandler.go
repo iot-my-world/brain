@@ -3,30 +3,20 @@ package mongo
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
-	"gitlab.com/iotTracker/brain/api"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
-	"gitlab.com/iotTracker/brain/party/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
 
 type mongoRecordHandler struct {
-	mongoSession      *mgo.Session
-	database          string
-	collection        string
-	userRecordHandler userRecordHandler.RecordHandler
-	ignoredReasons    map[api.Method]reasonInvalid.IgnoredReasonsInvalid
+	mongoSession *mgo.Session
+	database     string
+	collection   string
 }
 
 // New mongo record handler
@@ -34,27 +24,14 @@ func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
-	userRecordHandler userRecordHandler.RecordHandler,
 ) companyRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	ignoredReasons := map[api.Method]reasonInvalid.IgnoredReasonsInvalid{
-		companyRecordHandler.Create: {
-			ReasonsInvalid: map[string][]reasonInvalid.Type{
-				"id": {
-					reasonInvalid.Blank,
-				},
-			},
-		},
-	}
-
 	newCompanyMongoRecordHandler := mongoRecordHandler{
-		mongoSession:      mongoSession,
-		database:          database,
-		collection:        collection,
-		ignoredReasons:    ignoredReasons,
-		userRecordHandler: userRecordHandler,
+		mongoSession: mongoSession,
+		database:     database,
+		collection:   collection,
 	}
 
 	return &newCompanyMongoRecordHandler
@@ -98,21 +75,6 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 		}
 	}
 
-	// Validate the new company
-	companyValidateResponse := companyRecordHandler.ValidateResponse{}
-
-	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
-		Claims:  request.Claims,
-		Company: request.Company,
-		Method:  companyRecordHandler.Create},
-		&companyValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "unable to validate newCompany")
-	} else {
-		for _, reason := range companyValidateResponse.ReasonsInvalid {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-		}
-	}
-
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	}
@@ -137,20 +99,6 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 
 	if err := companyCollection.Insert(request.Company); err != nil {
 		return companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
-	}
-
-	// create minimal admin user for the company
-	if err := mrh.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
-		User: user.User{
-			EmailAddress:    request.Company.AdminEmailAddress,
-			ParentPartyType: request.Company.ParentPartyType,
-			ParentId:        request.Company.ParentId,
-			PartyType:       party.Company,
-			PartyId:         id.Identifier{Id: request.Company.Id},
-		},
-	}, &userRecordHandler.CreateResponse{}); err != nil {
-		return companyRecordHandlerException.Create{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
 	response.Company = request.Company
@@ -215,19 +163,6 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandl
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else if !company.IsValidIdentifier(request.Identifier) {
 		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for company", request.Identifier.Type()))
-	}
-
-	companyValidateResponse := companyRecordHandler.ValidateResponse{}
-	if err := mrh.Validate(&companyRecordHandler.ValidateRequest{
-		Claims:  request.Claims,
-		Company: request.Company,
-	}, &companyValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
-	}
-	if len(companyValidateResponse.ReasonsInvalid) > 0 {
-		for _, reason := range companyValidateResponse.ReasonsInvalid {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid company: %s - %s - %s", reason.Field, reason.Type, reason.Help))
-		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -303,152 +238,6 @@ func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteReques
 		return err
 	}
 
-	return nil
-}
-
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *companyRecordHandler.ValidateRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	}
-	return nil
-}
-
-func (mrh *mongoRecordHandler) Validate(request *companyRecordHandler.ValidateRequest, response *companyRecordHandler.ValidateResponse) error {
-	if err := mrh.ValidateValidateRequest(request); err != nil {
-		return err
-	}
-
-	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	companyToValidate := &request.Company
-
-	if (*companyToValidate).Id == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "id",
-			Type:  reasonInvalid.Blank,
-			Help:  "id cannot be blank",
-			Data:  (*companyToValidate).Id,
-		})
-	}
-
-	if (*companyToValidate).Name == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "name",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*companyToValidate).Name,
-		})
-	}
-
-	if (*companyToValidate).AdminEmailAddress == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "adminEmailAddress",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*companyToValidate).AdminEmailAddress,
-		})
-	}
-
-	if (*companyToValidate).ParentPartyType == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "parentPartyType",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*companyToValidate).ParentPartyType,
-		})
-	}
-
-	if (*companyToValidate).ParentId.Id == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "parentId",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*companyToValidate).ParentId,
-		})
-	}
-
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-
-	// Perform additional checks/ignores considering method field
-	switch request.Method {
-	case companyRecordHandler.Create:
-
-		// Check if there is another client that is already using the same admin email address
-		if (*companyToValidate).AdminEmailAddress != "" {
-			if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
-				Identifier: adminEmailAddress.Identifier{
-					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
-				},
-			},
-				&companyRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case companyRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "adminEmailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*companyToValidate).AdminEmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email is already in database
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "adminEmailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*companyToValidate).AdminEmailAddress,
-				})
-			}
-
-			// check if there any users with this email address
-			if err := mrh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
-				Identifier: emailAddress.Identifier{
-					EmailAddress: (*companyToValidate).AdminEmailAddress,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "adminEmailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "unknown error",
-						Data:  (*companyToValidate).AdminEmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email is already in database
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "adminEmailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*companyToValidate).AdminEmailAddress,
-				})
-			}
-		}
-	}
-
-	// Ignore reasons applicable to method if relevant
-	if mrh.ignoredReasons[request.Method].ReasonsInvalid != nil {
-		for _, reason := range allReasonsInvalid {
-			if !mrh.ignoredReasons[request.Method].CanIgnore(reason) {
-				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
-			}
-		}
-	}
-
-	response.ReasonsInvalid = returnedReasonsInvalid
 	return nil
 }
 
