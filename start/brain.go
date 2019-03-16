@@ -30,9 +30,13 @@ import (
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
 
+	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
+	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
 
+	clientAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/administrator/adaptor/jsonRpc"
+	clientBasicAdministrator "gitlab.com/iotTracker/brain/party/client/administrator/basic"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
 
@@ -162,6 +166,9 @@ func main() {
 		companyCollection,
 		UserRecordHandler,
 	)
+	CompanyBasicAdministrator := companyBasicAdministrator.New(
+		CompanyRecordHandler,
+	)
 
 	// Client
 	ClientRecordHandler := clientMongoRecordHandler.New(
@@ -169,6 +176,9 @@ func main() {
 		databaseName,
 		clientCollection,
 		UserRecordHandler,
+	)
+	ClientBasicAdministrator := clientBasicAdministrator.New(
+		ClientRecordHandler,
 	)
 
 	// Party
@@ -235,20 +245,43 @@ func main() {
 	)
 
 	// Create Service Provider Adaptors
+	// Role
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
+
+	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
+
+	// Auth
 	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
+
+	// Permission
 	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
+
+	// Company
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
+	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyBasicAdministrator)
+
+	// Client
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
+	ClientAdministratorAdaptor := clientAdministratorJsonRpcAdaptor.New(ClientBasicAdministrator)
+
+	// Party
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
+	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicAdministrator)
+
+	// System
 	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
+
+	// TK102 Device
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
+
+	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
+
+	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
-	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicAdministrator)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -269,7 +302,7 @@ func main() {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
 	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
-		log.Fatal("Unable to Register User Record Handler Service")
+		log.Fatal("Unable to Register User Administrator Service")
 	}
 
 	// Auth
@@ -286,10 +319,16 @@ func main() {
 	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
+	if err := secureAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
+		log.Fatal("Unable to Register Company Administrator Service")
+	}
 
 	// Client
 	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
+		log.Fatal("Unable to Register Client Administrator Service")
 	}
 
 	// Party
