@@ -91,8 +91,7 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 	// create the user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
-		User:   request.User,
+		User: request.User,
 	},
 		&userCreateResponse); err != nil {
 		return err
@@ -488,8 +487,7 @@ func (br *basicRegistrar) InviteCompanyUser(request *partyRegistrar.InviteCompan
 	// Create the minimal company user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
-		User:   request.User,
+		User: request.User,
 	},
 		&userCreateResponse); err != nil {
 		return err
@@ -1039,8 +1037,7 @@ func (br *basicRegistrar) InviteClientUser(request *partyRegistrar.InviteClientU
 	// Create the minimal client user
 	userCreateResponse := userRecordHandler.CreateResponse{}
 	if err := br.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
-		User:   request.User,
+		User: request.User,
 	},
 		&userCreateResponse); err != nil {
 		return err

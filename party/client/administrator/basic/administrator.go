@@ -58,7 +58,6 @@ func (a *administrator) Create(request *clientAdministrator.CreateRequest, respo
 
 	// create minimal admin user for the client
 	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
 		User: user.User{
 			EmailAddress:    request.Client.AdminEmailAddress,
 			ParentPartyType: request.Client.ParentPartyType,

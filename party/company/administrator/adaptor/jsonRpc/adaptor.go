@@ -20,6 +20,34 @@ func New(
 	}
 }
 
+type CreateRequest struct {
+	Company company.Company `json:"company"`
+}
+
+type CreateResponse struct {
+	Company company.Company `json:"company"`
+}
+
+func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	companyCreateResponse := companyAdministrator.CreateResponse{}
+	if err := a.companyAdministrator.Create(&companyAdministrator.CreateRequest{
+		Claims:  claims,
+		Company: request.Company,
+	}, &companyCreateResponse); err != nil {
+		return err
+	}
+
+	response.Company = companyCreateResponse.Company
+
+	return nil
+}
+
 type UpdateAllowedFieldsRequest struct {
 	Company company.Company `json:"company"`
 }

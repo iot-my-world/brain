@@ -35,6 +35,7 @@ import (
 	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
+	companyValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "gitlab.com/iotTracker/brain/party/company/validator/basic"
 
 	clientAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/administrator/adaptor/jsonRpc"
@@ -173,6 +174,7 @@ func main() {
 	CompanyValidator := companyBasicValidator.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
+		&systemClaims,
 	)
 	CompanyBasicAdministrator := companyBasicAdministrator.New(
 		CompanyRecordHandler,
@@ -271,6 +273,7 @@ func main() {
 
 	// Company
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
+	CompanyValidatorAdaptor := companyValidatorJsonRpcAdaptor.New(CompanyValidator)
 	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyBasicAdministrator)
 
 	// Client
@@ -329,6 +332,9 @@ func main() {
 	// Company
 	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
+		log.Fatal("Unable to Register Company Validator Service")
 	}
 	if err := secureAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
 		log.Fatal("Unable to Register Company Administrator Service")

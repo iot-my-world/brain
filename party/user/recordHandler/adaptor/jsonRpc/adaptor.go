@@ -22,35 +22,6 @@ func New(recordHandler userRecordHandler.RecordHandler) *adaptor {
 	}
 }
 
-type CreateRequest struct {
-	User user.User `json:"user"`
-}
-
-type CreateResponse struct {
-	User user.User `json:"user"`
-}
-
-func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	createUserResponse := userRecordHandler.CreateResponse{}
-	if err := s.RecordHandler.Create(
-		&userRecordHandler.CreateRequest{
-			Claims: claims,
-			User:   request.User,
-		}, &createUserResponse); err != nil {
-		return err
-	}
-
-	response.User = createUserResponse.User
-
-	return nil
-}
-
 type RetrieveRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 }

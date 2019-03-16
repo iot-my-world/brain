@@ -18,12 +18,12 @@ const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 
 const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.UpdateAllowedFields"
 
-const CompanyRecordHandlerCreate Permission = "CompanyRecordHandler.Create"
 const CompanyRecordHandlerRetrieve Permission = "CompanyRecordHandler.Retrieve"
-const CompanyRecordHandlerDelete Permission = "CompanyRecordHandler.Delete"
-const CompanyRecordHandlerValidate Permission = "CompanyRecordHandler.Validate"
 const CompanyRecordHandlerCollect Permission = "CompanyRecordHandler.Collect"
 
+const CompanyValidatorValidate Permission = "CompanyValidator.Validate"
+
+const CompanyAdministratorCreate Permission = "CompanyAdministrator.Create"
 const CompanyAdministratorUpdateAllowedFields Permission = "CompanyAdministrator.UpdateAllowedFields"
 
 const ClientRecordHandlerCreate Permission = "ClientRecordHandler.Create"

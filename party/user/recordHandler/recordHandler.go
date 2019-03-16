@@ -17,8 +17,7 @@ type RecordHandler interface {
 }
 
 type CreateRequest struct {
-	Claims claims.Claims
-	User   user.User
+	User user.User
 }
 
 type CreateResponse struct {

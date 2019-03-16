@@ -5,7 +5,6 @@ import (
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
@@ -65,15 +64,6 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
-
-	// A new company can only be made by root
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "nil claims")
-	} else {
-		if request.Claims.PartyDetails().PartyType != party.System {
-			reasonsInvalid = append(reasonsInvalid, "only system party can make a new company")
-		}
-	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}

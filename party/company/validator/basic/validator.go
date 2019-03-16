@@ -11,12 +11,14 @@ import (
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type validator struct {
 	companyRecordHandler companyRecordHandler.RecordHandler
 	userRecordHandler    userRecordHandler.RecordHandler
+	systemClaims         *login.Login
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
@@ -24,6 +26,7 @@ type validator struct {
 func New(
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
+	systemClaims *login.Login,
 ) companyValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
@@ -40,6 +43,7 @@ func New(
 		actionIgnoredReasons: actionIgnoredReasons,
 		userRecordHandler:    userRecordHandler,
 		companyRecordHandler: companyRecordHandler,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -118,7 +122,7 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
 			if err := v.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
+				Claims: *v.systemClaims, // we want all entities to be visible for this check
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
@@ -147,7 +151,7 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 
 			// check if there any users with this email address
 			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
+				Claims: request.Claims, // we want all entities to be visible for this check
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*companyToValidate).AdminEmailAddress,
 				},

@@ -1,8 +1,10 @@
 package basic
 
 import (
+	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
+	companyAction "gitlab.com/iotTracker/brain/party/company/action"
 	companyAdministrator "gitlab.com/iotTracker/brain/party/company/administrator"
 	companyAdministratorException "gitlab.com/iotTracker/brain/party/company/administrator/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
@@ -53,6 +55,21 @@ func (a *administrator) ValidateCreateRequest(request *companyAdministrator.Crea
 		if request.Claims.PartyDetails().PartyType != party.System {
 			reasonsInvalid = append(reasonsInvalid, "only system party can make a new company")
 		}
+
+		// company must be valid
+		validationResponse := companyValidator.ValidateResponse{}
+		if err := a.companyValidator.Validate(&companyValidator.ValidateRequest{
+			Claims:  request.Claims,
+			Company: request.Company,
+			Action:  companyAction.Create,
+		}, &validationResponse); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error validating company: "+err.Error())
+		}
+		if len(validationResponse.ReasonsInvalid) > 0 {
+			for _, reason := range validationResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("company invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+			}
+		}
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -68,7 +85,6 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest, resp
 
 	// create minimal admin user for the company
 	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		Claims: request.Claims,
 		User: user.User{
 			EmailAddress:    request.Company.AdminEmailAddress,
 			ParentPartyType: request.Company.ParentPartyType,
@@ -83,7 +99,6 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest, resp
 	// create the company
 	companyCreateResponse := companyRecordHandler.CreateResponse{}
 	if err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
-		Claims:  request.Claims,
 		Company: request.Company,
 	}, &companyCreateResponse); err != nil {
 		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
