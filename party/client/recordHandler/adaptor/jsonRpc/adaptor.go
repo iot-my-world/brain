@@ -1,7 +1,6 @@
 package client
 
 import (
-	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/client"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
@@ -10,7 +9,6 @@ import (
 	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 
@@ -121,38 +119,6 @@ func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *Dele
 	}
 
 	response.Client = deleteClientResponse.Client
-
-	return nil
-}
-
-type ValidateRequest struct {
-	Client client.Client `json:"client"`
-	Method api.Method    `json:"method"`
-}
-
-type ValidateResponse struct {
-	ReasonsInvalid []reasonInvalid.ReasonInvalid `json:"reasonsInvalid"`
-}
-
-func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	validateClientResponse := clientRecordHandler.ValidateResponse{}
-	if err := s.RecordHandler.Validate(
-		&clientRecordHandler.ValidateRequest{
-			Claims: claims,
-			Client: request.Client,
-			Method: request.Method,
-		},
-		&validateClientResponse); err != nil {
-		return err
-	}
-
-	response.ReasonsInvalid = validateClientResponse.ReasonsInvalid
 
 	return nil
 }

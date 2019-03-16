@@ -185,10 +185,10 @@ func main() {
 		mainMongoSession,
 		databaseName,
 		clientCollection,
-		UserRecordHandler,
 	)
 	ClientBasicAdministrator := clientBasicAdministrator.New(
 		ClientRecordHandler,
+		UserRecordHandler,
 	)
 
 	// Party
