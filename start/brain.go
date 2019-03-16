@@ -29,6 +29,7 @@ import (
 	userBasicAdministrator "gitlab.com/iotTracker/brain/party/user/administrator/basic"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
+	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/validator/adaptor/jsonRpc"
 	userBasicValidator "gitlab.com/iotTracker/brain/party/user/validator/basic"
 
 	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
@@ -263,6 +264,7 @@ func main() {
 
 	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
+	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
 	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
 
 	// Auth
@@ -314,6 +316,9 @@ func main() {
 	// User
 	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
+		log.Fatal("Unable to Register User Validator Service")
 	}
 	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
 		log.Fatal("Unable to Register User Administrator Service")

@@ -42,6 +42,6 @@ func (r RegisterClientUser) PartyDetails() party.Details {
 
 // permissions granted by having a valid set of these claims
 var GrantedAPIPermissions = []api.Permission{
-	api.UserRecordHandlerValidate,        // Ability to validate users
+	api.UserValidatorValidate,            // Ability to validate users
 	api.PartyRegistrarRegisterClientUser, // Ability to register self
 }
