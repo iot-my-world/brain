@@ -12,6 +12,7 @@ import (
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
+	userAdministrator "gitlab.com/iotTracker/brain/party/user/administrator"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
@@ -33,6 +34,7 @@ import (
 type basicRegistrar struct {
 	companyRecordHandler companyRecordHandler.RecordHandler
 	userRecordHandler    userRecordHandler.RecordHandler
+	userAdministrator    userAdministrator.Administrator
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	mailer               mailer.Mailer
 	jwtGenerator         token.JWTGenerator
@@ -43,6 +45,7 @@ type basicRegistrar struct {
 func New(
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
+	userAdministrator userAdministrator.Administrator,
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
@@ -52,6 +55,7 @@ func New(
 	return &basicRegistrar{
 		companyRecordHandler: companyRecordHandler,
 		userRecordHandler:    userRecordHandler,
+		userAdministrator:    userAdministrator,
 		clientRecordHandler:  clientRecordHandler,
 		mailer:               mailer,
 		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
@@ -91,8 +95,8 @@ func (br *basicRegistrar) RegisterSystemAdminUser(request *partyRegistrar.Regist
 	}
 
 	// change the users password
-	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
-	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: string(request.User.Password),
@@ -288,8 +292,8 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 	}
 
 	// change the users password
-	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
-	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
@@ -623,8 +627,8 @@ func (br *basicRegistrar) RegisterCompanyUser(request *partyRegistrar.RegisterCo
 	}
 
 	// change the users password
-	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
-	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
@@ -847,8 +851,8 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	}
 
 	// change the users password
-	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
-	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
@@ -1174,8 +1178,8 @@ func (br *basicRegistrar) RegisterClientUser(request *partyRegistrar.RegisterCli
 	}
 
 	// change the users password
-	userChangePasswordResponse := userRecordHandler.ChangePasswordResponse{}
-	if err := br.userRecordHandler.ChangePassword(&userRecordHandler.ChangePasswordRequest{
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),

@@ -17,7 +17,6 @@ type RecordHandler interface {
 	Delete(request *DeleteRequest, response *DeleteResponse) error
 	Validate(request *ValidateRequest, response *ValidateResponse) error
 	Collect(request *CollectRequest, response *CollectResponse) error
-	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
 }
 
 const Create api.Method = "Create"
@@ -69,16 +68,6 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	User user.User
-}
-
-type ChangePasswordRequest struct {
-	Claims      claims.Claims
-	Identifier  identifier.Identifier
-	NewPassword string
-}
-
-type ChangePasswordResponse struct {
 	User user.User
 }
 

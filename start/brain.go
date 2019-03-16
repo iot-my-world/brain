@@ -175,6 +175,7 @@ func main() {
 	PartyBasicRegistrar := partyBasicRegistrar.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
+		UserBasicAdministrator,
 		ClientRecordHandler,
 		Mailer,
 		rsaPrivateKey,

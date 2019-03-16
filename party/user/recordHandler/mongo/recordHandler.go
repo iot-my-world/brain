@@ -10,13 +10,11 @@ import (
 	"gitlab.com/iotTracker/brain/party/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
-	userSetup "gitlab.com/iotTracker/brain/party/user/setup"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 )
 
@@ -161,10 +159,6 @@ func New(
 		collection:     collection,
 		ignoredReasons: ignoredReasons,
 		systemClaims:   systemClaims,
-	}
-
-	if err := userSetup.InitialSetup(&newUserMongoRecordHandler); err != nil {
-		log.Fatal("Unable to complete initial user setup!", err.Error())
 	}
 
 	return &newUserMongoRecordHandler
@@ -344,18 +338,20 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 		return userRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
-	// Update fields:
+	// Update fields
+	// Note that all fields are updated here, higher level services which utilise this service
+	// control how these updates are handled
 	// retrieveUserResponse.User.Id = request.User.Id // cannot update ever
 	retrieveUserResponse.User.Name = request.User.Name
 	retrieveUserResponse.User.Surname = request.User.Surname
 	retrieveUserResponse.User.Username = request.User.Username
-	// retrieveUserResponse.User.EmailAddress = request.User.EmailAddress // cannot update yet
-	// retrieveUserResponse.User.Password = request.User.Password // updated using the change password service
+	retrieveUserResponse.User.EmailAddress = request.User.EmailAddress
+	retrieveUserResponse.User.Password = request.User.Password
 	retrieveUserResponse.User.Roles = request.User.Roles
-	// retrieveUserResponse.User.ParentPartyType = request.User.ParentPartyType // cannot update yet
-	// retrieveUserResponse.User.ParentId = request.User.ParentId // cannot update yet
-	// retrieveUserResponse.User.PartyType = request.User.PartyType // cannot update yet
-	// retrieveUserResponse.User.PartyId = request.User.PartyId // cannot update yet
+	retrieveUserResponse.User.ParentPartyType = request.User.ParentPartyType
+	retrieveUserResponse.User.ParentId = request.User.ParentId
+	retrieveUserResponse.User.PartyType = request.User.PartyType
+	retrieveUserResponse.User.PartyId = request.User.PartyId
 	retrieveUserResponse.User.Registered = request.User.Registered
 
 	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
@@ -600,57 +596,6 @@ func (mrh *mongoRecordHandler) Validate(request *userRecordHandler.ValidateReque
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
-}
-
-func (mrh *mongoRecordHandler) ValidateChangePasswordRequest(request *userRecordHandler.ChangePasswordRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
-	}
-}
-
-func (mrh *mongoRecordHandler) ChangePassword(request *userRecordHandler.ChangePasswordRequest, response *userRecordHandler.ChangePasswordResponse) error {
-	if err := mrh.ValidateChangePasswordRequest(request); err != nil {
-		return err
-	}
-
-	// Retrieve User
-	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: request.Identifier,
-	}, &retrieveUserResponse); err != nil {
-		return userRecordHandlerException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
-	}
-
-	// Hash the new Password
-	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return userRecordHandlerException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
-	}
-
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	// update user
-	retrieveUserResponse.User.Password = pwdHash
-
-	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
-		return userRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
-	}
-
-	response.User = retrieveUserResponse.User
-
 	return nil
 }
 
