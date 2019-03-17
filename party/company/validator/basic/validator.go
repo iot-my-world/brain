@@ -113,6 +113,15 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 		})
 	}
 
+	if (*companyToValidate).AdminEmailAddress == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "adminEmailAddress",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*companyToValidate).AdminEmailAddress,
+		})
+	}
+
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
 	// Perform additional checks/ignores considering method field
@@ -122,7 +131,8 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
 			if err := v.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-				Claims: *v.systemClaims, // we want all entities to be visible for this check
+				// system claims as we want to ensure that all companies are visible for this check
+				Claims: *v.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
@@ -151,7 +161,8 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 
 			// check if there any users with this email address
 			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims, // we want all entities to be visible for this check
+				// system claims as we want to ensure that all companies are visible for this check
+				Claims: request.Claims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*companyToValidate).AdminEmailAddress,
 				},

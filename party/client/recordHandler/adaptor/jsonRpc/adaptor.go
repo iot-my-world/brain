@@ -22,37 +22,6 @@ func New(recordHandler clientRecordHandler.RecordHandler) *adaptor {
 	}
 }
 
-type CreateRequest struct {
-	Client client.Client `json:"client"`
-}
-
-type CreateResponse struct {
-	Client client.Client `json:"client"`
-}
-
-func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	createClientResponse := clientRecordHandler.CreateResponse{}
-
-	if err := s.RecordHandler.Create(
-		&clientRecordHandler.CreateRequest{
-			Client: request.Client,
-			Claims: claims,
-		},
-		&createClientResponse); err != nil {
-		return err
-	}
-
-	response.Client = createClientResponse.Client
-
-	return nil
-}
-
 type RetrieveRequest struct {
 	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
 }
@@ -84,41 +53,6 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	}
 
 	response.Client = retrieveClientResponse.Client
-
-	return nil
-}
-
-type DeleteRequest struct {
-	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
-}
-
-type DeleteResponse struct {
-	Client client.Client `json:"client"`
-}
-
-func (s *adaptor) Delete(r *http.Request, request *DeleteRequest, response *DeleteResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	id, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
-	deleteClientResponse := clientRecordHandler.DeleteResponse{}
-	if err := s.RecordHandler.Delete(
-		&clientRecordHandler.DeleteRequest{
-			Claims:     claims,
-			Identifier: id,
-		},
-		&deleteClientResponse); err != nil {
-		return err
-	}
-
-	response.Client = deleteClientResponse.Client
 
 	return nil
 }

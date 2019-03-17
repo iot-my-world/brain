@@ -1,6 +1,7 @@
 package basic
 
 import (
+	"gitlab.com/iotTracker/brain/action"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	clientAction "gitlab.com/iotTracker/brain/party/client/action"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
@@ -10,21 +11,38 @@ import (
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type validator struct {
-	clientRecordHandler clientRecordHandler.RecordHandler
-	userRecordHandler   userRecordHandler.RecordHandler
+	clientRecordHandler  clientRecordHandler.RecordHandler
+	userRecordHandler    userRecordHandler.RecordHandler
+	systemClaims         *login.Login
+	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
+	systemClaims *login.Login,
 ) clientValidator.Validator {
+
+	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
+		clientAction.Create: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
+	}
+
 	return &validator{
-		clientRecordHandler: clientRecordHandler,
-		userRecordHandler:   userRecordHandler,
+		actionIgnoredReasons: actionIgnoredReasons,
+		clientRecordHandler:  clientRecordHandler,
+		userRecordHandler:    userRecordHandler,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -105,7 +123,8 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 
 			// Check if there is another client that is already using the same admin email address
 			if err := v.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
+				// system claims as we want to ensure that all clients are visible for this check
+				Claims: *v.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*clientToValidate).AdminEmailAddress,
 				},
@@ -134,7 +153,8 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 
 			// Check if there is another user that is already using the same admin email address
 			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-				Claims: request.Claims,
+				// system claims as we want to ensure that all clients are visible for this check
+				Claims: *v.systemClaims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*clientToValidate).AdminEmailAddress,
 				},
@@ -161,17 +181,15 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 				})
 			}
 		}
+	}
 
-		// Check if there is another user that is already using the same admin email address
-
-		// Ignore reasons not applicable for this method
+	// Ignore reasons applicable to method if relevant
+	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
-			if !v.createIgnoredReasons.CanIgnore(reason) {
+			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
-	default:
-		returnedReasonsInvalid = allReasonsInvalid
 	}
 
 	response.ReasonsInvalid = returnedReasonsInvalid

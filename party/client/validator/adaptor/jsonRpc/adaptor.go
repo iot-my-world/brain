@@ -1,28 +1,28 @@
-package company
+package client
 
 import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/company"
-	companyValidator "gitlab.com/iotTracker/brain/party/company/validator"
+	"gitlab.com/iotTracker/brain/party/client"
+	clientValidator "gitlab.com/iotTracker/brain/party/client/validator"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 
 type adaptor struct {
-	companyValidator companyValidator.Validator
+	clientValidator clientValidator.Validator
 }
 
-func New(companyValidator companyValidator.Validator) *adaptor {
+func New(clientValidator clientValidator.Validator) *adaptor {
 	return &adaptor{
-		companyValidator: companyValidator,
+		clientValidator: clientValidator,
 	}
 }
 
 type ValidateRequest struct {
-	Company company.Company `json:"company"`
-	Action  action.Action   `json:"action"`
+	Client client.Client `json:"client"`
+	Action action.Action `json:"action"`
 }
 
 type ValidateResponse struct {
@@ -36,11 +36,11 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	validateUserResponse := companyValidator.ValidateResponse{}
-	if err := s.companyValidator.Validate(&companyValidator.ValidateRequest{
-		Claims:  claims,
-		Company: request.Company,
-		Action:  request.Action,
+	validateUserResponse := clientValidator.ValidateResponse{}
+	if err := s.clientValidator.Validate(&clientValidator.ValidateRequest{
+		Claims: claims,
+		Client: request.Client,
+		Action: request.Action,
 	}, &validateUserResponse); err != nil {
 		return err
 	}

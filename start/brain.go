@@ -43,6 +43,8 @@ import (
 	clientBasicAdministrator "gitlab.com/iotTracker/brain/party/client/administrator/basic"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
+	clientValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/validator/adaptor/jsonRpc"
+	clientBasicValidator "gitlab.com/iotTracker/brain/party/client/validator/basic"
 
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
@@ -189,6 +191,11 @@ func main() {
 		databaseName,
 		clientCollection,
 	)
+	ClientValidator := clientBasicValidator.New(
+		ClientRecordHandler,
+		UserRecordHandler,
+		&systemClaims,
+	)
 	ClientBasicAdministrator := clientBasicAdministrator.New(
 		ClientRecordHandler,
 		UserRecordHandler,
@@ -280,6 +287,7 @@ func main() {
 
 	// Client
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
+	ClientValidatorAdaptor := clientValidatorJsonRpcAdaptor.New(ClientValidator)
 	ClientAdministratorAdaptor := clientAdministratorJsonRpcAdaptor.New(ClientBasicAdministrator)
 
 	// Party
@@ -348,6 +356,9 @@ func main() {
 	// Client
 	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
+		log.Fatal("Unable to Register Client Validator Service")
 	}
 	if err := secureAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
 		log.Fatal("Unable to Register Client Administrator Service")

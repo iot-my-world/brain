@@ -86,20 +86,26 @@ var CompanyAdmin = role.Role{
 
 		api.SystemRecordHandlerCollect,
 
+		// Company
 		api.CompanyRecordHandlerCollect,
 
 		api.CompanyAdministratorUpdateAllowedFields,
 
-		api.ClientRecordHandlerCreate,
+		// Client
 		api.ClientRecordHandlerRetrieve,
-		api.ClientRecordHandlerDelete,
-		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
 
+		api.ClientValidatorValidate,
+
+		api.ClientAdministratorCreate,
+		api.ClientAdministratorUpdateAllowedFields,
+
+		// Party
 		api.PartyRegistrarInviteCompanyUser,
 		api.PartyRegistrarInviteClientAdminUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
+		// TK102 Device
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerDelete,
