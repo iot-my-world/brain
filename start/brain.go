@@ -153,6 +153,7 @@ func main() {
 	)
 	UserBasicAdministrator := userBasicAdministrator.New(
 		UserRecordHandler,
+		UserValidator,
 	)
 
 	// Permission

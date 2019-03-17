@@ -38,6 +38,9 @@ func (a *administrator) ValidateCreateRequest(request *clientAdministrator.Creat
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
+		// confirm that the parent party of the client being created matches claims
+		// i.e clients can only be created by their own parent party unless the system party
+		// is acting
 		switch request.Claims.PartyDetails().PartyType {
 		case party.System:
 			// do nothing, we expect system to know what they are doing

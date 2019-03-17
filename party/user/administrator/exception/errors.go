@@ -2,6 +2,14 @@ package exception
 
 import "strings"
 
+type UserCreation struct {
+	Reasons []string
+}
+
+func (e UserCreation) Error() string {
+	return "error creating user: " + strings.Join(e.Reasons, "; ")
+}
+
 type InvalidClaims struct {
 	Reasons []string
 }

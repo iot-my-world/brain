@@ -86,6 +86,13 @@ var CompanyAdmin = role.Role{
 
 		api.SystemRecordHandlerCollect,
 
+		// user
+		api.UserRecordHandlerCollect,
+
+		api.UserValidatorValidate,
+
+		api.UserAdministratorUpdateAllowedFields,
+
 		// Company
 		api.CompanyRecordHandlerCollect,
 
@@ -116,8 +123,6 @@ var CompanyAdmin = role.Role{
 		api.TrackingReportHistorical,
 
 		api.ReadingRecordHandlerCollect,
-
-		api.UserRecordHandlerCollect,
 
 		api.PartyAdministratorGetMyParty,
 
@@ -159,10 +164,20 @@ var CompanyUser = role.Role{
 var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
+		// user
+		api.UserRecordHandlerCollect,
+
+		api.UserValidatorValidate,
+
+		api.UserAdministratorUpdateAllowedFields,
+
+		// system
 		api.SystemRecordHandlerCollect,
 
+		// company
 		api.CompanyRecordHandlerCollect,
 
+		// client
 		api.ClientRecordHandlerCollect,
 
 		api.ClientAdministratorUpdateAllowedFields,
@@ -182,8 +197,6 @@ var ClientAdmin = role.Role{
 
 		api.PartyRegistrarInviteClientUser,
 		api.PartyRegistrarAreAdminsRegistered,
-
-		api.UserRecordHandlerCollect,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,

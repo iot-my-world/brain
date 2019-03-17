@@ -9,6 +9,7 @@ import (
 type Administrator interface {
 	GetMyUser(request *GetMyUserRequest, response *GetMyUserResponse) error
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error
+	Create(request *CreateRequest, response *CreateResponse) error
 	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
 }
 
@@ -26,6 +27,15 @@ type GetMyUserRequest struct {
 }
 
 type GetMyUserResponse struct {
+	User user.User
+}
+
+type CreateRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type CreateResponse struct {
 	User user.User
 }
 

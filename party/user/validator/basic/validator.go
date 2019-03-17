@@ -150,7 +150,7 @@ func New(
 	}
 }
 
-func (ba *validator) ValidateValidateRequest(request *userValidator.ValidateRequest) error {
+func (v *validator) ValidateValidateRequest(request *userValidator.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -163,8 +163,8 @@ func (ba *validator) ValidateValidateRequest(request *userValidator.ValidateRequ
 	return nil
 }
 
-func (ba *validator) Validate(request *userValidator.ValidateRequest, response *userValidator.ValidateResponse) error {
-	if err := ba.ValidateValidateRequest(request); err != nil {
+func (v *validator) Validate(request *userValidator.ValidateRequest, response *userValidator.ValidateResponse) error {
+	if err := v.ValidateValidateRequest(request); err != nil {
 		return err
 	}
 
@@ -268,9 +268,9 @@ func (ba *validator) Validate(request *userValidator.ValidateRequest, response *
 		// when registering a user the username is scrutinised to ensure that it has not yet been used
 		// this is done by checking if the users username has already been assigned to another user
 		if (*userToValidate).Username != "" {
-			if err := ba.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
-				Claims: *ba.systemClaims,
+				Claims: *v.systemClaims,
 				Identifier: username.Identifier{
 					Username: (*userToValidate).Username,
 				},
@@ -304,9 +304,9 @@ func (ba *validator) Validate(request *userValidator.ValidateRequest, response *
 		// when inviting a user or creating one, which happens during inviting, the email address is scrutinised
 		// we check if the users email has already been assigned to another user
 		if (*userToValidate).EmailAddress != "" {
-			if err := ba.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
-				Claims: *ba.systemClaims,
+				Claims: *v.systemClaims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*userToValidate).EmailAddress,
 				},
@@ -333,14 +333,65 @@ func (ba *validator) Validate(request *userValidator.ValidateRequest, response *
 				})
 			}
 		}
+
+		// user cannot have any roles yet for creation
+		if len((*userToValidate).Roles) != 0 {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "roles",
+				Type:  reasonInvalid.MustNotBeSet,
+				Help:  "can't have roles yet",
+				Data:  (*userToValidate).Roles,
+			})
+		}
+
+		// user cannot be set to registered yet for creation
+		// user cannot have any roles yet for creation
+		if (*userToValidate).Registered {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "registered",
+				Type:  reasonInvalid.MustNotBeSet,
+				Help:  "can't be registered yet",
+				Data:  (*userToValidate).Registered,
+			})
+		}
+
+		// optionally, a username can be provided at this point, it can/will be changed later, but if one
+		// is provided now, we check to see if it has been used yet
+		if (*userToValidate).Username != "" {
+			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				// we use system claims to make sure that all users are visible for this check
+				Claims:     *v.systemClaims,
+				Identifier: username.Identifier{Username: (*userToValidate).Username},
+			}, &userRecordHandler.RetrieveResponse{}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want, user not found so username not taken yet
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Unknown,
+						Help:  "retrieve failed",
+						Data:  (*userToValidate).Username,
+					})
+				}
+			} else {
+				// err == nil, i.e. a user was retrieved
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "username",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already taken",
+					Data:  (*userToValidate).Username,
+				})
+			}
+		}
 	}
 
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
 	// Ignore reasons applicable to method if relevant
-	if ba.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
+	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
-			if !ba.actionIgnoredReasons[request.Action].CanIgnore(reason) {
+			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
