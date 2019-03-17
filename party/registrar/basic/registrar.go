@@ -59,6 +59,7 @@ func New(
 	return &basicRegistrar{
 		companyRecordHandler: companyRecordHandler,
 		userRecordHandler:    userRecordHandler,
+		userValidator:        userValidator,
 		userAdministrator:    userAdministrator,
 		clientRecordHandler:  clientRecordHandler,
 		mailer:               mailer,
@@ -294,17 +295,6 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 		return err
 	}
 
-	// change the users password
-	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
-	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
-		Claims:      request.Claims,
-		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: string(request.User.Password),
-	},
-		&userChangePasswordResponse); err != nil {
-		return err
-	}
-
 	// retrieve the minimal user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -328,6 +318,17 @@ func (br *basicRegistrar) RegisterCompanyAdminUser(request *partyRegistrar.Regis
 		Identifier: id.Identifier{Id: request.User.Id},
 	},
 		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+		Claims:      request.Claims,
+		Identifier:  id.Identifier{Id: request.User.Id},
+		NewPassword: string(request.User.Password),
+	},
+		&userChangePasswordResponse); err != nil {
 		return err
 	}
 

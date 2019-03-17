@@ -83,25 +83,25 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest, resp
 		return nil
 	}
 
-	// create minimal admin user for the company
-	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		User: user.User{
-			EmailAddress:    request.Company.AdminEmailAddress,
-			ParentPartyType: request.Company.ParentPartyType,
-			ParentId:        request.Company.ParentId,
-			PartyType:       party.Company,
-			PartyId:         id.Identifier{Id: request.Company.Id},
-		},
-	}, &userRecordHandler.CreateResponse{}); err != nil {
-		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
-	}
-
 	// create the company
 	companyCreateResponse := companyRecordHandler.CreateResponse{}
 	if err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
 		Company: request.Company,
 	}, &companyCreateResponse); err != nil {
 		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
+	}
+
+	// create minimal admin user for the company
+	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+		User: user.User{
+			EmailAddress:    companyCreateResponse.Company.AdminEmailAddress,
+			ParentPartyType: companyCreateResponse.Company.ParentPartyType,
+			ParentId:        companyCreateResponse.Company.ParentId,
+			PartyType:       party.Company,
+			PartyId:         id.Identifier{Id: companyCreateResponse.Company.Id},
+		},
+	}, &userRecordHandler.CreateResponse{}); err != nil {
+		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
 	response.Company = companyCreateResponse.Company
