@@ -28,7 +28,6 @@ type CollectResponse struct {
 }
 
 type CreateRequest struct {
-	Claims claims.Claims
 	Client client.Client
 }
 

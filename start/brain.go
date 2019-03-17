@@ -198,6 +198,7 @@ func main() {
 	)
 	ClientBasicAdministrator := clientBasicAdministrator.New(
 		ClientRecordHandler,
+		ClientValidator,
 		UserRecordHandler,
 	)
 

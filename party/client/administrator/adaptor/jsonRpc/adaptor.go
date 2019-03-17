@@ -47,3 +47,31 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 
 	return nil
 }
+
+type CreateRequest struct {
+	Client client.Client `json:"client"`
+}
+
+type CreateResponse struct {
+	Client client.Client `json:"client"`
+}
+
+func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	createResponse := clientAdministrator.CreateResponse{}
+	if err := a.clientAdministrator.Create(&clientAdministrator.CreateRequest{
+		Claims: claims,
+		Client: request.Client,
+	}, &createResponse); err != nil {
+		return err
+	}
+
+	response.Client = createResponse.Client
+
+	return nil
+}

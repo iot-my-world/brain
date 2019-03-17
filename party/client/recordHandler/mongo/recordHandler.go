@@ -64,10 +64,6 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
-
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	} else {
