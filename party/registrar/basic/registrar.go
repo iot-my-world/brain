@@ -853,17 +853,6 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 		return err
 	}
 
-	// change the users password
-	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
-	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
-		Claims:      request.Claims,
-		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: string(request.User.Password),
-	},
-		&userChangePasswordResponse); err != nil {
-		return err
-	}
-
 	// retrieve the minimal user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 	if err := br.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -874,8 +863,7 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 	}
 
 	// give the user the necessary roles
-	request.User.Roles = append(request.User.Roles, roleSetup.ClientAdmin.Name)
-	request.User.Roles = append(request.User.Roles, roleSetup.ClientUser.Name)
+	request.User.Roles = []string{roleSetup.ClientAdmin.Name, roleSetup.ClientUser.Name}
 
 	// set the user to registered
 	request.User.Registered = true
@@ -888,6 +876,17 @@ func (br *basicRegistrar) RegisterClientAdminUser(request *partyRegistrar.Regist
 		Identifier: id.Identifier{Id: request.User.Id},
 	},
 		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := br.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+		Claims:      request.Claims,
+		Identifier:  id.Identifier{Id: request.User.Id},
+		NewPassword: string(request.User.Password),
+	},
+		&userChangePasswordResponse); err != nil {
 		return err
 	}
 
