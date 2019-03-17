@@ -92,6 +92,7 @@ var CompanyAdmin = role.Role{
 		api.UserValidatorValidate,
 
 		api.UserAdministratorUpdateAllowedFields,
+		api.UserAdministratorCreate,
 
 		// Company
 		api.CompanyRecordHandlerCollect,
@@ -170,6 +171,7 @@ var ClientAdmin = role.Role{
 		api.UserValidatorValidate,
 
 		api.UserAdministratorUpdateAllowedFields,
+		api.UserAdministratorCreate,
 
 		// system
 		api.SystemRecordHandlerCollect,

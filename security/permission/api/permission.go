@@ -7,14 +7,17 @@ const RoleRetrieve Permission = "Role.Retrieve"
 const RoleUpdate Permission = "Role.Update"
 const RoleDelete Permission = "Role.Delete"
 
+// User
 const UserRecordHandlerRetrieve Permission = "UserRecordHandler.Retrieve"
 const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"
 
 const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
+const UserAdministratorCreate Permission = "UserAdministrator.Create"
 const UserAdministratorUpdateAllowedFields Permission = "UserAdministrator.UpdateAllowedFields"
 
 const UserValidatorValidate Permission = "UserValidator.Validate"
 
+// System
 const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 
 const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.UpdateAllowedFields"
