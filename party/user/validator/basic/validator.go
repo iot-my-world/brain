@@ -8,7 +8,6 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userValidator "gitlab.com/iotTracker/brain/party/user/validator"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -301,38 +300,6 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 	case userAction.Create,
 		partyRegistrarAction.InviteCompanyAdminUser, partyRegistrarAction.InviteCompanyUser,
 		partyRegistrarAction.InviteClientAdminUser, partyRegistrarAction.InviteClientUser:
-		// when inviting a user or creating one, which happens during inviting, the email address is scrutinised
-		// we check if the users email has already been assigned to another user
-		if (*userToValidate).EmailAddress != "" {
-			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-				// we use system claims to make sure that all users are visible for this check
-				Claims: *v.systemClaims,
-				Identifier: emailAddress.Identifier{
-					EmailAddress: (*userToValidate).EmailAddress,
-				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
-				switch err.(type) {
-				case userRecordHandlerException.NotFound:
-					// this is what we want, do nothing
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "emailAddress",
-						Type:  reasonInvalid.Unknown,
-						Help:  "retrieve failed",
-						Data:  (*userToValidate).EmailAddress,
-					})
-				}
-			} else {
-				// there was no error, this email address is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "emailAddress",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).EmailAddress,
-				})
-			}
-		}
 
 		// user cannot have any roles yet for creation
 		if len((*userToValidate).Roles) != 0 {

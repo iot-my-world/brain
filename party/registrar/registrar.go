@@ -89,8 +89,8 @@ type RegisterClientAdminUserResponse struct {
 }
 
 type InviteClientUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type InviteClientUserResponse struct {
@@ -107,8 +107,8 @@ type RegisterClientUserResponse struct {
 }
 
 type InviteUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type InviteUserResponse struct {

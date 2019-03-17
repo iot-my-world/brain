@@ -109,7 +109,7 @@ var CompanyAdmin = role.Role{
 		api.ClientAdministratorUpdateAllowedFields,
 
 		// Party
-		api.PartyRegistrarInviteCompanyUser,
+		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarInviteClientAdminUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
@@ -197,7 +197,7 @@ var ClientAdmin = role.Role{
 
 		api.ReadingRecordHandlerCollect,
 
-		api.PartyRegistrarInviteClientUser,
+		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
 		api.UserAdministratorGetMyUser,

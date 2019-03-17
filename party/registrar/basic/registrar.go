@@ -7,19 +7,16 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	partyRegistrarAction "gitlab.com/iotTracker/brain/party/registrar/action"
-	registrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
+	partyRegistrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
 	userAdministrator "gitlab.com/iotTracker/brain/party/user/administrator"
 	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	userValidator "gitlab.com/iotTracker/brain/party/user/validator"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
-	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
@@ -82,7 +79,7 @@ func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSyst
 	case nil:
 		// this means that the user already exists
 		response.User = userRetrieveResponse.User
-		return registrarException.AlreadyRegistered{}
+		return partyRegistrarException.AlreadyRegistered{}
 	case userRecordHandlerException.NotFound:
 		// this is fine, we will be creating the user now
 	default:
@@ -143,7 +140,7 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		Claims:     request.Claims,
 		Identifier: request.CompanyIdentifier,
 	}, &companyRetrieveResponse); err != nil {
-		return registrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
+		return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
 	}
 
 	// Retrieve the minimal company admin user which was created on company creation
@@ -153,14 +150,13 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		Identifier: emailAddress.Identifier{
 			EmailAddress: companyRetrieveResponse.Company.AdminEmailAddress,
 		},
-	}, &userRetrieveResponse); err == nil {
-		// user should already exist as it is created when the company is created
-		// we check if the user is already registered, this is an error
-		if userRetrieveResponse.User.Registered {
-			return registrarException.AlreadyRegistered{}
-		}
-	} else {
+	}, &userRetrieveResponse); err != nil {
 		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+	}
+
+	// if the user is already registered, return an error
+	if userRetrieveResponse.User.Registered {
+		return partyRegistrarException.AlreadyRegistered{}
 	}
 
 	// Generate the registration token for the company admin user to register
@@ -175,7 +171,7 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerCompanyAdminUserClaims)
 	if err != nil {
-		return registrarException.TokenGeneration{Reasons: []string{"inviteCompanyAdminUser", err.Error()}}
+		return partyRegistrarException.TokenGeneration{Reasons: []string{"inviteCompanyAdminUser", err.Error()}}
 	}
 
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -219,7 +215,7 @@ func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegist
 		}, &userRetrieveResponse); err == nil {
 			// user should exist but should not yet be registered
 			if userRetrieveResponse.User.Registered {
-				return registrarException.AlreadyRegistered{}
+				return partyRegistrarException.AlreadyRegistered{}
 			}
 		} else {
 			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
@@ -342,74 +338,9 @@ func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.Inv
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	} else {
-
-		// try and retrieve a user with this email address to see if they have already been registered
-		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-		err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-			Claims:     request.Claims,
-			Identifier: request.UserIdentifier,
-		}, &userRetrieveResponse)
-		switch err.(type) {
-		case userRecordHandlerException.NotFound:
-			// cannot find user, cannot send invite for registration
-			reasonsInvalid = append(reasonsInvalid, "user not found")
-		case nil:
-			// user exists, confirm that they are not already registered
-			if userRetrieveResponse.User.Registered {
-				// otherwise return error
-				return registrarException.AlreadyRegistered{}
-			}
-		default:
-			// something went wrong during retrieval
-			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
-		}
-
-		// unless the user performing the invite is system, the partyDetails of the new user must be the
-		// same as the user performing the invite
-		if request.Claims.PartyDetails().PartyType != party.System {
-			if userRetrieveResponse.User.ParentPartyType != request.Claims.PartyDetails().ParentPartyType {
-				reasonsInvalid = append(reasonsInvalid, "parentPartyType of user must be the same as the user performing invite")
-			}
-			if userRetrieveResponse.User.ParentId != request.Claims.PartyDetails().ParentId {
-				reasonsInvalid = append(reasonsInvalid, "parentId of user must be the same as the user performing invite")
-			}
-			if userRetrieveResponse.User.PartyType != request.Claims.PartyDetails().PartyType {
-				reasonsInvalid = append(reasonsInvalid, "partyType of user must be the same as the user performing invite")
-			}
-			if userRetrieveResponse.User.PartyId != request.Claims.PartyDetails().PartyId {
-				reasonsInvalid = append(reasonsInvalid, "partyId of user must be the same as the user performing invite")
-			}
-		}
-
-		// regardless of who is performing the invite the partyType of the user must be company
-		if userRetrieveResponse.User.PartyType != party.Company {
-			reasonsInvalid = append(reasonsInvalid, "user's partyType must be company")
-		}
-
-		// at the moment only system is allowed to be the parent of company users
-		if userRetrieveResponse.User.ParentId.Id != r.systemClaims.PartyId.Id {
-			reasonsInvalid = append(reasonsInvalid, "parentId must be system id")
-		}
-		if userRetrieveResponse.User.ParentPartyType != r.systemClaims.PartyType {
-			reasonsInvalid = append(reasonsInvalid, "parentPartyType must be system")
-		}
-
-		// validate the new user for the invite company user method
-		userValidateResponse := userValidator.ValidateResponse{}
-		err = r.userValidator.Validate(&userValidator.ValidateRequest{
-			// system claims since we want all users to be visible for the email address check done in validate user
-			Claims: r.systemClaims,
-			User:   userRetrieveResponse.User,
-			Action: partyRegistrarAction.InviteCompanyUser,
-		}, &userValidateResponse)
-		if err != nil {
-			reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
-		} else {
-			for _, reason := range userValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
-		}
+	}
+	if request.UserIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "user identifier is nil")
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -424,14 +355,18 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		return err
 	}
 
-	// Retrieve the user to put it in the token to return
-	// try and retrieve a user with this email address to see if they have already been registered
+	// retrieve the user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 	if err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.UserIdentifier,
 	}, &userRetrieveResponse); err != nil {
-		return registrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
+		return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
+	}
+
+	// if the user is already registered, return an error
+	if userRetrieveResponse.User.Registered {
+		return partyRegistrarException.AlreadyRegistered{}
 	}
 
 	// Generate the registration token for the company user to register
@@ -446,7 +381,7 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerCompanyUserClaims)
 	if err != nil {
-		return registrarException.TokenGeneration{Reasons: []string{"inviteCompanyUser", err.Error()}}
+		return partyRegistrarException.TokenGeneration{Reasons: []string{"inviteCompanyUser", err.Error()}}
 	}
 
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -490,7 +425,7 @@ func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.R
 		}, &userRetrieveResponse); err == nil {
 			// user should exist but should not yet be registered
 			if userRetrieveResponse.User.Registered {
-				return registrarException.AlreadyRegistered{}
+				return partyRegistrarException.AlreadyRegistered{}
 			}
 		} else {
 			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
@@ -637,7 +572,7 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		Claims:     request.Claims,
 		Identifier: request.ClientIdentifier,
 	}, &clientRetrieveResponse); err != nil {
-		return registrarException.UnableToRetrieveParty{Reasons: []string{"client", err.Error()}}
+		return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"client", err.Error()}}
 	}
 
 	// retrieve the minimal client admin user
@@ -647,14 +582,13 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		Identifier: emailAddress.Identifier{
 			EmailAddress: clientRetrieveResponse.Client.AdminEmailAddress,
 		},
-	}, &userRetrieveResponse); err == nil {
-		// user should already exist as it is created when the client is created
-		// we check if the user is already registered, this is an error
-		if userRetrieveResponse.User.Registered {
-			return registrarException.AlreadyRegistered{}
-		}
-	} else {
+	}, &userRetrieveResponse); err != nil {
 		return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+	}
+
+	// if the user is already registered, return an error
+	if userRetrieveResponse.User.Registered {
+		return partyRegistrarException.AlreadyRegistered{}
 	}
 
 	// Generate the registration token for the client admin user to register
@@ -669,8 +603,7 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerClientAdminUserClaims)
 	if err != nil {
-		//Unexpected Error!
-		return registrarException.TokenGeneration{Reasons: []string{"inviteClientAdminUser", err.Error()}}
+		return partyRegistrarException.TokenGeneration{Reasons: []string{"inviteClientAdminUser", err.Error()}}
 	}
 
 	//http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -714,7 +647,7 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistr
 		}, &userRetrieveResponse); err == nil {
 			// user should exist but should not yet be registered
 			if userRetrieveResponse.User.Registered {
-				return registrarException.AlreadyRegistered{}
+				return partyRegistrarException.AlreadyRegistered{}
 			}
 		} else {
 			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
@@ -835,129 +768,12 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	// the user in the invite request must not be registered
-	if request.User.Registered {
-		reasonsInvalid = append(reasonsInvalid, "user cannot be set to registered yet")
-	}
-
-	// password field must be blank
-	if len(request.User.Password) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user password must be blank")
-	}
-
-	// username field must be blank
-	if request.User.Username != "" {
-		reasonsInvalid = append(reasonsInvalid, "username must be blank")
-	}
-
-	// roles must be empty
-	if len(request.User.Roles) != 0 {
-		reasonsInvalid = append(reasonsInvalid, "user cannot have any roles yet")
-	}
-
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	} else {
+	}
 
-		// try and retrieve a user with this email address to see if they have already been invited
-		userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-		err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-			Claims:     request.Claims,
-			Identifier: emailAddress.Identifier{EmailAddress: request.User.EmailAddress},
-		}, &userRetrieveResponse)
-		switch err.(type) {
-		case userRecordHandlerException.NotFound:
-			// this is what we want, the user will be created during the invite process
-		case nil:
-			// user should not yet exist as they are created during the invite process
-			return registrarException.AlreadyExists{}
-		default:
-			// something went wrong during retrieval
-			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
-		}
-
-		// unless the user performing the invite is system, the party details of the new user must be the
-		// same as the user performing the invite
-		if request.Claims.PartyDetails().PartyType != party.System {
-			if request.User.ParentPartyType != request.Claims.PartyDetails().ParentPartyType {
-				reasonsInvalid = append(reasonsInvalid, "partentPartyType of user must be the same as the user performing invite")
-			}
-			if request.User.ParentId != request.Claims.PartyDetails().ParentId {
-				reasonsInvalid = append(reasonsInvalid, "parentId of user must be the same as the user performing invite")
-			}
-			if request.User.PartyType != request.Claims.PartyDetails().PartyType {
-				reasonsInvalid = append(reasonsInvalid, "partyType of user must be the same as the user performing invite")
-			}
-			if request.User.PartyId != request.Claims.PartyDetails().PartyId {
-				reasonsInvalid = append(reasonsInvalid, "partyId of user must be the same as the user performing invite")
-			}
-		}
-
-		// regardless of who is performing the invite the partyType of the user must be client
-		if request.User.PartyType != party.Client {
-			reasonsInvalid = append(reasonsInvalid, "user's partyType must be client")
-		}
-
-		// validate the new user for the invite client user method
-		userValidateResponse := userValidator.ValidateResponse{}
-		err = r.userValidator.Validate(&userValidator.ValidateRequest{
-			// system claims since we want all users to be visible for the email address check done in validate user
-			Claims: r.systemClaims,
-			User:   request.User,
-			Action: partyRegistrarAction.InviteClientUser,
-		}, &userValidateResponse)
-		if err != nil {
-			reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
-		} else {
-			for _, reason := range userValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
-			}
-		}
-
-		if request.User.EmailAddress != "" {
-
-			// Check if the users email has already been assigned to a company entity as admin email
-			companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-			if err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
-				// system claims since we want all companies to be visible for this retrieval check
-				Claims: *r.systemClaims,
-				Identifier: adminEmailAddress.Identifier{
-					AdminEmailAddress: request.User.EmailAddress,
-				},
-			}, &companyRetrieveResponse); err != nil {
-				switch err.(type) {
-				case companyRecordHandlerException.NotFound:
-					// [2] this is what we want, do nothing
-				default:
-					reasonsInvalid = append(reasonsInvalid, "unable to perform company retrieve to confirm correct email address: "+err.Error())
-				}
-			} else {
-				// [3] if a company was found, this email address is therefore already being used
-				reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on a company entity")
-			}
-
-			// Check if the users email has already been assigned to a client entity as admin email
-			if request.User.EmailAddress != "" {
-				if err := r.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
-					// system claims since we want all companies to be visible for this retrieval check
-					Claims: *r.systemClaims,
-					Identifier: adminEmailAddress.Identifier{
-						AdminEmailAddress: request.User.EmailAddress,
-					},
-				},
-					&clientRecordHandler.RetrieveResponse{}); err != nil {
-					switch err.(type) {
-					case clientRecordHandlerException.NotFound:
-						// this is what we want, do nothing
-					default:
-						reasonsInvalid = append(reasonsInvalid, "unable to confirm admin user email address uniqueness")
-					}
-				} else {
-					// there was no error, this email address is already taken by some client entity
-					reasonsInvalid = append(reasonsInvalid, "emailAddress used as admin email address on a client entity")
-				}
-			}
-		}
+	if request.UserIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "user identifier is nil")
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -971,31 +787,34 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 	if err := r.ValidateInviteClientUserRequest(request); err != nil {
 		return err
 	}
-	// Create the minimal client user
-	userCreateResponse := userRecordHandler.CreateResponse{}
-	if err := r.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		User: request.User,
-	},
-		&userCreateResponse); err != nil {
-		return err
+
+	// retrieve the user
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.UserIdentifier,
+	}, &userRetrieveResponse); err != nil {
+		return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
 	}
 
-	// Update the id on the user
-	request.User.Id = userCreateResponse.User.Id
+	// if the user is already registered, return an error
+	if userRetrieveResponse.User.Registered {
+		return partyRegistrarException.AlreadyRegistered{}
+	}
 
-	// Generate the registration token for the company user to register
+	// Generate the registration token for the client user to register
 	registerClientUserClaims := registerClientUser.RegisterClientUser{
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
-		ParentPartyType: request.User.ParentPartyType,
-		ParentId:        request.User.ParentId,
-		PartyType:       request.User.PartyType,
-		PartyId:         request.User.PartyId,
-		User:            request.User,
+		ParentPartyType: userRetrieveResponse.User.ParentPartyType,
+		ParentId:        userRetrieveResponse.User.ParentId,
+		PartyType:       userRetrieveResponse.User.PartyType,
+		PartyId:         userRetrieveResponse.User.PartyId,
+		User:            userRetrieveResponse.User,
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerClientUserClaims)
 	if err != nil {
-		return registrarException.TokenGeneration{Reasons: []string{"inviteClientUser", err.Error()}}
+		return partyRegistrarException.TokenGeneration{Reasons: []string{"inviteClientUser", err.Error()}}
 	}
 
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -1004,7 +823,7 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 	sendMailResponse := mailer.SendResponse{}
 	if err := r.mailer.Send(&mailer.SendRequest{
 		//From    string
-		To: request.User.EmailAddress,
+		To: userRetrieveResponse.User.EmailAddress,
 		//Cc      string
 		Subject: "Welcome to SpotNav",
 		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s", urlToken),
@@ -1039,7 +858,7 @@ func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.Re
 		}, &userRetrieveResponse); err == nil {
 			// user should exist but should not yet be registered
 			if userRetrieveResponse.User.Registered {
-				return registrarException.AlreadyRegistered{}
+				return partyRegistrarException.AlreadyRegistered{}
 			}
 		} else {
 			return brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
@@ -1179,6 +998,10 @@ func (r *registrar) ValidateInviteUserRequest(request *partyRegistrar.InviteUser
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	}
 
+	if request.UserIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "user identifier nil")
+	}
+
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	}
@@ -1190,22 +1013,31 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest, respon
 		return err
 	}
 
+	// retrieve the user
+	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
+	if err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.UserIdentifier,
+	}, &userRetrieveResponse); err != nil {
+		return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
+	}
+
 	// the purpose of this service is to provide a generic way to invite a user from any party, admin user or not
-	switch request.User.PartyType {
+	switch userRetrieveResponse.User.PartyType {
 	case party.Company:
-		// determine it this is an admin user
+		// determine it this is the admin user
 		companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
 		if err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     *r.systemClaims,
-			Identifier: request.User.PartyId,
+			Identifier: userRetrieveResponse.User.PartyId,
 		}, &companyRetrieveResponse); err != nil {
-			return registrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
+			return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
 		}
-		if request.User.EmailAddress == companyRetrieveResponse.Company.AdminEmailAddress {
+		if userRetrieveResponse.User.EmailAddress == companyRetrieveResponse.Company.AdminEmailAddress {
 			inviteCompanyAdminUserResponse := partyRegistrar.InviteCompanyAdminUserResponse{}
 			if err := r.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
 				Claims:            request.Claims,
-				CompanyIdentifier: request.User.PartyId,
+				CompanyIdentifier: userRetrieveResponse.User.PartyId,
 			}, &inviteCompanyAdminUserResponse); err != nil {
 				return err
 			}
@@ -1214,7 +1046,7 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest, respon
 			inviteCompanyUserResponse := partyRegistrar.InviteCompanyUserResponse{}
 			if err := r.InviteCompanyUser(&partyRegistrar.InviteCompanyUserRequest{
 				Claims:         request.Claims,
-				UserIdentifier: id.Identifier{Id: request.User.Id},
+				UserIdentifier: id.Identifier{Id: userRetrieveResponse.User.Id},
 			}, &inviteCompanyUserResponse); err != nil {
 				return err
 			}
@@ -1222,9 +1054,36 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest, respon
 		}
 
 	case party.Client:
-		// determine if this is an admin user
+		// determine it this is the admin user
+		clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
+		if err := r.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+			Claims:     *r.systemClaims,
+			Identifier: userRetrieveResponse.User.PartyId,
+		}, &clientRetrieveResponse); err != nil {
+			return partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
+		}
+		if userRetrieveResponse.User.EmailAddress == clientRetrieveResponse.Client.AdminEmailAddress {
+			inviteClientAdminUserResponse := partyRegistrar.InviteClientAdminUserResponse{}
+			if err := r.InviteClientAdminUser(&partyRegistrar.InviteClientAdminUserRequest{
+				Claims:           request.Claims,
+				ClientIdentifier: userRetrieveResponse.User.PartyId,
+			}, &inviteClientAdminUserResponse); err != nil {
+				return err
+			}
+			response.URLToken = inviteClientAdminUserResponse.URLToken
+		} else {
+			inviteClientUserResponse := partyRegistrar.InviteClientUserResponse{}
+			if err := r.InviteClientUser(&partyRegistrar.InviteClientUserRequest{
+				Claims:         request.Claims,
+				UserIdentifier: id.Identifier{Id: userRetrieveResponse.User.Id},
+			}, &inviteClientUserResponse); err != nil {
+				return err
+			}
+			response.URLToken = inviteClientUserResponse.URLToken
+		}
+
 	default:
-		return registrarException.PartyTypeInvalid{Reasons: []string{string(request.User.PartyType)}}
+		return partyRegistrarException.PartyTypeInvalid{Reasons: []string{string(userRetrieveResponse.User.PartyType)}}
 
 	}
 
@@ -1252,7 +1111,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		case party.Client:
 			clientIds = append(clientIds, partyDetail.PartyId.Id)
 		default:
-			return registrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyDetail.PartyType)}}
+			return partyRegistrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyDetail.PartyType)}}
 		}
 	}
 
@@ -1267,7 +1126,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 			},
 		},
 	}, &companyCollectResponse); err != nil {
-		return registrarException.UnableToCollectParties{Reasons: []string{"company", err.Error()}}
+		return partyRegistrarException.UnableToCollectParties{Reasons: []string{"company", err.Error()}}
 	} else {
 		// confirm that for every id received a company was returned
 		if len(companyCollectResponse.Records) != len(companyIds) {
@@ -1292,7 +1151,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 			},
 		},
 	}, &companyAdminUserCollectResponse); err != nil {
-		return registrarException.UnableToCollectParties{Reasons: []string{"companyAdminUsers", err.Error()}}
+		return partyRegistrarException.UnableToCollectParties{Reasons: []string{"companyAdminUsers", err.Error()}}
 	} else {
 		// confirm that for every admin email a user was returned
 		if len(companyAdminUserCollectResponse.Records) != len(companyAdminEmails) {
@@ -1319,7 +1178,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 			},
 		},
 	}, &clientCollectResponse); err != nil {
-		return registrarException.UnableToCollectParties{Reasons: []string{"client", err.Error()}}
+		return partyRegistrarException.UnableToCollectParties{Reasons: []string{"client", err.Error()}}
 	} else {
 		// confirm that for every id received a client was returned
 		if len(clientCollectResponse.Records) != len(clientIds) {
@@ -1344,7 +1203,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 			},
 		},
 	}, &clientAdminUserCollectResponse); err != nil {
-		return registrarException.UnableToCollectParties{Reasons: []string{"clientAdminUsers", err.Error()}}
+		return partyRegistrarException.UnableToCollectParties{Reasons: []string{"clientAdminUsers", err.Error()}}
 	} else {
 		// confirm that for every admin email user was returned
 		if len(clientAdminUserCollectResponse.Records) != len(clientAdminEmails) {

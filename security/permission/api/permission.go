@@ -43,12 +43,11 @@ const ClientAdministratorCreate Permission = "ClientAdministrator.Create"
 // Party
 const PartyRegistrarInviteCompanyAdminUser Permission = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser Permission = "PartyRegistrar.RegisterCompanyAdminUser"
-const PartyRegistrarInviteCompanyUser Permission = "PartyRegistrar.InviteCompanyUser"
 const PartyRegistrarRegisterCompanyUser Permission = "PartyRegistrar.RegisterCompanyUser"
 const PartyRegistrarInviteClientAdminUser Permission = "PartyRegistrar.InviteClientAdminUser"
 const PartyRegistrarRegisterClientAdminUser Permission = "PartyRegistrar.RegisterClientAdminUser"
-const PartyRegistrarInviteClientUser Permission = "PartyRegistrar.InviteClientUser"
 const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClientUser"
+const PartyRegistrarInviteUser Permission = "PartyRegistrar.InviteUser"
 const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
 const PartyAdministratorGetMyParty Permission = "PartyAdministrator.GetMyParty"

@@ -84,38 +84,6 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 	return nil
 }
 
-type InviteCompanyUserRequest struct {
-	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
-}
-
-type InviteCompanyUserResponse struct {
-	URLToken string `json:"urlToken"`
-}
-
-func (a *adaptor) InviteCompanyUser(r *http.Request, request *InviteCompanyUserRequest, response *InviteCompanyUserResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	userIdentifier, err := request.UserIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
-	inviteCompanyUserResponse := registrar.InviteCompanyUserResponse{}
-	if err := a.registrar.InviteCompanyUser(&registrar.InviteCompanyUserRequest{
-		Claims:         claims,
-		UserIdentifier: userIdentifier,
-	},
-		&inviteCompanyUserResponse); err != nil {
-		return err
-	}
-	response.URLToken = inviteCompanyUserResponse.URLToken
-	return nil
-}
-
 type RegisterCompanyUserRequest struct {
 	User user.User `json:"user"`
 }
@@ -208,33 +176,6 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 	return nil
 }
 
-type InviteClientUserRequest struct {
-	User user.User `json:"user"`
-}
-
-type InviteClientUserResponse struct {
-	URLToken string `json:"urlToken"`
-}
-
-func (a *adaptor) InviteClientUser(r *http.Request, request *InviteClientUserRequest, response *InviteClientUserResponse) error {
-	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
-	if err != nil {
-		log.Warn(err.Error())
-		return err
-	}
-
-	inviteClientUserResponse := registrar.InviteClientUserResponse{}
-	if err := a.registrar.InviteClientUser(&registrar.InviteClientUserRequest{
-		Claims: claims,
-		User:   request.User,
-	},
-		&inviteClientUserResponse); err != nil {
-		return err
-	}
-	response.URLToken = inviteClientUserResponse.URLToken
-	return nil
-}
-
 type RegisterClientUserRequest struct {
 	User user.User `json:"user"`
 }
@@ -290,6 +231,40 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 	}
 
 	response.Result = areAdminsRegisteredResponse.Result
+
+	return nil
+}
+
+type InviteUserRequest struct {
+	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
+}
+
+type InviteUserResponse struct {
+	URLToken string `json:"urlToken"`
+}
+
+func (a *adaptor) InviteUser(r *http.Request, request *InviteUserRequest, response *InviteUserResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	userId, err := request.UserIdentifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
+	userInviteResponse := registrar.InviteUserResponse{}
+	if err := a.registrar.InviteUser(&registrar.InviteUserRequest{
+		Claims:         claims,
+		UserIdentifier: userId,
+	}, &userInviteResponse); err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	response.URLToken = userInviteResponse.URLToken
 
 	return nil
 }
