@@ -267,14 +267,14 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 		// when registering a user the username is scrutinised to ensure that it has not yet been used
 		// this is done by checking if the users username has already been assigned to another user
 		if (*userToValidate).Username != "" {
+			userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: username.Identifier{
 					Username: (*userToValidate).Username,
 				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
+			}, &userRetrieveResponse); err != nil {
 				switch err.(type) {
 				case userRecordHandlerException.NotFound:
 					// this is what we want
@@ -287,13 +287,15 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 					})
 				}
 			} else {
-				// there was no error, the username is already taken by another user
-				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-					Field: "username",
-					Type:  reasonInvalid.Duplicate,
-					Help:  "already exists",
-					Data:  (*userToValidate).Username,
-				})
+				// there was no error, confirm that the username belongs to this user being validated
+				if (*userToValidate).Id != userRetrieveResponse.User.Id {
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Duplicate,
+						Help:  "already exists",
+						Data:  (*userToValidate).Username,
+					})
+				}
 			}
 		}
 

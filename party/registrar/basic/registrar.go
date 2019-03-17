@@ -501,17 +501,6 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		return err
 	}
 
-	// change the users password
-	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
-	if err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
-		Claims:      request.Claims,
-		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: string(request.User.Password),
-	},
-		&userChangePasswordResponse); err != nil {
-		return err
-	}
-
 	// retrieve the minimal user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 	if err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -535,6 +524,17 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		Identifier: id.Identifier{Id: request.User.Id},
 	},
 		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+		Claims:      request.Claims,
+		Identifier:  id.Identifier{Id: request.User.Id},
+		NewPassword: string(request.User.Password),
+	},
+		&userChangePasswordResponse); err != nil {
 		return err
 	}
 
@@ -934,17 +934,6 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 		return err
 	}
 
-	// change the users password
-	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
-	if err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
-		Claims:      request.Claims,
-		Identifier:  id.Identifier{Id: request.User.Id},
-		NewPassword: string(request.User.Password),
-	},
-		&userChangePasswordResponse); err != nil {
-		return err
-	}
-
 	// retrieve the minimal user
 	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
 	if err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -969,6 +958,17 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 		Identifier: id.Identifier{Id: request.User.Id},
 	},
 		&userUpdateResponse); err != nil {
+		return err
+	}
+
+	// change the users password
+	userChangePasswordResponse := userAdministrator.ChangePasswordResponse{}
+	if err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+		Claims:      request.Claims,
+		Identifier:  id.Identifier{Id: request.User.Id},
+		NewPassword: string(request.User.Password),
+	},
+		&userChangePasswordResponse); err != nil {
 		return err
 	}
 
