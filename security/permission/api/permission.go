@@ -32,7 +32,7 @@ const CompanyAdministratorUpdateAllowedFields Permission = "CompanyAdministrator
 const ClientRecordHandlerRetrieve Permission = "ClientRecordHandler.Retrieve"
 const ClientRecordHandlerCollect Permission = "ClientRecordHandler.Collect"
 
-const ClientValidatorValidate Permission = "CClientValidator.Validate"
+const ClientValidatorValidate Permission = "ClientValidator.Validate"
 
 const ClientAdministratorUpdateAllowedFields Permission = "ClientAdministrator.UpdateAllowedFields"
 const ClientAdministratorCreate Permission = "ClientAdministrator.Create"
