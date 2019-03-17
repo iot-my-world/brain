@@ -85,7 +85,7 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 }
 
 type InviteCompanyUserRequest struct {
-	User user.User `json:"user"`
+	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
 }
 
 type InviteCompanyUserResponse struct {
@@ -99,10 +99,15 @@ func (a *adaptor) InviteCompanyUser(r *http.Request, request *InviteCompanyUserR
 		return err
 	}
 
+	userIdentifier, err := request.UserIdentifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
 	inviteCompanyUserResponse := registrar.InviteCompanyUserResponse{}
 	if err := a.registrar.InviteCompanyUser(&registrar.InviteCompanyUserRequest{
-		Claims: claims,
-		User:   request.User,
+		Claims:         claims,
+		UserIdentifier: userIdentifier,
 	},
 		&inviteCompanyUserResponse); err != nil {
 		return err

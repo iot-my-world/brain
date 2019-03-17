@@ -20,6 +20,8 @@ type Registrar interface {
 	InviteClientUser(request *InviteClientUserRequest, response *InviteClientUserResponse) error
 	RegisterClientUser(request *RegisterClientUserRequest, response *RegisterClientUserResponse) error
 
+	InviteUser(request *InviteUserRequest, response *InviteUserResponse) error
+
 	AreAdminsRegistered(request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error
 }
 
@@ -51,8 +53,8 @@ type RegisterCompanyAdminUserResponse struct {
 }
 
 type InviteCompanyUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type InviteCompanyUserResponse struct {
@@ -102,6 +104,15 @@ type RegisterClientUserRequest struct {
 
 type RegisterClientUserResponse struct {
 	User user.User
+}
+
+type InviteUserRequest struct {
+	Claims claims.Claims
+	User   user.User
+}
+
+type InviteUserResponse struct {
+	URLToken string
 }
 
 type AreAdminsRegisteredRequest struct {
