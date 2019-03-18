@@ -31,14 +31,14 @@ func (suite *System) SetupTest() {
 	}
 }
 
-func ColumnHeaderMap(xlsxFile *excelize.File, sheet string) (map[string]string, error) {
+func ColumnHeaderMap(xlsxFile *excelize.File, sheet string, topRowIdx int) (map[string]string, error) {
 	columnHeaderMap := make(map[string]string)
-
 	rows := xlsxFile.GetRows(sheet)
-	if len(rows) == 0 {
-		return nil, errors.New("no rows in sheet")
+	fmt.Println("norows", len(rows))
+	if len(rows)-1 < topRowIdx {
+		return nil, errors.New("not enough rows in sheet")
 	}
-	for colIdx, colCell := range rows[0] {
+	for colIdx, colCell := range rows[topRowIdx] {
 		columnHeaderMap[colCell] = excelize.ToAlphaString(colIdx)
 	}
 
@@ -52,7 +52,7 @@ func (suite *System) TestDeviceCreation() {
 	if err != nil {
 		suite.FailNow("failed to open device data workbook", err.Error())
 	}
-	columnHeaderMap, err := ColumnHeaderMap(deviceDataWorkBook, "DevicesToCreate")
+	columnHeaderMap, err := ColumnHeaderMap(deviceDataWorkBook, "TK102Devices", 1)
 	if err != nil {
 		suite.FailNow("failed to get header map of workbook", err.Error())
 	}
