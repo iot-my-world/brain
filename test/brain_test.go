@@ -2,16 +2,23 @@ package main
 
 import (
 	"github.com/stretchr/testify/suite"
-	clientTest "gitlab.com/iotTracker/brain/test/party/client"
-	companyTest "gitlab.com/iotTracker/brain/test/party/company"
-	systemTest "gitlab.com/iotTracker/brain/test/party/system"
+	clientUserTest "gitlab.com/iotTracker/brain/test/client/user"
+	companyClientTest "gitlab.com/iotTracker/brain/test/company/client"
+	companyUserTest "gitlab.com/iotTracker/brain/test/company/user"
+	systemCompanyTest "gitlab.com/iotTracker/brain/test/system/company"
 	"testing"
 )
 
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestBrain(t *testing.T) {
-	suite.Run(t, new(systemTest.System))
-	suite.Run(t, new(companyTest.Company))
-	suite.Run(t, new(clientTest.Client))
+	// System Tests
+	suite.Run(t, new(systemCompanyTest.Company))
+
+	// Company Tests
+	suite.Run(t, new(companyUserTest.User))
+	suite.Run(t, new(companyClientTest.Client))
+
+	// Client Tests
+	suite.Run(t, new(clientUserTest.User))
 }

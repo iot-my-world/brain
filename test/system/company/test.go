@@ -1,4 +1,4 @@
-package system
+package company
 
 import (
 	"encoding/json"
@@ -15,20 +15,21 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	companyTest "gitlab.com/iotTracker/brain/test/party/company"
+	companyTest "gitlab.com/iotTracker/brain/test/company"
+	testData "gitlab.com/iotTracker/brain/test/data"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"
 )
 
-type System struct {
+type Company struct {
 	suite.Suite
 	jsonRpcClient jsonRpcClient.Client
 }
 
-func (suite *System) SetupTest() {
+func (suite *Company) SetupTest() {
 	// create the client
-	suite.jsonRpcClient = basicJsonRpcClient.New("http://localhost:9010/api")
+	suite.jsonRpcClient = basicJsonRpcClient.New(testData.BrainURL)
 
 	// log in the client
 	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
@@ -39,7 +40,7 @@ func (suite *System) SetupTest() {
 	}
 }
 
-func (suite *System) TestSystemCreateCompanies() {
+func (suite *Company) TestCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
 	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := suite.jsonRpcClient.JsonRpcRequest(
@@ -76,7 +77,7 @@ func (suite *System) TestSystemCreateCompanies() {
 	}
 }
 
-func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
+func (suite *Company) TestInviteAndRegisterCompanyAdminUsers() {
 	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
 		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
 		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
@@ -140,7 +141,7 @@ func (suite *System) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		}
 
 		// create a new json rpc client to register the user with
-		registerJsonRpcClient := basicJsonRpcClient.New("http://localhost:9010/api")
+		registerJsonRpcClient := basicJsonRpcClient.New(testData.BrainURL)
 		if err := registerJsonRpcClient.SetJWT(jwt); err != nil {
 			suite.FailNow("failed to set jwt in registration client", err.Error())
 		}

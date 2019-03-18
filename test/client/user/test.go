@@ -1,4 +1,4 @@
-package client
+package user
 
 import (
 	"encoding/json"
@@ -14,25 +14,27 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	clientTest "gitlab.com/iotTracker/brain/test/client"
+	testData "gitlab.com/iotTracker/brain/test/data"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"
 )
 
-type Client struct {
+type User struct {
 	suite.Suite
 	jsonRpcClient jsonRpcClient.Client
 }
 
-func (suite *Client) SetupTest() {
+func (suite *User) SetupTest() {
 	// create the client
-	suite.jsonRpcClient = basicJsonRpcClient.New("http://localhost:9010/api")
+	suite.jsonRpcClient = basicJsonRpcClient.New(testData.BrainURL)
 }
 
-func (suite *Client) TestClientInviteAndRegisterUsers() {
-	for companyOwner := range EntitiesAndAdminUsersToCreate {
-		for clientDataEntityIdx := range EntitiesAndAdminUsersToCreate[companyOwner] {
-			clientDataEntity := &EntitiesAndAdminUsersToCreate[companyOwner][clientDataEntityIdx]
+func (suite *User) TestClientInviteAndRegisterUsers() {
+	for companyOwner := range clientTest.EntitiesAndAdminUsersToCreate {
+		for clientDataEntityIdx := range clientTest.EntitiesAndAdminUsersToCreate[companyOwner] {
+			clientDataEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyOwner][clientDataEntityIdx]
 			// log in the client
 			if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
 				UsernameOrEmailAddress: clientDataEntity.AdminUser.Username,
@@ -124,7 +126,7 @@ func (suite *Client) TestClientInviteAndRegisterUsers() {
 				}
 
 				// create a new json rpc client to register the user with
-				registerJsonRpcClient := basicJsonRpcClient.New("http://localhost:9010/api")
+				registerJsonRpcClient := basicJsonRpcClient.New(testData.BrainURL)
 				if err := registerJsonRpcClient.SetJWT(jwt); err != nil {
 					suite.FailNow("failed to set jwt in registration client", err.Error())
 				}
