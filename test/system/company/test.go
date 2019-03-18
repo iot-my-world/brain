@@ -17,6 +17,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	companyTest "gitlab.com/iotTracker/brain/test/company"
 	testData "gitlab.com/iotTracker/brain/test/data"
+	systemTest "gitlab.com/iotTracker/brain/test/system"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"
@@ -33,8 +34,8 @@ func (suite *Company) SetupTest() {
 
 	// log in the client
 	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
-		UsernameOrEmailAddress: User.Username,
-		Password:               string(User.Password),
+		UsernameOrEmailAddress: systemTest.User.Username,
+		Password:               string(systemTest.User.Password),
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}

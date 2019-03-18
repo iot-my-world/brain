@@ -1,4 +1,4 @@
-package company
+package system
 
 import "gitlab.com/iotTracker/brain/party/user"
 
