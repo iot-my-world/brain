@@ -54,13 +54,14 @@ const PartyAdministratorGetMyParty Permission = "PartyAdministrator.GetMyParty"
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 
-const TK102DeviceRecordHandlerCreate Permission = "TK102DeviceRecordHandler.Create"
+// TK102 Tracking Device
 const TK102DeviceRecordHandlerRetrieve Permission = "TK102DeviceRecordHandler.Retrieve"
-const TK102DeviceRecordHandlerDelete Permission = "TK102DeviceRecordHandler.Delete"
-const TK102DeviceRecordHandlerValidate Permission = "TK102DeviceRecordHandler.Validate"
 const TK102DeviceRecordHandlerCollect Permission = "TK102DeviceRecordHandler.Collect"
 
+const TK102DeviceValidatorValidate Permission = "TK102DeviceValidator.Validate"
+
 const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
+const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Create"
 
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
 

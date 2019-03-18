@@ -13,6 +13,7 @@ import (
 	tk102DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
 	tk102DeviceAdministratorException "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
+	tk102DeviceValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 )
 
@@ -22,6 +23,7 @@ type basicAdministrator struct {
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	partyAdministrator   partyAdministrator.Administrator
 	readingRecordHandler readingRecordHandler.RecordHandler
+	tk102DeviceValidator tk102DeviceValidator.Validator
 }
 
 // New tk102 basic administrator
@@ -31,6 +33,7 @@ func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	partyAdministrator partyAdministrator.Administrator,
 	readingRecordHandler readingRecordHandler.RecordHandler,
+	tk102DeviceValidator tk102DeviceValidator.Validator,
 ) tk102DeviceAdministrator.Administrator {
 	return &basicAdministrator{
 		tk102RecordHandler:   tk102RecordHandler,
@@ -38,6 +41,7 @@ func New(
 		clientRecordHandler:  clientRecordHandler,
 		partyAdministrator:   partyAdministrator,
 		readingRecordHandler: readingRecordHandler,
+		tk102DeviceValidator: tk102DeviceValidator,
 	}
 }
 
@@ -49,11 +53,11 @@ func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(reques
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 		// the device must be valid
-		tk102ValidateResponse := tk102RecordHandler.ValidateResponse{}
-		if err := ba.tk102RecordHandler.Validate(&tk102RecordHandler.ValidateRequest{
+		tk102ValidateResponse := tk102DeviceValidator.ValidateResponse{}
+		if err := ba.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
 			Claims: request.Claims,
 			TK102:  request.TK102,
-			// Method: // no method. the device must be generally valid
+			// Action: // no action. the device must be generally valid
 		}, &tk102ValidateResponse); err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating device: "+err.Error())
 		}

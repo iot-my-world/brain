@@ -25,6 +25,7 @@ var initialRoles = func() []role.Role {
 	// Register additional root api permissions here
 	// i.e. these are permissions that ONLY root has
 	rootAPIPermissions := []api.Permission{
+		// Role
 		api.RoleCreate,
 		api.RoleRetrieve,
 		api.RoleUpdate,
@@ -40,6 +41,10 @@ var initialRoles = func() []role.Role {
 
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
+
+		// TK102 Device
+		api.TK102DeviceValidatorValidate,
+		api.TK102DeviceAdministratorCreate,
 		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
 	}
 
@@ -114,10 +119,7 @@ var CompanyAdmin = role.Role{
 		api.PartyRegistrarAreAdminsRegistered,
 
 		// TK102 Device
-		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
-		api.TK102DeviceRecordHandlerDelete,
-		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
 
 		api.TrackingReportLive,
@@ -186,10 +188,7 @@ var ClientAdmin = role.Role{
 
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
-		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
-		api.TK102DeviceRecordHandlerDelete,
-		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
 
 		api.TrackingReportLive,
