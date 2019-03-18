@@ -1,12 +1,15 @@
 package system
 
 import (
+	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
+	"os"
 )
 
 type System struct {
@@ -28,5 +31,13 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestDeviceCreation() {
+	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/device/data/deviceData.xlsx"
 
+	deviceDataWorkBook, err := excelize.OpenFile(pathToDataWorkbook)
+	if err != nil {
+		suite.FailNow("failed to open device data workbook", err.Error())
+		return
+	}
+
+	fmt.Println(deviceDataWorkBook.GetCellValue("DevicesToCreate", "A1"))
 }
