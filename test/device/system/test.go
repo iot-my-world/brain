@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
@@ -30,14 +31,31 @@ func (suite *System) SetupTest() {
 	}
 }
 
+func ColumnHeaderMap(xlsxFile *excelize.File, sheet string) (map[string]string, error) {
+	columnHeaderMap := make(map[string]string)
+
+	rows := xlsxFile.GetRows(sheet)
+	if len(rows) == 0 {
+		return nil, errors.New("no rows in sheet")
+	}
+	for colIdx, colCell := range rows[0] {
+		columnHeaderMap[colCell] = excelize.ToAlphaString(colIdx)
+	}
+
+	return columnHeaderMap, nil
+}
+
 func (suite *System) TestDeviceCreation() {
 	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/device/data/deviceData.xlsx"
 
 	deviceDataWorkBook, err := excelize.OpenFile(pathToDataWorkbook)
 	if err != nil {
 		suite.FailNow("failed to open device data workbook", err.Error())
-		return
+	}
+	columnHeaderMap, err := ColumnHeaderMap(deviceDataWorkBook, "DevicesToCreate")
+	if err != nil {
+		suite.FailNow("failed to get header map of workbook", err.Error())
 	}
 
-	fmt.Println(deviceDataWorkBook.GetCellValue("DevicesToCreate", "A1"))
+	fmt.Println(columnHeaderMap)
 }
