@@ -101,6 +101,7 @@ func (a *administrator) Create(request *clientAdministrator.CreateRequest, respo
 		return clientAdministratorException.ClientCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
+	response.Client = clientCreateResponse.Client
 	return nil
 }
 

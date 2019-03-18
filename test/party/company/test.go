@@ -187,7 +187,7 @@ func (suite *Company) TestCompanyCreateClients() {
 			}
 
 			// update the client
-			(*clientEntity).Id = clientCreateResponse.Client.Id
+			clientEntity.Id = clientCreateResponse.Client.Id
 		}
 
 		// log out

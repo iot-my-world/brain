@@ -62,7 +62,7 @@ func (suite *System) TestSystemCreateCompanies() {
 		// create the company
 		companyCreateResponse := companyAdministratorJsonRpcAdaptor.CreateResponse{}
 		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"CompanyRecordHandler.Create",
+			"CompanyAdministrator.Create",
 			companyAdministratorJsonRpcAdaptor.CreateRequest{
 				Company: *companyEntity,
 			},
