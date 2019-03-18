@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
-	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
+	clientAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/administrator/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
-	"gitlab.com/iotTracker/brain/party/user"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
@@ -51,21 +51,37 @@ func (suite *Company) TestCompanyInviteAndRegisterUsers() {
 
 			// the user has the same party details as the company admin user performing this invite
 
-			// make minimal company user
-			companyUser := user.User{
-				EmailAddress:    (*userEntity).EmailAddress,
-				ParentPartyType: suite.jsonRpcClient.Claims().PartyDetails().ParentPartyType,
-				ParentId:        suite.jsonRpcClient.Claims().PartyDetails().ParentId,
-				PartyType:       suite.jsonRpcClient.Claims().PartyDetails().PartyType,
-				PartyId:         suite.jsonRpcClient.Claims().PartyDetails().PartyId,
+			// create minimal company user
+			(*userEntity).ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().ParentPartyType
+			(*userEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().ParentId
+			(*userEntity).PartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+			(*userEntity).PartyId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+
+			createCompanyUserResponse := userAdministratorJsonRpcAdaptor.CreateResponse{}
+			if err := suite.jsonRpcClient.JsonRpcRequest(
+				"UserAdministrator.Create",
+				userAdministratorJsonRpcAdaptor.CreateRequest{
+					User: *userEntity,
+				},
+				&createCompanyUserResponse,
+			); err != nil {
+				suite.FailNow("create company user failed", err.Error())
+			}
+			// update id
+			(*userEntity).Id = createCompanyUserResponse.User.Id
+
+			// create identifier for the user entity to invite
+			userIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: (*userEntity).Id})
+			if err != nil {
+				suite.FailNow("error wrapping userIdentifier", err.Error())
 			}
 
 			// invite the user
-			inviteCompanyUserResponse := partyRegistrarJsonRpcAdaptor.InviteCompanyUserResponse{}
+			inviteCompanyUserResponse := partyRegistrarJsonRpcAdaptor.InviteUserResponse{}
 			if err := suite.jsonRpcClient.JsonRpcRequest(
-				"PartyRegistrar.InviteCompanyUser",
-				partyRegistrarJsonRpcAdaptor.InviteCompanyUserRequest{
-					User: companyUser,
+				"PartyRegistrar.InviteUser",
+				partyRegistrarJsonRpcAdaptor.InviteUserRequest{
+					UserIdentifier: *userIdentifier,
 				},
 				&inviteCompanyUserResponse,
 			); err != nil {
@@ -108,6 +124,7 @@ func (suite *Company) TestCompanyInviteAndRegisterUsers() {
 				(*userEntity).ParentId = typedClaims.User.ParentId
 				(*userEntity).PartyType = typedClaims.User.PartyType
 				(*userEntity).PartyId = typedClaims.User.PartyId
+				// other userEntity fields already set in data for this test. Would have been filled out by user
 			default:
 				suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyUser))
 			}
@@ -158,10 +175,10 @@ func (suite *Company) TestCompanyCreateClients() {
 			(*clientEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
 
 			// create the client
-			clientCreateResponse := clientRecordHandlerJsonRpcAdaptor.CreateResponse{}
+			clientCreateResponse := clientAdministratorJsonRpcAdaptor.CreateResponse{}
 			if err := suite.jsonRpcClient.JsonRpcRequest(
-				"ClientRecordHandler.Create",
-				clientRecordHandlerJsonRpcAdaptor.CreateRequest{
+				"ClientAdministrator.Create",
+				clientAdministratorJsonRpcAdaptor.CreateRequest{
 					Client: *clientEntity,
 				},
 				&clientCreateResponse,

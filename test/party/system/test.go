@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
+	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -59,10 +60,10 @@ func (suite *System) TestSystemCreateCompanies() {
 		(*companyEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
 
 		// create the company
-		companyCreateResponse := companyRecordHandlerJsonRpcAdaptor.CreateResponse{}
+		companyCreateResponse := companyAdministratorJsonRpcAdaptor.CreateResponse{}
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"CompanyRecordHandler.Create",
-			companyRecordHandlerJsonRpcAdaptor.CreateRequest{
+			companyAdministratorJsonRpcAdaptor.CreateRequest{
 				Company: *companyEntity,
 			},
 			&companyCreateResponse,

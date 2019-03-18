@@ -7,7 +7,9 @@ import (
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
-	"gitlab.com/iotTracker/brain/party/user"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
@@ -44,20 +46,37 @@ func (suite *Client) TestClientInviteAndRegisterUsers() {
 				userEntity := &(*clientDataEntity).Users[userIdx]
 
 				// make minimal client user
-				clientUser := user.User{
-					EmailAddress:    (*userEntity).EmailAddress,
-					ParentPartyType: suite.jsonRpcClient.Claims().PartyDetails().ParentPartyType,
-					ParentId:        suite.jsonRpcClient.Claims().PartyDetails().ParentId,
-					PartyType:       suite.jsonRpcClient.Claims().PartyDetails().PartyType,
-					PartyId:         suite.jsonRpcClient.Claims().PartyDetails().PartyId,
+				(*userEntity).ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().ParentPartyType
+				(*userEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().ParentId
+				(*userEntity).PartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+				(*userEntity).PartyId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+
+				// create the user
+				createCompanyUserResponse := userAdministratorJsonRpcAdaptor.CreateResponse{}
+				if err := suite.jsonRpcClient.JsonRpcRequest(
+					"UserAdministrator.Create",
+					userAdministratorJsonRpcAdaptor.CreateRequest{
+						User: *userEntity,
+					},
+					&createCompanyUserResponse,
+				); err != nil {
+					suite.FailNow("create client user failed", err.Error())
+				}
+				// update id
+				(*userEntity).Id = createCompanyUserResponse.User.Id
+
+				// create identifier for the user entity to invite
+				userIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: (*userEntity).Id})
+				if err != nil {
+					suite.FailNow("error wrapping userIdentifier", err.Error())
 				}
 
 				// invite the user
-				inviteClientUserResponse := partyRegistrarJsonRpcAdaptor.InviteClientUserResponse{}
+				inviteClientUserResponse := partyRegistrarJsonRpcAdaptor.InviteUserResponse{}
 				if err := suite.jsonRpcClient.JsonRpcRequest(
-					"PartyRegistrar.InviteClientUser",
-					partyRegistrarJsonRpcAdaptor.InviteClientUserRequest{
-						User: clientUser,
+					"PartyRegistrar.InviteUser",
+					partyRegistrarJsonRpcAdaptor.InviteUserRequest{
+						UserIdentifier: *userIdentifier,
 					},
 					&inviteClientUserResponse,
 				); err != nil {
