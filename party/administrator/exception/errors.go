@@ -2,6 +2,12 @@ package exception
 
 import "strings"
 
+type NotFound struct{}
+
+func (e NotFound) Error() string {
+	return "party not found"
+}
+
 type InvalidParty struct {
 	Reasons []string
 }

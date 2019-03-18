@@ -7,11 +7,14 @@ import (
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	partyHandlerException "gitlab.com/iotTracker/brain/party/administrator/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 )
 
-type basicHandler struct {
+type administrator struct {
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	systemRecordHandler  systemRecordHandler.RecordHandler
@@ -21,15 +24,15 @@ func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	systemRecordHandler systemRecordHandler.RecordHandler,
-) *basicHandler {
-	return &basicHandler{
+) *administrator {
+	return &administrator{
 		clientRecordHandler:  clientRecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		systemRecordHandler:  systemRecordHandler,
 	}
 }
 
-func (bh *basicHandler) ValidateGetMyPartyRequest(request *partyAdministrator.GetMyPartyRequest) error {
+func (a *administrator) ValidateGetMyPartyRequest(request *partyAdministrator.GetMyPartyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -43,41 +46,56 @@ func (bh *basicHandler) ValidateGetMyPartyRequest(request *partyAdministrator.Ge
 	}
 }
 
-func (bh *basicHandler) GetMyParty(request *partyAdministrator.GetMyPartyRequest, response *partyAdministrator.GetMyPartyResponse) error {
-	if err := bh.ValidateGetMyPartyRequest(request); err != nil {
+func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest, response *partyAdministrator.GetMyPartyResponse) error {
+	if err := a.ValidateGetMyPartyRequest(request); err != nil {
 		return err
 	}
 
 	switch request.Claims.PartyDetails().PartyType {
 	case party.System:
 		systemRecordHandlerRetrieveResponse := systemRecordHandler.RetrieveResponse{}
-		if err := bh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+		if err := a.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
 		}, &systemRecordHandlerRetrieveResponse); err != nil {
-			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			switch err.(type) {
+			case systemRecordHandlerException.NotFound:
+				return partyHandlerException.NotFound{}
+			default:
+				return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			}
 		}
 		response.PartyType = party.System
 		response.Party = systemRecordHandlerRetrieveResponse.System
 
 	case party.Company:
 		companyRecordHandlerRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-		if err := bh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		if err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
 		}, &companyRecordHandlerRetrieveResponse); err != nil {
-			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			switch err.(type) {
+			case companyRecordHandlerException.NotFound:
+				return partyHandlerException.NotFound{}
+			default:
+				return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			}
 		}
 		response.PartyType = party.Company
 		response.Party = companyRecordHandlerRetrieveResponse.Company
 
 	case party.Client:
 		clientRecordHandlerRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-		if err := bh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		if err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
 		}, &clientRecordHandlerRetrieveResponse); err != nil {
-			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			switch err.(type) {
+			case clientRecordHandlerException.NotFound:
+				return partyHandlerException.NotFound{}
+			default:
+				return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			}
 		}
 		response.PartyType = party.Client
 		response.Party = clientRecordHandlerRetrieveResponse.Client
@@ -89,7 +107,7 @@ func (bh *basicHandler) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 	return nil
 }
 
-func (bh *basicHandler) ValidateRetrievePartyRequest(request *partyAdministrator.RetrievePartyRequest) error {
+func (a *administrator) ValidateRetrievePartyRequest(request *partyAdministrator.RetrievePartyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -108,15 +126,15 @@ func (bh *basicHandler) ValidateRetrievePartyRequest(request *partyAdministrator
 	return nil
 }
 
-func (bh *basicHandler) RetrieveParty(request *partyAdministrator.RetrievePartyRequest, response *partyAdministrator.RetrievePartyResponse) error {
-	if err := bh.ValidateRetrievePartyRequest(request); err != nil {
+func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyRequest, response *partyAdministrator.RetrievePartyResponse) error {
+	if err := a.ValidateRetrievePartyRequest(request); err != nil {
 		return err
 	}
 
 	switch request.PartyType {
 	case party.System:
 		systemRecordHandlerRetrieveResponse := systemRecordHandler.RetrieveResponse{}
-		if err := bh.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+		if err := a.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		}, &systemRecordHandlerRetrieveResponse); err != nil {
@@ -127,7 +145,7 @@ func (bh *basicHandler) RetrieveParty(request *partyAdministrator.RetrievePartyR
 
 	case party.Company:
 		companyRecordHandlerRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-		if err := bh.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		if err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		}, &companyRecordHandlerRetrieveResponse); err != nil {
@@ -138,7 +156,7 @@ func (bh *basicHandler) RetrieveParty(request *partyAdministrator.RetrievePartyR
 
 	case party.Client:
 		clientRecordHandlerRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-		if err := bh.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		if err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		}, &clientRecordHandlerRetrieveResponse); err != nil {

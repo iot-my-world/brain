@@ -113,8 +113,6 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 		})
 	}
 
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-
 	// Perform additional checks/ignores considering method field
 	switch request.Action {
 	case clientAction.Create:
@@ -184,6 +182,7 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 	}
 
 	// Ignore reasons applicable to method if relevant
+	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
 			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {
