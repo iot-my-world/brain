@@ -29,11 +29,15 @@ var initialRoles = func() []role.Role {
 		api.RoleRetrieve,
 		api.RoleUpdate,
 		api.RoleDelete,
-		api.CompanyRecordHandlerCreate,
+
 		api.CompanyRecordHandlerRetrieve,
-		api.CompanyRecordHandlerUpdate,
-		api.CompanyRecordHandlerDelete,
-		api.CompanyRecordHandlerValidate,
+
+		api.CompanyValidatorValidate,
+
+		api.CompanyAdministratorCreate,
+
+		api.SystemAdministratorUpdateAllowedFields,
+
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
 		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
@@ -79,28 +83,52 @@ var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.SystemRecordHandlerCollect,
+
+		// user
+		api.UserRecordHandlerCollect,
+
+		api.UserValidatorValidate,
+
+		api.UserAdministratorUpdateAllowedFields,
+		api.UserAdministratorCreate,
+
+		// Company
 		api.CompanyRecordHandlerCollect,
-		api.ClientRecordHandlerCreate,
+
+		api.CompanyAdministratorUpdateAllowedFields,
+
+		// Client
 		api.ClientRecordHandlerRetrieve,
-		api.ClientRecordHandlerUpdate,
-		api.ClientRecordHandlerDelete,
-		api.ClientRecordHandlerValidate,
 		api.ClientRecordHandlerCollect,
-		api.PartyRegistrarInviteCompanyUser,
+
+		api.ClientValidatorValidate,
+
+		api.ClientAdministratorCreate,
+		api.ClientAdministratorUpdateAllowedFields,
+
+		// Party
+		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarInviteClientAdminUser,
+		api.PartyRegistrarAreAdminsRegistered,
+
+		// TK102 Device
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
-		api.UserRecordHandlerCollect,
-		api.PartyRegistrarAreAdminsRegistered,
-		api.PartyHandlerGetMyParty,
-		api.PartyHandlerGetMyUser,
+
+		api.PartyAdministratorGetMyParty,
+
+		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -116,11 +144,16 @@ var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
-		api.PartyHandlerGetMyParty,
-		api.PartyHandlerGetMyUser,
+
+		api.PartyAdministratorGetMyParty,
+
+		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
@@ -132,23 +165,45 @@ var CompanyUser = role.Role{
 var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
+		// user
+		api.UserRecordHandlerCollect,
+
+		api.UserValidatorValidate,
+
+		api.UserAdministratorUpdateAllowedFields,
+		api.UserAdministratorCreate,
+
+		// system
 		api.SystemRecordHandlerCollect,
+
+		// company
 		api.CompanyRecordHandlerCollect,
+
+		// client
 		api.ClientRecordHandlerCollect,
+
+		api.ClientAdministratorUpdateAllowedFields,
+
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.TK102DeviceRecordHandlerCreate,
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerDelete,
 		api.TK102DeviceRecordHandlerValidate,
 		api.TK102DeviceRecordHandlerCollect,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
-		api.PartyRegistrarInviteClientUser,
-		api.UserRecordHandlerCollect,
+
+		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarAreAdminsRegistered,
-		api.PartyHandlerGetMyParty,
-		api.PartyHandlerGetMyUser,
+
+		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
+
+		api.PartyAdministratorGetMyParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -164,11 +219,16 @@ var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
 		api.ReadingRecordHandlerCollect,
-		api.PartyHandlerGetMyParty,
-		api.PartyHandlerGetMyUser,
+
+		api.PartyAdministratorGetMyParty,
+
+		api.UserAdministratorGetMyUser,
+		api.UserAdministratorUpdateAllowedFields,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,

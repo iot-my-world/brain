@@ -6,11 +6,11 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
 	wrappedClaimsException "gitlab.com/iotTracker/brain/security/wrappedClaims/exception"
 	"net/http"
-	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 )
 
 type WrappedClaims struct {

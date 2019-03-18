@@ -1,11 +1,10 @@
 package registrar
 
 import (
-	"gitlab.com/iotTracker/brain/party/user"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/api"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type Registrar interface {
@@ -21,18 +20,10 @@ type Registrar interface {
 	InviteClientUser(request *InviteClientUserRequest, response *InviteClientUserResponse) error
 	RegisterClientUser(request *RegisterClientUserRequest, response *RegisterClientUserResponse) error
 
+	InviteUser(request *InviteUserRequest, response *InviteUserResponse) error
+
 	AreAdminsRegistered(request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error
 }
-
-const InviteCompanyAdminUser api.Method = "InviteCompanyAdminUser"
-const RegisterCompanyAdminUser api.Method = "RegisterCompanyAdminUser"
-const InviteCompanyUser api.Method = "InviteCompanyUser"
-const RegisterCompanyUser api.Method = "RegisterCompanyUser"
-
-const InviteClientAdminUser api.Method = "InviteClientAdminUser"
-const RegisterClientAdminUser api.Method = "RegisterClientAdminUser"
-const InviteClientUser api.Method = "InviteClientUser"
-const RegisterClientUser api.Method = "RegisterClientUser"
 
 type RegisterSystemAdminUserRequest struct {
 	Claims claims.Claims
@@ -62,8 +53,8 @@ type RegisterCompanyAdminUserResponse struct {
 }
 
 type InviteCompanyUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type InviteCompanyUserResponse struct {
@@ -98,8 +89,8 @@ type RegisterClientAdminUserResponse struct {
 }
 
 type InviteClientUserRequest struct {
-	Claims claims.Claims
-	User   user.User
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
 }
 
 type InviteClientUserResponse struct {
@@ -113,6 +104,15 @@ type RegisterClientUserRequest struct {
 
 type RegisterClientUserResponse struct {
 	User user.User
+}
+
+type InviteUserRequest struct {
+	Claims         claims.Claims
+	UserIdentifier identifier.Identifier
+}
+
+type InviteUserResponse struct {
+	URLToken string
 }
 
 type AreAdminsRegisteredRequest struct {

@@ -11,9 +11,9 @@ import (
 	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
-	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
 )
 
 type mongoRecordHandler struct {

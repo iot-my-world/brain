@@ -7,42 +7,50 @@ const RoleRetrieve Permission = "Role.Retrieve"
 const RoleUpdate Permission = "Role.Update"
 const RoleDelete Permission = "Role.Delete"
 
-const UserRecordHandlerCreate Permission = "UserRecordHandler.Create"
+// User
 const UserRecordHandlerRetrieve Permission = "UserRecordHandler.Retrieve"
-const UserRecordHandlerUpdate Permission = "UserRecordHandler.Update"
-const UserRecordHandlerDelete Permission = "UserRecordHandler.Delete"
-const UserRecordHandlerValidate Permission = "UserRecordHandler.Validate"
 const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"
-const UserRecordHandlerChangePassword Permission = "UserRecordHandler.ChangePassword"
 
+const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
+const UserAdministratorCreate Permission = "UserAdministrator.Create"
+const UserAdministratorUpdateAllowedFields Permission = "UserAdministrator.UpdateAllowedFields"
+
+const UserValidatorValidate Permission = "UserValidator.Validate"
+
+// System
 const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 
-const CompanyRecordHandlerCreate Permission = "CompanyRecordHandler.Create"
+const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.UpdateAllowedFields"
+
+// Company
 const CompanyRecordHandlerRetrieve Permission = "CompanyRecordHandler.Retrieve"
-const CompanyRecordHandlerUpdate Permission = "CompanyRecordHandler.Update"
-const CompanyRecordHandlerDelete Permission = "CompanyRecordHandler.Delete"
-const CompanyRecordHandlerValidate Permission = "CompanyRecordHandler.Validate"
 const CompanyRecordHandlerCollect Permission = "CompanyRecordHandler.Collect"
 
-const ClientRecordHandlerCreate Permission = "ClientRecordHandler.Create"
+const CompanyValidatorValidate Permission = "CompanyValidator.Validate"
+
+const CompanyAdministratorCreate Permission = "CompanyAdministrator.Create"
+const CompanyAdministratorUpdateAllowedFields Permission = "CompanyAdministrator.UpdateAllowedFields"
+
+// Client
 const ClientRecordHandlerRetrieve Permission = "ClientRecordHandler.Retrieve"
-const ClientRecordHandlerUpdate Permission = "ClientRecordHandler.Update"
-const ClientRecordHandlerDelete Permission = "ClientRecordHandler.Delete"
-const ClientRecordHandlerValidate Permission = "ClientRecordHandler.Validate"
 const ClientRecordHandlerCollect Permission = "ClientRecordHandler.Collect"
 
+const ClientValidatorValidate Permission = "ClientValidator.Validate"
+
+const ClientAdministratorUpdateAllowedFields Permission = "ClientAdministrator.UpdateAllowedFields"
+const ClientAdministratorCreate Permission = "ClientAdministrator.Create"
+
+// Party
 const PartyRegistrarInviteCompanyAdminUser Permission = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser Permission = "PartyRegistrar.RegisterCompanyAdminUser"
-const PartyRegistrarInviteCompanyUser Permission = "PartyRegistrar.InviteCompanyUser"
 const PartyRegistrarRegisterCompanyUser Permission = "PartyRegistrar.RegisterCompanyUser"
 const PartyRegistrarInviteClientAdminUser Permission = "PartyRegistrar.InviteClientAdminUser"
 const PartyRegistrarRegisterClientAdminUser Permission = "PartyRegistrar.RegisterClientAdminUser"
-const PartyRegistrarInviteClientUser Permission = "PartyRegistrar.InviteClientUser"
 const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClientUser"
+const PartyRegistrarInviteUser Permission = "PartyRegistrar.InviteUser"
 const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
-const PartyHandlerGetMyParty Permission = "PartyHandler.GetMyParty"
-const PartyHandlerGetMyUser Permission = "PartyHandler.GetMyUser"
+const PartyAdministratorGetMyParty Permission = "PartyAdministrator.GetMyParty"
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 

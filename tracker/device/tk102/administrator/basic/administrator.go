@@ -4,9 +4,9 @@ import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
+	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	partyHandler "gitlab.com/iotTracker/brain/party/handler"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	exactTextCriterion "gitlab.com/iotTracker/brain/search/criterion/exact/text"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -20,7 +20,7 @@ type basicAdministrator struct {
 	tk102RecordHandler   tk102RecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
-	partyHandler         partyHandler.Handler
+	partyAdministrator   partyAdministrator.Administrator
 	readingRecordHandler readingRecordHandler.RecordHandler
 }
 
@@ -29,14 +29,14 @@ func New(
 	tk102RecordHandler tk102RecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
-	partyHandler partyHandler.Handler,
+	partyAdministrator partyAdministrator.Administrator,
 	readingRecordHandler readingRecordHandler.RecordHandler,
 ) tk102DeviceAdministrator.Administrator {
 	return &basicAdministrator{
 		tk102RecordHandler:   tk102RecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
-		partyHandler:         partyHandler,
+		partyAdministrator:   partyAdministrator,
 		readingRecordHandler: readingRecordHandler,
 	}
 }
@@ -76,16 +76,16 @@ func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(reques
 				// if the owner and assigned parties are not the same
 				request.TK102.AssignedId.Id != request.TK102.OwnerId.Id {
 				// then we must retrieve the owner and assigned parties to check the relationship is valid
-				ownerPartyRetrieveResponse := partyHandler.RetrievePartyResponse{}
-				if err := ba.partyHandler.RetrieveParty(&partyHandler.RetrievePartyRequest{
+				ownerPartyRetrieveResponse := partyAdministrator.RetrievePartyResponse{}
+				if err := ba.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 					Claims:     request.Claims,
 					Identifier: request.TK102.OwnerId,
 					PartyType:  request.TK102.OwnerPartyType,
 				}, &ownerPartyRetrieveResponse); err != nil {
 					reasonsInvalid = append(reasonsInvalid, "error retrieving owner party: "+err.Error())
 				}
-				assignedPartyRetrieveResponse := partyHandler.RetrievePartyResponse{}
-				if err := ba.partyHandler.RetrieveParty(&partyHandler.RetrievePartyRequest{
+				assignedPartyRetrieveResponse := partyAdministrator.RetrievePartyResponse{}
+				if err := ba.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 					Claims:     request.Claims,
 					Identifier: request.TK102.AssignedId,
 					PartyType:  request.TK102.AssignedPartyType,

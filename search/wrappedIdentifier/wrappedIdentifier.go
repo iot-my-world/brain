@@ -2,6 +2,7 @@ package wrappedIdentifier
 
 import (
 	"encoding/json"
+	"errors"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
@@ -10,7 +11,6 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"errors"
 )
 
 type WrappedIdentifier struct {

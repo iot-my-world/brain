@@ -19,20 +19,32 @@ import (
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
 
-	permissionServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/handler/adaptor/jsonRpc"
-	permissionBasicHandler "gitlab.com/iotTracker/brain/security/permission/handler/basic"
+	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
+	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
 
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
+	userBasicAdministrator "gitlab.com/iotTracker/brain/party/user/administrator/basic"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
 	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
+	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/validator/adaptor/jsonRpc"
+	userBasicValidator "gitlab.com/iotTracker/brain/party/user/validator/basic"
 
+	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
+	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
+	companyValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/validator/adaptor/jsonRpc"
+	companyBasicValidator "gitlab.com/iotTracker/brain/party/company/validator/basic"
 
+	clientAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/administrator/adaptor/jsonRpc"
+	clientBasicAdministrator "gitlab.com/iotTracker/brain/party/client/administrator/basic"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
+	clientValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/validator/adaptor/jsonRpc"
+	clientBasicValidator "gitlab.com/iotTracker/brain/party/client/validator/basic"
 
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
@@ -55,8 +67,8 @@ import (
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 
-	partyHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/handler/adaptor/jsonRpc"
-	partyBasicHandler "gitlab.com/iotTracker/brain/party/handler/basic"
+	partyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
+	partyBasicAdministrator "gitlab.com/iotTracker/brain/party/administrator/basic"
 
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
@@ -129,42 +141,82 @@ func main() {
 		databaseName,
 		roleCollection,
 	)
+	// User
 	UserRecordHandler := userMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		userCollection,
+	)
+	UserValidator := userBasicValidator.New(
+		UserRecordHandler,
 		&systemClaims,
 	)
-	PermissionBasicHandler := permissionBasicHandler.New(
+	UserBasicAdministrator := userBasicAdministrator.New(
+		UserRecordHandler,
+		UserValidator,
+	)
+
+	// Permission
+	PermissionBasicHandler := permissionBasicAdministrator.New(
 		UserRecordHandler,
 		RoleRecordHandler,
 	)
+
+	// Auth
 	AuthService := authBasicService.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
 	)
+
+	// Company
 	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		companyCollection,
+	)
+	CompanyValidator := companyBasicValidator.New(
+		CompanyRecordHandler,
+		UserRecordHandler,
+		&systemClaims,
+	)
+	CompanyBasicAdministrator := companyBasicAdministrator.New(
+		CompanyRecordHandler,
+		CompanyValidator,
 		UserRecordHandler,
 	)
+
+	// Client
 	ClientRecordHandler := clientMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		clientCollection,
+	)
+	ClientValidator := clientBasicValidator.New(
+		ClientRecordHandler,
+		UserRecordHandler,
+		&systemClaims,
+	)
+	ClientBasicAdministrator := clientBasicAdministrator.New(
+		ClientRecordHandler,
+		ClientValidator,
 		UserRecordHandler,
 	)
+
+	// Party
 	PartyBasicRegistrar := partyBasicRegistrar.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
+		UserValidator,
+		UserBasicAdministrator,
 		ClientRecordHandler,
 		Mailer,
 		rsaPrivateKey,
 		*mailRedirectBaseUrl,
 		&systemClaims,
 	)
+
+	// System
 	SystemRecordHandler := systemMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
@@ -173,6 +225,8 @@ func main() {
 		PartyBasicRegistrar,
 		&systemClaims,
 	)
+
+	// TK102 Device
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
@@ -181,11 +235,15 @@ func main() {
 		CompanyRecordHandler,
 		ClientRecordHandler,
 	)
+
+	// Reading
 	ReadingRecordHandler := readingMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		readingCollection,
 	)
+
+	// Report
 	TrackingReport := trackingBasicReport.New(
 		SystemRecordHandler,
 		CompanyRecordHandler,
@@ -193,34 +251,63 @@ func main() {
 		ReadingRecordHandler,
 		TK102DeviceRecordHandler,
 	)
-	PartyBasicHandler := partyBasicHandler.New(
+
+	// Party
+	PartyBasicAdministrator := partyBasicAdministrator.New(
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
-		UserRecordHandler,
 	)
+
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
 		TK102DeviceRecordHandler,
 		CompanyRecordHandler,
 		ClientRecordHandler,
-		PartyBasicHandler,
+		PartyBasicAdministrator,
 		ReadingRecordHandler,
 	)
 
 	// Create Service Provider Adaptors
+	// Role
 	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
+
+	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
+	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
+	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
+
+	// Auth
 	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
-	PermissionHandlerAdaptor := permissionServiceJsonRpcAdaptor.New(PermissionBasicHandler)
+
+	// Permission
+	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
+
+	// Company
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
+	CompanyValidatorAdaptor := companyValidatorJsonRpcAdaptor.New(CompanyValidator)
+	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyBasicAdministrator)
+
+	// Client
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
+	ClientValidatorAdaptor := clientValidatorJsonRpcAdaptor.New(ClientValidator)
+	ClientAdministratorAdaptor := clientAdministratorJsonRpcAdaptor.New(ClientBasicAdministrator)
+
+	// Party
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
+	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicAdministrator)
+
+	// System
 	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
+
+	// TK102 Device
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
+
+	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
+
+	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
-	PartyHandlerAdaptor := partyHandlerJsonRpcAdaptor.New(PartyBasicHandler)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -231,44 +318,83 @@ func main() {
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// Register Service Provider Adaptors with secureAPIServer
+	// Role
 	if err := secureAPIServer.RegisterService(RoleRecordHandlerAdaptor, "RoleRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Role Record Handler Service")
 	}
+
+	// User
 	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
+	if err := secureAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
+		log.Fatal("Unable to Register User Validator Service")
+	}
+	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
+		log.Fatal("Unable to Register User Administrator Service")
+	}
+
+	// Auth
 	if err := secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
+
+	// Permission
 	if err := secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
+
+	// Company
 	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
+	if err := secureAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
+		log.Fatal("Unable to Register Company Validator Service")
+	}
+	if err := secureAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
+		log.Fatal("Unable to Register Company Administrator Service")
+	}
+
+	// Client
 	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
+	if err := secureAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
+		log.Fatal("Unable to Register Client Validator Service")
+	}
+	if err := secureAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
+		log.Fatal("Unable to Register Client Administrator Service")
+	}
+
+	// Party
 	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
+	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
+		log.Fatal("Unable to Register Party Administrator Service")
+	}
+
+	// System
 	if err := secureAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
+
+	// TK102 Device
 	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
 	}
 	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
+
+	// Reading
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
 	}
+
+	// Reports
 	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
-	}
-	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyHandler"); err != nil {
-		log.Fatal("Unable to Register Party Handler Service")
 	}
 
 	// Set up Router for secureAPIServer
