@@ -1,4 +1,4 @@
-package client
+package data
 
 import (
 	"gitlab.com/iotTracker/brain/party/client"

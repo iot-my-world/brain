@@ -14,7 +14,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	clientTest "gitlab.com/iotTracker/brain/test/client"
+	clientTestData "gitlab.com/iotTracker/brain/test/client/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -32,9 +32,9 @@ func (suite *User) SetupTest() {
 }
 
 func (suite *User) TestClientInviteAndRegisterUsers() {
-	for companyOwner := range clientTest.EntitiesAndAdminUsersToCreate {
-		for clientDataEntityIdx := range clientTest.EntitiesAndAdminUsersToCreate[companyOwner] {
-			clientDataEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyOwner][clientDataEntityIdx]
+	for companyOwner := range clientTestData.EntitiesAndAdminUsersToCreate {
+		for clientDataEntityIdx := range clientTestData.EntitiesAndAdminUsersToCreate[companyOwner] {
+			clientDataEntity := &clientTestData.EntitiesAndAdminUsersToCreate[companyOwner][clientDataEntityIdx]
 			// log in the client
 			if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
 				UsernameOrEmailAddress: clientDataEntity.AdminUser.Username,

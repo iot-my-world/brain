@@ -1,4 +1,4 @@
-package device
+package system
 
 import (
 	"github.com/stretchr/testify/suite"
@@ -9,12 +9,12 @@ import (
 	systemTest "gitlab.com/iotTracker/brain/test/system"
 )
 
-type Device struct {
+type System struct {
 	suite.Suite
 	jsonRpcClient jsonRpcClient.Client
 }
 
-func (suite *Device) SetupTest() {
+func (suite *System) SetupTest() {
 	// create the client
 	suite.jsonRpcClient = basicJsonRpcClient.New(testData.BrainURL)
 
@@ -27,6 +27,6 @@ func (suite *Device) SetupTest() {
 	}
 }
 
-func (suite *Device) TestDeviceCreation() {
+func (suite *System) TestDeviceCreation() {
 
 }
