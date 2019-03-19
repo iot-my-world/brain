@@ -36,7 +36,7 @@ func (suite *System) SetupTest() {
 	}
 }
 
-func (suite *System) TestDeviceCreation() {
+func (suite *System) TestSystemDeviceCreation() {
 	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/device/data/deviceData.xlsx"
 
 	var sheetHeaderRowMap = map[string]int{
