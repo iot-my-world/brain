@@ -127,7 +127,9 @@ var CompanyAdmin = role.Role{
 
 		api.ReadingRecordHandlerCollect,
 
+		// Party Administrator
 		api.PartyAdministratorGetMyParty,
+		api.PartyAdministratorRetrieveParty,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
@@ -152,7 +154,9 @@ var CompanyUser = role.Role{
 
 		api.ReadingRecordHandlerCollect,
 
+		// Party Administrator
 		api.PartyAdministratorGetMyParty,
+		api.PartyAdministratorRetrieveParty,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
@@ -202,7 +206,9 @@ var ClientAdmin = role.Role{
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
 
+		// Party Administrator
 		api.PartyAdministratorGetMyParty,
+		api.PartyAdministratorRetrieveParty,
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
@@ -224,7 +230,9 @@ var ClientUser = role.Role{
 
 		api.ReadingRecordHandlerCollect,
 
+		// Party Administrator
 		api.PartyAdministratorGetMyParty,
+		api.PartyAdministratorRetrieveParty,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,

@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 )
@@ -43,6 +44,40 @@ func (a *adaptor) GetMyParty(r *http.Request, request *GetMyPartyRequest, respon
 
 	response.Party = getMyPartyResponse.Party
 	response.PartyType = getMyPartyResponse.PartyType
+
+	return nil
+}
+
+type RetrievePartyRequest struct {
+	PartyType  party.Type
+	Identifier wrappedIdentifier.WrappedIdentifier
+}
+
+type RetrievePartyResponse struct {
+	Party     party.Party
+	PartyType party.Type
+}
+
+func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, response *RetrievePartyResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	partyIdentifier, err := request.Identifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
+	retrievePartyResponse := partyAdministrator.RetrievePartyResponse{}
+	if err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+		Claims:     claims,
+		PartyType:  request.PartyType,
+		Identifier: partyIdentifier,
+	}, &retrievePartyResponse); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -1,13 +1,16 @@
 package system
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
+	"gitlab.com/iotTracker/brain/party"
+	partyAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
+	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
@@ -41,11 +44,27 @@ func (suite *System) TestDeviceCreation() {
 		suite.FailNow("failed to create device data workbook", err.Error())
 	}
 
+	// convert sheet to slice of maps
 	sheetSliceMap, err := deviceDataWorkBook.SheetAsSliceMap("TK102Devices")
 	if err != nil {
 		suite.FailNow("failed to get sheet slice map", err.Error())
 	}
+
+	// create all of the devices
 	for _, rowMap := range sheetSliceMap {
-		fmt.Println(rowMap)
+		// create new device
+		newDevice := tk102.TK102{
+			Id:                "",
+			ManufacturerId:    rowMap["ManufacturerId"],
+			SimCountryCode:    rowMap["SimCountryCode"],
+			SimNumber:         rowMap["SimNumber"],
+			OwnerPartyType:    party.Type(rowMap["OwnerPartyType"]),
+			OwnerId:           id.Identifier{},
+			AssignedPartyType: party.Type(rowMap["AssignedPartyType"]),
+			AssignedId:        id.Identifier{},
+		}
+
+		// try and retrieve the owner
+		retrievePartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
 	}
 }
