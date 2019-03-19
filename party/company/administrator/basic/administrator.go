@@ -9,9 +9,9 @@ import (
 	companyAdministratorException "gitlab.com/iotTracker/brain/party/company/administrator/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyValidator "gitlab.com/iotTracker/brain/party/company/validator"
-	"gitlab.com/iotTracker/brain/party/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/user"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
 )
 
 type administrator struct {

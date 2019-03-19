@@ -10,18 +10,21 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	exactTextCriterion "gitlab.com/iotTracker/brain/search/criterion/exact/text"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	tk102DeviceAction "gitlab.com/iotTracker/brain/tracker/device/tk102/action"
 	tk102DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
 	tk102DeviceAdministratorException "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/exception"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
+	tk102DeviceValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 )
 
-type basicAdministrator struct {
+type administrator struct {
 	tk102RecordHandler   tk102RecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	partyAdministrator   partyAdministrator.Administrator
 	readingRecordHandler readingRecordHandler.RecordHandler
+	tk102DeviceValidator tk102DeviceValidator.Validator
 }
 
 // New tk102 basic administrator
@@ -31,29 +34,30 @@ func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	partyAdministrator partyAdministrator.Administrator,
 	readingRecordHandler readingRecordHandler.RecordHandler,
+	tk102DeviceValidator tk102DeviceValidator.Validator,
 ) tk102DeviceAdministrator.Administrator {
-	return &basicAdministrator{
+	return &administrator{
 		tk102RecordHandler:   tk102RecordHandler,
 		companyRecordHandler: companyRecordHandler,
 		clientRecordHandler:  clientRecordHandler,
 		partyAdministrator:   partyAdministrator,
 		readingRecordHandler: readingRecordHandler,
+		tk102DeviceValidator: tk102DeviceValidator,
 	}
 }
 
-// ValidateChangeOwnershipAndAssignmentRequest
-func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest) error {
+func (a *administrator) ValidateChangeOwnershipAndAssignmentRequest(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 		// the device must be valid
-		tk102ValidateResponse := tk102RecordHandler.ValidateResponse{}
-		if err := ba.tk102RecordHandler.Validate(&tk102RecordHandler.ValidateRequest{
+		tk102ValidateResponse := tk102DeviceValidator.ValidateResponse{}
+		if err := a.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
 			Claims: request.Claims,
 			TK102:  request.TK102,
-			// Method: // no method. the device must be generally valid
+			// Action: // no action. the device must be generally valid
 		}, &tk102ValidateResponse); err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating device: "+err.Error())
 		}
@@ -77,7 +81,7 @@ func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(reques
 				request.TK102.AssignedId.Id != request.TK102.OwnerId.Id {
 				// then we must retrieve the owner and assigned parties to check the relationship is valid
 				ownerPartyRetrieveResponse := partyAdministrator.RetrievePartyResponse{}
-				if err := ba.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+				if err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 					Claims:     request.Claims,
 					Identifier: request.TK102.OwnerId,
 					PartyType:  request.TK102.OwnerPartyType,
@@ -85,7 +89,7 @@ func (ba *basicAdministrator) ValidateChangeOwnershipAndAssignmentRequest(reques
 					reasonsInvalid = append(reasonsInvalid, "error retrieving owner party: "+err.Error())
 				}
 				assignedPartyRetrieveResponse := partyAdministrator.RetrievePartyResponse{}
-				if err := ba.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+				if err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 					Claims:     request.Claims,
 					Identifier: request.TK102.AssignedId,
 					PartyType:  request.TK102.AssignedPartyType,
@@ -115,14 +119,14 @@ ChangeOwnershipAndAssignment of a TK102 Tracking device
 	3. update the device
 	4. update the readings
 */
-func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest, response *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentResponse) error {
-	if err := ba.ValidateChangeOwnershipAndAssignmentRequest(request); err != nil {
+func (a *administrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest, response *tk102DeviceAdministrator.ChangeOwnershipAndAssignmentResponse) error {
+	if err := a.ValidateChangeOwnershipAndAssignmentRequest(request); err != nil {
 		return err
 	}
 
 	// 1. retrieve the tk102 device
 	tk102RetrieveResponse := tk102RecordHandler.RetrieveResponse{}
-	if err := ba.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
+	if err := a.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.TK102.Id},
 	}, &tk102RetrieveResponse); err != nil {
@@ -131,7 +135,7 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 
 	// 2. collect readings for the device
 	readingCollectResponse := readingRecordHandler.CollectResponse{}
-	if err := ba.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+	if err := a.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 		Claims: request.Claims,
 		Criteria: []criterion.Criterion{
 			exactTextCriterion.Criterion{
@@ -150,7 +154,7 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 	tk102RetrieveResponse.TK102.AssignedPartyType = request.TK102.AssignedPartyType
 	tk102RetrieveResponse.TK102.AssignedId = request.TK102.AssignedId
 	tk102UpdateResponse := tk102RecordHandler.UpdateResponse{}
-	if err := ba.tk102RecordHandler.Update(&tk102RecordHandler.UpdateRequest{
+	if err := a.tk102RecordHandler.Update(&tk102RecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.TK102.Id},
 		TK102:      tk102RetrieveResponse.TK102,
@@ -164,7 +168,7 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 		readingCollectResponse.Records[readingIdx].OwnerId = request.TK102.OwnerId
 		readingCollectResponse.Records[readingIdx].AssignedPartyType = request.TK102.AssignedPartyType
 		readingCollectResponse.Records[readingIdx].AssignedId = request.TK102.AssignedId
-		if err := ba.readingRecordHandler.Update(&readingRecordHandler.UpdateRequest{
+		if err := a.readingRecordHandler.Update(&readingRecordHandler.UpdateRequest{
 			Claims:     request.Claims,
 			Identifier: id.Identifier{Id: readingCollectResponse.Records[readingIdx].Id},
 			Reading:    readingCollectResponse.Records[readingIdx],
@@ -174,6 +178,49 @@ func (ba *basicAdministrator) ChangeOwnershipAndAssignment(request *tk102DeviceA
 	}
 
 	response.TK102 = tk102UpdateResponse.TK102
+
+	return nil
+}
+
+func (a *administrator) ValidateCreateRequest(request *tk102DeviceAdministrator.CreateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		tk102DeviceValidateResponse := tk102DeviceValidator.ValidateResponse{}
+		if err := a.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
+			Claims: request.Claims,
+			TK102:  request.TK102,
+			Action: tk102DeviceAction.Create,
+		}, &tk102DeviceValidateResponse); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error validating tk102 device: "+err.Error())
+		}
+		if len(tk102DeviceValidateResponse.ReasonsInvalid) > 0 {
+			for _, reason := range tk102DeviceValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("tk102 device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+			}
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Create(request *tk102DeviceAdministrator.CreateRequest, response *tk102DeviceAdministrator.CreateResponse) error {
+	if err := a.ValidateCreateRequest(request); err != nil {
+		return err
+	}
+
+	// Create the device
+	createResponse := tk102RecordHandler.CreateResponse{}
+	if err := a.tk102RecordHandler.Create(&tk102RecordHandler.CreateRequest{
+		TK102: request.TK102,
+	}, &createResponse); err != nil {
+		return tk102DeviceAdministratorException.DeviceCreation{Reasons: []string{err.Error()}}
+	}
 
 	return nil
 }

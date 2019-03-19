@@ -25,12 +25,12 @@ import (
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
-	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
-	userBasicAdministrator "gitlab.com/iotTracker/brain/party/user/administrator/basic"
-	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
-	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
-	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/validator/adaptor/jsonRpc"
-	userBasicValidator "gitlab.com/iotTracker/brain/party/user/validator/basic"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
+	userBasicAdministrator "gitlab.com/iotTracker/brain/user/administrator/basic"
+	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/recordHandler/adaptor/jsonRpc"
+	userMongoRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler/mongo"
+	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/validator/adaptor/jsonRpc"
+	userBasicValidator "gitlab.com/iotTracker/brain/user/validator/basic"
 
 	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
@@ -57,6 +57,8 @@ import (
 	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
+	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
+	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
@@ -226,30 +228,11 @@ func main() {
 		&systemClaims,
 	)
 
-	// TK102 Device
-	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		tk102DeviceCollection,
-		SystemRecordHandler,
-		CompanyRecordHandler,
-		ClientRecordHandler,
-	)
-
 	// Reading
 	ReadingRecordHandler := readingMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		readingCollection,
-	)
-
-	// Report
-	TrackingReport := trackingBasicReport.New(
-		SystemRecordHandler,
-		CompanyRecordHandler,
-		ClientRecordHandler,
-		ReadingRecordHandler,
-		TK102DeviceRecordHandler,
 	)
 
 	// Party
@@ -259,12 +242,31 @@ func main() {
 		SystemRecordHandler,
 	)
 
+	// TK102 Device
+	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		tk102DeviceCollection,
+	)
+	TK102DeviceValidator := tk102DeviceBasicValidator.New(
+		PartyBasicAdministrator,
+	)
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
 		TK102DeviceRecordHandler,
 		CompanyRecordHandler,
 		ClientRecordHandler,
 		PartyBasicAdministrator,
 		ReadingRecordHandler,
+		TK102DeviceValidator,
+	)
+
+	// Report
+	TrackingReport := trackingBasicReport.New(
+		SystemRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
+		ReadingRecordHandler,
+		TK102DeviceRecordHandler,
 	)
 
 	// Create Service Provider Adaptors
@@ -302,6 +304,7 @@ func main() {
 	// TK102 Device
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
+	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
@@ -382,6 +385,9 @@ func main() {
 	// TK102 Device
 	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(TK102DeviceValidatorAdaptor, "TK102DeviceValidator"); err != nil {
+		log.Fatal("Unable to Register TK102 Device Validator")
 	}
 	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")

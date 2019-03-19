@@ -3,14 +3,14 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/party/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	permissionAdministratorException "gitlab.com/iotTracker/brain/security/permission/administrator/exception"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	"gitlab.com/iotTracker/brain/user"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
 )
 
 type handler struct {

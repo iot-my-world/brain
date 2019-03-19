@@ -27,6 +27,5 @@ type RetrievePartyRequest struct {
 }
 
 type RetrievePartyResponse struct {
-	Party     party.Party
-	PartyType party.Type
+	Party party.Party
 }

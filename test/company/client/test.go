@@ -14,8 +14,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	clientTest "gitlab.com/iotTracker/brain/test/client"
-	companyTest "gitlab.com/iotTracker/brain/test/company"
+	clientTestData "gitlab.com/iotTracker/brain/test/client/data"
+	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -34,7 +34,7 @@ func (suite *Client) SetupTest() {
 
 func (suite *Client) TestCompanyCreateClients() {
 	// for each test company entity
-	for _, companyTestDataEntity := range companyTest.EntitiesAndAdminUsersToCreate {
+	for _, companyTestDataEntity := range companyTestData.EntitiesAndAdminUsersToCreate {
 		// log in
 		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
 			UsernameOrEmailAddress: companyTestDataEntity.AdminUser.Username,
@@ -44,8 +44,8 @@ func (suite *Client) TestCompanyCreateClients() {
 		}
 
 		// for each client assigned to be owned by this company
-		for idx := range clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
-			clientEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
+		for idx := range clientTestData.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
+			clientEntity := &clientTestData.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
 
 			// update the entity
 			(*clientEntity).ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
@@ -74,7 +74,7 @@ func (suite *Client) TestCompanyCreateClients() {
 
 func (suite *Client) TestCompanyInviteAndRegisterClients() {
 	// for each test company entity
-	for _, companyTestDataEntity := range companyTest.EntitiesAndAdminUsersToCreate {
+	for _, companyTestDataEntity := range companyTestData.EntitiesAndAdminUsersToCreate {
 		// log in
 		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
 			UsernameOrEmailAddress: companyTestDataEntity.AdminUser.Username,
@@ -84,9 +84,9 @@ func (suite *Client) TestCompanyInviteAndRegisterClients() {
 		}
 
 		// for each client assigned to be owned by this company
-		for idx := range clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
-			clientEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
-			clientAdminUserEntity := &clientTest.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].AdminUser
+		for idx := range clientTestData.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name] {
+			clientEntity := &clientTestData.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].Client
+			clientAdminUserEntity := &clientTestData.EntitiesAndAdminUsersToCreate[companyTestDataEntity.Company.Name][idx].AdminUser
 
 			// create identifier for the client entity
 			clientIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: clientEntity.Id})

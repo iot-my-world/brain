@@ -15,8 +15,9 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	companyTest "gitlab.com/iotTracker/brain/test/company"
+	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
+	systemTest "gitlab.com/iotTracker/brain/test/system"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"
@@ -33,14 +34,14 @@ func (suite *Company) SetupTest() {
 
 	// log in the client
 	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
-		UsernameOrEmailAddress: User.Username,
-		Password:               string(User.Password),
+		UsernameOrEmailAddress: systemTest.User.Username,
+		Password:               string(systemTest.User.Password),
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
 }
 
-func (suite *Company) TestCreateCompanies() {
+func (suite *Company) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
 	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := suite.jsonRpcClient.JsonRpcRequest(
@@ -53,8 +54,8 @@ func (suite *Company) TestCreateCompanies() {
 		suite.FailNow("company collection not empty")
 	}
 
-	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
-		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
+	for idx := range companyTestData.EntitiesAndAdminUsersToCreate {
+		companyEntity := &(companyTestData.EntitiesAndAdminUsersToCreate[idx].Company)
 
 		// update the new company's details as would be done from the front end
 		(*companyEntity).ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
@@ -77,10 +78,10 @@ func (suite *Company) TestCreateCompanies() {
 	}
 }
 
-func (suite *Company) TestInviteAndRegisterCompanyAdminUsers() {
-	for idx := range companyTest.EntitiesAndAdminUsersToCreate {
-		companyEntity := &(companyTest.EntitiesAndAdminUsersToCreate[idx].Company)
-		companyAdminUserEntity := &companyTest.EntitiesAndAdminUsersToCreate[idx].AdminUser
+func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
+	for idx := range companyTestData.EntitiesAndAdminUsersToCreate {
+		companyEntity := &(companyTestData.EntitiesAndAdminUsersToCreate[idx].Company)
+		companyAdminUserEntity := &companyTestData.EntitiesAndAdminUsersToCreate[idx].AdminUser
 
 		// create identifier for the company entity
 		companyIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: companyEntity.Id})

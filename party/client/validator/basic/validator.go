@@ -7,11 +7,11 @@ import (
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientValidator "gitlab.com/iotTracker/brain/party/client/validator"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
@@ -113,8 +113,6 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 		})
 	}
 
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-
 	// Perform additional checks/ignores considering method field
 	switch request.Action {
 	case clientAction.Create:
@@ -184,6 +182,7 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 	}
 
 	// Ignore reasons applicable to method if relevant
+	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
 			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {

@@ -7,15 +7,15 @@ import (
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
-	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
-	companyTest "gitlab.com/iotTracker/brain/test/company"
+	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"
@@ -33,8 +33,8 @@ func (suite *User) SetupTest() {
 
 func (suite *User) TestInviteAndRegisterUsers() {
 	// for each test company entity
-	for companyIdx := range companyTest.EntitiesAndAdminUsersToCreate {
-		companyTestDataEntity := &companyTest.EntitiesAndAdminUsersToCreate[companyIdx]
+	for companyIdx := range companyTestData.EntitiesAndAdminUsersToCreate {
+		companyTestDataEntity := &companyTestData.EntitiesAndAdminUsersToCreate[companyIdx]
 		// log in
 		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
 			UsernameOrEmailAddress: companyTestDataEntity.AdminUser.Username,
