@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
+	wrappedParty "gitlab.com/iotTracker/brain/party/wrapped"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
@@ -54,8 +55,7 @@ type RetrievePartyRequest struct {
 }
 
 type RetrievePartyResponse struct {
-	Party     party.Party
-	PartyType party.Type
+	Party wrappedParty.Wrapped `json:"Party"`
 }
 
 func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, response *RetrievePartyResponse) error {
@@ -79,7 +79,13 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 		return err
 	}
 
-	response.Party = retrievePartyResponse.Party
+	// wrap the party
+	wrappedParty, err := wrappedParty.WrapParty(retrievePartyResponse.Party)
+	if err != nil {
+		return err
+	}
+
+	response.Party = *wrappedParty
 
 	return nil
 }

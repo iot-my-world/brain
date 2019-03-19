@@ -5,7 +5,7 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
-	partyHandlerException "gitlab.com/iotTracker/brain/party/administrator/exception"
+	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
@@ -60,9 +60,9 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 		}, &systemRecordHandlerRetrieveResponse); err != nil {
 			switch err.(type) {
 			case systemRecordHandlerException.NotFound:
-				return partyHandlerException.NotFound{}
+				return partyAdministratorException.NotFound{}
 			default:
-				return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+				return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 			}
 		}
 		response.PartyType = party.System
@@ -76,9 +76,9 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 		}, &companyRecordHandlerRetrieveResponse); err != nil {
 			switch err.(type) {
 			case companyRecordHandlerException.NotFound:
-				return partyHandlerException.NotFound{}
+				return partyAdministratorException.NotFound{}
 			default:
-				return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+				return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 			}
 		}
 		response.PartyType = party.Company
@@ -92,16 +92,16 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 		}, &clientRecordHandlerRetrieveResponse); err != nil {
 			switch err.(type) {
 			case clientRecordHandlerException.NotFound:
-				return partyHandlerException.NotFound{}
+				return partyAdministratorException.NotFound{}
 			default:
-				return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+				return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 			}
 		}
 		response.PartyType = party.Client
 		response.Party = clientRecordHandlerRetrieveResponse.Client
 
 	default:
-		return partyHandlerException.InvalidParty{Reasons: []string{string(request.Claims.PartyDetails().PartyType)}}
+		return partyAdministratorException.InvalidParty{Reasons: []string{string(request.Claims.PartyDetails().PartyType)}}
 	}
 
 	return nil
@@ -138,9 +138,8 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		}, &systemRecordHandlerRetrieveResponse); err != nil {
-			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 		}
-		response.PartyType = party.System
 		response.Party = systemRecordHandlerRetrieveResponse.System
 
 	case party.Company:
@@ -149,9 +148,8 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		}, &companyRecordHandlerRetrieveResponse); err != nil {
-			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 		}
-		response.PartyType = party.Company
 		response.Party = companyRecordHandlerRetrieveResponse.Company
 
 	case party.Client:
@@ -160,13 +158,12 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		}, &clientRecordHandlerRetrieveResponse); err != nil {
-			return partyHandlerException.PartyRetrieval{Reasons: []string{err.Error()}}
+			return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 		}
-		response.PartyType = party.Client
 		response.Party = clientRecordHandlerRetrieveResponse.Client
 
 	default:
-		return partyHandlerException.InvalidParty{Reasons: []string{string(request.Claims.PartyDetails().PartyType)}}
+		return partyAdministratorException.InvalidParty{Reasons: []string{string(request.Claims.PartyDetails().PartyType)}}
 	}
 
 	return nil
