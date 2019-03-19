@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
@@ -67,26 +66,67 @@ func (suite *System) TestDeviceCreation() {
 			AssignedId:        id.Identifier{},
 		}
 
-		// create identifier to retrieve the party
-		fmt.Println("Email:", rowMap["Owner Admin Email"])
-		partyIdentifier, err := wrappedIdentifier.WrapIdentifier(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Owner Admin Email"]})
+		// create identifier to retrieve the owner party
+		ownerPartyIdentifier, err := wrappedIdentifier.WrapIdentifier(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Owner Admin Email"]})
 		if err != nil {
-			suite.FailNow("error wrapping partyIdentifier", err.Error())
+			suite.FailNow("error wrapping party Identifier", err.Error())
 		}
 
-		// try and retrieve the owner
-		retrievePartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
+		// try and retrieve the owner party
+		retrieveOwnerPartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"PartyAdministrator.RetrieveParty",
 			partyAdministratorJsonAdaptor.RetrievePartyRequest{
 				PartyType:  newDevice.OwnerPartyType,
-				Identifier: *partyIdentifier,
+				Identifier: *ownerPartyIdentifier,
 			},
-			&retrievePartyResponse,
+			&retrieveOwnerPartyResponse,
 		); err != nil {
 			suite.FailNow("retrieve owner party failed", err.Error())
 		}
 
-		fmt.Println(retrievePartyResponse.Party)
+		// unwrap the owner party from the response
+		unwrappedOwnerParty, err := retrieveOwnerPartyResponse.Party.UnWrap()
+		if err != nil {
+			suite.FailNow("error unwrapping owner party", err.Error())
+		}
+
+		// populate the owner details
+		newDevice.OwnerPartyType = unwrappedOwnerParty.Details().PartyType
+		newDevice.OwnerId = unwrappedOwnerParty.Details().PartyId
+
+		// if there are assigned party details then retrieve the assigned party and populate for the device
+		if newDevice.AssignedPartyType != "" {
+			// create identifier to retrieve the assigned party
+			assignedPartyIdentifier, err := wrappedIdentifier.WrapIdentifier(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Assigned Admin Email"]})
+			if err != nil {
+				suite.FailNow("error wrapping assigned party Identifier", err.Error())
+			}
+
+			// try and retrieve the assigned party
+			retrieveAssignedPartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
+			if err := suite.jsonRpcClient.JsonRpcRequest(
+				"PartyAdministrator.RetrieveParty",
+				partyAdministratorJsonAdaptor.RetrievePartyRequest{
+					PartyType:  newDevice.AssignedPartyType,
+					Identifier: *assignedPartyIdentifier,
+				},
+				&retrieveAssignedPartyResponse,
+			); err != nil {
+				suite.FailNow("retrieve assigned party failed", err.Error())
+			}
+
+			// unwrap the assigned party from the response
+			unwrappedAssignedParty, err := retrieveAssignedPartyResponse.Party.UnWrap()
+			if err != nil {
+				suite.FailNow("error unwrapping assigned party", err.Error())
+			}
+
+			// populate the assigned details
+			newDevice.AssignedPartyType = unwrappedAssignedParty.Details().PartyType
+			newDevice.AssignedId = unwrappedAssignedParty.Details().PartyId
+		}
+
+		// create the device
 	}
 }
