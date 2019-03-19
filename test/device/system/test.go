@@ -41,5 +41,11 @@ func (suite *System) TestDeviceCreation() {
 		suite.FailNow("failed to create device data workbook", err.Error())
 	}
 
-	fmt.Println(deviceDataWorkBook.SheetHeaderMaps["TK102Devices"])
+	sheetSliceMap, err := deviceDataWorkBook.SheetAsSliceMap("TK102Devices")
+	if err != nil {
+		suite.FailNow("failed to get sheet slice map", err.Error())
+	}
+	for _, rowMap := range sheetSliceMap {
+		fmt.Println(rowMap)
+	}
 }

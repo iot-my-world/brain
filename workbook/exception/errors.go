@@ -1,6 +1,9 @@
 package exception
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type NotEnoughRowsInSheet struct {
 	Reasons []string
@@ -16,4 +19,12 @@ type OpeningFile struct {
 
 func (e OpeningFile) Error() string {
 	return "error opening file: " + strings.Join(e.Reasons, "; ")
+}
+
+type SheetDoesNotExist struct {
+	SheetName string
+}
+
+func (e SheetDoesNotExist) Error() string {
+	return fmt.Sprintf("sheet with name %s does not exist", e.SheetName)
 }
