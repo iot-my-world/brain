@@ -11,10 +11,6 @@ import (
 	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
 	partyRegistrarAction "gitlab.com/iotTracker/brain/party/registrar/action"
 	partyRegistrarException "gitlab.com/iotTracker/brain/party/registrar/exception"
-	userAdministrator "gitlab.com/iotTracker/brain/party/user/administrator"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
-	userValidator "gitlab.com/iotTracker/brain/party/user/validator"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -27,6 +23,10 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gitlab.com/iotTracker/brain/security/token"
+	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/user/validator"
 	"time"
 )
 

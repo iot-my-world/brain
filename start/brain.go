@@ -25,12 +25,12 @@ import (
 	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
-	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/administrator/adaptor/jsonRpc"
-	userBasicAdministrator "gitlab.com/iotTracker/brain/party/user/administrator/basic"
-	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/recordHandler/adaptor/jsonRpc"
-	userMongoRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler/mongo"
-	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/user/validator/adaptor/jsonRpc"
-	userBasicValidator "gitlab.com/iotTracker/brain/party/user/validator/basic"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
+	userBasicAdministrator "gitlab.com/iotTracker/brain/user/administrator/basic"
+	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/recordHandler/adaptor/jsonRpc"
+	userMongoRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler/mongo"
+	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/validator/adaptor/jsonRpc"
+	userBasicValidator "gitlab.com/iotTracker/brain/user/validator/basic"
 
 	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"

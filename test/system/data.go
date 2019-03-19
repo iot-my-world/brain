@@ -1,6 +1,6 @@
 package system
 
-import "gitlab.com/iotTracker/brain/party/user"
+import "gitlab.com/iotTracker/brain/user"
 
 var User = user.User{
 	//Id string

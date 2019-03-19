@@ -2,7 +2,7 @@ package company
 
 import (
 	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/party/user"
+	"gitlab.com/iotTracker/brain/user"
 )
 
 type TestData struct {

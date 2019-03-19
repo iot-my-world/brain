@@ -4,12 +4,12 @@ import (
 	"gitlab.com/iotTracker/brain/action"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	partyRegistrarAction "gitlab.com/iotTracker/brain/party/registrar/action"
-	userAction "gitlab.com/iotTracker/brain/party/user/action"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
-	userValidator "gitlab.com/iotTracker/brain/party/user/validator"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	userAction "gitlab.com/iotTracker/brain/user/action"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/user/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 

@@ -2,8 +2,8 @@ package validator
 
 import (
 	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/party/user"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/user"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 

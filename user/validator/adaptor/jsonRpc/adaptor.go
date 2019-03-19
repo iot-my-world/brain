@@ -3,9 +3,9 @@ package user
 import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/user"
-	userValidator "gitlab.com/iotTracker/brain/party/user/validator"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	"gitlab.com/iotTracker/brain/user"
+	userValidator "gitlab.com/iotTracker/brain/user/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )

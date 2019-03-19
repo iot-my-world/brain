@@ -7,11 +7,11 @@ import (
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
 	clientValidator "gitlab.com/iotTracker/brain/party/client/validator"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 

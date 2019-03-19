@@ -5,10 +5,10 @@ import (
 	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/party/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/party/user/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/user"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
 	"gopkg.in/mgo.v2"
 )
 
