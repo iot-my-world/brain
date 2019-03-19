@@ -4,15 +4,15 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102Administrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
+	tk102DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
 	"net/http"
 )
 
 type Adaptor struct {
-	administrator tk102Administrator.Administrator
+	administrator tk102DeviceAdministrator.Administrator
 }
 
-func New(administrator tk102Administrator.Administrator) *Adaptor {
+func New(administrator tk102DeviceAdministrator.Administrator) *Adaptor {
 	return &Adaptor{
 		administrator: administrator,
 	}
@@ -33,8 +33,8 @@ func (a *Adaptor) ChangeOwnershipAndAssignment(r *http.Request, request *ChangeO
 		return err
 	}
 
-	changeOwnershipAndAssignmentResponse := tk102Administrator.ChangeOwnershipAndAssignmentResponse{}
-	if err := a.administrator.ChangeOwnershipAndAssignment(&tk102Administrator.ChangeOwnershipAndAssignmentRequest{
+	changeOwnershipAndAssignmentResponse := tk102DeviceAdministrator.ChangeOwnershipAndAssignmentResponse{}
+	if err := a.administrator.ChangeOwnershipAndAssignment(&tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest{
 		Claims: claims,
 		TK102:  request.TK102,
 	},
@@ -61,6 +61,16 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		log.Warn(err.Error())
 		return err
 	}
+
+	createResponse := tk102DeviceAdministrator.CreateResponse{}
+	if err := a.administrator.Create(&tk102DeviceAdministrator.CreateRequest{
+		Claims: claims,
+		TK102:  request.TK102,
+	}, &createResponse); err != nil {
+		return err
+	}
+
+	response.TK102 = createResponse.TK102
 
 	return nil
 }

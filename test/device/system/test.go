@@ -13,7 +13,7 @@ import (
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
+	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
@@ -129,6 +129,15 @@ func (suite *System) TestDeviceCreation() {
 		}
 
 		// create the device
-		createDeviceResponse := tk102DeviceAdministratorJsonAdaptor.CreateRequest{}
+		createDeviceResponse := tk102DeviceAdministratorJsonAdaptor.CreateResponse{}
+		if err := suite.jsonRpcClient.JsonRpcRequest(
+			"TK102DeviceAdministrator.Create",
+			tk102DeviceAdministratorJsonAdaptor.CreateRequest{
+				TK102: newDevice,
+			},
+			&createDeviceResponse,
+		); err != nil {
+			suite.FailNow("create device failed", err.Error())
+		}
 	}
 }

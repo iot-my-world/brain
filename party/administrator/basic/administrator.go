@@ -150,8 +150,6 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 		}, &companyRecordHandlerRetrieveResponse); err != nil {
 			return partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 		}
-		thing := companyRecordHandlerRetrieveResponse.Company.Details().PartyType
-		fmt.Println(thing)
 		response.Party = companyRecordHandlerRetrieveResponse.Company
 
 	case party.Client:
