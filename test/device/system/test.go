@@ -45,6 +45,36 @@ func ColumnHeaderMap(xlsxFile *excelize.File, sheet string, topRowIdx int) (map[
 	return columnHeaderMap, nil
 }
 
+type Workbook struct {
+	file            *excelize.File
+	sheetHeaderMaps map[string]map[string]string
+}
+
+func New(
+	pathToWorkBook string,
+	sheetFirstRowMap map[string]int,
+) (*Workbook, error) {
+	if sheetFirstRowMap == nil {
+		sheetFirstRowMap = make(map[string]int)
+	}
+
+	// open the workbook
+	file, err := excelize.OpenFile(pathToWorkBook)
+	if err != nil {
+		return nil, errors.New("error opening file at given path: " + err.Error())
+	}
+
+	// build header map for each sheet
+	sheetHeaderMaps := make(map[string]map[string]string)
+	for _, sheetName := range file.GetSheetMap() {
+		sheetHeaderMaps[sheetName], err = ColumnHeaderMap(file, sheetName, sheetFirstRowMap[sheetName])
+	}
+
+	return &Workbook{
+		file: file,
+	}, nil
+}
+
 func (suite *System) TestDeviceCreation() {
 	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/device/data/deviceData.xlsx"
 
@@ -55,6 +85,11 @@ func (suite *System) TestDeviceCreation() {
 	columnHeaderMap, err := ColumnHeaderMap(deviceDataWorkBook, "TK102Devices", 1)
 	if err != nil {
 		suite.FailNow("failed to get header map of workbook", err.Error())
+	}
+
+	// create all of the devices
+	for _, row := range deviceDataWorkBook.GetRows("TK102Devices")[2:] {
+		assignedAdminEmail
 	}
 
 	fmt.Println(columnHeaderMap)
