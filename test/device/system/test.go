@@ -13,6 +13,7 @@ import (
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
+	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
@@ -128,5 +129,6 @@ func (suite *System) TestDeviceCreation() {
 		}
 
 		// create the device
+		createDeviceResponse := tk102DeviceAdministratorJsonAdaptor.CreateRequest{}
 	}
 }

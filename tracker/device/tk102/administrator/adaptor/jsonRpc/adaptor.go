@@ -8,29 +8,24 @@ import (
 	"net/http"
 )
 
-// Adaptor for tk102 device administrator for access via json rpc
 type Adaptor struct {
 	administrator tk102Administrator.Administrator
 }
 
-// New tk102 device administrator json rpc adaptor
 func New(administrator tk102Administrator.Administrator) *Adaptor {
 	return &Adaptor{
 		administrator: administrator,
 	}
 }
 
-// ChangeOwnershipAndAssignmentRequest contains parameters for a change ownership and assignment operation
 type ChangeOwnershipAndAssignmentRequest struct {
 	TK102 tk102.TK102 `json:"tk102"`
 }
 
-// ChangeOwnershipAndAssignmentResponse contains the tk102 device with changed ownership and assignment
 type ChangeOwnershipAndAssignmentResponse struct {
 	TK102 tk102.TK102 `json:"tk102"`
 }
 
-// ChangeOwnershipAndAssignment of a TK102 device using the tk102 device administrator
 func (a *Adaptor) ChangeOwnershipAndAssignment(r *http.Request, request *ChangeOwnershipAndAssignmentRequest, response *ChangeOwnershipAndAssignmentResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
@@ -48,6 +43,24 @@ func (a *Adaptor) ChangeOwnershipAndAssignment(r *http.Request, request *ChangeO
 	}
 
 	response.TK102 = changeOwnershipAndAssignmentResponse.TK102
+
+	return nil
+}
+
+type CreateRequest struct {
+	TK102 tk102.TK102 `json:"tk102"`
+}
+
+type CreateResponse struct {
+	TK102 tk102.TK102 `json:"tk102"`
+}
+
+func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
 
 	return nil
 }
