@@ -79,5 +79,7 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 		return err
 	}
 
+	response.Party = retrievePartyResponse.Party
+
 	return nil
 }
