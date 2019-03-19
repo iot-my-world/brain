@@ -7,17 +7,17 @@ import (
 )
 
 type Workbook struct {
-	File             *excelize.File
-	SheetFirstRowMap map[string]int
-	SheetHeaderMaps  map[string]map[string]string
+	File              *excelize.File
+	SheetHeaderRowMap map[string]int
+	SheetHeaderMaps   map[string]map[string]string
 }
 
 func New(
 	pathToWorkBook string,
-	sheetFirstRowMap map[string]int,
+	sheetHeaderRowMap map[string]int,
 ) (*Workbook, error) {
-	if sheetFirstRowMap == nil {
-		sheetFirstRowMap = make(map[string]int)
+	if sheetHeaderRowMap == nil {
+		sheetHeaderRowMap = make(map[string]int)
 	}
 
 	// open the workbook
@@ -29,16 +29,16 @@ func New(
 	// build header map for each sheet
 	sheetHeaderMaps := make(map[string]map[string]string)
 	for _, sheetName := range file.GetSheetMap() {
-		sheetHeaderMaps[sheetName], err = ColumnHeaderMap(file, sheetName, sheetFirstRowMap[sheetName])
+		sheetHeaderMaps[sheetName], err = ColumnHeaderMap(file, sheetName, sheetHeaderRowMap[sheetName])
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &Workbook{
-		File:             file,
-		SheetFirstRowMap: sheetFirstRowMap,
-		SheetHeaderMaps:  sheetHeaderMaps,
+		File:              file,
+		SheetHeaderRowMap: sheetHeaderRowMap,
+		SheetHeaderMaps:   sheetHeaderMaps,
 	}, nil
 }
 
@@ -57,11 +57,12 @@ func (w *Workbook) SheetAsSliceMap(sheetName string) ([]map[string]string, error
 	}
 
 	sheetSliceMap := make([]map[string]string, 0)
-	sheetFirstRowIdx := w.SheetFirstRowMap[sheetName]
-	for rowIdx := range w.File.GetRows(sheetName)[sheetFirstRowIdx:] {
+	sheetHeaderRowIdx := w.SheetHeaderRowMap[sheetName]
+	for rowIdx := range w.File.GetRows(sheetName)[sheetHeaderRowIdx+1:] {
 		rowMap := make(map[string]string)
 		for header, column := range w.SheetHeaderMaps[sheetName] {
-			rowMap[header] = w.File.GetCellValue(sheetName, fmt.Sprintf("%s%d", column, rowIdx+1))
+			cellRef := fmt.Sprintf("%s%d", column, rowIdx+sheetHeaderRowIdx+2)
+			rowMap[header] = w.File.GetCellValue(sheetName, cellRef)
 		}
 		sheetSliceMap = append(sheetSliceMap, rowMap)
 	}

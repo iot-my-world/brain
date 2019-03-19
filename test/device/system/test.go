@@ -1,12 +1,15 @@
 package system
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
@@ -36,10 +39,10 @@ func (suite *System) SetupTest() {
 func (suite *System) TestDeviceCreation() {
 	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/device/data/deviceData.xlsx"
 
-	var sheetFirstRowMap = map[string]int{
+	var sheetHeaderRowMap = map[string]int{
 		"TK102Devices": 1,
 	}
-	deviceDataWorkBook, err := workbook.New(pathToDataWorkbook, sheetFirstRowMap)
+	deviceDataWorkBook, err := workbook.New(pathToDataWorkbook, sheetHeaderRowMap)
 	if err != nil {
 		suite.FailNow("failed to create device data workbook", err.Error())
 	}
@@ -64,7 +67,26 @@ func (suite *System) TestDeviceCreation() {
 			AssignedId:        id.Identifier{},
 		}
 
+		// create identifier to retrieve the party
+		fmt.Println("Email:", rowMap["Owner Admin Email"])
+		partyIdentifier, err := wrappedIdentifier.WrapIdentifier(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Owner Admin Email"]})
+		if err != nil {
+			suite.FailNow("error wrapping partyIdentifier", err.Error())
+		}
+
 		// try and retrieve the owner
 		retrievePartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
+		if err := suite.jsonRpcClient.JsonRpcRequest(
+			"PartyAdministrator.RetrieveParty",
+			partyAdministratorJsonAdaptor.RetrievePartyRequest{
+				PartyType:  newDevice.OwnerPartyType,
+				Identifier: *partyIdentifier,
+			},
+			&retrievePartyResponse,
+		); err != nil {
+			suite.FailNow("retrieve owner party failed", err.Error())
+		}
+
+		fmt.Println(retrievePartyResponse.Party)
 	}
 }
