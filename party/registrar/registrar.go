@@ -8,21 +8,21 @@ import (
 )
 
 type Registrar interface {
-	RegisterSystemAdminUser(request *RegisterSystemAdminUserRequest, response *RegisterSystemAdminUserResponse) error
+	RegisterSystemAdminUser(request *RegisterSystemAdminUserRequest) (*RegisterSystemAdminUserResponse, error)
 
-	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error
-	RegisterCompanyAdminUser(request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error
-	InviteCompanyUser(request *InviteCompanyUserRequest, response *InviteCompanyUserResponse) error
-	RegisterCompanyUser(request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error
+	InviteCompanyAdminUser(request *InviteCompanyAdminUserRequest) (*InviteCompanyAdminUserResponse, error)
+	RegisterCompanyAdminUser(request *RegisterCompanyAdminUserRequest) (*RegisterCompanyAdminUserResponse, error)
+	InviteCompanyUser(request *InviteCompanyUserRequest) (*InviteCompanyUserResponse, error)
+	RegisterCompanyUser(request *RegisterCompanyUserRequest) (*RegisterCompanyUserResponse, error)
 
-	InviteClientAdminUser(request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error
-	RegisterClientAdminUser(request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error
-	InviteClientUser(request *InviteClientUserRequest, response *InviteClientUserResponse) error
-	RegisterClientUser(request *RegisterClientUserRequest, response *RegisterClientUserResponse) error
+	InviteClientAdminUser(request *InviteClientAdminUserRequest) (*InviteClientAdminUserResponse, error)
+	RegisterClientAdminUser(request *RegisterClientAdminUserRequest) (*RegisterClientAdminUserResponse, error)
+	InviteClientUser(request *InviteClientUserRequest) (*InviteClientUserResponse, error)
+	RegisterClientUser(request *RegisterClientUserRequest) (*RegisterClientUserResponse, error)
 
-	InviteUser(request *InviteUserRequest, response *InviteUserResponse) error
+	InviteUser(request *InviteUserRequest) (*InviteUserResponse, error)
 
-	AreAdminsRegistered(request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error
+	AreAdminsRegistered(request *AreAdminsRegisteredRequest) (*AreAdminsRegisteredResponse, error)
 }
 
 type RegisterSystemAdminUserRequest struct {

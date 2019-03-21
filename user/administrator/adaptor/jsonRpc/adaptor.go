@@ -33,10 +33,10 @@ func (a *adaptor) GetMyUser(r *http.Request, request *GetMyUserRequest, response
 		return err
 	}
 
-	getMyUserResponse := userAdministrator.GetMyUserResponse{}
-	if err := a.userAdministrator.GetMyUser(&userAdministrator.GetMyUserRequest{
+	getMyUserResponse, err := a.userAdministrator.GetMyUser(&userAdministrator.GetMyUserRequest{
 		Claims: claims,
-	}, &getMyUserResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -60,11 +60,11 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse := userAdministrator.UpdateAllowedFieldsResponse{}
-	if err := a.userAdministrator.UpdateAllowedFields(&userAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.userAdministrator.UpdateAllowedFields(&userAdministrator.UpdateAllowedFieldsRequest{
 		Claims: claims,
 		User:   request.User,
-	}, &updateAllowedFieldsResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -88,11 +88,11 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse := userAdministrator.CreateResponse{}
-	if err := a.userAdministrator.Create(&userAdministrator.CreateRequest{
+	createResponse, err := a.userAdministrator.Create(&userAdministrator.CreateRequest{
 		Claims: claims,
 		User:   request.User,
-	}, &createResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

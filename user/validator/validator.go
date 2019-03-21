@@ -8,7 +8,7 @@ import (
 )
 
 type Validator interface {
-	Validate(request *ValidateRequest, response *ValidateResponse) error
+	Validate(request *ValidateRequest) (*ValidateResponse, error)
 }
 
 type ValidateRequest struct {

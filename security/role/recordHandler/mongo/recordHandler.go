@@ -17,7 +17,7 @@ type recordHandler struct {
 	database, collection string
 }
 
-func New(mongoSession *mgo.Session, database, collection string) *recordHandler {
+func New(mongoSession *mgo.Session, database, collection string) roleRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
@@ -60,27 +60,27 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *recordHandler) Create(request *roleRecordHandler.CreateRequest, response *roleRecordHandler.CreateResponse) error {
+func (r *recordHandler) Create(request *roleRecordHandler.CreateRequest) (*roleRecordHandler.CreateResponse, error) {
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	roleCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	roleCollection := mgoSession.DB(r.database).C(r.collection)
 
 	newId, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.Role.Id = newId.String()
 
 	if err := roleCollection.Insert(request.Role); err != nil {
 		log.Error("Could not create Role! ", err)
-		return err //TODO: Translate Unknown error
+		return nil, err
 	}
-	return nil
+	return &roleRecordHandler.CreateResponse{}, nil
 }
 
-func (mrh *recordHandler) ValidateRetrieveRequest(request *roleRecordHandler.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *roleRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -93,46 +93,46 @@ func (mrh *recordHandler) ValidateRetrieveRequest(request *roleRecordHandler.Ret
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	} else {
-		return nil
 	}
+	return nil
 }
 
-func (mrh *recordHandler) Retrieve(request *roleRecordHandler.RetrieveRequest, response *roleRecordHandler.RetrieveResponse) error {
-	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+func (r *recordHandler) Retrieve(request *roleRecordHandler.RetrieveRequest) (*roleRecordHandler.RetrieveResponse, error) {
+	if err := r.ValidateRetrieveRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	userCollection := mgoSession.DB(r.database).C(r.collection)
 
 	var roleRecord role.Role
 
 	if err := userCollection.Find(request.Identifier.ToFilter()).One(&roleRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return roleRecordHandlerException.NotFound{}
+			return nil, roleRecordHandlerException.NotFound{}
 		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
+			return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.Role = roleRecord
-	return nil
+	return &roleRecordHandler.RetrieveResponse{Role: roleRecord}, nil
 }
 
-func (mrh *recordHandler) Update(request *roleRecordHandler.UpdateRequest, response *roleRecordHandler.UpdateResponse) error {
+func (r *recordHandler) Update(request *roleRecordHandler.UpdateRequest) (*roleRecordHandler.UpdateResponse, error) {
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	roleCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	roleCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Retrieve role
-	retrieveRoleResponse := roleRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: request.Identifier}, &retrieveRoleResponse); err != nil {
-		return roleRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	retrieveRoleResponse, err := r.Retrieve(&roleRecordHandler.RetrieveRequest{
+		Identifier: request.Identifier,
+	})
+	if err != nil {
+		return nil, roleRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields
@@ -142,8 +142,8 @@ func (mrh *recordHandler) Update(request *roleRecordHandler.UpdateRequest, respo
 	retrieveRoleResponse.Role.APIPermissions = request.Role.APIPermissions
 
 	if err := roleCollection.Update(request.Identifier.ToFilter(), retrieveRoleResponse.Role); err != nil {
-		return roleRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, roleRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	return nil
+	return &roleRecordHandler.UpdateResponse{}, nil
 }

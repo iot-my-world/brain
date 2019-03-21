@@ -36,12 +36,12 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	validateTK102DeviceResponse := tk102DeviceValidator.ValidateResponse{}
-	if err := s.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
+	validateTK102DeviceResponse, err := s.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
 		Claims: claims,
 		TK102:  request.TK102,
 		Action: request.Action,
-	}, &validateTK102DeviceResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

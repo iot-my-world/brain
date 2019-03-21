@@ -12,7 +12,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type mongoRecordHandler struct {
+type recordHandler struct {
 	mongoSession *mgo.Session
 	database     string
 	collection   string
@@ -22,11 +22,11 @@ func New(
 	mongoSession *mgo.Session,
 	database,
 	collection string,
-) *mongoRecordHandler {
+) *recordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	newUserMongoRecordHandler := mongoRecordHandler{
+	newUserMongoRecordHandler := recordHandler{
 		mongoSession: mongoSession,
 		database:     database,
 		collection:   collection,
@@ -60,7 +60,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.CreateRequest) error {
+func (r *recordHandler) ValidateCreateRequest(request *userRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -70,31 +70,30 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *userRecordHandler.
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *userRecordHandler.CreateRequest, response *userRecordHandler.CreateResponse) error {
-	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Create(request *userRecordHandler.CreateRequest) (*userRecordHandler.CreateResponse, error) {
+	if err := r.ValidateCreateRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	userCollection := mgoSession.DB(r.database).C(r.collection)
 
 	newId, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.User.Id = newId.String()
 
 	if err := userCollection.Insert(request.User); err != nil {
-		return userRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return nil, userRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.User = request.User
-	return nil
+	return &userRecordHandler.CreateResponse{User: request.User}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandler.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *userRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -116,32 +115,31 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *userRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *userRecordHandler.RetrieveRequest, response *userRecordHandler.RetrieveResponse) error {
-	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+func (r *recordHandler) Retrieve(request *userRecordHandler.RetrieveRequest) (*userRecordHandler.RetrieveResponse, error) {
+	if err := r.ValidateRetrieveRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	userCollection := mgoSession.DB(r.database).C(r.collection)
 
 	var userRecord user.User
 
 	filter := user.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := userCollection.Find(filter).One(&userRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return userRecordHandlerException.NotFound{}
+			return nil, userRecordHandlerException.NotFound{}
 		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
+			return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.User = userRecord
-	return nil
+	return &userRecordHandler.RetrieveResponse{User: userRecord}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.UpdateRequest) error {
+func (r *recordHandler) ValidateUpdateRequest(request *userRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -155,23 +153,23 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *userRecordHandler.
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, response *userRecordHandler.UpdateResponse) error {
-	if err := mrh.ValidateUpdateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Update(request *userRecordHandler.UpdateRequest) (*userRecordHandler.UpdateResponse, error) {
+	if err := r.ValidateUpdateRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	userCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Retrieve User
-	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err := r.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	}, &retrieveUserResponse); err != nil {
-		return userRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, userRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields
@@ -191,15 +189,13 @@ func (mrh *mongoRecordHandler) Update(request *userRecordHandler.UpdateRequest, 
 	retrieveUserResponse.User.Registered = request.User.Registered
 
 	if err := userCollection.Update(request.Identifier.ToFilter(), retrieveUserResponse.User); err != nil {
-		return userRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, userRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.User = retrieveUserResponse.User
-
-	return nil
+	return &userRecordHandler.UpdateResponse{User: retrieveUserResponse.User}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.DeleteRequest) error {
+func (r *recordHandler) ValidateDeleteRequest(request *userRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -217,24 +213,24 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *userRecordHandler.
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *userRecordHandler.DeleteRequest, response *userRecordHandler.DeleteResponse) error {
-	if err := mrh.ValidateDeleteRequest(request); err != nil {
-		return err
+func (r *recordHandler) Delete(request *userRecordHandler.DeleteRequest) (*userRecordHandler.DeleteResponse, error) {
+	if err := r.ValidateDeleteRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	userCollection := mgoSession.DB(r.database).C(r.collection)
 
 	if err := userCollection.Remove(request.Identifier.ToFilter()); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &userRecordHandler.DeleteResponse{}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *userRecordHandler.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *userRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -248,18 +244,20 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *userRecordHandler
 	}
 }
 
-func (mrh *mongoRecordHandler) Collect(request *userRecordHandler.CollectRequest, response *userRecordHandler.CollectResponse) error {
-	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return err
+func (r *recordHandler) Collect(request *userRecordHandler.CollectRequest) (*userRecordHandler.CollectResponse, error) {
+	if err := r.ValidateCollectRequest(request); err != nil {
+		return nil, err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
 	filter = user.ContextualiseFilter(filter, request.Claims)
 
+	response := userRecordHandler.CollectResponse{}
+
 	// Get User Collection
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
-	userCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	userCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Perform Query
 	query := userCollection.Find(filter)
@@ -268,7 +266,7 @@ func (mrh *mongoRecordHandler) Collect(request *userRecordHandler.CollectRequest
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return err
+		return nil, err
 	}
 
 	// Apply limit if applicable
@@ -285,8 +283,8 @@ func (mrh *mongoRecordHandler) Collect(request *userRecordHandler.CollectRequest
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }

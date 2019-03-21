@@ -13,7 +13,7 @@ import (
 	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
 )
 
-type handler struct {
+type administrator struct {
 	userRecordHandler userRecordHandler.RecordHandler
 	roleRecordHandler roleRecordHandler.RecordHandler
 }
@@ -21,14 +21,14 @@ type handler struct {
 func New(
 	userRecordHandler userRecordHandler.RecordHandler,
 	roleRecordHandler roleRecordHandler.RecordHandler,
-) *handler {
-	return &handler{
+) permissionAdministrator.Administrator {
+	return &administrator{
 		userRecordHandler: userRecordHandler,
 		roleRecordHandler: roleRecordHandler,
 	}
 }
 
-func (bh *handler) ValidateUserHasPermissionRequest(request *permissionAdministrator.UserHasPermissionRequest) error {
+func (a *administrator) ValidateUserHasPermissionRequest(request *permissionAdministrator.UserHasPermissionRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -50,20 +50,21 @@ func (bh *handler) ValidateUserHasPermissionRequest(request *permissionAdministr
 	}
 }
 
-func (bh *handler) UserHasPermission(request *permissionAdministrator.UserHasPermissionRequest, response *permissionAdministrator.UserHasPermissionResponse) error {
-	if err := bh.ValidateUserHasPermissionRequest(request); err != nil {
-		return err
+func (a *administrator) UserHasPermission(request *permissionAdministrator.UserHasPermissionRequest) (*permissionAdministrator.UserHasPermissionResponse, error) {
+	if err := a.ValidateUserHasPermissionRequest(request); err != nil {
+		return nil, err
 	}
 
 	// retrieve all of the users permissions
-	getAllUsersPermissionsResponse := permissionAdministrator.GetAllUsersAPIPermissionsResponse{}
-	if err := bh.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
+	getAllUsersPermissionsResponse, err := a.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
 		Claims:         request.Claims,
 		UserIdentifier: request.UserIdentifier,
-	},
-		&getAllUsersPermissionsResponse); err != nil {
-		return permissionAdministratorException.GetAllPermissions{Reasons: []string{err.Error()}}
+	})
+	if err != nil {
+		return nil, permissionAdministratorException.GetAllPermissions{Reasons: []string{err.Error()}}
 	}
+
+	response := permissionAdministrator.UserHasPermissionResponse{}
 
 	// assume user does not have permission
 	response.Result = false
@@ -72,14 +73,14 @@ func (bh *handler) UserHasPermission(request *permissionAdministrator.UserHasPer
 	for _, perm := range getAllUsersPermissionsResponse.Permissions {
 		if perm == request.Permission {
 			response.Result = true
-			return nil
+			return &response, nil
 		}
 	}
 
-	return nil
+	return &response, nil
 }
 
-func (bh *handler) ValidateGetAllUsersAPIPermissionsRequest(request *permissionAdministrator.GetAllUsersAPIPermissionsRequest) error {
+func (a *administrator) ValidateGetAllUsersAPIPermissionsRequest(request *permissionAdministrator.GetAllUsersAPIPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -97,18 +98,18 @@ func (bh *handler) ValidateGetAllUsersAPIPermissionsRequest(request *permissionA
 	}
 }
 
-func (bh *handler) GetAllUsersAPIPermissions(request *permissionAdministrator.GetAllUsersAPIPermissionsRequest, response *permissionAdministrator.GetAllUsersAPIPermissionsResponse) error {
-	if err := bh.ValidateGetAllUsersAPIPermissionsRequest(request); err != nil {
-		return err
+func (a *administrator) GetAllUsersAPIPermissions(request *permissionAdministrator.GetAllUsersAPIPermissionsRequest) (*permissionAdministrator.GetAllUsersAPIPermissionsResponse, error) {
+	if err := a.ValidateGetAllUsersAPIPermissionsRequest(request); err != nil {
+		return nil, err
 	}
 
 	// try and retrieve the user
-	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.UserIdentifier,
-	}, &userRetrieveResponse); err != nil {
-		return err
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	usersAPIPermissions := make([]api.Permission, 0)
@@ -116,21 +117,20 @@ func (bh *handler) GetAllUsersAPIPermissions(request *permissionAdministrator.Ge
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
-		roleRetrieveResponse := roleRecordHandler.RetrieveResponse{}
-		if err := bh.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
-			return err
+		roleRetrieveResponse, err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{
+			Identifier: name.Identifier{Name: roleName},
+		})
+		if err != nil {
+			return nil, err
 		}
 		// add all of the permissions of the role
 		usersAPIPermissions = append(usersAPIPermissions, roleRetrieveResponse.Role.APIPermissions...)
 	}
 
-	// return all permissions
-	response.Permissions = usersAPIPermissions
-
-	return nil
+	return &permissionAdministrator.GetAllUsersAPIPermissionsResponse{Permissions: usersAPIPermissions}, nil
 }
 
-func (bh *handler) ValidateGetAllUsersViewPermissionsRequest(request *permissionAdministrator.GetAllUsersViewPermissionsRequest) error {
+func (a *administrator) ValidateGetAllUsersViewPermissionsRequest(request *permissionAdministrator.GetAllUsersViewPermissionsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -148,18 +148,18 @@ func (bh *handler) ValidateGetAllUsersViewPermissionsRequest(request *permission
 	}
 }
 
-func (bh *handler) GetAllUsersViewPermissions(request *permissionAdministrator.GetAllUsersViewPermissionsRequest, response *permissionAdministrator.GetAllUsersViewPermissionsResponse) error {
-	if err := bh.ValidateGetAllUsersViewPermissionsRequest(request); err != nil {
-		return err
+func (a *administrator) GetAllUsersViewPermissions(request *permissionAdministrator.GetAllUsersViewPermissionsRequest) (*permissionAdministrator.GetAllUsersViewPermissionsResponse, error) {
+	if err := a.ValidateGetAllUsersViewPermissionsRequest(request); err != nil {
+		return nil, err
 	}
 
 	// try and retrieve the user
-	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := bh.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.UserIdentifier,
-	}, &userRetrieveResponse); err != nil {
-		return err
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	usersViewPermissions := make([]view.Permission, 0)
@@ -167,16 +167,15 @@ func (bh *handler) GetAllUsersViewPermissions(request *permissionAdministrator.G
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
-		roleRetrieveResponse := roleRecordHandler.RetrieveResponse{}
-		if err := bh.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
-			return err
+		roleRetrieveResponse, err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{
+			Identifier: name.Identifier{Name: roleName},
+		})
+		if err != nil {
+			return nil, err
 		}
 		// add all of the permissions of the role
 		usersViewPermissions = append(usersViewPermissions, roleRetrieveResponse.Role.ViewPermissions...)
 	}
 
-	// return all permissions
-	response.Permissions = usersViewPermissions
-
-	return nil
+	return &permissionAdministrator.GetAllUsersViewPermissionsResponse{Permissions: usersViewPermissions}, nil
 }

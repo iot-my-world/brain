@@ -108,11 +108,11 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 	// For each system identifier provided
 	for _, id := range request.SystemIdentifiers {
 		// retrieve the system
-		systemRetrieveResponse := systemRecordHandler.RetrieveResponse{}
-		if err := btr.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+		systemRetrieveResponse, err := btr.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
 			Identifier: id,
 			Claims:     request.Claims,
-		}, &systemRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.RetrievingSystem{Reasons: []string{err.Error()}}
 		}
 
@@ -131,12 +131,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 
 		// collect all the tk102 devices
-		tk102DeviceCollectResponse := tk102DeviceRecordHandler.CollectResponse{}
-		if err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
-		}, &tk102DeviceCollectResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
@@ -149,12 +149,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse := readingRecordHandler.CollectResponse{}
-			if err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
-			}, &readingCollectResponse); err != nil {
+			})
+			if err != nil {
 				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
@@ -182,11 +182,11 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 	// For each company identifier provided
 	for _, id := range request.CompanyIdentifiers {
 		// retrieve the company
-		companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-		if err := btr.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		companyRetrieveResponse, err := btr.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Identifier: id,
 			Claims:     request.Claims,
-		}, &companyRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.RetrievingCompany{Reasons: []string{err.Error()}}
 		}
 
@@ -205,12 +205,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 
 		// collect all the tk102 devices
-		tk102DeviceCollectResponse := tk102DeviceRecordHandler.CollectResponse{}
-		if err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
-		}, &tk102DeviceCollectResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
@@ -223,12 +223,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse := readingRecordHandler.CollectResponse{}
-			if err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
-			}, &readingCollectResponse); err != nil {
+			})
+			if err != nil {
 				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
@@ -256,11 +256,11 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 	// For each client identifier provided
 	for _, id := range request.ClientIdentifiers {
 		// retrieve the client
-		clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-		if err := btr.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		clientRetrieveResponse, err := btr.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Identifier: id,
 			Claims:     request.Claims,
-		}, &clientRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.RetrievingClient{Reasons: []string{err.Error()}}
 		}
 
@@ -279,12 +279,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 
 		// collect all the tk102 devices
-		tk102DeviceCollectResponse := tk102DeviceRecordHandler.CollectResponse{}
-		if err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
-		}, &tk102DeviceCollectResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
@@ -297,12 +297,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse := readingRecordHandler.CollectResponse{}
-			if err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
-			}, &readingCollectResponse); err != nil {
+			})
+			if err != nil {
 				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device

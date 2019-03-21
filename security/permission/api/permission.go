@@ -64,7 +64,9 @@ const TK102DeviceValidatorValidate Permission = "TK102DeviceValidator.Validate"
 const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
 const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Create"
 
+// Reading
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
+const ReadingRecordHandlerCreate Permission = "ReadingRecordHandler.Create"
 
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"

@@ -162,9 +162,9 @@ func (v *validator) ValidateValidateRequest(request *userValidator.ValidateReque
 	return nil
 }
 
-func (v *validator) Validate(request *userValidator.ValidateRequest, response *userValidator.ValidateResponse) error {
+func (v *validator) Validate(request *userValidator.ValidateRequest) (*userValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
@@ -267,14 +267,13 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 		// when registering a user the username is scrutinised to ensure that it has not yet been used
 		// this is done by checking if the users username has already been assigned to another user
 		if (*userToValidate).Username != "" {
-			userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			if userRetrieveResponse, err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: username.Identifier{
 					Username: (*userToValidate).Username,
 				},
-			}, &userRetrieveResponse); err != nil {
+			}); err != nil {
 				switch err.(type) {
 				case userRecordHandlerException.NotFound:
 					// this is what we want
@@ -327,11 +326,11 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 		// optionally, a username can be provided at this point, it can/will be changed later, but if one
 		// is provided now, we check to see if it has been used yet
 		if (*userToValidate).Username != "" {
-			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			if _, err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims:     *v.systemClaims,
 				Identifier: username.Identifier{Username: (*userToValidate).Username},
-			}, &userRecordHandler.RetrieveResponse{}); err != nil {
+			}); err != nil {
 				switch err.(type) {
 				case userRecordHandlerException.NotFound:
 					// this is what we want, user not found so username not taken yet
@@ -366,6 +365,5 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 		}
 	}
 
-	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
+	return &userValidator.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
 }

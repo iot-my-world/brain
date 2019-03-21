@@ -54,12 +54,12 @@ func (a *administrator) ValidateCreateRequest(request *clientAdministrator.Creat
 		}
 
 		// client must be valid
-		validationResponse := clientValidator.ValidateResponse{}
-		if err := a.clientValidator.Validate(&clientValidator.ValidateRequest{
+		validationResponse, err := a.clientValidator.Validate(&clientValidator.ValidateRequest{
 			Claims: request.Claims,
 			Client: request.Client,
 			Action: clientAction.Create,
-		}, &validationResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating client: "+err.Error())
 		}
 		if len(validationResponse.ReasonsInvalid) > 0 {
@@ -75,21 +75,21 @@ func (a *administrator) ValidateCreateRequest(request *clientAdministrator.Creat
 	return nil
 }
 
-func (a *administrator) Create(request *clientAdministrator.CreateRequest, response *clientAdministrator.CreateResponse) error {
+func (a *administrator) Create(request *clientAdministrator.CreateRequest) (*clientAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// create the client
-	clientCreateResponse := clientRecordHandler.CreateResponse{}
-	if err := a.clientRecordHandler.Create(&clientRecordHandler.CreateRequest{
+	clientCreateResponse, err := a.clientRecordHandler.Create(&clientRecordHandler.CreateRequest{
 		Client: request.Client,
-	}, &clientCreateResponse); err != nil {
-		return clientAdministratorException.ClientCreation{Reasons: []string{"creating client", err.Error()}}
+	})
+	if err != nil {
+		return nil, clientAdministratorException.ClientCreation{Reasons: []string{"creating client", err.Error()}}
 	}
 
 	// create minimal admin user for the client
-	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+	if _, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: user.User{
 			EmailAddress:    clientCreateResponse.Client.AdminEmailAddress,
 			ParentPartyType: clientCreateResponse.Client.ParentPartyType,
@@ -97,12 +97,13 @@ func (a *administrator) Create(request *clientAdministrator.CreateRequest, respo
 			PartyType:       party.Client,
 			PartyId:         id.Identifier{Id: clientCreateResponse.Client.Id},
 		},
-	}, &userRecordHandler.CreateResponse{}); err != nil {
-		return clientAdministratorException.ClientCreation{Reasons: []string{"creating admin user", err.Error()}}
+	}); err != nil {
+		return nil, clientAdministratorException.ClientCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
-	response.Client = clientCreateResponse.Client
-	return nil
+	return &clientAdministrator.CreateResponse{
+		Client: clientCreateResponse.Client,
+	}, nil
 }
 
 func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *clientAdministrator.UpdateAllowedFieldsRequest) error {
@@ -118,18 +119,18 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *clientAdmini
 	return nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateAllowedFieldsRequest, response *clientAdministrator.UpdateAllowedFieldsResponse) error {
+func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateAllowedFieldsRequest) (*clientAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// retrieve the client
-	clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-	if err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+	clientRetrieveResponse, err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Client.Id},
-	}, &clientRetrieveResponse); err != nil {
-		return clientAdministratorException.ClientRetrieval{Reasons: []string{err.Error()}}
+	})
+	if err != nil {
+		return nil, clientAdministratorException.ClientRetrieval{Reasons: []string{err.Error()}}
 	}
 
 	// update the allowed fields on the client
@@ -140,16 +141,16 @@ func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateA
 	//clientRetrieveResponse.Client.AdminEmailAddress = request.Client.AdminEmailAddress
 
 	// update the client
-	clientUpdateResponse := clientRecordHandler.UpdateResponse{}
-	if err := a.clientRecordHandler.Update(&clientRecordHandler.UpdateRequest{
+	clientUpdateResponse, err := a.clientRecordHandler.Update(&clientRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Client.Id},
 		Client:     clientRetrieveResponse.Client,
-	}, &clientUpdateResponse); err != nil {
-		return clientAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+	})
+	if err != nil {
+		return nil, clientAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 
-	response.Client = clientUpdateResponse.Client
-
-	return nil
+	return &clientAdministrator.UpdateAllowedFieldsResponse{
+		Client: clientUpdateResponse.Client,
+	}, nil
 }

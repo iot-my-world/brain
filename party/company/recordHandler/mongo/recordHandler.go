@@ -71,9 +71,9 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest, response *companyRecordHandler.CreateResponse) error {
+func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -83,16 +83,15 @@ func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateReques
 
 	newID, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.Company.Id = newID.String()
 
 	if err := companyCollection.Insert(request.Company); err != nil {
-		return companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return nil, companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.Company = request.Company
-	return nil
+	return &companyRecordHandler.CreateResponse{Company: request.Company}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
@@ -116,9 +115,9 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHan
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest, response *companyRecordHandler.RetrieveResponse) error {
+func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) (*companyRecordHandler.RetrieveResponse, error) {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -133,13 +132,12 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 
 	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return companyRecordHandlerException.NotFound{}
+			return nil, companyRecordHandlerException.NotFound{}
 		}
-		return brainException.Unexpected{Reasons: []string{err.Error()}}
+		return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
 
-	response.Company = companyRecord
-	return nil
+	return &companyRecordHandler.RetrieveResponse{Company: companyRecord}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandler.UpdateRequest) error {
@@ -161,9 +159,9 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandl
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateRequest, response *companyRecordHandler.UpdateResponse) error {
+func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateRequest) (*companyRecordHandler.UpdateResponse, error) {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -172,12 +170,12 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve Company
-	retrieveCompanyResponse := companyRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
+	retrieveCompanyResponse, err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	}, &retrieveCompanyResponse); err != nil {
-		return companyRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, companyRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -187,12 +185,10 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 	filter := request.Identifier.ToFilter()
 	filter = company.ContextualiseFilter(filter, request.Claims)
 	if err := companyCollection.Update(filter, retrieveCompanyResponse.Company); err != nil {
-		return companyRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, companyRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.Company = retrieveCompanyResponse.Company
-
-	return nil
+	return &companyRecordHandler.UpdateResponse{Company: retrieveCompanyResponse.Company}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandler.DeleteRequest) error {
@@ -212,9 +208,9 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandl
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteRequest, response *companyRecordHandler.DeleteResponse) error {
+func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteRequest) (*companyRecordHandler.DeleteResponse, error) {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -225,10 +221,10 @@ func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteReques
 	filter := request.Identifier.ToFilter()
 	filter = company.ContextualiseFilter(filter, request.Claims)
 	if err := companyCollection.Remove(filter); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &companyRecordHandler.DeleteResponse{}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
@@ -244,13 +240,15 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHand
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest, response *companyRecordHandler.CollectResponse) error {
+func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest) (*companyRecordHandler.CollectResponse, error) {
 	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
 	filter = company.ContextualiseFilter(filter, request.Claims)
+
+	response := companyRecordHandler.CollectResponse{}
 
 	// Get Company Collection
 	mgoSession := mrh.mongoSession.Copy()
@@ -264,7 +262,7 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return err
+		return nil, err
 	}
 
 	// Apply limit if applicable
@@ -281,8 +279,8 @@ func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequ
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }

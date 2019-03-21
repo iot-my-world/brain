@@ -2,12 +2,12 @@ package exception
 
 import "strings"
 
-type ClientRetrieval struct {
+type SystemRetrieval struct {
 	Reasons []string
 }
 
-func (e ClientRetrieval) Error() string {
-	return "client retrieval error: " + strings.Join(e.Reasons, "; ")
+func (e SystemRetrieval) Error() string {
+	return "system retrieval error: " + strings.Join(e.Reasons, "; ")
 }
 
 type AllowedFieldsUpdate struct {

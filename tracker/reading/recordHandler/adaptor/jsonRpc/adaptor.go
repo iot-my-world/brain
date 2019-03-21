@@ -47,17 +47,43 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectReadingResponse := readingRecordHandler.CollectResponse{}
-	if err := s.RecordHandler.Collect(&readingRecordHandler.CollectRequest{
+	collectReadingResponse, err := s.RecordHandler.Collect(&readingRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
-	},
-		&collectReadingResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
 	response.Records = collectReadingResponse.Records
 	response.Total = collectReadingResponse.Total
+	return nil
+}
+
+type CreateRequest struct {
+	Reading reading.Reading `json:"reading"`
+}
+
+type CreateResponse struct {
+	Reading reading.Reading `json:"reading"`
+}
+
+func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	createReadingResponse, err := s.RecordHandler.Create(&readingRecordHandler.CreateRequest{
+		Claims:  claims,
+		Reading: request.Reading,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.Reading = createReadingResponse.Reading
 	return nil
 }

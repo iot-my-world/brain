@@ -25,3 +25,10 @@ type UUIDGeneration struct {
 func (e UUIDGeneration) Error() string {
 	return "UUID generation error: " + strings.Join(e.Reasons, "; ")
 }
+
+type NotImplemented struct {
+}
+
+func (e NotImplemented) Error() string {
+	return "not implemented"
+}

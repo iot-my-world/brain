@@ -6,6 +6,7 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -63,6 +64,13 @@ func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
 
 	case identifier.AdminEmailAddress:
 		var unmarshalledId adminEmailAddress.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
+			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledId
+
+	case identifier.DeviceTK102:
+		var unmarshalledId tk102.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}

@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type mongoRecordHandler struct {
+type recordHandler struct {
 	mongoSession *mgo.Session
 	database     string
 	collection   string
@@ -23,11 +23,11 @@ func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
-) *mongoRecordHandler {
+) tk102RecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	newTK102MongoRecordHandler := mongoRecordHandler{
+	newTK102MongoRecordHandler := recordHandler{
 		mongoSession: mongoSession,
 		database:     database,
 		collection:   collection,
@@ -70,7 +70,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *tk102RecordHandler.CreateRequest) error {
+func (mrh *recordHandler) ValidateCreateRequest(request *tk102RecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -80,9 +80,9 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *tk102RecordHandler
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *tk102RecordHandler.CreateRequest, response *tk102RecordHandler.CreateResponse) error {
+func (mrh *recordHandler) Create(request *tk102RecordHandler.CreateRequest) (*tk102RecordHandler.CreateResponse, error) {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -92,19 +92,18 @@ func (mrh *mongoRecordHandler) Create(request *tk102RecordHandler.CreateRequest,
 
 	newId, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.TK102.Id = newId.String()
 
 	if err := tk102Collection.Insert(request.TK102); err != nil {
-		return tk102RecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return nil, tk102RecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.TK102 = request.TK102
-	return nil
+	return &tk102RecordHandler.CreateResponse{TK102: request.TK102}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *tk102RecordHandler.RetrieveRequest) error {
+func (mrh *recordHandler) ValidateRetrieveRequest(request *tk102RecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -126,9 +125,9 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *tk102RecordHandl
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequest, response *tk102RecordHandler.RetrieveResponse) error {
+func (mrh *recordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequest) (*tk102RecordHandler.RetrieveResponse, error) {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -141,17 +140,16 @@ func (mrh *mongoRecordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequ
 	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := tk102Collection.Find(filter).One(&tk102Record); err != nil {
 		if err == mgo.ErrNotFound {
-			return tk102RecordHandlerException.NotFound{}
+			return nil, tk102RecordHandlerException.NotFound{}
 		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
+			return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.TK102 = tk102Record
-	return nil
+	return &tk102RecordHandler.RetrieveResponse{TK102: tk102Record}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *tk102RecordHandler.UpdateRequest) error {
+func (mrh *recordHandler) ValidateUpdateRequest(request *tk102RecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -167,9 +165,9 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *tk102RecordHandler
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Update(request *tk102RecordHandler.UpdateRequest, response *tk102RecordHandler.UpdateResponse) error {
+func (mrh *recordHandler) Update(request *tk102RecordHandler.UpdateRequest) (*tk102RecordHandler.UpdateResponse, error) {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -178,12 +176,12 @@ func (mrh *mongoRecordHandler) Update(request *tk102RecordHandler.UpdateRequest,
 	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve TK102
-	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&tk102RecordHandler.RetrieveRequest{
+	retrieveTK102Response, err := mrh.Retrieve(&tk102RecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	}, &retrieveTK102Response); err != nil {
-		return tk102RecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, tk102RecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -197,15 +195,13 @@ func (mrh *mongoRecordHandler) Update(request *tk102RecordHandler.UpdateRequest,
 	retrieveTK102Response.TK102.AssignedId = request.TK102.AssignedId
 
 	if err := tk102Collection.Update(request.Identifier.ToFilter(), retrieveTK102Response.TK102); err != nil {
-		return tk102RecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, tk102RecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.TK102 = retrieveTK102Response.TK102
-
-	return nil
+	return &tk102RecordHandler.UpdateResponse{TK102: retrieveTK102Response.TK102}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *tk102RecordHandler.DeleteRequest) error {
+func (mrh *recordHandler) ValidateDeleteRequest(request *tk102RecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -223,9 +219,9 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *tk102RecordHandler
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *tk102RecordHandler.DeleteRequest, response *tk102RecordHandler.DeleteResponse) error {
+func (mrh *recordHandler) Delete(request *tk102RecordHandler.DeleteRequest) (*tk102RecordHandler.DeleteResponse, error) {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -234,13 +230,13 @@ func (mrh *mongoRecordHandler) Delete(request *tk102RecordHandler.DeleteRequest,
 	tk102Collection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	if err := tk102Collection.Remove(request.Identifier.ToFilter()); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &tk102RecordHandler.DeleteResponse{}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *tk102RecordHandler.CollectRequest) error {
+func (mrh *recordHandler) ValidateCollectRequest(request *tk102RecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -254,13 +250,15 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *tk102RecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectRequest, response *tk102RecordHandler.CollectResponse) error {
+func (mrh *recordHandler) Collect(request *tk102RecordHandler.CollectRequest) (*tk102RecordHandler.CollectResponse, error) {
 	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
 	filter = claims.ContextualiseFilter(filter, request.Claims)
+
+	response := tk102RecordHandler.CollectResponse{}
 
 	// Get TK102 Collection
 	mgoSession := mrh.mongoSession.Copy()
@@ -274,7 +272,7 @@ func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectReques
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return err
+		return nil, err
 	}
 
 	// Apply limit if applicable
@@ -291,8 +289,8 @@ func (mrh *mongoRecordHandler) Collect(request *tk102RecordHandler.CollectReques
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }

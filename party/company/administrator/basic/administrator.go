@@ -78,21 +78,21 @@ func (a *administrator) ValidateCreateRequest(request *companyAdministrator.Crea
 	return nil
 }
 
-func (a *administrator) Create(request *companyAdministrator.CreateRequest, response *companyAdministrator.CreateResponse) error {
+func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*companyAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
-		return nil
+		return nil, err
 	}
 
 	// create the company
-	companyCreateResponse := companyRecordHandler.CreateResponse{}
-	if err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
+	companyCreateResponse, err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
 		Company: request.Company,
-	}, &companyCreateResponse); err != nil {
-		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
+	})
+	if err != nil {
+		return nil, companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
 	}
 
 	// create minimal admin user for the company
-	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+	if _, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: user.User{
 			EmailAddress:    companyCreateResponse.Company.AdminEmailAddress,
 			ParentPartyType: companyCreateResponse.Company.ParentPartyType,
@@ -100,27 +100,25 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest, resp
 			PartyType:       party.Company,
 			PartyId:         id.Identifier{Id: companyCreateResponse.Company.Id},
 		},
-	}, &userRecordHandler.CreateResponse{}); err != nil {
-		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
+	}); err != nil {
+		return nil, companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
-	response.Company = companyCreateResponse.Company
-
-	return nil
+	return &companyAdministrator.CreateResponse{Company: companyCreateResponse.Company}, nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *companyAdministrator.UpdateAllowedFieldsRequest, response *companyAdministrator.UpdateAllowedFieldsResponse) error {
+func (a *administrator) UpdateAllowedFields(request *companyAdministrator.UpdateAllowedFieldsRequest) (*companyAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// retrieve the company
-	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-	if err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+	companyRetrieveResponse, err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Company.Id},
-	}, &companyRetrieveResponse); err != nil {
-		return companyAdministratorException.CompanyRetrieval{Reasons: []string{err.Error()}}
+	})
+	if err != nil {
+		return nil, companyAdministratorException.CompanyRetrieval{Reasons: []string{err.Error()}}
 	}
 
 	// update the allowed fields on the company
@@ -131,16 +129,14 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 	//companyRetrieveResponse.Company.AdminEmailAddress = request.Company.AdminEmailAddress
 
 	// update the company
-	companyUpdateResponse := companyRecordHandler.UpdateResponse{}
-	if err := a.companyRecordHandler.Update(&companyRecordHandler.UpdateRequest{
+	companyUpdateResponse, err := a.companyRecordHandler.Update(&companyRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Company.Id},
 		Company:    companyRetrieveResponse.Company,
-	}, &companyUpdateResponse); err != nil {
-		return companyAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+	})
+	if err != nil {
+		return nil, companyAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 
-	response.Company = companyUpdateResponse.Company
-
-	return nil
+	return &companyAdministrator.UpdateAllowedFieldsResponse{Company: companyUpdateResponse.Company}, nil
 }

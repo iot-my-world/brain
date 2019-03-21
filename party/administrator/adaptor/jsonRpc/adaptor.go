@@ -36,10 +36,10 @@ func (a *adaptor) GetMyParty(r *http.Request, request *GetMyPartyRequest, respon
 		return err
 	}
 
-	getMyPartyResponse := partyAdministrator.GetMyPartyResponse{}
-	if err := a.partyAdministrator.GetMyParty(&partyAdministrator.GetMyPartyRequest{
+	getMyPartyResponse, err := a.partyAdministrator.GetMyParty(&partyAdministrator.GetMyPartyRequest{
 		Claims: claims,
-	}, &getMyPartyResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -70,22 +70,21 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 		return err
 	}
 
-	retrievePartyResponse := partyAdministrator.RetrievePartyResponse{}
-	if err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+	retrievePartyResponse, err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 		Claims:     claims,
 		PartyType:  request.PartyType,
 		Identifier: partyIdentifier,
-	}, &retrievePartyResponse); err != nil {
-		return err
-	}
-
-	// wrap the party
-	wrappedParty, err := wrappedParty.WrapParty(retrievePartyResponse.Party)
+	})
 	if err != nil {
 		return err
 	}
 
-	response.Party = *wrappedParty
+	wrappedPty, err := wrappedParty.WrapParty(retrievePartyResponse.Party)
+	if err != nil {
+		return err
+	}
+
+	response.Party = *wrappedPty
 
 	return nil
 }

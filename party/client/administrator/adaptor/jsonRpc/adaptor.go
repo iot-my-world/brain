@@ -35,11 +35,11 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse := clientAdministrator.UpdateAllowedFieldsResponse{}
-	if err := a.clientAdministrator.UpdateAllowedFields(&clientAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.clientAdministrator.UpdateAllowedFields(&clientAdministrator.UpdateAllowedFieldsRequest{
 		Claims: claims,
 		Client: request.Client,
-	}, &updateAllowedFieldsResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -63,11 +63,11 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse := clientAdministrator.CreateResponse{}
-	if err := a.clientAdministrator.Create(&clientAdministrator.CreateRequest{
+	createResponse, err := a.clientAdministrator.Create(&clientAdministrator.CreateRequest{
 		Claims: claims,
 		Client: request.Client,
-	}, &createResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
