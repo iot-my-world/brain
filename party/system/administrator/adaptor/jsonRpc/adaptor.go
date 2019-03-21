@@ -2,30 +2,30 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/client"
-	clientAdministrator "gitlab.com/iotTracker/brain/party/client/administrator"
+	"gitlab.com/iotTracker/brain/party/system"
+	systemAdministrator "gitlab.com/iotTracker/brain/party/system/administrator"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 )
 
 type adaptor struct {
-	clientAdministrator clientAdministrator.Administrator
+	systemAdministrator systemAdministrator.Administrator
 }
 
 func New(
-	clientAdministrator clientAdministrator.Administrator,
+	systemAdministrator systemAdministrator.Administrator,
 ) *adaptor {
 	return &adaptor{
-		clientAdministrator: clientAdministrator,
+		systemAdministrator: systemAdministrator,
 	}
 }
 
 type UpdateAllowedFieldsRequest struct {
-	Client client.Client `json:"client"`
+	System system.System `json:"system"`
 }
 
 type UpdateAllowedFieldsResponse struct {
-	Client client.Client `json:"client"`
+	System system.System `json:"system"`
 }
 
 func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
@@ -35,15 +35,15 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse := clientAdministrator.UpdateAllowedFieldsResponse{}
-	if err := a.clientAdministrator.UpdateAllowedFields(&clientAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.systemAdministrator.UpdateAllowedFields(&systemAdministrator.UpdateAllowedFieldsRequest{
 		Claims: claims,
-		Client: request.Client,
-	}, &updateAllowedFieldsResponse); err != nil {
+		System: request.System,
+	})
+	if err != nil {
 		return err
 	}
 
-	response.Client = updateAllowedFieldsResponse.Client
+	response.System = updateAllowedFieldsResponse.System
 
 	return nil
 }

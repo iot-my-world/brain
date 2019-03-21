@@ -11,12 +11,12 @@ import (
 )
 
 type RecordHandler interface {
-	Create(request *CreateRequest, response *CreateResponse) error
-	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
-	Update(request *UpdateRequest, response *UpdateResponse) error
-	Delete(request *DeleteRequest, response *DeleteResponse) error
-	Validate(request *ValidateRequest, response *ValidateResponse) error
-	Collect(request *CollectRequest, response *CollectResponse) error
+	Create(request *CreateRequest) (*CreateResponse, error)
+	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
+	Update(request *UpdateRequest) (*UpdateResponse, error)
+	Delete(request *DeleteRequest) (*DeleteResponse, error)
+	Validate(request *ValidateRequest) (*ValidateResponse, error)
+	Collect(request *CollectRequest) (*CollectResponse, error)
 }
 
 const Create api.Method = "Create"

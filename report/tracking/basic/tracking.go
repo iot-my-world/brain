@@ -108,11 +108,11 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 	// For each system identifier provided
 	for _, id := range request.SystemIdentifiers {
 		// retrieve the system
-		systemRetrieveResponse := systemRecordHandler.RetrieveResponse{}
-		if err := btr.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
+		systemRetrieveResponse, err := btr.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
 			Identifier: id,
 			Claims:     request.Claims,
-		}, &systemRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.RetrievingSystem{Reasons: []string{err.Error()}}
 		}
 

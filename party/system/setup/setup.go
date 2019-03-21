@@ -63,12 +63,10 @@ func InitialSetup(
 ) error {
 	// try and retrieve the root system entity
 	var systemEntityCreatedOrRetrieved system.System
-	systemEntityRetrieveResponse := systemRecordHandler.RetrieveResponse{}
-	err := handler.Retrieve(&systemRecordHandler.RetrieveRequest{
+	systemEntityRetrieveResponse, err := handler.Retrieve(&systemRecordHandler.RetrieveRequest{
 		Claims:     systemClaims,
 		Identifier: name.Identifier{Name: systemEntity.Name},
-	},
-		&systemEntityRetrieveResponse)
+	})
 	switch err.(type) {
 	case nil:
 		// this means the system entity already exists
@@ -87,10 +85,10 @@ func InitialSetup(
 		}
 
 		// now try create the system
-		systemEntityCreateResponse := systemRecordHandler.CreateResponse{}
-		if err := handler.Create(&systemRecordHandler.CreateRequest{
+		systemEntityCreateResponse, err := handler.Create(&systemRecordHandler.CreateRequest{
 			System: systemEntity,
-		}, &systemEntityCreateResponse); err != nil {
+		})
+		if err != nil {
 			return systemSetupException.InitialSetup{Reasons: []string{"create error", err.Error()}}
 		}
 		systemEntityCreatedOrRetrieved = systemEntityCreateResponse.System

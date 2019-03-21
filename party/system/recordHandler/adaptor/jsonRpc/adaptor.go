@@ -42,13 +42,12 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
-	if err := s.RecordHandler.Retrieve(
+	retrieveSystemResponse, err := s.RecordHandler.Retrieve(
 		&systemRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: id,
-		},
-		&retrieveSystemResponse); err != nil {
+		})
+	if err != nil {
 		return err
 	}
 
@@ -83,13 +82,12 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectSystemResponse := systemRecordHandler.CollectResponse{}
-	if err := s.RecordHandler.Collect(&systemRecordHandler.CollectRequest{
+	collectSystemResponse, err := s.RecordHandler.Collect(&systemRecordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
 		Claims:   claims,
-	},
-		&collectSystemResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

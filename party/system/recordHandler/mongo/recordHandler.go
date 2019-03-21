@@ -16,7 +16,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type mongoRecordHandler struct {
+type recordHandler struct {
 	mongoSession         *mgo.Session
 	database             string
 	collection           string
@@ -30,7 +30,7 @@ func New(
 	rootPasswordFileLocation string,
 	registrar partyRegistrar.Registrar,
 	systemClaims *loginClaims.Login,
-) *mongoRecordHandler {
+) systemRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
@@ -42,7 +42,7 @@ func New(
 		},
 	}
 
-	newSystemMongoRecordHandler := mongoRecordHandler{
+	newSystemMongoRecordHandler := recordHandler{
 		mongoSession:         mongoSession,
 		database:             database,
 		collection:           collection,
@@ -81,18 +81,16 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *systemRecordHandler.CreateRequest) error {
+func (r *recordHandler) ValidateCreateRequest(request *systemRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// Validate the new system
-	systemValidateResponse := systemRecordHandler.ValidateResponse{}
-
-	err := mrh.Validate(&systemRecordHandler.ValidateRequest{System: request.System}, &systemValidateResponse)
+	systemValidateResponse, err := r.Validate(&systemRecordHandler.ValidateRequest{System: request.System})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate new system")
 	} else {
 		for _, reason := range systemValidateResponse.ReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+			if !r.createIgnoredReasons.CanIgnore(reason) {
 				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("%s - %s", reason.Field, reason.Type))
 			}
 		}
@@ -105,31 +103,30 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *systemRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *systemRecordHandler.CreateRequest, response *systemRecordHandler.CreateResponse) error {
-	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Create(request *systemRecordHandler.CreateRequest) (*systemRecordHandler.CreateResponse, error) {
+	if err := r.ValidateCreateRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(r.database).C(r.collection)
 
 	newId, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.System.Id = newId.String()
 
 	if err := systemCollection.Insert(request.System); err != nil {
-		return systemException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return nil, systemException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.System = request.System
-	return nil
+	return &systemRecordHandler.CreateResponse{System: request.System}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *systemRecordHandler.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *systemRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -151,32 +148,31 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *systemRecordHand
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *systemRecordHandler.RetrieveRequest, response *systemRecordHandler.RetrieveResponse) error {
-	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+func (r *recordHandler) Retrieve(request *systemRecordHandler.RetrieveRequest) (*systemRecordHandler.RetrieveResponse, error) {
+	if err := r.ValidateRetrieveRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(r.database).C(r.collection)
 
 	var systemRecord system.System
 
 	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := systemCollection.Find(filter).One(&systemRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return systemException.NotFound{}
+			return nil, systemException.NotFound{}
 		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
+			return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.System = systemRecord
-	return nil
+	return &systemRecordHandler.RetrieveResponse{System: systemRecord}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *systemRecordHandler.UpdateRequest) error {
+func (r *recordHandler) ValidateUpdateRequest(request *systemRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -186,23 +182,23 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *systemRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest, response *systemRecordHandler.UpdateResponse) error {
-	if err := mrh.ValidateUpdateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Update(request *systemRecordHandler.UpdateRequest) (*systemRecordHandler.UpdateResponse, error) {
+	if err := r.ValidateUpdateRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Retrieve System
-	retrieveSystemResponse := systemRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&systemRecordHandler.RetrieveRequest{
+	retrieveSystemResponse, err := r.Retrieve(&systemRecordHandler.RetrieveRequest{
 		Identifier: request.Identifier,
 		Claims:     request.Claims,
-	}, &retrieveSystemResponse); err != nil {
-		return systemException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, systemException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -211,15 +207,13 @@ func (mrh *mongoRecordHandler) Update(request *systemRecordHandler.UpdateRequest
 	retrieveSystemResponse.System.AdminEmailAddress = request.System.AdminEmailAddress
 	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := systemCollection.Update(filter, retrieveSystemResponse.System); err != nil {
-		return systemException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, systemException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.System = retrieveSystemResponse.System
-
-	return nil
+	return &systemRecordHandler.UpdateResponse{System: retrieveSystemResponse.System}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *systemRecordHandler.DeleteRequest) error {
+func (r *recordHandler) ValidateDeleteRequest(request *systemRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -237,24 +231,24 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *systemRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *systemRecordHandler.DeleteRequest, response *systemRecordHandler.DeleteResponse) error {
-	if err := mrh.ValidateDeleteRequest(request); err != nil {
-		return err
+func (r *recordHandler) Delete(request *systemRecordHandler.DeleteRequest) (*systemRecordHandler.DeleteResponse, error) {
+	if err := r.ValidateDeleteRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(r.database).C(r.collection)
 	filter := system.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := systemCollection.Remove(filter); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &systemRecordHandler.DeleteResponse{}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *systemRecordHandler.ValidateRequest) error {
+func (r *recordHandler) ValidateValidateRequest(request *systemRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -264,9 +258,9 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *systemRecordHand
 	}
 }
 
-func (mrh *mongoRecordHandler) Validate(request *systemRecordHandler.ValidateRequest, response *systemRecordHandler.ValidateResponse) error {
-	if err := mrh.ValidateValidateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Validate(request *systemRecordHandler.ValidateRequest) (*systemRecordHandler.ValidateResponse, error) {
+	if err := r.ValidateValidateRequest(request); err != nil {
+		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
@@ -306,7 +300,7 @@ func (mrh *mongoRecordHandler) Validate(request *systemRecordHandler.ValidateReq
 	case systemRecordHandler.Create:
 		// Ignore reasons not applicable for this method
 		for _, reason := range allReasonsInvalid {
-			if !mrh.createIgnoredReasons.CanIgnore(reason) {
+			if !r.createIgnoredReasons.CanIgnore(reason) {
 				returnedReasonsInvalid = append(returnedReasonsInvalid, reason)
 			}
 		}
@@ -315,11 +309,10 @@ func (mrh *mongoRecordHandler) Validate(request *systemRecordHandler.ValidateReq
 		returnedReasonsInvalid = allReasonsInvalid
 	}
 
-	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
+	return &systemRecordHandler.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *systemRecordHandler.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *systemRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -329,18 +322,20 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *systemRecordHandl
 	}
 }
 
-func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectRequest, response *systemRecordHandler.CollectResponse) error {
-	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return err
+func (r *recordHandler) Collect(request *systemRecordHandler.CollectRequest) (*systemRecordHandler.CollectResponse, error) {
+	if err := r.ValidateCollectRequest(request); err != nil {
+		return nil, err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
 	filter = system.ContextualiseFilter(filter, request.Claims)
 
+	response := systemRecordHandler.CollectResponse{}
+
 	// Get System Collection
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
-	systemCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	systemCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Perform Query
 	query := systemCollection.Find(filter)
@@ -349,7 +344,7 @@ func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectReque
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return err
+		return nil, err
 	}
 
 	// Apply limit if applicable
@@ -366,8 +361,8 @@ func (mrh *mongoRecordHandler) Collect(request *systemRecordHandler.CollectReque
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }
