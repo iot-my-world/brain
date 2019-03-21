@@ -7,7 +7,7 @@ import (
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
@@ -67,7 +67,7 @@ func (suite *System) TestSystemReadingCreation() {
 	noDevices := len(tk102DeviceSheetSliceMap)
 	for tk102DeviceIdx, tk102DeviceRowMap := range tk102DeviceSheetSliceMap {
 		// create identifier to retrieve the device
-		deviceIdentifier, err := wrappedIdentifier.WrapIdentifier(tk102.Identifier{ManufacturerId: tk102DeviceRowMap["ManufacturerId"]})
+		deviceIdentifier, err := wrappedIdentifier.Wrap(tk102.Identifier{ManufacturerId: tk102DeviceRowMap["ManufacturerId"]})
 		if err != nil {
 			suite.FailNow("error wrapping device Identifier", err.Error())
 		}
