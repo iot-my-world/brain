@@ -84,10 +84,10 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*co
 	}
 
 	// create the company
-	companyCreateResponse := companyRecordHandler.CreateResponse{}
-	if err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
+	companyCreateResponse, err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
 		Company: request.Company,
-	}, &companyCreateResponse); err != nil {
+	})
+	if err != nil {
 		return nil, companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
 	}
 
@@ -113,11 +113,11 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 	}
 
 	// retrieve the company
-	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-	if err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+	companyRetrieveResponse, err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Company.Id},
-	}, &companyRetrieveResponse); err != nil {
+	})
+	if err != nil {
 		return nil, companyAdministratorException.CompanyRetrieval{Reasons: []string{err.Error()}}
 	}
 
@@ -129,12 +129,12 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 	//companyRetrieveResponse.Company.AdminEmailAddress = request.Company.AdminEmailAddress
 
 	// update the company
-	companyUpdateResponse := companyRecordHandler.UpdateResponse{}
-	if err := a.companyRecordHandler.Update(&companyRecordHandler.UpdateRequest{
+	companyUpdateResponse, err := a.companyRecordHandler.Update(&companyRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Company.Id},
 		Company:    companyRetrieveResponse.Company,
-	}, &companyUpdateResponse); err != nil {
+	})
+	if err != nil {
 		return nil, companyAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 

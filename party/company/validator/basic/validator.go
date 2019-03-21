@@ -130,14 +130,13 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 
 		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
-			if err := v.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			if _, err := v.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 				// system claims as we want to ensure that all companies are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
 					AdminEmailAddress: (*companyToValidate).AdminEmailAddress,
 				},
-			},
-				&companyRecordHandler.RetrieveResponse{}); err != nil {
+			}); err != nil {
 				switch err.(type) {
 				case companyRecordHandlerException.NotFound:
 					// this is what we want, do nothing

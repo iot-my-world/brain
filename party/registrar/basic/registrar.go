@@ -132,11 +132,11 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 	}
 
 	// Retrieve the company party
-	companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-	if err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+	companyRetrieveResponse, err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.CompanyIdentifier,
-	}, &companyRetrieveResponse); err != nil {
+	})
+	if err != nil {
 		return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
 	}
 
@@ -1003,11 +1003,11 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 	switch userRetrieveResponse.User.PartyType {
 	case party.Company:
 		// determine it this is the admin user
-		companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-		if err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		companyRetrieveResponse, err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     *r.systemClaims,
 			Identifier: userRetrieveResponse.User.PartyId,
-		}, &companyRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
 		}
 		if userRetrieveResponse.User.EmailAddress == companyRetrieveResponse.Company.AdminEmailAddress {
@@ -1095,8 +1095,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	}
 
 	// collect companies in request
-	companyCollectResponse := companyRecordHandler.CollectResponse{}
-	if err := r.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+	companyCollectResponse, err := r.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
 		Claims: request.Claims,
 		Criteria: []criterion.Criterion{
 			listText.Criterion{
@@ -1104,7 +1103,8 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 				List:  companyIds,
 			},
 		},
-	}, &companyCollectResponse); err != nil {
+	})
+	if err != nil {
 		return nil, partyRegistrarException.UnableToCollectParties{Reasons: []string{"company", err.Error()}}
 	} else {
 		// confirm that for every id received a company was returned

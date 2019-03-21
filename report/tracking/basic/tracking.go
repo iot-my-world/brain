@@ -182,11 +182,11 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 	// For each company identifier provided
 	for _, id := range request.CompanyIdentifiers {
 		// retrieve the company
-		companyRetrieveResponse := companyRecordHandler.RetrieveResponse{}
-		if err := btr.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		companyRetrieveResponse, err := btr.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Identifier: id,
 			Claims:     request.Claims,
-		}, &companyRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.RetrievingCompany{Reasons: []string{err.Error()}}
 		}
 
