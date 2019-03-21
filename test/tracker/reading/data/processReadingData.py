@@ -61,6 +61,7 @@ stringPattern = r'"(.*?)"'
 
 if __name__ == '__main__':
     # get reading file paths
+    os.chdir('/Users/bernardbussy/go/src/gitlab.com/iotTracker/brain/test/tracker/reading/data')
     readingFilePaths = ['./raw/' + readingFile for readingFile in os.listdir('./raw') if readingFile.endswith('.rdat')]
     # open and set up workbook to save readings in
     outputWorkbook = Workbook()
@@ -105,7 +106,7 @@ if __name__ == '__main__':
         row += 1
         for readingIdx, reading in enumerate(readings):
             if readingIdx != 0:
-                if difference_between_readings(lastReading, reading) < 30:
+                if difference_between_readings(lastReading, reading) < 100:
                     continue
                 else:
                     row += 1

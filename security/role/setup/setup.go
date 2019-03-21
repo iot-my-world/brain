@@ -46,6 +46,9 @@ var initialRoles = func() []role.Role {
 		api.TK102DeviceValidatorValidate,
 		api.TK102DeviceAdministratorCreate,
 		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
+
+		// Reading
+		api.ReadingRecordHandlerCreate,
 	}
 
 	// The view permissions that root has

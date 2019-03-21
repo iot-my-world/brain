@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
@@ -13,6 +14,7 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/device"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/tracker/reading"
+	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"math/rand"
 	"os"
@@ -62,8 +64,8 @@ func (suite *System) TestSystemReadingCreation() {
 	if err != nil {
 		suite.FailNow("failed to get tk102 device sheet slice map", err.Error())
 	}
-
-	for _, tk102DeviceRowMap := range tk102DeviceSheetSliceMap {
+	noDevices := len(tk102DeviceSheetSliceMap)
+	for tk102DeviceIdx, tk102DeviceRowMap := range tk102DeviceSheetSliceMap {
 		// create identifier to retrieve the device
 		deviceIdentifier, err := wrappedIdentifier.WrapIdentifier(tk102.Identifier{ManufacturerId: tk102DeviceRowMap["ManufacturerId"]})
 		if err != nil {
@@ -88,7 +90,8 @@ func (suite *System) TestSystemReadingCreation() {
 		if err != nil {
 			suite.FailNow("error getting reading sheet as slice map", err.Error())
 		}
-		for _, readingRow := range readingSheetSliceMap {
+		noReadings := len(readingSheetSliceMap)
+		for readingIdx, readingRow := range readingSheetSliceMap {
 			lat, err := strconv.ParseFloat(readingRow["Lat"], 32)
 			if err != nil {
 				suite.FailNow("error parsing lat value to float", err.Error())
@@ -101,7 +104,6 @@ func (suite *System) TestSystemReadingCreation() {
 			if err != nil {
 				suite.FailNow("error parsing stamp value to float", err.Error())
 			}
-			// Create the new reading
 			newReading := reading.Reading{
 				//Id:                "",
 				DeviceId:          id.Identifier{Id: retrieveTK102DeviceResponse.TK102.Id},
@@ -115,8 +117,18 @@ func (suite *System) TestSystemReadingCreation() {
 				Latitude:          float32(lat),
 				Longitude:         float32(lon),
 			}
-			// Save the reading
 
+			// try and create the new reading
+			if err := suite.jsonRpcClient.JsonRpcRequest(
+				"ReadingRecordHandler.Create",
+				readingRecordHandlerJsonRpcAdaptor.CreateRequest{
+					Reading: newReading,
+				},
+				&readingRecordHandlerJsonRpcAdaptor.CreateResponse{},
+			); err != nil {
+				suite.FailNow("creating reading failed", err.Error())
+			}
+			fmt.Printf("Device %d/%d - Reading %d/%d\n", tk102DeviceIdx+1, noDevices, readingIdx+1, noReadings)
 		}
 	}
 }

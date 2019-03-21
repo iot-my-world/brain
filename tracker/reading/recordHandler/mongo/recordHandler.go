@@ -57,17 +57,18 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *readingRecordHandl
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
-	readingValidateResponse := readingRecordHandler.ValidateResponse{}
-	if err := mrh.Validate(&readingRecordHandler.ValidateRequest{
-		Claims:  request.Claims,
-		Reading: request.Reading,
-	}, &readingValidateResponse); err != nil {
-		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
-	}
-	if len(readingValidateResponse.ReasonsInvalid) > 0 {
-		for _, reason := range readingValidateResponse.ReasonsInvalid {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid reading: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+	} else {
+		readingValidateResponse := readingRecordHandler.ValidateResponse{}
+		if err := mrh.Validate(&readingRecordHandler.ValidateRequest{
+			Claims:  request.Claims,
+			Reading: request.Reading,
+		}, &readingValidateResponse); err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
+		}
+		if len(readingValidateResponse.ReasonsInvalid) > 0 {
+			for _, reason := range readingValidateResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid reading: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+			}
 		}
 	}
 
