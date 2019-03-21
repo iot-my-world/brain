@@ -6,8 +6,8 @@ import (
 )
 
 type Administrator interface {
-	ChangeOwnershipAndAssignment(request *ChangeOwnershipAndAssignmentRequest, response *ChangeOwnershipAndAssignmentResponse) error
-	Create(request *CreateRequest, response *CreateResponse) error
+	ChangeOwnershipAndAssignment(request *ChangeOwnershipAndAssignmentRequest) (*ChangeOwnershipAndAssignmentResponse, error)
+	Create(request *CreateRequest) (*CreateResponse, error)
 }
 
 type ChangeOwnershipAndAssignmentRequest struct {

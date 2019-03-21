@@ -33,12 +33,11 @@ func (a *Adaptor) ChangeOwnershipAndAssignment(r *http.Request, request *ChangeO
 		return err
 	}
 
-	changeOwnershipAndAssignmentResponse := tk102DeviceAdministrator.ChangeOwnershipAndAssignmentResponse{}
-	if err := a.administrator.ChangeOwnershipAndAssignment(&tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest{
+	changeOwnershipAndAssignmentResponse, err := a.administrator.ChangeOwnershipAndAssignment(&tk102DeviceAdministrator.ChangeOwnershipAndAssignmentRequest{
 		Claims: claims,
 		TK102:  request.TK102,
-	},
-		&changeOwnershipAndAssignmentResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -62,11 +61,11 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse := tk102DeviceAdministrator.CreateResponse{}
-	if err := a.administrator.Create(&tk102DeviceAdministrator.CreateRequest{
+	createResponse, err := a.administrator.Create(&tk102DeviceAdministrator.CreateRequest{
 		Claims: claims,
 		TK102:  request.TK102,
-	}, &createResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
