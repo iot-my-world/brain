@@ -49,9 +49,9 @@ func (v *validator) ValidateValidateRequest(request *tk102DeviceValidator.Valida
 	return nil
 }
 
-func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest, response *tk102DeviceValidator.ValidateResponse) error {
+func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest) (*tk102DeviceValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
@@ -203,7 +203,5 @@ func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest, resp
 		}
 	}
 
-	response.ReasonsInvalid = returnedReasonsInvalid
-
-	return nil
+	return &tk102DeviceValidator.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
 }

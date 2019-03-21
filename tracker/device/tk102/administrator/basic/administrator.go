@@ -53,12 +53,12 @@ func (a *administrator) ValidateChangeOwnershipAndAssignmentRequest(request *tk1
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 		// the device must be valid
-		tk102ValidateResponse := tk102DeviceValidator.ValidateResponse{}
-		if err := a.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
+		tk102ValidateResponse, err := a.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
 			Claims: request.Claims,
 			TK102:  request.TK102,
 			// Action: // no action. the device must be generally valid
-		}, &tk102ValidateResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating device: "+err.Error())
 		}
 		if len(tk102ValidateResponse.ReasonsInvalid) > 0 {
@@ -188,12 +188,12 @@ func (a *administrator) ValidateCreateRequest(request *tk102DeviceAdministrator.
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
-		tk102DeviceValidateResponse := tk102DeviceValidator.ValidateResponse{}
-		if err := a.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
+		tk102DeviceValidateResponse, err := a.tk102DeviceValidator.Validate(&tk102DeviceValidator.ValidateRequest{
 			Claims: request.Claims,
 			TK102:  request.TK102,
 			Action: tk102DeviceAction.Create,
-		}, &tk102DeviceValidateResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating tk102 device: "+err.Error())
 		}
 		if len(tk102DeviceValidateResponse.ReasonsInvalid) > 0 {

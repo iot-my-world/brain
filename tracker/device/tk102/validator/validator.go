@@ -2,13 +2,13 @@ package validator
 
 import (
 	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
-	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/tracker/device/tk102"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type Validator interface {
-	Validate(request *ValidateRequest, response *ValidateResponse) error
+	Validate(request *ValidateRequest) (*ValidateResponse, error)
 }
 
 type ValidateRequest struct {
