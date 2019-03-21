@@ -258,13 +258,12 @@ func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegist
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userValidator.ValidateResponse{}
-	err := r.userValidator.Validate(&userValidator.ValidateRequest{
+	userValidateResponse, err := r.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *r.systemClaims,
 		User:   request.User,
 		Action: partyRegistrarAction.RegisterCompanyAdminUser,
-	}, &userValidateResponse)
+	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
 	} else {
@@ -464,13 +463,12 @@ func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.R
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userValidator.ValidateResponse{}
-	err := r.userValidator.Validate(&userValidator.ValidateRequest{
+	userValidateResponse, err := r.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *r.systemClaims,
 		User:   request.User,
 		Action: partyRegistrarAction.RegisterCompanyUser,
-	}, &userValidateResponse)
+	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
 	} else {
@@ -681,13 +679,12 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistr
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userValidator.ValidateResponse{}
-	err := r.userValidator.Validate(&userValidator.ValidateRequest{
+	userValidateResponse, err := r.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *r.systemClaims,
 		User:   request.User,
 		Action: partyRegistrarAction.RegisterClientAdminUser,
-	}, &userValidateResponse)
+	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
 	} else {
@@ -886,13 +883,12 @@ func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.Re
 	}
 
 	// validate the user for the registration process
-	userValidateResponse := userValidator.ValidateResponse{}
-	err := r.userValidator.Validate(&userValidator.ValidateRequest{
+	userValidateResponse, err := r.userValidator.Validate(&userValidator.ValidateRequest{
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *r.systemClaims,
 		User:   request.User,
 		Action: partyRegistrarAction.RegisterClientUser,
-	}, &userValidateResponse)
+	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate new user")
 	} else {

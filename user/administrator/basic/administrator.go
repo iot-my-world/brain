@@ -42,12 +42,12 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *userAdminist
 		}
 
 		// user must be valid
-		validationResponse := userValidator.ValidateResponse{}
-		if err := a.userValidator.Validate(&userValidator.ValidateRequest{
+		validationResponse, err := a.userValidator.Validate(&userValidator.ValidateRequest{
 			Claims: request.Claims,
 			User:   request.User,
 			Action: userAction.UpdateAllowedFields,
-		}, &validationResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
 		}
 		if len(validationResponse.ReasonsInvalid) > 0 {
@@ -132,12 +132,12 @@ func (a *administrator) ValidateCreateRequest(request *userAdministrator.CreateR
 		}
 
 		// user must be valid
-		validationResponse := userValidator.ValidateResponse{}
-		if err := a.userValidator.Validate(&userValidator.ValidateRequest{
+		validationResponse, err := a.userValidator.Validate(&userValidator.ValidateRequest{
 			Claims: request.Claims,
 			User:   request.User,
 			Action: userAction.Create,
-		}, &validationResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
 		}
 		if len(validationResponse.ReasonsInvalid) > 0 {

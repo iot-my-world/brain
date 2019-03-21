@@ -162,9 +162,9 @@ func (v *validator) ValidateValidateRequest(request *userValidator.ValidateReque
 	return nil
 }
 
-func (v *validator) Validate(request *userValidator.ValidateRequest, response *userValidator.ValidateResponse) error {
+func (v *validator) Validate(request *userValidator.ValidateRequest) (*userValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
@@ -366,6 +366,5 @@ func (v *validator) Validate(request *userValidator.ValidateRequest, response *u
 		}
 	}
 
-	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
+	return &userValidator.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
 }
