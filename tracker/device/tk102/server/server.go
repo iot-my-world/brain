@@ -250,6 +250,7 @@ func (ts *TK102Server) handleConnection(c net.Conn) {
 			// create the reading
 			createReadingResponse := readingRecordHandler.CreateResponse{}
 			if err := ts.readingRecordHandler.Create(&readingRecordHandler.CreateRequest{
+				Claims:  *ts.systemClaims,
 				Reading: *newReading,
 			},
 				&createReadingResponse); err != nil {

@@ -1,19 +1,22 @@
 package system
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
+	"gitlab.com/iotTracker/brain/tracker/device"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/tracker/reading"
 	"gitlab.com/iotTracker/brain/workbook"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -68,13 +71,13 @@ func (suite *System) TestSystemReadingCreation() {
 		}
 
 		// try and retrieve the device
-		retrieveResponse := tk102DeviceRecordHandlerJsonRpcAdaptor.RetrieveResponse{}
+		retrieveTK102DeviceResponse := tk102DeviceRecordHandlerJsonRpcAdaptor.RetrieveResponse{}
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"TK102DeviceRecordHandler.Retrieve",
 			tk102DeviceRecordHandlerJsonRpcAdaptor.RetrieveRequest{
 				Identifier: *deviceIdentifier,
 			},
-			&retrieveResponse,
+			&retrieveTK102DeviceResponse,
 		); err != nil {
 			suite.FailNow("retrieve device failed", err.Error())
 		}
@@ -86,7 +89,34 @@ func (suite *System) TestSystemReadingCreation() {
 			suite.FailNow("error getting reading sheet as slice map", err.Error())
 		}
 		for _, readingRow := range readingSheetSliceMap {
-			fmt.Println(readingRow)
+			lat, err := strconv.ParseFloat(readingRow["Lat"], 32)
+			if err != nil {
+				suite.FailNow("error parsing lat value to float", err.Error())
+			}
+			lon, err := strconv.ParseFloat(readingRow["Lon"], 32)
+			if err != nil {
+				suite.FailNow("error parsing lon value to float", err.Error())
+			}
+			timeStamp, err := strconv.ParseInt(readingRow["stamp"], 10, 64)
+			if err != nil {
+				suite.FailNow("error parsing stamp value to float", err.Error())
+			}
+			// Create the new reading
+			newReading := reading.Reading{
+				//Id:                "",
+				DeviceId:          id.Identifier{Id: retrieveTK102DeviceResponse.TK102.Id},
+				DeviceType:        device.TK102,
+				OwnerPartyType:    retrieveTK102DeviceResponse.TK102.OwnerPartyType,
+				OwnerId:           retrieveTK102DeviceResponse.TK102.OwnerId,
+				AssignedPartyType: retrieveTK102DeviceResponse.TK102.AssignedPartyType,
+				AssignedId:        retrieveTK102DeviceResponse.TK102.AssignedId,
+				Raw:               "_dummy_data_",
+				TimeStamp:         timeStamp,
+				Latitude:          float32(lat),
+				Longitude:         float32(lon),
+			}
+			// Save the reading
+
 		}
 	}
 }
