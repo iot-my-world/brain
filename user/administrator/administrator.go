@@ -7,10 +7,10 @@ import (
 )
 
 type Administrator interface {
-	GetMyUser(request *GetMyUserRequest, response *GetMyUserResponse) error
-	UpdateAllowedFields(request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error
-	Create(request *CreateRequest, response *CreateResponse) error
-	ChangePassword(request *ChangePasswordRequest, response *ChangePasswordResponse) error
+	GetMyUser(request *GetMyUserRequest) (*GetMyUserResponse, error)
+	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
+	Create(request *CreateRequest) (*CreateResponse, error)
+	ChangePassword(request *ChangePasswordRequest) (*ChangePasswordResponse, error)
 }
 
 type UpdateAllowedFieldsRequest struct {

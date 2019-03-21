@@ -150,14 +150,13 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 			}
 
 			// Check if there is another user that is already using the same admin email address
-			if err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			if _, err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				// system claims as we want to ensure that all clients are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: emailAddress.Identifier{
 					EmailAddress: (*clientToValidate).AdminEmailAddress,
 				},
-			},
-				&userRecordHandler.RetrieveResponse{}); err != nil {
+			}); err != nil {
 				switch err.(type) {
 				case userRecordHandlerException.NotFound:
 					// this is what we want, do nothing

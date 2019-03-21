@@ -104,11 +104,11 @@ func (a *administrator) GetAllUsersAPIPermissions(request *permissionAdministrat
 	}
 
 	// try and retrieve the user
-	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.UserIdentifier,
-	}, &userRetrieveResponse); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -152,11 +152,11 @@ func (a *administrator) GetAllUsersViewPermissions(request *permissionAdministra
 	}
 
 	// try and retrieve the user
-	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.UserIdentifier,
-	}, &userRetrieveResponse); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 

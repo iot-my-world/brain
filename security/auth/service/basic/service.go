@@ -40,21 +40,23 @@ func (s *service) Logout(request *authService.LogoutRequest) (*authService.Logou
 }
 
 func (s *service) Login(request *authService.LoginRequest) (*authService.LoginResponse, error) {
-
-	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
+	var retrieveUserResponse *userRecordHandler.RetrieveResponse
+	var err error
 
 	//try and retrieve User record with username
-	if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err = s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     *s.systemClaims,
 		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
-	}, &retrieveUserResponse); err != nil {
+	})
+	if err != nil {
 		switch err.(type) {
 		case userRecordHandlerException.NotFound:
 			//try and retrieve User record with email address
-			if err := s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			retrieveUserResponse, err = s.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				Claims:     *s.systemClaims,
 				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
-			}, &retrieveUserResponse); err != nil {
+			})
+			if err != nil {
 				return nil, errors.New("log in failed")
 			}
 		default:

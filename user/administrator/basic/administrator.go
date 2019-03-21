@@ -63,11 +63,11 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *userAdminist
 	return nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAllowedFieldsRequest, response *userAdministrator.UpdateAllowedFieldsResponse) error {
+func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAllowedFieldsRequest) (*userAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (a *administrator) ValidateGetMyUserRequest(request *userAdministrator.GetMyUserRequest) error {
@@ -79,29 +79,26 @@ func (a *administrator) ValidateGetMyUserRequest(request *userAdministrator.GetM
 	return nil
 }
 
-func (a *administrator) GetMyUser(request *userAdministrator.GetMyUserRequest, response *userAdministrator.GetMyUserResponse) error {
+func (a *administrator) GetMyUser(request *userAdministrator.GetMyUserRequest) (*userAdministrator.GetMyUserResponse, error) {
 	if err := a.ValidateGetMyUserRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// infer the login claims type
 	loginClaims, ok := request.Claims.(login.Login)
 	if !ok {
-		return userAdministratorException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
+		return nil, userAdministratorException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
 	}
 
 	// retrieve user
-	userRetrieveResponse := userRecordHandler.RetrieveResponse{}
-	if err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: loginClaims.UserId,
-	}, &userRetrieveResponse); err != nil {
-		return userAdministratorException.UserRetrieval{Reasons: []string{"user retrieval", err.Error()}}
+	})
+	if err != nil {
+		return nil, userAdministratorException.UserRetrieval{Reasons: []string{"user retrieval", err.Error()}}
 	}
-
-	response.User = userRetrieveResponse.User
-
-	return nil
+	return &userAdministrator.GetMyUserResponse{User: userRetrieveResponse.User}, nil
 }
 
 func (a *administrator) ValidateCreateRequest(request *userAdministrator.CreateRequest) error {
@@ -154,22 +151,20 @@ func (a *administrator) ValidateCreateRequest(request *userAdministrator.CreateR
 	return nil
 }
 
-func (a *administrator) Create(request *userAdministrator.CreateRequest, response *userAdministrator.CreateResponse) error {
+func (a *administrator) Create(request *userAdministrator.CreateRequest) (*userAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// create the user
-	createResponse := userRecordHandler.CreateResponse{}
-	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+	createResponse, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: request.User,
-	}, &createResponse); err != nil {
-		return userAdministratorException.UserCreation{Reasons: []string{"user creation", err.Error()}}
+	})
+	if err != nil {
+		return nil, userAdministratorException.UserCreation{Reasons: []string{"user creation", err.Error()}}
 	}
 
-	response.User = createResponse.User
-
-	return nil
+	return &userAdministrator.CreateResponse{User: createResponse.User}, nil
 }
 
 func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator.ChangePasswordRequest) error {
@@ -193,39 +188,39 @@ func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator
 	return nil
 }
 
-func (a *administrator) ChangePassword(request *userAdministrator.ChangePasswordRequest, response *userAdministrator.ChangePasswordResponse) error {
+func (a *administrator) ChangePassword(request *userAdministrator.ChangePasswordRequest) (*userAdministrator.ChangePasswordResponse, error) {
 	if err := a.ValidateChangePasswordRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Retrieve User
-	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
-	if err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	}, &retrieveUserResponse); err != nil {
-		return userAdministratorException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, userAdministratorException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return userAdministratorException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
+		return nil, userAdministratorException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
 
-	updateUserResponse := userRecordHandler.UpdateResponse{}
-	if err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+	updateUserResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 		User:       retrieveUserResponse.User,
-	}, &updateUserResponse); err != nil {
-		return userAdministratorException.ChangePassword{Reasons: []string{"update user", err.Error()}}
+	})
+	if err != nil {
+		return nil, userAdministratorException.ChangePassword{Reasons: []string{"update user", err.Error()}}
 	}
 
-	response.User = retrieveUserResponse.User
-
-	return nil
+	return &userAdministrator.ChangePasswordResponse{
+		User: updateUserResponse.User,
+	}, nil
 }

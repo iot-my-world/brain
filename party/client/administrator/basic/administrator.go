@@ -89,7 +89,7 @@ func (a *administrator) Create(request *clientAdministrator.CreateRequest) (*cli
 	}
 
 	// create minimal admin user for the client
-	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+	if _, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: user.User{
 			EmailAddress:    clientCreateResponse.Client.AdminEmailAddress,
 			ParentPartyType: clientCreateResponse.Client.ParentPartyType,
@@ -97,7 +97,7 @@ func (a *administrator) Create(request *clientAdministrator.CreateRequest) (*cli
 			PartyType:       party.Client,
 			PartyId:         id.Identifier{Id: clientCreateResponse.Client.Id},
 		},
-	}, &userRecordHandler.CreateResponse{}); err != nil {
+	}); err != nil {
 		return nil, clientAdministratorException.ClientCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 

@@ -92,7 +92,7 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*co
 	}
 
 	// create minimal admin user for the company
-	if err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+	if _, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
 		User: user.User{
 			EmailAddress:    companyCreateResponse.Company.AdminEmailAddress,
 			ParentPartyType: companyCreateResponse.Company.ParentPartyType,
@@ -100,7 +100,7 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*co
 			PartyType:       party.Company,
 			PartyId:         id.Identifier{Id: companyCreateResponse.Company.Id},
 		},
-	}, &userRecordHandler.CreateResponse{}); err != nil {
+	}); err != nil {
 		return nil, companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
