@@ -149,12 +149,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse := readingRecordHandler.CollectResponse{}
-			if err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
-			}, &readingCollectResponse); err != nil {
+			})
+			if err != nil {
 				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
@@ -223,12 +223,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse := readingRecordHandler.CollectResponse{}
-			if err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
-			}, &readingCollectResponse); err != nil {
+			})
+			if err != nil {
 				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
@@ -297,12 +297,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse := readingRecordHandler.CollectResponse{}
-			if err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
-			}, &readingCollectResponse); err != nil {
+			})
+			if err != nil {
 				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device

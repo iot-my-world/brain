@@ -134,8 +134,7 @@ func (a *administrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdminis
 	}
 
 	// 2. collect readings for the device
-	readingCollectResponse := readingRecordHandler.CollectResponse{}
-	if err := a.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+	readingCollectResponse, err := a.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 		Claims: request.Claims,
 		Criteria: []criterion.Criterion{
 			exactTextCriterion.Criterion{
@@ -144,7 +143,8 @@ func (a *administrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdminis
 			},
 		},
 		// Query: blank query as we have no restriction
-	}, &readingCollectResponse); err != nil {
+	})
+	if err != nil {
 		return tk102DeviceAdministratorException.ReadingCollection{Reasons: []string{err.Error()}}
 	}
 
@@ -168,11 +168,11 @@ func (a *administrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdminis
 		readingCollectResponse.Records[readingIdx].OwnerId = request.TK102.OwnerId
 		readingCollectResponse.Records[readingIdx].AssignedPartyType = request.TK102.AssignedPartyType
 		readingCollectResponse.Records[readingIdx].AssignedId = request.TK102.AssignedId
-		if err := a.readingRecordHandler.Update(&readingRecordHandler.UpdateRequest{
+		if _, err := a.readingRecordHandler.Update(&readingRecordHandler.UpdateRequest{
 			Claims:     request.Claims,
 			Identifier: id.Identifier{Id: readingCollectResponse.Records[readingIdx].Id},
 			Reading:    readingCollectResponse.Records[readingIdx],
-		}, &readingRecordHandler.UpdateResponse{}); err != nil {
+		}); err != nil {
 			return tk102DeviceAdministratorException.ReadingUpdate{Reasons: []string{err.Error()}}
 		}
 	}

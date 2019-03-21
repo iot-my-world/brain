@@ -47,13 +47,12 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectReadingResponse := readingRecordHandler.CollectResponse{}
-	if err := s.RecordHandler.Collect(&readingRecordHandler.CollectRequest{
+	collectReadingResponse, err := s.RecordHandler.Collect(&readingRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
-	},
-		&collectReadingResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -77,11 +76,11 @@ func (s *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createReadingResponse := readingRecordHandler.CreateResponse{}
-	if err := s.RecordHandler.Create(&readingRecordHandler.CreateRequest{
+	createReadingResponse, err := s.RecordHandler.Create(&readingRecordHandler.CreateRequest{
 		Claims:  claims,
 		Reading: request.Reading,
-	}, &createReadingResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

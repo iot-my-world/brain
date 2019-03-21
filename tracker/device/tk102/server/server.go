@@ -219,13 +219,12 @@ func (ts *TK102Server) handleConnection(c net.Conn) {
 					Field: "deviceId.id",
 					Text:  tk102Device.Id,
 				}
-				readingCollectResponse := readingRecordHandler.CollectResponse{}
-				if err := ts.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+				readingCollectResponse, err := ts.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
 					Claims:   ts.systemClaims,
 					Query:    collectQuery,
 					Criteria: []criterion.Criterion{collectCriterion},
-				},
-					&readingCollectResponse); err != nil {
+				})
+				if err != nil {
 					log.Warn("unable to perform collect for last reading: ", err.Error())
 				}
 				if len(readingCollectResponse.Records) > 0 {
@@ -248,12 +247,11 @@ func (ts *TK102Server) handleConnection(c net.Conn) {
 			newReading.AssignedId = tk102Device.AssignedId
 
 			// create the reading
-			createReadingResponse := readingRecordHandler.CreateResponse{}
-			if err := ts.readingRecordHandler.Create(&readingRecordHandler.CreateRequest{
+			createReadingResponse, err := ts.readingRecordHandler.Create(&readingRecordHandler.CreateRequest{
 				Claims:  *ts.systemClaims,
 				Reading: *newReading,
-			},
-				&createReadingResponse); err != nil {
+			})
+			if err != nil {
 				fmt.Println("error creating new reading: ", err.Error())
 				continue
 			}

@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type mongoRecordHandler struct {
+type recordHandler struct {
 	mongoSession *mgo.Session
 	database     string
 	collection   string
@@ -28,7 +28,7 @@ func New(
 
 	setupIndices(mongoSession, database, collection)
 
-	return &mongoRecordHandler{
+	return &recordHandler{
 		mongoSession: mongoSession,
 		database:     database,
 		collection:   collection,
@@ -52,17 +52,17 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *readingRecordHandler.CreateRequest) error {
+func (r *recordHandler) ValidateCreateRequest(request *readingRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
-		readingValidateResponse := readingRecordHandler.ValidateResponse{}
-		if err := mrh.Validate(&readingRecordHandler.ValidateRequest{
+		readingValidateResponse, err := r.Validate(&readingRecordHandler.ValidateRequest{
 			Claims:  request.Claims,
 			Reading: request.Reading,
-		}, &readingValidateResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
 		}
 		if len(readingValidateResponse.ReasonsInvalid) > 0 {
@@ -78,31 +78,30 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *readingRecordHandl
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Create(request *readingRecordHandler.CreateRequest, response *readingRecordHandler.CreateResponse) error {
-	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Create(request *readingRecordHandler.CreateRequest) (*readingRecordHandler.CreateResponse, error) {
+	if err := r.ValidateCreateRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	readingCollection := mgoSession.DB(r.database).C(r.collection)
 
 	newID, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.Reading.Id = newID.String()
 
 	if err := readingCollection.Insert(request.Reading); err != nil {
-		return err
+		return nil, err
 	}
 
-	response.Reading = request.Reading
-	return nil
+	return &readingRecordHandler.CreateResponse{Reading: request.Reading}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *readingRecordHandler.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *readingRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -123,15 +122,15 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *readingRecordHan
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *readingRecordHandler.RetrieveRequest, response *readingRecordHandler.RetrieveResponse) error {
-	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+func (r *recordHandler) Retrieve(request *readingRecordHandler.RetrieveRequest) (*readingRecordHandler.RetrieveResponse, error) {
+	if err := r.ValidateRetrieveRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	readingCollection := mgoSession.DB(r.database).C(r.collection)
 
 	var readingRecord reading.Reading
 
@@ -140,17 +139,15 @@ func (mrh *mongoRecordHandler) Retrieve(request *readingRecordHandler.RetrieveRe
 
 	if err := readingCollection.Find(filter).One(&readingRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return readingRecordHandlerException.NotFound{}
+			return nil, readingRecordHandlerException.NotFound{}
 		}
-		return brainException.Unexpected{Reasons: []string{err.Error()}}
+		return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
 
-	response.Reading = readingRecord
-
-	return nil
+	return &readingRecordHandler.RetrieveResponse{Reading: readingRecord}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *readingRecordHandler.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *readingRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -163,18 +160,20 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *readingRecordHand
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequest, response *readingRecordHandler.CollectResponse) error {
-	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return err
+func (r *recordHandler) Collect(request *readingRecordHandler.CollectRequest) (*readingRecordHandler.CollectResponse, error) {
+	if err := r.ValidateCollectRequest(request); err != nil {
+		return nil, err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
 	filter = claims.ContextualiseFilter(filter, request.Claims)
 
+	response := readingRecordHandler.CollectResponse{}
+
 	// Get Reading Collection
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
-	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	readingCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Perform Query
 	query := readingCollection.Find(filter)
@@ -183,7 +182,7 @@ func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequ
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return err
+		return nil, err
 	}
 
 	// Apply limit if applicable
@@ -200,13 +199,13 @@ func (mrh *mongoRecordHandler) Collect(request *readingRecordHandler.CollectRequ
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *readingRecordHandler.UpdateRequest) error {
+func (r *recordHandler) ValidateUpdateRequest(request *readingRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -219,11 +218,11 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *readingRecordHandl
 		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for reading", request.Identifier.Type()))
 	}
 
-	readingValidateResponse := readingRecordHandler.ValidateResponse{}
-	if err := mrh.Validate(&readingRecordHandler.ValidateRequest{
+	readingValidateResponse, err := r.Validate(&readingRecordHandler.ValidateRequest{
 		Claims:  request.Claims,
 		Reading: request.Reading,
-	}, &readingValidateResponse); err != nil {
+	})
+	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
 	}
 	if len(readingValidateResponse.ReasonsInvalid) > 0 {
@@ -238,23 +237,23 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *readingRecordHandl
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Update(request *readingRecordHandler.UpdateRequest, respose *readingRecordHandler.UpdateResponse) error {
-	if err := mrh.ValidateUpdateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Update(request *readingRecordHandler.UpdateRequest) (*readingRecordHandler.UpdateResponse, error) {
+	if err := r.ValidateUpdateRequest(request); err != nil {
+		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
+	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
 
-	readingCollection := mgoSession.DB(mrh.database).C(mrh.collection)
+	readingCollection := mgoSession.DB(r.database).C(r.collection)
 
 	// Retrieve reading
-	retrieveReadingResponse := readingRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&readingRecordHandler.RetrieveRequest{
+	retrieveReadingResponse, err := r.Retrieve(&readingRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	}, &retrieveReadingResponse); err != nil {
-		return readingRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, readingRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields
@@ -273,13 +272,13 @@ func (mrh *mongoRecordHandler) Update(request *readingRecordHandler.UpdateReques
 	filter := request.Identifier.ToFilter()
 	filter = claims.ContextualiseFilter(filter, request.Claims)
 	if err := readingCollection.Update(filter, retrieveReadingResponse.Reading); err != nil {
-		return readingRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, readingRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	return nil
+	return &readingRecordHandler.UpdateResponse{Reading: retrieveReadingResponse.Reading}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateValidateRequest(request *readingRecordHandler.ValidateRequest) error {
+func (r *recordHandler) ValidateValidateRequest(request *readingRecordHandler.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -289,10 +288,10 @@ func (mrh *mongoRecordHandler) ValidateValidateRequest(request *readingRecordHan
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Validate(request *readingRecordHandler.ValidateRequest, response *readingRecordHandler.ValidateResponse) error {
-	if err := mrh.ValidateValidateRequest(request); err != nil {
-		return err
+func (r *recordHandler) Validate(request *readingRecordHandler.ValidateRequest) (*readingRecordHandler.ValidateResponse, error) {
+	if err := r.ValidateValidateRequest(request); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return nil, nil
 }
