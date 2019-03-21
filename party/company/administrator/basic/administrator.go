@@ -78,9 +78,9 @@ func (a *administrator) ValidateCreateRequest(request *companyAdministrator.Crea
 	return nil
 }
 
-func (a *administrator) Create(request *companyAdministrator.CreateRequest, response *companyAdministrator.CreateResponse) error {
+func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*companyAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
-		return nil
+		return nil, err
 	}
 
 	// create the company
@@ -88,7 +88,7 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest, resp
 	if err := a.companyRecordHandler.Create(&companyRecordHandler.CreateRequest{
 		Company: request.Company,
 	}, &companyCreateResponse); err != nil {
-		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
+		return nil, companyAdministratorException.CompanyCreation{Reasons: []string{"creating company", err.Error()}}
 	}
 
 	// create minimal admin user for the company
@@ -101,17 +101,15 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest, resp
 			PartyId:         id.Identifier{Id: companyCreateResponse.Company.Id},
 		},
 	}, &userRecordHandler.CreateResponse{}); err != nil {
-		return companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
+		return nil, companyAdministratorException.CompanyCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
-	response.Company = companyCreateResponse.Company
-
-	return nil
+	return &companyAdministrator.CreateResponse{Company: companyCreateResponse.Company}, nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *companyAdministrator.UpdateAllowedFieldsRequest, response *companyAdministrator.UpdateAllowedFieldsResponse) error {
+func (a *administrator) UpdateAllowedFields(request *companyAdministrator.UpdateAllowedFieldsRequest) (*companyAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// retrieve the company
@@ -120,7 +118,7 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Company.Id},
 	}, &companyRetrieveResponse); err != nil {
-		return companyAdministratorException.CompanyRetrieval{Reasons: []string{err.Error()}}
+		return nil, companyAdministratorException.CompanyRetrieval{Reasons: []string{err.Error()}}
 	}
 
 	// update the allowed fields on the company
@@ -137,10 +135,8 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 		Identifier: id.Identifier{Id: request.Company.Id},
 		Company:    companyRetrieveResponse.Company,
 	}, &companyUpdateResponse); err != nil {
-		return companyAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+		return nil, companyAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 
-	response.Company = companyUpdateResponse.Company
-
-	return nil
+	return &companyAdministrator.UpdateAllowedFieldsResponse{Company: companyUpdateResponse.Company}, nil
 }
