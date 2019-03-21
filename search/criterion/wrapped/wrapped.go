@@ -1,4 +1,4 @@
-package wrappedCriterion
+package wrapped
 
 import (
 	"encoding/json"
@@ -10,16 +10,16 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion/text"
 )
 
-type WrappedCriterion struct {
+type Wrapped struct {
 	Type  criterion.Type  `json:"type"`
 	Value json.RawMessage `json:"value"`
 }
 
-type OrWrappedCriterion struct {
-	Criteria []WrappedCriterion `json:"criteria"`
+type OrWrapped struct {
+	Criteria []Wrapped `json:"criteria"`
 }
 
-func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {
+func (cw Wrapped) UnWrap() (criterion.Criterion, error) {
 	var result criterion.Criterion = nil
 	switch cw.Type {
 	case criterion.Text:
@@ -37,7 +37,7 @@ func (cw WrappedCriterion) UnWrap() (criterion.Criterion, error) {
 		result = unmarshalledCriterion
 
 	case criterion.Or:
-		var wrappedOrCriterion OrWrappedCriterion
+		var wrappedOrCriterion OrWrapped
 		var unmarshalledCriterion or.Criterion
 		if err := json.Unmarshal(cw.Value, &wrappedOrCriterion); err != nil {
 			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
