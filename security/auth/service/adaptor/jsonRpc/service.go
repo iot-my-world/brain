@@ -2,15 +2,15 @@ package auth
 
 import (
 	"fmt"
-	"gitlab.com/iotTracker/brain/security/auth"
+	authService "gitlab.com/iotTracker/brain/security/auth/service"
 	"net/http"
 )
 
 type adaptor struct {
-	authService auth.Service
+	authService authService.Service
 }
 
-func New(authService auth.Service) *adaptor {
+func New(authService authService.Service) *adaptor {
 	return &adaptor{
 		authService: authService,
 	}
@@ -38,13 +38,11 @@ type LoginResponse struct {
 
 func (s *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	loginRequest := auth.LoginRequest{
+	loginResponse, err := s.authService.Login(&authService.LoginRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 		Password:               request.Password,
-	}
-	loginResponse := auth.LoginResponse{}
-
-	if err := s.authService.Login(&loginRequest, &loginResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

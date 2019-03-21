@@ -1,8 +1,8 @@
-package auth
+package service
 
 type Service interface {
-	Login(request *LoginRequest, response *LoginResponse) error
-	Logout(request *LogoutRequest, response *LogoutResponse) error
+	Login(request *LoginRequest) (*LoginResponse, error)
+	Logout(request *LogoutRequest) (*LogoutResponse, error)
 }
 
 type LogoutRequest struct {

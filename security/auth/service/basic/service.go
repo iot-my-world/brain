@@ -7,7 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/security/auth"
+	authService "gitlab.com/iotTracker/brain/security/auth/service"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/token"
 	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
@@ -34,12 +34,12 @@ func New(
 	}
 }
 
-func (s *service) Logout(request *auth.LogoutRequest, response *auth.LogoutResponse) error {
+func (s *service) Logout(request *authService.LogoutRequest) (*authService.LogoutResponse, error) {
 	fmt.Println("Logout Service running.")
-	return nil
+	return &authService.LogoutResponse{}, nil
 }
 
-func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse) error {
+func (s *service) Login(request *authService.LoginRequest) (*authService.LoginResponse, error) {
 
 	retrieveUserResponse := userRecordHandler.RetrieveResponse{}
 
@@ -55,17 +55,17 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 				Claims:     *s.systemClaims,
 				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 			}, &retrieveUserResponse); err != nil {
-				return errors.New("log in failed")
+				return nil, errors.New("log in failed")
 			}
 		default:
-			return errors.New("log in failed")
+			return nil, errors.New("log in failed")
 		}
 	}
 
 	//User record retrieved successfully, check password
 	if err := bcrypt.CompareHashAndPassword(retrieveUserResponse.User.Password, []byte(request.Password)); err != nil {
 		//Password Incorrect
-		return errors.New("log In failed")
+		return nil, errors.New("log In failed")
 	}
 
 	// Password is correct. Try and generate loginToken
@@ -80,11 +80,9 @@ func (s *service) Login(request *auth.LoginRequest, response *auth.LoginResponse
 	})
 	if err != nil {
 		//Unexpected Error!
-		return errors.New("log In failed")
+		return nil, errors.New("log In failed")
 	}
 
-	//Login Successful, return Token to front-end client
-	response.Jwt = loginToken
-
-	return nil
+	//Login Successful, return Token
+	return &authService.LoginResponse{Jwt: loginToken}, nil
 }
