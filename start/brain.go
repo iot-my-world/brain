@@ -261,9 +261,7 @@ func main() {
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
-		SystemRecordHandler,
-		CompanyRecordHandler,
-		ClientRecordHandler,
+		PartyBasicAdministrator,
 		ReadingRecordHandler,
 		TK102DeviceRecordHandler,
 	)
