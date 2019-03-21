@@ -11,6 +11,7 @@ import (
 	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
@@ -71,6 +72,13 @@ func (i Wrapped) UnWrap() (identifier.Identifier, error) {
 
 	case identifier.DeviceTK102:
 		var unmarshalledId tk102.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
+			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledId
+
+	case identifier.Party:
+		var unmarshalledId party.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
