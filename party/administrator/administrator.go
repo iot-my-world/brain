@@ -7,8 +7,8 @@ import (
 )
 
 type Administrator interface {
-	GetMyParty(request *GetMyPartyRequest, response *GetMyPartyResponse) error
-	RetrieveParty(request *RetrievePartyRequest, response *RetrievePartyResponse) error
+	GetMyParty(request *GetMyPartyRequest) (*GetMyPartyResponse, error)
+	RetrieveParty(request *RetrievePartyRequest) (*RetrievePartyResponse, error)
 }
 
 type GetMyPartyRequest struct {

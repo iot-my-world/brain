@@ -106,12 +106,12 @@ func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest, resp
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
 		switch (*tk102ToValidate).OwnerPartyType {
 		case party.System, party.Client, party.Company:
-			retrievePartyResponse := partyAdministrator.RetrievePartyResponse{}
-			if err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 				Claims:     request.Claims,
 				PartyType:  (*tk102ToValidate).OwnerPartyType,
 				Identifier: (*tk102ToValidate).OwnerId,
-			}, &retrievePartyResponse); err != nil {
+			})
+			if err != nil {
 				switch err.(type) {
 				case partyAdministratorException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -159,12 +159,12 @@ func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest, resp
 		// neither are blank
 		switch (*tk102ToValidate).AssignedPartyType {
 		case party.System, party.Client, party.Company:
-			retrievePartyResponse := partyAdministrator.RetrievePartyResponse{}
-			if err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 				Claims:     request.Claims,
 				PartyType:  (*tk102ToValidate).AssignedPartyType,
 				Identifier: (*tk102ToValidate).AssignedId,
-			}, &retrievePartyResponse); err != nil {
+			})
+			if err != nil {
 				switch err.(type) {
 				case partyAdministratorException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

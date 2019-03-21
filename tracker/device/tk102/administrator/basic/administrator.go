@@ -80,20 +80,20 @@ func (a *administrator) ValidateChangeOwnershipAndAssignmentRequest(request *tk1
 				// if the owner and assigned parties are not the same
 				request.TK102.AssignedId.Id != request.TK102.OwnerId.Id {
 				// then we must retrieve the owner and assigned parties to check the relationship is valid
-				ownerPartyRetrieveResponse := partyAdministrator.RetrievePartyResponse{}
-				if err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+				ownerPartyRetrieveResponse, err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 					Claims:     request.Claims,
 					Identifier: request.TK102.OwnerId,
 					PartyType:  request.TK102.OwnerPartyType,
-				}, &ownerPartyRetrieveResponse); err != nil {
+				})
+				if err != nil {
 					reasonsInvalid = append(reasonsInvalid, "error retrieving owner party: "+err.Error())
 				}
-				assignedPartyRetrieveResponse := partyAdministrator.RetrievePartyResponse{}
-				if err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+				assignedPartyRetrieveResponse, err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 					Claims:     request.Claims,
 					Identifier: request.TK102.AssignedId,
 					PartyType:  request.TK102.AssignedPartyType,
-				}, &assignedPartyRetrieveResponse); err != nil {
+				})
+				if err != nil {
 					reasonsInvalid = append(reasonsInvalid, "error retrieving assigned party: "+err.Error())
 				}
 
