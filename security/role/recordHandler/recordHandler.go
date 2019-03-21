@@ -6,30 +6,32 @@ import (
 )
 
 type RecordHandler interface {
-	Create(request *CreateRequest, response *CreateResponse) error
-	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
-	Update(request *UpdateRequest, response *UpdateResponse) error
+	Create(request *CreateRequest) (*CreateResponse, error)
+	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
+	Update(request *UpdateRequest) (*UpdateResponse, error)
 }
 
 type CreateRequest struct {
-	Role role.Role `json:"role"`
+	Role role.Role
 }
 
 type CreateResponse struct {
+	Role role.Role
 }
 
 type RetrieveRequest struct {
-	Identifier identifier.Identifier `json:"identifier"`
+	Identifier identifier.Identifier
 }
 
 type RetrieveResponse struct {
-	Role role.Role `json:"role"`
+	Role role.Role
 }
 
 type UpdateRequest struct {
-	Identifier identifier.Identifier `json:"identifier"`
-	Role       role.Role             `json:"role"`
+	Identifier identifier.Identifier
+	Role       role.Role
 }
 
 type UpdateResponse struct {
+	Role role.Role
 }

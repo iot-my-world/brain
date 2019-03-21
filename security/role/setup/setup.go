@@ -250,14 +250,16 @@ var ClientUser = role.Role{
 func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 	for _, roleToCreate := range initialRoles {
 		//Try and retrieve the record
-		retrieveRoleResponse := roleRecordHandler.RetrieveResponse{}
-		err := handler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleToCreate.Name}}, &retrieveRoleResponse)
-
+		retrieveRoleResponse, err := handler.Retrieve(&roleRecordHandler.RetrieveRequest{
+			Identifier: name.Identifier{Name: roleToCreate.Name},
+		})
 		switch err.(type) {
 		case roleRecordHandlerException.NotFound:
 			// if role record does not exist yet, try and create it
-			createRoleResponse := roleRecordHandler.CreateResponse{}
-			if err := handler.Create(&roleRecordHandler.CreateRequest{Role: roleToCreate}, &createRoleResponse); err != nil {
+			_, err := handler.Create(&roleRecordHandler.CreateRequest{
+				Role: roleToCreate,
+			})
+			if err != nil {
 				return roleSetupException.InitialSetup{Reasons: []string{"creation error", err.Error()}}
 			}
 			log.Info("Initial Role Setup: Created Role: " + roleToCreate.Name)
@@ -270,11 +272,10 @@ func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 				roleToCreate.CompareViewPermissions(retrieveRoleResponse.Role.ViewPermissions)) {
 				// role permissions differ, try update role
 				log.Info("Initial Role Setup: Role: " + roleToCreate.Name + " already exists. Updating Role API permissions.")
-				if err := handler.Update(&roleRecordHandler.UpdateRequest{
+				if _, err := handler.Update(&roleRecordHandler.UpdateRequest{
 					Role:       roleToCreate,
 					Identifier: id.Identifier{Id: retrieveRoleResponse.Role.Id},
-				},
-					&roleRecordHandler.UpdateResponse{}); err != nil {
+				}); err != nil {
 					return roleSetupException.InitialSetup{Reasons: []string{"update error", err.Error()}}
 				}
 			}

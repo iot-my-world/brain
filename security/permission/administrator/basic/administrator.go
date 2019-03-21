@@ -117,8 +117,10 @@ func (a *administrator) GetAllUsersAPIPermissions(request *permissionAdministrat
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
-		roleRetrieveResponse := roleRecordHandler.RetrieveResponse{}
-		if err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
+		roleRetrieveResponse, err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{
+			Identifier: name.Identifier{Name: roleName},
+		})
+		if err != nil {
 			return nil, err
 		}
 		// add all of the permissions of the role
@@ -165,8 +167,10 @@ func (a *administrator) GetAllUsersViewPermissions(request *permissionAdministra
 	// for every role that the user has been assigned
 	for _, roleName := range userRetrieveResponse.User.Roles {
 		// retrieve the role
-		roleRetrieveResponse := roleRecordHandler.RetrieveResponse{}
-		if err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{Identifier: name.Identifier{Name: roleName}}, &roleRetrieveResponse); err != nil {
+		roleRetrieveResponse, err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{
+			Identifier: name.Identifier{Name: roleName},
+		})
+		if err != nil {
 			return nil, err
 		}
 		// add all of the permissions of the role

@@ -22,7 +22,6 @@ import (
 	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
 
-	roleRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/role/recordHandler/adaptor/jsonRpc"
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
 	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
@@ -270,9 +269,6 @@ func main() {
 	)
 
 	// Create Service Provider Adaptors
-	// Role
-	RoleRecordHandlerAdaptor := roleRecordHandlerJsonRpcAdaptor.New(RoleRecordHandler)
-
 	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
@@ -321,11 +317,6 @@ func main() {
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// Register Service Provider Adaptors with secureAPIServer
-	// Role
-	if err := secureAPIServer.RegisterService(RoleRecordHandlerAdaptor, "RoleRecordHandler"); err != nil {
-		log.Fatal("Unable to Register Role Record Handler Service")
-	}
-
 	// User
 	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
