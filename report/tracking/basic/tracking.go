@@ -229,7 +229,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trac
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
 			})
 			if err != nil {
-				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
+				return nil, trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
 			if len(readingCollectResponse.Records) > 0 {
@@ -261,7 +261,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trac
 			Claims:     request.Claims,
 		})
 		if err != nil {
-			return trackingReportException.RetrievingClient{Reasons: []string{err.Error()}}
+			return nil, trackingReportException.RetrievingClient{Reasons: []string{err.Error()}}
 		}
 
 		// criterion to collect all devices either owned by or assigned to the client

@@ -4,7 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/registrar"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/user"
 	"net/http"
@@ -23,7 +23,7 @@ func New(
 }
 
 type InviteCompanyAdminUserRequest struct {
-	CompanyIdentifier wrappedIdentifier.WrappedIdentifier `json:"companyIdentifier"`
+	CompanyIdentifier wrappedIdentifier.Wrapped `json:"companyIdentifier"`
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -112,7 +112,7 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 }
 
 type InviteClientAdminUserRequest struct {
-	ClientIdentifier wrappedIdentifier.WrappedIdentifier `json:"clientIdentifier"`
+	ClientIdentifier wrappedIdentifier.Wrapped `json:"clientIdentifier"`
 }
 
 type InviteClientAdminUserResponse struct {
@@ -230,7 +230,7 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 }
 
 type InviteUserRequest struct {
-	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
+	UserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
 }
 
 type InviteUserResponse struct {

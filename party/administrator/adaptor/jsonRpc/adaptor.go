@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	wrappedParty "gitlab.com/iotTracker/brain/party/wrapped"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 )
@@ -51,7 +51,7 @@ func (a *adaptor) GetMyParty(r *http.Request, request *GetMyPartyRequest, respon
 
 type RetrievePartyRequest struct {
 	PartyType  party.Type
-	Identifier wrappedIdentifier.WrappedIdentifier
+	Identifier wrappedIdentifier.Wrapped
 }
 
 type RetrievePartyResponse struct {

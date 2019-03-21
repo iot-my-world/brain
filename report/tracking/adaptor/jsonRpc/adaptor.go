@@ -4,7 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	trackingReport "gitlab.com/iotTracker/brain/report/tracking"
 	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	"net/http"
@@ -23,9 +23,9 @@ func New(
 }
 
 type LiveRequest struct {
-	SystemIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"systemIdentifiers"`
-	CompanyIdentifiers []wrappedIdentifier.WrappedIdentifier `json:"companyIdentifiers"`
-	ClientIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"clientIdentifiers"`
+	SystemIdentifiers  []wrappedIdentifier.Wrapped `json:"systemIdentifiers"`
+	CompanyIdentifiers []wrappedIdentifier.Wrapped `json:"companyIdentifiers"`
+	ClientIdentifiers  []wrappedIdentifier.Wrapped `json:"clientIdentifiers"`
 }
 
 type LiveResponse struct {
@@ -84,8 +84,8 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 }
 
 type HistoricalRequest struct {
-	CompanyIdentifiers []wrappedIdentifier.WrappedIdentifier `json:"companyIdentifiers"`
-	ClientIdentifiers  []wrappedIdentifier.WrappedIdentifier `json:"clientIdentifiers"`
+	CompanyIdentifiers []wrappedIdentifier.Wrapped `json:"companyIdentifiers"`
+	ClientIdentifiers  []wrappedIdentifier.Wrapped `json:"clientIdentifiers"`
 }
 
 type HistoricalResponse struct {

@@ -2,7 +2,7 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
@@ -21,7 +21,7 @@ func New(permissionAdministrator permissionAdministrator.Administrator) *adaptor
 }
 
 type GetAllUsersAPIPermissionsRequest struct {
-	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
+	UserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
 }
 
 type GetAllUsersAPIPermissionsResponse struct {
@@ -52,7 +52,7 @@ func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUser
 }
 
 type GetAllUsersViewPermissionsRequest struct {
-	UserIdentifier wrappedIdentifier.WrappedIdentifier `json:"userIdentifier"`
+	UserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
 }
 
 type GetAllUsersViewPermissionsResponse struct {
