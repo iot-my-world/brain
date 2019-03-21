@@ -7,6 +7,7 @@ import (
 	companyUserTest "gitlab.com/iotTracker/brain/test/company/user"
 	systemCompanyTest "gitlab.com/iotTracker/brain/test/system/company"
 	tk102DeviceSystemTest "gitlab.com/iotTracker/brain/test/tracker/device/tk102/system"
+	readingSystemTest "gitlab.com/iotTracker/brain/test/tracker/reading/system"
 	"testing"
 )
 
@@ -25,4 +26,7 @@ func TestBrain(t *testing.T) {
 
 	// Device Tests
 	suite.Run(t, new(tk102DeviceSystemTest.System))
+
+	// Reading Tests
+	suite.Run(t, new(readingSystemTest.System))
 }
