@@ -3,9 +3,37 @@ import random
 import re
 from datetime import datetime
 from datetime import timedelta
+from math import pi, sin, cos, atan2, sqrt
 
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter, column_index_from_string
+
+earthRadiusInKm = 6378.137
+
+minimumRandomStartDate = datetime(
+    year=2019,
+    month=2,
+    day=20,
+)
+
+maximumRandomStartDate = datetime(
+    year=2019,
+    month=12,
+    day=25,
+)
+
+
+def difference_between_readings(r1, r2):
+    lat1 = float(r1[0])
+    lon1 = float(r1[1])
+    lat2 = float(r2[0])
+    lon2 = float(r2[1])
+    dLat = lat2 * pi / 180 - lat1 * pi / 180
+    dLon = lon2 * pi / 180 - lon1 * pi / 180
+    a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dLon / 2) * sin(dLon / 2)
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    d = earthRadiusInKm * c
+    return d * 1000
 
 
 def first_empty_column(worksheet):
@@ -16,7 +44,7 @@ def next_column_letter(column_letter):
     return get_column_letter(column_index_from_string(column_letter) + 1)
 
 
-def random_date(start, end):
+def random_start_date(start=minimumRandomStartDate, end=maximumRandomStartDate):
     """Generate a random datetime between `start` and `end`"""
     return start + timedelta(
         # Get a random amount of seconds between `start` and `end`
@@ -24,19 +52,30 @@ def random_date(start, end):
     )
 
 
+def get_journey_name(filepath):
+    # ./raw/dbnCpt.rdat
+    return filepath.split('/')[2].split('.')[0]
+
+
 stringPattern = r'"(.*?)"'
 
 if __name__ == '__main__':
     # get reading file paths
-    readingFilePaths = [readingFile for readingFile in os.listdir('.') if readingFile.endswith('.rdat')]
+    readingFilePaths = ['./raw/' + readingFile for readingFile in os.listdir('./raw') if readingFile.endswith('.rdat')]
     # open and set up workbook to save readings in
     outputWorkbook = Workbook()
-    outputWorkbook.worksheets[0].title = 'readings'
+    journeyName = readingFilePaths[0].split('.')[0]
+    outputWorkbook.worksheets[0].title = get_journey_name(readingFilePaths[0])
     outputWorkbook.active = 0
-
     # for every readings data file
-    for filePath in readingFilePaths:
-        startDateTime = datetime(year=2019, month=3, day=12, hour=12, minute=30)
+    for filePathIdx, filePath in enumerate(readingFilePaths):
+        # add new sheet for each journey
+        if filePathIdx > 0:
+            journeyName = get_journey_name(filePath)
+            outputWorkbook.create_sheet(journeyName)
+            outputWorkbook.active = filePathIdx
+
+        startDateTime = random_start_date()
         journeyTime = 0
         readings = []
 
@@ -62,12 +101,21 @@ if __name__ == '__main__':
             minutes=journeyTime.minute / len(readings),
         )
         lastTimestamp = startDateTime
-        for reading in readings:
-            row += 1
+        lastReading = readings[0]
+        row += 1
+        for readingIdx, reading in enumerate(readings):
+            if readingIdx != 0:
+                if difference_between_readings(lastReading, reading) < 30:
+                    continue
+                else:
+                    row += 1
+                    lastReading = reading
+
             lastTimestamp += timestampDelta
+            print(journeyName, reading)
             outputWorkbook.active[latColumn + str(row)].value = reading[0]
             outputWorkbook.active[lonColumn + str(row)].value = reading[1]
             outputWorkbook.active[timeStampColumn + str(row)].value = lastTimestamp.strftime("%s")
 
-    outputWorkbook.save('output.xlsx')
+    outputWorkbook.save('data.xlsx')
     print('done')
