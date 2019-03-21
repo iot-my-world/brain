@@ -42,13 +42,12 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveTK102Response := tk102RecordHandler.RetrieveResponse{}
-	if err := s.RecordHandler.Retrieve(
+	retrieveTK102Response, err := s.RecordHandler.Retrieve(
 		&tk102RecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: id,
-		},
-		&retrieveTK102Response); err != nil {
+		})
+	if err != nil {
 		return err
 	}
 
@@ -83,13 +82,12 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectTK102Response := tk102RecordHandler.CollectResponse{}
-	if err := s.RecordHandler.Collect(&tk102RecordHandler.CollectRequest{
+	collectTK102Response, err := s.RecordHandler.Collect(&tk102RecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
-	},
-		&collectTK102Response); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

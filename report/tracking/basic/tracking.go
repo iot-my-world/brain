@@ -131,12 +131,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 
 		// collect all the tk102 devices
-		tk102DeviceCollectResponse := tk102DeviceRecordHandler.CollectResponse{}
-		if err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
-		}, &tk102DeviceCollectResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
@@ -205,12 +205,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 
 		// collect all the tk102 devices
-		tk102DeviceCollectResponse := tk102DeviceRecordHandler.CollectResponse{}
-		if err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
-		}, &tk102DeviceCollectResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
@@ -279,12 +279,12 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 
 		// collect all the tk102 devices
-		tk102DeviceCollectResponse := tk102DeviceRecordHandler.CollectResponse{}
-		if err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
-		}, &tk102DeviceCollectResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 

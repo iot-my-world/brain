@@ -125,11 +125,11 @@ func (a *administrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdminis
 	}
 
 	// 1. retrieve the tk102 device
-	tk102RetrieveResponse := tk102RecordHandler.RetrieveResponse{}
-	if err := a.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
+	tk102RetrieveResponse, err := a.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.TK102.Id},
-	}, &tk102RetrieveResponse); err != nil {
+	})
+	if err != nil {
 		return nil, tk102DeviceAdministratorException.DeviceRetrieval{Reasons: []string{err.Error()}}
 	}
 
@@ -153,12 +153,13 @@ func (a *administrator) ChangeOwnershipAndAssignment(request *tk102DeviceAdminis
 	tk102RetrieveResponse.TK102.OwnerId = request.TK102.OwnerId
 	tk102RetrieveResponse.TK102.AssignedPartyType = request.TK102.AssignedPartyType
 	tk102RetrieveResponse.TK102.AssignedId = request.TK102.AssignedId
-	tk102UpdateResponse := tk102RecordHandler.UpdateResponse{}
-	if err := a.tk102RecordHandler.Update(&tk102RecordHandler.UpdateRequest{
+
+	tk102UpdateResponse, err := a.tk102RecordHandler.Update(&tk102RecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.TK102.Id},
 		TK102:      tk102RetrieveResponse.TK102,
-	}, &tk102UpdateResponse); err != nil {
+	})
+	if err != nil {
 		return nil, tk102DeviceAdministratorException.DeviceUpdate{Reasons: []string{err.Error()}}
 	}
 
@@ -213,10 +214,10 @@ func (a *administrator) Create(request *tk102DeviceAdministrator.CreateRequest) 
 	}
 
 	// Create the device
-	createResponse := tk102RecordHandler.CreateResponse{}
-	if err := a.tk102RecordHandler.Create(&tk102RecordHandler.CreateRequest{
+	createResponse, err := a.tk102RecordHandler.Create(&tk102RecordHandler.CreateRequest{
 		TK102: request.TK102,
-	}, &createResponse); err != nil {
+	})
+	if err != nil {
 		return nil, tk102DeviceAdministratorException.DeviceCreation{Reasons: []string{err.Error()}}
 	}
 

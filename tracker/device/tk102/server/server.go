@@ -195,12 +195,11 @@ func (ts *TK102Server) handleConnection(c net.Conn) {
 			// check if the device associated with this reading has been retrieved yet
 			if tk102Device.Id == "" {
 				// if not, retrieve the associated device
-				tk102RetrieveResponse := tk102RecordHandler.RetrieveResponse{}
-				if err := ts.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
+				tk102RetrieveResponse, err := ts.tk102RecordHandler.Retrieve(&tk102RecordHandler.RetrieveRequest{
 					Claims:     *ts.systemClaims,
 					Identifier: *tk102Identifier,
-				},
-					&tk102RetrieveResponse); err != nil {
+				})
+				if err != nil {
 					log.Warn("cannot find device for reading: ", err.Error())
 					break
 				}
