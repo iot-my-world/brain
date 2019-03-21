@@ -36,12 +36,12 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	validateUserResponse := clientValidator.ValidateResponse{}
-	if err := s.clientValidator.Validate(&clientValidator.ValidateRequest{
+	validateUserResponse, err := s.clientValidator.Validate(&clientValidator.ValidateRequest{
 		Claims: claims,
 		Client: request.Client,
 		Action: request.Action,
-	}, &validateUserResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 

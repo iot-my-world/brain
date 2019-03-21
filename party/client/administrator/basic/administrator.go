@@ -54,12 +54,12 @@ func (a *administrator) ValidateCreateRequest(request *clientAdministrator.Creat
 		}
 
 		// client must be valid
-		validationResponse := clientValidator.ValidateResponse{}
-		if err := a.clientValidator.Validate(&clientValidator.ValidateRequest{
+		validationResponse, err := a.clientValidator.Validate(&clientValidator.ValidateRequest{
 			Claims: request.Claims,
 			Client: request.Client,
 			Action: clientAction.Create,
-		}, &validationResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating client: "+err.Error())
 		}
 		if len(validationResponse.ReasonsInvalid) > 0 {

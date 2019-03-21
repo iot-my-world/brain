@@ -60,9 +60,9 @@ func (v *validator) ValidateValidateRequest(request *clientValidator.ValidateReq
 	}
 }
 
-func (v *validator) Validate(request *clientValidator.ValidateRequest, response *clientValidator.ValidateResponse) error {
+func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
@@ -191,6 +191,5 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest, response 
 		}
 	}
 
-	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
+	return &clientValidator.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
 }
