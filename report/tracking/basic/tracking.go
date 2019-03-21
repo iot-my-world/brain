@@ -35,7 +35,7 @@ func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	readingRecordHandler readingRecordHandler.RecordHandler,
 	tk102DeviceRecordHandler tk102DeviceRecordHandler.RecordHandler,
-) *basicTrackingReport {
+) trackingReport.Report {
 	return &basicTrackingReport{
 		systemRecordHandler:      systemRecordHandler,
 		companyRecordHandler:     companyRecordHandler,
@@ -89,9 +89,9 @@ func (btr *basicTrackingReport) ValidateLiveRequest(request *trackingReport.Live
 	return nil
 }
 
-func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, response *trackingReport.LiveResponse) error {
+func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trackingReport.LiveResponse, error) {
 	if err := btr.ValidateLiveRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	// records to return
@@ -113,7 +113,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			Claims:     request.Claims,
 		})
 		if err != nil {
-			return trackingReportException.RetrievingSystem{Reasons: []string{err.Error()}}
+			return nil, trackingReportException.RetrievingSystem{Reasons: []string{err.Error()}}
 		}
 
 		// criterion to collect all devices either owned by or assigned to the system
@@ -137,7 +137,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			// Query: left blank to collect all. i.e. no limit
 		})
 		if err != nil {
-			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
+			return nil, trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
 		// collect the last reading associated with each of these devices
@@ -155,7 +155,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
 			})
 			if err != nil {
-				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
+				return nil, trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
 			if len(readingCollectResponse.Records) > 0 {
@@ -187,7 +187,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			Claims:     request.Claims,
 		})
 		if err != nil {
-			return trackingReportException.RetrievingCompany{Reasons: []string{err.Error()}}
+			return nil, trackingReportException.RetrievingCompany{Reasons: []string{err.Error()}}
 		}
 
 		// criterion to collect all devices either owned by or assigned to the company
@@ -211,7 +211,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			// Query: left blank to collect all. i.e. no limit
 		})
 		if err != nil {
-			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
+			return nil, trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
 		// collect the last reading associated with each of these devices
@@ -285,7 +285,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 			// Query: left blank to collect all. i.e. no limit
 		})
 		if err != nil {
-			return trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
+			return nil, trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
 		}
 
 		// collect the last reading associated with each of these devices
@@ -303,7 +303,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
 			})
 			if err != nil {
-				return trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
+				return nil, trackingReportException.CollectingReadings{Reasons: []string{"tk102 device readings", err.Error()}}
 			}
 			// if any readings have been collected for this device
 			if len(readingCollectResponse.Records) > 0 {
@@ -327,9 +327,9 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 		}
 	}
 
-	response.Readings = liveReportReadings
-
-	return nil
+	return &trackingReport.LiveResponse{
+		Readings: liveReportReadings,
+	}, nil
 }
 
 func (btr *basicTrackingReport) ValidateHistoricalRequest(request *trackingReport.HistoricalRequest) error {
@@ -342,12 +342,12 @@ func (btr *basicTrackingReport) ValidateHistoricalRequest(request *trackingRepor
 	return nil
 }
 
-func (btr *basicTrackingReport) Historical(request *trackingReport.HistoricalRequest, response *trackingReport.HistoricalResponse) error {
+func (btr *basicTrackingReport) Historical(request *trackingReport.HistoricalRequest) (*trackingReport.HistoricalResponse, error) {
 	if err := btr.ValidateHistoricalRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
-	response.Readings = make([]reading.Reading, 0)
-
-	return nil
+	return &trackingReport.HistoricalResponse{
+		Readings: make([]reading.Reading, 0),
+	}, nil
 }

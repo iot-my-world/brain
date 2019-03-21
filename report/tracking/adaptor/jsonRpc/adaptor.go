@@ -68,13 +68,13 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 	}
 
 	// get report
-	liveTrackingReportResponse := trackingReport.LiveResponse{}
-	if err := a.trackingReport.Live(&trackingReport.LiveRequest{
+	liveTrackingReportResponse, err := a.trackingReport.Live(&trackingReport.LiveRequest{
 		Claims:             claims,
 		SystemIdentifiers:  systemIdentifiers,
 		CompanyIdentifiers: companyIdentifiers,
 		ClientIdentifiers:  clientIdentifiers,
-	}, &liveTrackingReportResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
@@ -119,14 +119,16 @@ func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, respon
 	}
 
 	// get report
-	liveTrackingReportResponse := trackingReport.LiveResponse{}
-	if err := a.trackingReport.Live(&trackingReport.LiveRequest{
+	historicalTrackingReportResponse, err := a.trackingReport.Historical(&trackingReport.HistoricalRequest{
 		Claims:             claims,
 		CompanyIdentifiers: companyIdentifiers,
 		ClientIdentifiers:  clientIdentifiers,
-	}, &liveTrackingReportResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
+
+	response.Readings = historicalTrackingReportResponse.Readings
 
 	return nil
 }

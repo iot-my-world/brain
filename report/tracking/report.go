@@ -7,8 +7,8 @@ import (
 )
 
 type Report interface {
-	Live(request *LiveRequest, response *LiveResponse) error
-	Historical(request *HistoricalRequest, response *HistoricalResponse) error
+	Live(request *LiveRequest) (*LiveResponse, error)
+	Historical(request *HistoricalRequest) (*HistoricalResponse, error)
 }
 
 type LiveRequest struct {
