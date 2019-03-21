@@ -16,7 +16,7 @@ import (
 
 type APIAuthorizer struct {
 	JWTValidator      token.JWTValidator
-	PermissionHandler permissionAdministrator.Handler
+	PermissionHandler permissionAdministrator.Administrator
 }
 
 func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedClaims.WrappedClaims, error) {
@@ -35,12 +35,12 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 	case login.Login:
 		// if these are login claims we check in the normal way if the user has the
 		// required permission to check access the api
-		userHasPermissionResponse := permissionAdministrator.UserHasPermissionResponse{}
-		if err := a.PermissionHandler.UserHasPermission(&permissionAdministrator.UserHasPermissionRequest{
+		userHasPermissionResponse, err := a.PermissionHandler.UserHasPermission(&permissionAdministrator.UserHasPermissionRequest{
 			Claims:         typedClaims,
 			UserIdentifier: typedClaims.UserId,
 			Permission:     api.Permission(jsonRpcMethod),
-		}, &userHasPermissionResponse); err != nil {
+		})
+		if err != nil {
 			return wrappedClaims.WrappedClaims{}, brainException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
 		}
 		if !userHasPermissionResponse.Result {

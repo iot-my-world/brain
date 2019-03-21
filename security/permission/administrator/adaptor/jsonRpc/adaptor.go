@@ -11,10 +11,10 @@ import (
 )
 
 type adaptor struct {
-	permissionAdministrator permissionAdministrator.Handler
+	permissionAdministrator permissionAdministrator.Administrator
 }
 
-func New(permissionAdministrator permissionAdministrator.Handler) *adaptor {
+func New(permissionAdministrator permissionAdministrator.Administrator) *adaptor {
 	return &adaptor{
 		permissionAdministrator: permissionAdministrator,
 	}
@@ -40,11 +40,11 @@ func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUser
 		return err
 	}
 
-	getAllUsersAPIPermissionsResponse := permissionAdministrator.GetAllUsersAPIPermissionsResponse{}
-	if err := s.permissionAdministrator.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
+	getAllUsersAPIPermissionsResponse, err := s.permissionAdministrator.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
 		Claims:         claims,
 		UserIdentifier: id,
-	}, &getAllUsersAPIPermissionsResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	response.Permissions = getAllUsersAPIPermissionsResponse.Permissions
@@ -71,11 +71,11 @@ func (s *adaptor) GetAllUsersViewPermissions(r *http.Request, request *GetAllUse
 		return err
 	}
 
-	getAllUsersViewPermissionsResponse := permissionAdministrator.GetAllUsersViewPermissionsResponse{}
-	if err := s.permissionAdministrator.GetAllUsersViewPermissions(&permissionAdministrator.GetAllUsersViewPermissionsRequest{
+	getAllUsersViewPermissionsResponse, err := s.permissionAdministrator.GetAllUsersViewPermissions(&permissionAdministrator.GetAllUsersViewPermissionsRequest{
 		Claims:         claims,
 		UserIdentifier: id,
-	}, &getAllUsersViewPermissionsResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	response.Permissions = getAllUsersViewPermissionsResponse.Permissions

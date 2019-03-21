@@ -7,10 +7,10 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission/view"
 )
 
-type Handler interface {
-	UserHasPermission(request *UserHasPermissionRequest, response *UserHasPermissionResponse) error
-	GetAllUsersAPIPermissions(request *GetAllUsersAPIPermissionsRequest, response *GetAllUsersAPIPermissionsResponse) error
-	GetAllUsersViewPermissions(request *GetAllUsersViewPermissionsRequest, response *GetAllUsersViewPermissionsResponse) error
+type Administrator interface {
+	UserHasPermission(request *UserHasPermissionRequest) (*UserHasPermissionResponse, error)
+	GetAllUsersAPIPermissions(request *GetAllUsersAPIPermissionsRequest) (*GetAllUsersAPIPermissionsResponse, error)
+	GetAllUsersViewPermissions(request *GetAllUsersViewPermissionsRequest) (*GetAllUsersViewPermissionsResponse, error)
 }
 
 type UserHasPermissionRequest struct {
