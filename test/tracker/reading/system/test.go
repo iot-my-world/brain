@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
@@ -11,7 +12,9 @@ import (
 	systemTest "gitlab.com/iotTracker/brain/test/system"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
+	"math/rand"
 	"os"
+	"time"
 )
 
 type System struct {
@@ -30,6 +33,7 @@ func (suite *System) SetupTest() {
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
+	rand.Seed(time.Now().Unix())
 }
 
 func (suite *System) TestSystemReadingCreation() {
@@ -75,5 +79,14 @@ func (suite *System) TestSystemReadingCreation() {
 			suite.FailNow("retrieve device failed", err.Error())
 		}
 
+		// readings sheet for device
+		sheetName := readingDataWorkBook.GetSheetNames()[rand.Intn(len(readingDataWorkBook.GetSheetNames()))]
+		readingSheetSliceMap, err := readingDataWorkBook.SheetAsSliceMap(sheetName)
+		if err != nil {
+			suite.FailNow("error getting reading sheet as slice map", err.Error())
+		}
+		for _, readingRow := range readingSheetSliceMap {
+			fmt.Println(readingRow)
+		}
 	}
 }

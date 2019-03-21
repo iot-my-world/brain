@@ -47,11 +47,14 @@ func (w *Workbook) DataRows(sheetName string) {
 }
 
 func (w *Workbook) SheetAsSliceMap(sheetName string) ([]map[string]string, error) {
-	for sheetIdx, sheetInBookName := range w.File.GetSheetMap() {
+	noSheets := len(w.GetSheetNames())
+	sheetCount := 0
+	for _, sheetInBookName := range w.File.GetSheetMap() {
 		if sheetInBookName == sheetName {
 			break
 		}
-		if sheetIdx == len(w.File.GetSheetMap())-1 {
+		sheetCount++
+		if sheetCount == noSheets {
 			return nil, workbookException.SheetDoesNotExist{SheetName: sheetName}
 		}
 	}
@@ -68,4 +71,13 @@ func (w *Workbook) SheetAsSliceMap(sheetName string) ([]map[string]string, error
 	}
 
 	return sheetSliceMap, nil
+}
+
+func (w *Workbook) GetSheetNames() []string {
+	sheetNames := make([]string, 0)
+	for _, sheetName := range w.File.GetSheetMap() {
+		sheetNames = append(sheetNames, sheetName)
+	}
+
+	return sheetNames
 }
