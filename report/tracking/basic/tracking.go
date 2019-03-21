@@ -256,11 +256,11 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest, respon
 	// For each client identifier provided
 	for _, id := range request.ClientIdentifiers {
 		// retrieve the client
-		clientRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-		if err := btr.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		clientRetrieveResponse, err := btr.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Identifier: id,
 			Claims:     request.Claims,
-		}, &clientRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return trackingReportException.RetrievingClient{Reasons: []string{err.Error()}}
 		}
 

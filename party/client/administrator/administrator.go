@@ -6,8 +6,8 @@ import (
 )
 
 type Administrator interface {
-	UpdateAllowedFields(request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error
-	Create(request *CreateRequest, response *CreateResponse) error
+	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
+	Create(request *CreateRequest) (*CreateResponse, error)
 }
 
 type CreateRequest struct {

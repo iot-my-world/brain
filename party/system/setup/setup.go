@@ -105,12 +105,11 @@ func InitialSetup(
 	systemAdminUser.ParentId = id.Identifier{Id: systemEntityCreatedOrRetrieved.Id}
 
 	// try and register the system admin user
-	registerSystemAdminUserResponse := partyRegistrar.RegisterSystemAdminUserResponse{}
-	if err := registrar.RegisterSystemAdminUser(&partyRegistrar.RegisterSystemAdminUserRequest{
+	registerSystemAdminUserResponse, err := registrar.RegisterSystemAdminUser(&partyRegistrar.RegisterSystemAdminUserRequest{
 		Claims: systemClaims,
 		User:   systemAdminUser,
-	},
-		&registerSystemAdminUserResponse); err != nil {
+	})
+	if err != nil {
 		switch err.(type) {
 		case partyRegistrarException.AlreadyRegistered:
 			// this is fine, no issues

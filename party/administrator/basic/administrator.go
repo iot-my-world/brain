@@ -87,11 +87,11 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 		response.Party = companyRecordHandlerRetrieveResponse.Company
 
 	case party.Client:
-		clientRecordHandlerRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-		if err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		clientRecordHandlerRetrieveResponse, err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
-		}, &clientRecordHandlerRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			switch err.(type) {
 			case clientRecordHandlerException.NotFound:
 				return nil, partyAdministratorException.NotFound{}
@@ -155,11 +155,11 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 		response.Party = companyRecordHandlerRetrieveResponse.Company
 
 	case party.Client:
-		clientRecordHandlerRetrieveResponse := clientRecordHandler.RetrieveResponse{}
-		if err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		clientRecordHandlerRetrieveResponse, err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
-		}, &clientRecordHandlerRetrieveResponse); err != nil {
+		})
+		if err != nil {
 			return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
 		}
 		response.Party = clientRecordHandlerRetrieveResponse.Client

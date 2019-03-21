@@ -12,7 +12,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type mongoRecordHandler struct {
+type recordHandler struct {
 	mongoSession *mgo.Session
 	database     string
 	collection   string
@@ -22,17 +22,15 @@ func New(
 	mongoSession *mgo.Session,
 	database string,
 	collection string,
-) *mongoRecordHandler {
+) clientRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)
 
-	newClientMongoRecordHandler := mongoRecordHandler{
+	return &recordHandler{
 		mongoSession: mongoSession,
 		database:     database,
 		collection:   collection,
 	}
-
-	return &newClientMongoRecordHandler
 }
 
 func setupIndices(mongoSession *mgo.Session, database, collection string) {
@@ -61,7 +59,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandler.CreateRequest) error {
+func (mrh *recordHandler) ValidateCreateRequest(request *clientRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -71,9 +69,9 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *clientRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Create(request *clientRecordHandler.CreateRequest, response *clientRecordHandler.CreateResponse) error {
+func (mrh *recordHandler) Create(request *clientRecordHandler.CreateRequest) (*clientRecordHandler.CreateResponse, error) {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -83,19 +81,18 @@ func (mrh *mongoRecordHandler) Create(request *clientRecordHandler.CreateRequest
 
 	newId, err := uuid.NewV4()
 	if err != nil {
-		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 	request.Client.Id = newId.String()
 
 	if err := clientCollection.Insert(request.Client); err != nil {
-		return clientRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return nil, clientRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	response.Client = request.Client
-	return nil
+	return &clientRecordHandler.CreateResponse{Client: request.Client}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *clientRecordHandler.RetrieveRequest) error {
+func (mrh *recordHandler) ValidateRetrieveRequest(request *clientRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -117,9 +114,9 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *clientRecordHand
 	}
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveRequest, response *clientRecordHandler.RetrieveResponse) error {
+func (mrh *recordHandler) Retrieve(request *clientRecordHandler.RetrieveRequest) (*clientRecordHandler.RetrieveResponse, error) {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -133,17 +130,18 @@ func (mrh *mongoRecordHandler) Retrieve(request *clientRecordHandler.RetrieveReq
 
 	if err := clientCollection.Find(filter).One(&clientRecord); err != nil {
 		if err == mgo.ErrNotFound {
-			return clientRecordHandlerException.NotFound{}
+			return nil, clientRecordHandlerException.NotFound{}
 		} else {
-			return brainException.Unexpected{Reasons: []string{err.Error()}}
+			return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 		}
 	}
 
-	response.Client = clientRecord
-	return nil
+	return &clientRecordHandler.RetrieveResponse{
+		Client: clientRecord,
+	}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *clientRecordHandler.UpdateRequest) error {
+func (mrh *recordHandler) ValidateUpdateRequest(request *clientRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -157,9 +155,9 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *clientRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest, response *clientRecordHandler.UpdateResponse) error {
+func (mrh *recordHandler) Update(request *clientRecordHandler.UpdateRequest) (*clientRecordHandler.UpdateResponse, error) {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -168,12 +166,12 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 	clientCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
 	// Retrieve Client
-	retrieveClientResponse := clientRecordHandler.RetrieveResponse{}
-	if err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
+	retrieveClientResponse, err := mrh.Retrieve(&clientRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	}, &retrieveClientResponse); err != nil {
-		return clientRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	})
+	if err != nil {
+		return nil, clientRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Update fields:
@@ -183,15 +181,13 @@ func (mrh *mongoRecordHandler) Update(request *clientRecordHandler.UpdateRequest
 	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 
 	if err := clientCollection.Update(filter, retrieveClientResponse.Client); err != nil {
-		return clientRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return nil, clientRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	response.Client = retrieveClientResponse.Client
-
-	return nil
+	return &clientRecordHandler.UpdateResponse{Client: retrieveClientResponse.Client}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *clientRecordHandler.DeleteRequest) error {
+func (mrh *recordHandler) ValidateDeleteRequest(request *clientRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -209,9 +205,9 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *clientRecordHandle
 	}
 }
 
-func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest, response *clientRecordHandler.DeleteResponse) error {
+func (mrh *recordHandler) Delete(request *clientRecordHandler.DeleteRequest) (*clientRecordHandler.DeleteResponse, error) {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	mgoSession := mrh.mongoSession.Copy()
@@ -221,13 +217,13 @@ func (mrh *mongoRecordHandler) Delete(request *clientRecordHandler.DeleteRequest
 
 	filter := client.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := clientCollection.Remove(filter); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &clientRecordHandler.DeleteResponse{}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *clientRecordHandler.CollectRequest) error {
+func (mrh *recordHandler) ValidateCollectRequest(request *clientRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -241,9 +237,9 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *clientRecordHandl
 	}
 }
 
-func (mrh *mongoRecordHandler) Collect(request *clientRecordHandler.CollectRequest, response *clientRecordHandler.CollectResponse) error {
+func (mrh *recordHandler) Collect(request *clientRecordHandler.CollectRequest) (*clientRecordHandler.CollectResponse, error) {
 	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
@@ -257,11 +253,13 @@ func (mrh *mongoRecordHandler) Collect(request *clientRecordHandler.CollectReque
 	// Perform Query
 	query := clientCollection.Find(filter)
 
+	response := clientRecordHandler.CollectResponse{}
+
 	// Apply the count
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return err
+		return nil, err
 	}
 
 	// Apply limit if applicable
@@ -278,8 +276,8 @@ func (mrh *mongoRecordHandler) Collect(request *clientRecordHandler.CollectReque
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
 		All(&response.Records); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }

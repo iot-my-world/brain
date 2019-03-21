@@ -42,12 +42,11 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 		return err
 	}
 
-	inviteCompanyAdminUserResponse := registrar.InviteCompanyAdminUserResponse{}
-	if err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
+	inviteCompanyAdminUserResponse, err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
 		Claims:            claims,
 		CompanyIdentifier: companyIdentifier,
-	},
-		&inviteCompanyAdminUserResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	response.URLToken = inviteCompanyAdminUserResponse.URLToken
@@ -69,12 +68,11 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 		return err
 	}
 
-	registerCompanyAdminUserResponse := registrar.RegisterCompanyAdminUserResponse{}
-	if err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
+	registerCompanyAdminUserResponse, err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
-	},
-		&registerCompanyAdminUserResponse); err != nil {
+	})
+	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
@@ -99,12 +97,11 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 		return err
 	}
 
-	registerCompanyUserResponse := registrar.RegisterCompanyUserResponse{}
-	if err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
+	registerCompanyUserResponse, err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
 		Claims: claims,
 		User:   request.User,
-	},
-		&registerCompanyUserResponse); err != nil {
+	})
+	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
@@ -134,12 +131,11 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 		return err
 	}
 
-	inviteClientAdminUserResponse := registrar.InviteClientAdminUserResponse{}
-	if err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
+	inviteClientAdminUserResponse, err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
 		Claims:           claims,
 		ClientIdentifier: clientIdentifier,
-	},
-		&inviteClientAdminUserResponse); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	response.URLToken = inviteClientAdminUserResponse.URLToken
@@ -161,12 +157,11 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 		return err
 	}
 
-	registerClientAdminUserResponse := registrar.RegisterClientAdminUserResponse{}
-	if err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
+	registerClientAdminUserResponse, err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
-	},
-		&registerClientAdminUserResponse); err != nil {
+	})
+	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
@@ -191,12 +186,11 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 		return err
 	}
 
-	registerClientUserResponse := registrar.RegisterClientUserResponse{}
-	if err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
+	registerClientUserResponse, err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
 		Claims: claims,
 		User:   request.User,
-	},
-		&registerClientUserResponse); err != nil {
+	})
+	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
@@ -221,11 +215,11 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 		return err
 	}
 
-	areAdminsRegisteredResponse := registrar.AreAdminsRegisteredResponse{}
-	if err := a.registrar.AreAdminsRegistered(&registrar.AreAdminsRegisteredRequest{
+	areAdminsRegisteredResponse, err := a.registrar.AreAdminsRegistered(&registrar.AreAdminsRegisteredRequest{
 		Claims:       claims,
 		PartyDetails: request.PartyDetails,
-	}, &areAdminsRegisteredResponse); err != nil {
+	})
+	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
@@ -255,11 +249,11 @@ func (a *adaptor) InviteUser(r *http.Request, request *InviteUserRequest, respon
 		return err
 	}
 
-	userInviteResponse := registrar.InviteUserResponse{}
-	if err := a.registrar.InviteUser(&registrar.InviteUserRequest{
+	userInviteResponse, err := a.registrar.InviteUser(&registrar.InviteUserRequest{
 		Claims:         claims,
 		UserIdentifier: userId,
-	}, &userInviteResponse); err != nil {
+	})
+	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
