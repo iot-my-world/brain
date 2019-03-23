@@ -10,6 +10,7 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	readingRecordHandlerException "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
 
@@ -293,5 +294,9 @@ func (r *recordHandler) Validate(request *readingRecordHandler.ValidateRequest) 
 		return nil, err
 	}
 
-	return nil, nil
+	reasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+
+	return &readingRecordHandler.ValidateResponse{
+		ReasonsInvalid: reasonsInvalid,
+	}, nil
 }
