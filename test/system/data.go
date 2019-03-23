@@ -13,6 +13,7 @@ var User = user.User{
 	Username: "root",
 	// EmailAddress
 	Password: []byte("12345"),
+	//Password: []byte("thebrainstemistherootofallthought"), // for server testing
 	// Roles
 
 	// Party Details
