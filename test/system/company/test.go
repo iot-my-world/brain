@@ -10,7 +10,7 @@ import (
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
@@ -84,7 +84,7 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		companyAdminUserEntity := &companyTestData.EntitiesAndAdminUsersToCreate[idx].AdminUser
 
 		// create identifier for the company entity
-		companyIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: companyEntity.Id})
+		companyIdentifier, err := wrappedIdentifier.Wrap(id.Identifier{Id: companyEntity.Id})
 		if err != nil {
 			suite.FailNow("error wrapping companyIdentifier", err.Error())
 		}

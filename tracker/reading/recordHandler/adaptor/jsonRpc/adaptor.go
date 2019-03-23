@@ -3,8 +3,8 @@ package jsonRpc
 import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
@@ -22,8 +22,8 @@ func New(recordHandler readingRecordHandler.RecordHandler) *adaptor {
 }
 
 type CollectRequest struct {
-	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
-	Query    query.Query                         `json:"query"`
+	Criteria []wrappedCriterion.Wrapped `json:"criteria"`
+	Query    query.Query                `json:"query"`
 }
 
 type CollectResponse struct {

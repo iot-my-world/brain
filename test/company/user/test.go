@@ -8,7 +8,7 @@ import (
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
@@ -70,7 +70,7 @@ func (suite *User) TestInviteAndRegisterUsers() {
 			(*userEntity).Id = createCompanyUserResponse.User.Id
 
 			// create identifier for the user entity to invite
-			userIdentifier, err := wrappedIdentifier.WrapIdentifier(id.Identifier{Id: (*userEntity).Id})
+			userIdentifier, err := wrappedIdentifier.Wrap(id.Identifier{Id: (*userEntity).Id})
 			if err != nil {
 				suite.FailNow("error wrapping userIdentifier", err.Error())
 			}

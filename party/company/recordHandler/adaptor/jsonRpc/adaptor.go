@@ -5,9 +5,9 @@ import (
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/search/wrappedCriterion"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 )
@@ -23,7 +23,7 @@ func New(recordHandler companyRecordHandler.RecordHandler) *adaptor {
 }
 
 type RetrieveRequest struct {
-	Identifier wrappedIdentifier.WrappedIdentifier `json:"identifier"`
+	Identifier wrappedIdentifier.Wrapped `json:"identifier"`
 }
 
 type RetrieveResponse struct {
@@ -57,8 +57,8 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 }
 
 type CollectRequest struct {
-	Criteria []wrappedCriterion.WrappedCriterion `json:"criteria"`
-	Query    query.Query                         `json:"query"`
+	Criteria []wrappedCriterion.Wrapped `json:"criteria"`
+	Query    query.Query                `json:"query"`
 }
 
 type CollectResponse struct {

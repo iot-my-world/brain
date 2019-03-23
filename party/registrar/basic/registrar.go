@@ -1019,19 +1019,20 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		return nil, err
 	}
 
-	result := make(map[string]bool)
 	companyIds := make([]string, 0)
 	companyAdminEmails := make([]string, 0)
 	clientIds := make([]string, 0)
 	clientAdminEmails := make([]string, 0)
 
-	response := partyRegistrar.AreAdminsRegisteredResponse{}
+	response := partyRegistrar.AreAdminsRegisteredResponse{
+		Result: make(map[string]bool),
+	}
 
 	// compose id lists for exact list criteria
 	for _, partyDetail := range request.PartyDetails {
 		switch partyDetail.PartyType {
 		case party.System:
-			result[partyDetail.PartyId.Id] = true
+			response.Result[partyDetail.PartyId.Id] = true
 		case party.Company:
 			companyIds = append(companyIds, partyDetail.PartyId.Id)
 		case party.Client:
@@ -1089,7 +1090,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	}
 	// update result for the company admin users retrieved
 	for companyAdminUserIdx := range companyAdminUserCollectResponse.Records {
-		result[companyAdminUserCollectResponse.Records[companyAdminUserIdx].PartyId.Id] =
+		response.Result[companyAdminUserCollectResponse.Records[companyAdminUserIdx].PartyId.Id] =
 			companyAdminUserCollectResponse.Records[companyAdminUserIdx].Registered
 	}
 
@@ -1141,7 +1142,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	}
 	// update result for the client admin users retrieved
 	for clientAdminUserIdx := range clientAdminUserCollectResponse.Records {
-		result[clientAdminUserCollectResponse.Records[clientAdminUserIdx].PartyId.Id] =
+		response.Result[clientAdminUserCollectResponse.Records[clientAdminUserIdx].PartyId.Id] =
 			clientAdminUserCollectResponse.Records[clientAdminUserIdx].Registered
 	}
 

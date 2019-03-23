@@ -1,4 +1,4 @@
-package wrappedIdentifier
+package wrapped
 
 import (
 	"encoding/json"
@@ -11,27 +11,28 @@ import (
 	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 )
 
-type WrappedIdentifier struct {
+type Wrapped struct {
 	Type  identifier.Type `json:"type"`
 	Value json.RawMessage `json:"value"`
 }
 
-func WrapIdentifier(id identifier.Identifier) (*WrappedIdentifier, error) {
+func Wrap(id identifier.Identifier) (*Wrapped, error) {
 	value, err := json.Marshal(id)
 	if err != nil {
 		return nil, errors.New("wrapping error " + err.Error())
 	}
 
-	return &WrappedIdentifier{
+	return &Wrapped{
 		Type:  id.Type(),
 		Value: value,
 	}, nil
 }
 
-func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
+func (i Wrapped) UnWrap() (identifier.Identifier, error) {
 	var result identifier.Identifier = nil
 	switch i.Type {
 	case identifier.Id:
@@ -71,6 +72,13 @@ func (i WrappedIdentifier) UnWrap() (identifier.Identifier, error) {
 
 	case identifier.DeviceTK102:
 		var unmarshalledId tk102.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
+			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledId
+
+	case identifier.Party:
+		var unmarshalledId party.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}

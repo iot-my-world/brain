@@ -8,7 +8,7 @@ import (
 	partyAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/wrappedIdentifier"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
@@ -68,7 +68,7 @@ func (suite *System) TestSystemDeviceCreation() {
 		}
 
 		// create identifier to retrieve the owner party
-		ownerPartyIdentifier, err := wrappedIdentifier.WrapIdentifier(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Owner Admin Email"]})
+		ownerPartyIdentifier, err := wrappedIdentifier.Wrap(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Owner Admin Email"]})
 		if err != nil {
 			suite.FailNow("error wrapping party Identifier", err.Error())
 		}
@@ -99,7 +99,7 @@ func (suite *System) TestSystemDeviceCreation() {
 		// if there are assigned party details then retrieve the assigned party and populate for the device
 		if newDevice.AssignedPartyType != "" {
 			// create identifier to retrieve the assigned party
-			assignedPartyIdentifier, err := wrappedIdentifier.WrapIdentifier(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Assigned Admin Email"]})
+			assignedPartyIdentifier, err := wrappedIdentifier.Wrap(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Assigned Admin Email"]})
 			if err != nil {
 				suite.FailNow("error wrapping assigned party Identifier", err.Error())
 			}

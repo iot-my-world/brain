@@ -1,21 +1,19 @@
 package tracking
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 )
 
 type Report interface {
-	Live(request *LiveRequest, response *LiveResponse) error
-	Historical(request *HistoricalRequest, response *HistoricalResponse) error
+	Live(request *LiveRequest) (*LiveResponse, error)
+	Historical(request *HistoricalRequest) (*HistoricalResponse, error)
 }
 
 type LiveRequest struct {
-	Claims             claims.Claims
-	ClientIdentifiers  []identifier.Identifier
-	CompanyIdentifiers []identifier.Identifier
-	SystemIdentifiers  []identifier.Identifier
+	Claims           claims.Claims
+	PartyIdentifiers []party.Identifier
 }
 
 type LiveResponse struct {
@@ -23,9 +21,7 @@ type LiveResponse struct {
 }
 
 type HistoricalRequest struct {
-	Claims             claims.Claims
-	ClientIdentifiers  []identifier.Identifier
-	CompanyIdentifiers []identifier.Identifier
+	Claims claims.Claims
 }
 
 type HistoricalResponse struct {
