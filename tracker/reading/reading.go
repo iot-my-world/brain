@@ -12,7 +12,7 @@ type Reading struct {
 
 	// Device Details
 	DeviceId   id.Identifier `json:"deviceId" bson:"deviceId"`
-	DeviceType device.Type   `json:"DeviceType" bson:"DeviceType"`
+	DeviceType device.Type   `json:"deviceType" bson:"deviceType"`
 
 	// Owner Details
 	// derived from device when device is retrieved for reading to be saved

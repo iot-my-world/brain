@@ -215,7 +215,6 @@ var ClientAdmin = role.Role{
 	},
 	ViewPermissions: []view.Permission{
 		view.Configuration,
-		view.PartyClientConfiguration,
 		view.PartyUserConfiguration,
 		view.Dashboards,
 		view.LiveTrackingDashboard,
