@@ -14,7 +14,7 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/device"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/tracker/reading"
-	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
+	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"math/rand"
 	"os"
@@ -90,8 +90,10 @@ func (suite *System) TestSystemReadingCreation() {
 		if err != nil {
 			suite.FailNow("error getting reading sheet as slice map", err.Error())
 		}
-		noReadings := len(readingSheetSliceMap)
-		for readingIdx, readingRow := range readingSheetSliceMap {
+
+		// prepare a batch of readings
+		readingsToCreate := make([]reading.Reading, 0)
+		for _, readingRow := range readingSheetSliceMap {
 			lat, err := strconv.ParseFloat(readingRow["Lat"], 32)
 			if err != nil {
 				suite.FailNow("error parsing lat value to float", err.Error())
@@ -104,7 +106,7 @@ func (suite *System) TestSystemReadingCreation() {
 			if err != nil {
 				suite.FailNow("error parsing stamp value to float", err.Error())
 			}
-			newReading := reading.Reading{
+			readingsToCreate = append(readingsToCreate, reading.Reading{
 				//Id:                "",
 				DeviceId:          id.Identifier{Id: retrieveTK102DeviceResponse.TK102.Id},
 				DeviceType:        device.TK102,
@@ -116,19 +118,20 @@ func (suite *System) TestSystemReadingCreation() {
 				TimeStamp:         timeStamp,
 				Latitude:          float32(lat),
 				Longitude:         float32(lon),
-			}
-
-			// try and create the new reading
-			if err := suite.jsonRpcClient.JsonRpcRequest(
-				"ReadingRecordHandler.Create",
-				readingRecordHandlerJsonRpcAdaptor.CreateRequest{
-					Reading: newReading,
-				},
-				&readingRecordHandlerJsonRpcAdaptor.CreateResponse{},
-			); err != nil {
-				suite.FailNow("creating reading failed", err.Error())
-			}
-			fmt.Printf("Device %d/%d - Reading %d/%d\n", tk102DeviceIdx+1, noDevices, readingIdx+1, noReadings)
+			})
 		}
+
+		// try and create the readings in bulk
+		if err := suite.jsonRpcClient.JsonRpcRequest(
+			"ReadingAdministrator.CreateBulk",
+			readingAdministratorJsonRpcAdaptor.CreateBulkRequest{
+				Readings: readingsToCreate,
+			},
+			&readingAdministratorJsonRpcAdaptor.CreateBulkResponse{},
+		); err != nil {
+			suite.FailNow("creating bulk readings failed", err.Error())
+		}
+
+		fmt.Printf("Device %d/%d\n", tk102DeviceIdx+1, noDevices)
 	}
 }
