@@ -26,12 +26,12 @@ func (e UserRetrieval) Error() string {
 	return "user retrieval error: " + strings.Join(e.Reasons, "; ")
 }
 
-type ChangePassword struct {
+type SetPassword struct {
 	Reasons []string
 }
 
-func (e ChangePassword) Error() string {
-	return "change password error: " + strings.Join(e.Reasons, "; ")
+func (e SetPassword) Error() string {
+	return "set password error: " + strings.Join(e.Reasons, "; ")
 }
 
 type AllowedFieldsUpdate struct {

@@ -82,7 +82,7 @@ func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAll
 	// userRetrieveResponse.user.Id =              request.User.Id
 	userRetrieveResponse.User.Name = request.User.Name
 	userRetrieveResponse.User.Surname = request.User.Surname
-	//userRetrieveResponse.User.Username = request.User.Username
+	userRetrieveResponse.User.Username = request.User.Username
 	//userRetrieveResponse.User.EmailAddress = request.User.EmailAddress
 	//userRetrieveResponse.User.Password = request.User.Password
 	//userRetrieveResponse.User.Roles = request.User.Roles
@@ -204,7 +204,7 @@ func (a *administrator) Create(request *userAdministrator.CreateRequest) (*userA
 	return &userAdministrator.CreateResponse{User: createResponse.User}, nil
 }
 
-func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator.ChangePasswordRequest) error {
+func (a *administrator) ValidateSetPasswordRequest(request *userAdministrator.SetPasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -225,8 +225,8 @@ func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator
 	return nil
 }
 
-func (a *administrator) ChangePassword(request *userAdministrator.ChangePasswordRequest) (*userAdministrator.ChangePasswordResponse, error) {
-	if err := a.ValidateChangePasswordRequest(request); err != nil {
+func (a *administrator) SetPassword(request *userAdministrator.SetPasswordRequest) (*userAdministrator.SetPasswordResponse, error) {
+	if err := a.ValidateSetPasswordRequest(request); err != nil {
 		return nil, err
 	}
 
@@ -236,13 +236,13 @@ func (a *administrator) ChangePassword(request *userAdministrator.ChangePassword
 		Identifier: request.Identifier,
 	})
 	if err != nil {
-		return nil, userAdministratorException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, userAdministratorException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	// update user
@@ -254,10 +254,10 @@ func (a *administrator) ChangePassword(request *userAdministrator.ChangePassword
 		User:       retrieveUserResponse.User,
 	})
 	if err != nil {
-		return nil, userAdministratorException.ChangePassword{Reasons: []string{"update user", err.Error()}}
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
 	}
 
-	return &userAdministrator.ChangePasswordResponse{
+	return &userAdministrator.SetPasswordResponse{
 		User: updateUserResponse.User,
 	}, nil
 }

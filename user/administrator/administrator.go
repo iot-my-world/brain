@@ -10,7 +10,7 @@ type Administrator interface {
 	GetMyUser(request *GetMyUserRequest) (*GetMyUserResponse, error)
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
 	Create(request *CreateRequest) (*CreateResponse, error)
-	ChangePassword(request *ChangePasswordRequest) (*ChangePasswordResponse, error)
+	SetPassword(request *SetPasswordRequest) (*SetPasswordResponse, error)
 }
 
 type UpdateAllowedFieldsRequest struct {
@@ -39,12 +39,12 @@ type CreateResponse struct {
 	User user.User
 }
 
-type ChangePasswordRequest struct {
+type SetPasswordRequest struct {
 	Claims      claims.Claims
 	Identifier  identifier.Identifier
 	NewPassword string
 }
 
-type ChangePasswordResponse struct {
+type SetPasswordResponse struct {
 	User user.User
 }
