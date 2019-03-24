@@ -192,5 +192,7 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 		}
 	}
 
-	return &clientValidator.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
+	return &clientValidator.ValidateResponse{
+		ReasonsInvalid: returnedReasonsInvalid,
+	}, nil
 }
