@@ -11,6 +11,7 @@ type Administrator interface {
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
 	Create(request *CreateRequest) (*CreateResponse, error)
 	SetPassword(request *SetPasswordRequest) (*SetPasswordResponse, error)
+	UpdatePassword(request *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
 }
 
 type UpdateAllowedFieldsRequest struct {
@@ -46,5 +47,16 @@ type SetPasswordRequest struct {
 }
 
 type SetPasswordResponse struct {
+	User user.User
+}
+
+type UpdatePasswordRequest struct {
+	Claims           claims.Claims
+	Identifier       identifier.Identifier
+	ExistingPassword string
+	NewPassword      string
+}
+
+type UpdatePasswordResponse struct {
 	User user.User
 }

@@ -14,6 +14,7 @@ const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"
 const UserAdministratorGetMyUser Permission = "UserAdministrator.GetMyUser"
 const UserAdministratorCreate Permission = "UserAdministrator.Create"
 const UserAdministratorUpdateAllowedFields Permission = "UserAdministrator.UpdateAllowedFields"
+const UserAdministratorUpdatePassword Permission = "UserAdministrator.UpdatePassword"
 
 const UserValidatorValidate Permission = "UserValidator.Validate"
 

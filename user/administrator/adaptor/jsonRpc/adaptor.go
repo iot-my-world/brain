@@ -2,6 +2,7 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/user"
 	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
@@ -97,6 +98,43 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 	}
 
 	response.User = createResponse.User
+
+	return nil
+}
+
+type UpdatePasswordRequest struct {
+	Identifier       wrappedIdentifier.Wrapped
+	ExistingPassword string
+	NewPassword      string
+}
+
+type UpdatePasswordResponse struct {
+	User user.User
+}
+
+func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest, response *UpdatePasswordResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	id, err := request.Identifier.UnWrap()
+	if err != nil {
+		return err
+	}
+
+	updatePasswordResponse, err := a.userAdministrator.UpdatePassword(&userAdministrator.UpdatePasswordRequest{
+		Claims:           claims,
+		Identifier:       id,
+		ExistingPassword: request.ExistingPassword,
+		NewPassword:      request.NewPassword,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.User = updatePasswordResponse.User
 
 	return nil
 }
