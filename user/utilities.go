@@ -31,8 +31,6 @@ func ContextualiseFilter(filter bson.M, claimsToAdd claims.Claims) bson.M {
 			{"$or": []bson.M{
 				// users from their own party
 				{"partyId.id": bson.M{"$eq": claimsToAdd.PartyDetails().PartyId.Id}},
-				// OR users who they are the parent party of
-				{"parentId.id": bson.M{"$eq": claimsToAdd.PartyDetails().PartyId.Id}},
 			}},
 		}}
 	}
