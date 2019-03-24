@@ -64,3 +64,44 @@ func (a *administrator) Create(request *readingAdministrator.CreateRequest) (*re
 		Reading: createResponse.Reading,
 	}, nil
 }
+
+func (a *administrator) ValidateCreateBulkRequest(request *readingAdministrator.CreateBulkRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	for readingIdx := range request.Readings {
+		validateReadingResponse, err := a.readingValidator.Validate(&readingValidator.ValidateRequest{
+			Reading: request.Readings[readingIdx],
+			Action:  readingAction.Create,
+		})
+		if err != nil {
+			reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
+		}
+		if len(validateReadingResponse.ReasonsInvalid) > 0 {
+			for _, reason := range validateReadingResponse.ReasonsInvalid {
+				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("reading invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+			}
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) CreateBulk(request *readingAdministrator.CreateBulkRequest) (*readingAdministrator.CreateBulkResponse, error) {
+	if err := a.ValidateCreateBulkRequest(request); err != nil {
+		return nil, err
+	}
+
+	createBulkResponse, err := a.readingRecordHandler.CreateBulk(&readingRecordHandler.CreateBulkRequest{
+		Readings: request.Readings,
+	})
+	if err != nil {
+		return nil, readingAdministratorException.BulkReadingCreation{Reason: err.Error()}
+	}
+
+	return &readingAdministrator.CreateBulkResponse{
+		Readings: createBulkResponse.Readings,
+	}, nil
+}

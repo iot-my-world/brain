@@ -37,3 +37,25 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 
 	return nil
 }
+
+type CreateBulkRequest struct {
+	Readings []reading.Reading `json:"readings"`
+}
+
+type CreateBulkResponse struct {
+	Readings []reading.Reading `json:"readings"`
+}
+
+func (a *Adaptor) CreateBulk(r *http.Request, request *CreateBulkRequest, response *CreateBulkResponse) error {
+
+	createResponse, err := a.administrator.CreateBulk(&readingAdministrator.CreateBulkRequest{
+		Readings: request.Readings,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.Readings = createResponse.Readings
+
+	return nil
+}

@@ -49,6 +49,7 @@ var initialRoles = func() []role.Role {
 
 		// Reading
 		api.ReadingAdministratorCreate,
+		api.ReadingAdministratorCreateBulk,
 	}
 
 	// The view permissions that root has

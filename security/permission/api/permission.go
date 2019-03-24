@@ -68,6 +68,7 @@ const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Crea
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
 
 const ReadingAdministratorCreate Permission = "ReadingAdministrator.Create"
+const ReadingAdministratorCreateBulk Permission = "ReadingAdministrator.CreateBulk"
 
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"
