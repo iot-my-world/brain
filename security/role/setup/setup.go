@@ -104,6 +104,7 @@ var CompanyAdmin = role.Role{
 		api.UserAdministratorCreate,
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdatePassword,
+		api.UserAdministratorCheckPassword,
 
 		// Company
 		api.CompanyRecordHandlerCollect,
@@ -164,6 +165,7 @@ var CompanyUser = role.Role{
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
 		api.UserAdministratorUpdatePassword,
+		api.UserAdministratorCheckPassword,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,
@@ -184,6 +186,7 @@ var ClientAdmin = role.Role{
 		api.UserAdministratorCreate,
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdatePassword,
+		api.UserAdministratorCheckPassword,
 
 		// system
 		api.SystemRecordHandlerCollect,
@@ -239,6 +242,7 @@ var ClientUser = role.Role{
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
 		api.UserAdministratorUpdatePassword,
+		api.UserAdministratorCheckPassword,
 	},
 	ViewPermissions: []view.Permission{
 		view.Dashboards,

@@ -2,7 +2,6 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"gitlab.com/iotTracker/brain/user"
 	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
@@ -103,13 +102,12 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 }
 
 type UpdatePasswordRequest struct {
-	Identifier       wrappedIdentifier.Wrapped
-	ExistingPassword string
-	NewPassword      string
+	ExistingPassword string `json:"existingPassword"`
+	NewPassword      string `json:"newPassword"`
 }
 
 type UpdatePasswordResponse struct {
-	User user.User
+	User user.User `json:"user"`
 }
 
 func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest, response *UpdatePasswordResponse) error {
@@ -119,14 +117,8 @@ func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest
 		return err
 	}
 
-	id, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	updatePasswordResponse, err := a.userAdministrator.UpdatePassword(&userAdministrator.UpdatePasswordRequest{
 		Claims:           claims,
-		Identifier:       id,
 		ExistingPassword: request.ExistingPassword,
 		NewPassword:      request.NewPassword,
 	})
@@ -135,6 +127,34 @@ func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest
 	}
 
 	response.User = updatePasswordResponse.User
+
+	return nil
+}
+
+type CheckPasswordRequest struct {
+	Password string `json:"password"`
+}
+
+type CheckPasswordResponse struct {
+	Result bool `json:"result"`
+}
+
+func (a *adaptor) CheckPassword(r *http.Request, request *CheckPasswordRequest, response *CheckPasswordResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	checkPasswordResponse, err := a.userAdministrator.CheckPassword(&userAdministrator.CheckPasswordRequest{
+		Claims:   claims,
+		Password: request.Password,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.Result = checkPasswordResponse.Result
 
 	return nil
 }

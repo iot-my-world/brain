@@ -41,3 +41,19 @@ type AllowedFieldsUpdate struct {
 func (e AllowedFieldsUpdate) Error() string {
 	return "allowed fields update error: " + strings.Join(e.Reasons, "; ")
 }
+
+type UpdatePassword struct {
+	Reasons []string
+}
+
+func (e UpdatePassword) Error() string {
+	return "update password error: " + strings.Join(e.Reasons, "; ")
+}
+
+type CheckPassword struct {
+	Reasons []string
+}
+
+func (e CheckPassword) Error() string {
+	return "check password error: " + strings.Join(e.Reasons, "; ")
+}
