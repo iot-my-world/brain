@@ -1123,7 +1123,7 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	}
 	// collect users with these admin email addresses
 	clientAdminUserCollectResponse, err := r.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
-		Claims: request.Claims,
+		Claims: *r.systemClaims,
 		Criteria: []criterion.Criterion{
 			listText.Criterion{
 				Field: "emailAddress",
