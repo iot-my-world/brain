@@ -354,7 +354,7 @@ func (v *validator) Validate(request *userValidator.ValidateRequest) (*userValid
 		}
 	}
 
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+	returnedReasonsInvalid := allReasonsInvalid
 
 	// Ignore reasons applicable to method if relevant
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
