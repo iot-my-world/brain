@@ -534,7 +534,8 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 
 	// retrieve the minimal client admin user
 	userRetrieveResponse, err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-		Claims: request.Claims,
+		// we use system claims as users can typically only be retrieved by a user of the same party
+		Claims: *r.systemClaims,
 		Identifier: emailAddress.Identifier{
 			EmailAddress: clientRetrieveResponse.Client.AdminEmailAddress,
 		},

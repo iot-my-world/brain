@@ -62,10 +62,10 @@ func (w *Workbook) SheetAsSliceMap(sheetName string) ([]map[string]string, error
 	sheetSliceMap := make([]map[string]string, 0)
 	sheetHeaderRowIdx := w.SheetHeaderRowMap[sheetName]
 	rowsWithHeader, err := w.File.GetRows(sheetName)
-	rows := rowsWithHeader[sheetHeaderRowIdx+1:]
 	if err != nil {
 		return nil, err
 	}
+	rows := rowsWithHeader[sheetHeaderRowIdx+1:]
 	for rowIdx := range rows {
 		if err != nil {
 			return nil, err

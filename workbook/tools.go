@@ -23,7 +23,10 @@ func ColumnHeaderMap(xlsxFile *excelize.File, sheet string, topRowIdx int) (map[
 			}}
 	}
 	for colIdx, colCell := range rows[topRowIdx] {
-		columnHeaderMap[colCell], err = excelize.ColumnNumberToName(colIdx)
+		columnHeaderMap[colCell], err = excelize.ColumnNumberToName(colIdx + 1)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return columnHeaderMap, nil
