@@ -33,3 +33,11 @@ type ChangePassword struct {
 func (e ChangePassword) Error() string {
 	return "change password error: " + strings.Join(e.Reasons, "; ")
 }
+
+type AllowedFieldsUpdate struct {
+	Reasons []string
+}
+
+func (e AllowedFieldsUpdate) Error() string {
+	return "allowed fields update error: " + strings.Join(e.Reasons, "; ")
+}

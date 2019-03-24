@@ -4,6 +4,7 @@ import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/user"
@@ -67,7 +68,43 @@ func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAll
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
 		return nil, err
 	}
-	return nil, brainException.NotImplemented{}
+
+	// retrieve the user
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+	})
+	if err != nil {
+		return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+	}
+
+	// update allowed fields on the user
+	// userRetrieveResponse.user.Id =              request.User.Id
+	userRetrieveResponse.User.Name = request.User.Name
+	userRetrieveResponse.User.Surname = request.User.Surname
+	//userRetrieveResponse.User.Username = request.User.Username
+	//userRetrieveResponse.User.EmailAddress = request.User.EmailAddress
+	//userRetrieveResponse.User.Password = request.User.Password
+	//userRetrieveResponse.User.Roles = request.User.Roles
+	//userRetrieveResponse.User.ParentPartyType = request.User.ParentPartyType
+	//userRetrieveResponse.User.ParentId = request.User.ParentId
+	//userRetrieveResponse.User.PartyType = request.User.ParentPartyType
+	//userRetrieveResponse.User.PartyId = request.User.PartyId
+	//userRetrieveResponse.User.Registered = request.User.Registered
+
+	// update the user
+	userUpdateResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+		User:       userRetrieveResponse.User,
+	})
+	if err != nil {
+		return nil, userAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+	}
+
+	return &userAdministrator.UpdateAllowedFieldsResponse{
+		User: userUpdateResponse.User,
+	}, nil
 }
 
 func (a *administrator) ValidateGetMyUserRequest(request *userAdministrator.GetMyUserRequest) error {
