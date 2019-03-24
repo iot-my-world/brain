@@ -10,6 +10,7 @@ import (
 
 type RecordHandler interface {
 	Create(request *CreateRequest) (*CreateResponse, error)
+	CreateBulk(request *CreateBulkRequest) (*CreateBulkResponse, error)
 	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
 	Update(request *UpdateRequest) (*UpdateResponse, error)
 	Collect(request *CollectRequest) (*CollectResponse, error)
@@ -21,6 +22,14 @@ type CreateRequest struct {
 
 type CreateResponse struct {
 	Reading reading.Reading
+}
+
+type CreateBulkRequest struct {
+	Readings []reading.Reading
+}
+
+type CreateBulkResponse struct {
+	Readings []reading.Reading
 }
 
 type RetrieveRequest struct {

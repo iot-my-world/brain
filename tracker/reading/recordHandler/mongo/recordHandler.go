@@ -84,6 +84,51 @@ func (r *recordHandler) Create(request *readingRecordHandler.CreateRequest) (*re
 	return &readingRecordHandler.CreateResponse{Reading: request.Reading}, nil
 }
 
+func (r *recordHandler) ValidateCreateBulkRequest(request *readingRecordHandler.CreateBulkRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+
+	return nil
+}
+
+func (r *recordHandler) CreateBulk(request *readingRecordHandler.CreateBulkRequest) (*readingRecordHandler.CreateBulkResponse, error) {
+	if err := r.ValidateCreateBulkRequest(request); err != nil {
+		return nil, err
+	}
+
+	mgoSession := r.mongoSession.Copy()
+	defer mgoSession.Close()
+
+	readingCollection := mgoSession.DB(r.database).C(r.collection)
+	readingBulkOperation := readingCollection.Bulk()
+
+	// docs interface to hold readings
+	var readings []interface{}
+
+	// generate uuid for all readings
+	for readingIdx := range request.Readings {
+		newID, err := uuid.NewV4()
+		if err != nil {
+			return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		}
+		request.Readings[readingIdx].Id = newID.String()
+		readings = append(readings, request.Readings[readingIdx])
+	}
+
+	// queue insert operations
+	readingBulkOperation.Insert(readings...)
+	if _, err := readingBulkOperation.Run(); err != nil {
+		return nil, readingRecordHandlerException.CreateBulk{Reason: err.Error()}
+	}
+
+	return &readingRecordHandler.CreateBulkResponse{
+		Readings: request.Readings,
+	}, nil
+}
+
 func (r *recordHandler) ValidateRetrieveRequest(request *readingRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
