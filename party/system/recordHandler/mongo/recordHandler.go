@@ -293,9 +293,10 @@ func (r *recordHandler) Validate(request *systemRecordHandler.ValidateRequest) (
 		})
 	}
 
+	// Make list of reasons invalid to return
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
-	// Perform additional checks/ignores considering method field
+	// Add all reasons that cannot be ignored for the given action
 	switch request.Method {
 	case systemRecordHandler.Create:
 		// Ignore reasons not applicable for this method

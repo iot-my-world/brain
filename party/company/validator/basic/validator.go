@@ -60,9 +60,9 @@ func (v *validator) ValidateValidateRequest(request *companyValidator.ValidateRe
 	return nil
 }
 
-func (v *validator) Validate(request *companyValidator.ValidateRequest, response *companyValidator.ValidateResponse) error {
+func (v *validator) Validate(request *companyValidator.ValidateRequest) (*companyValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
-		return err
+		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
@@ -187,9 +187,10 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 		}
 	}
 
-	returnedReasonsInvalid := allReasonsInvalid
+	// Make list of reasons invalid to return
+	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
-	// Ignore reasons applicable to method if relevant
+	// Add all reasons that cannot be ignored for the given action
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
 			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {
@@ -198,6 +199,7 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest, response
 		}
 	}
 
-	response.ReasonsInvalid = returnedReasonsInvalid
-	return nil
+	return &companyValidator.ValidateResponse{
+		ReasonsInvalid: returnedReasonsInvalid,
+	}, nil
 }

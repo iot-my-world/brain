@@ -57,12 +57,12 @@ func (a *administrator) ValidateCreateRequest(request *companyAdministrator.Crea
 		}
 
 		// company must be valid
-		validationResponse := companyValidator.ValidateResponse{}
-		if err := a.companyValidator.Validate(&companyValidator.ValidateRequest{
+		validationResponse, err := a.companyValidator.Validate(&companyValidator.ValidateRequest{
 			Claims:  request.Claims,
 			Company: request.Company,
 			Action:  companyAction.Create,
-		}, &validationResponse); err != nil {
+		})
+		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating company: "+err.Error())
 		}
 		if len(validationResponse.ReasonsInvalid) > 0 {
