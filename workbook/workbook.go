@@ -61,11 +61,19 @@ func (w *Workbook) SheetAsSliceMap(sheetName string) ([]map[string]string, error
 
 	sheetSliceMap := make([]map[string]string, 0)
 	sheetHeaderRowIdx := w.SheetHeaderRowMap[sheetName]
-	for rowIdx := range w.File.GetRows(sheetName)[sheetHeaderRowIdx+1:] {
+	rowsWithHeader, err := w.File.GetRows(sheetName)
+	if err != nil {
+		return nil, err
+	}
+	rows := rowsWithHeader[sheetHeaderRowIdx+1:]
+	for rowIdx := range rows {
+		if err != nil {
+			return nil, err
+		}
 		rowMap := make(map[string]string)
 		for header, column := range w.SheetHeaderMaps[sheetName] {
 			cellRef := fmt.Sprintf("%s%d", column, rowIdx+sheetHeaderRowIdx+2)
-			rowMap[header] = w.File.GetCellValue(sheetName, cellRef)
+			rowMap[header], err = w.File.GetCellValue(sheetName, cellRef)
 		}
 		sheetSliceMap = append(sheetSliceMap, rowMap)
 	}

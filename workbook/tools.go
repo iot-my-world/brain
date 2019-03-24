@@ -11,7 +11,10 @@ import (
 */
 func ColumnHeaderMap(xlsxFile *excelize.File, sheet string, topRowIdx int) (map[string]string, error) {
 	columnHeaderMap := make(map[string]string)
-	rows := xlsxFile.GetRows(sheet)
+	rows, err := xlsxFile.GetRows(sheet)
+	if err != nil {
+		return nil, err
+	}
 	if len(rows)-1 < topRowIdx {
 		return nil, workbookException.NotEnoughRowsInSheet{
 			Reasons: []string{
@@ -20,7 +23,10 @@ func ColumnHeaderMap(xlsxFile *excelize.File, sheet string, topRowIdx int) (map[
 			}}
 	}
 	for colIdx, colCell := range rows[topRowIdx] {
-		columnHeaderMap[colCell] = excelize.ToAlphaString(colIdx)
+		columnHeaderMap[colCell], err = excelize.ColumnNumberToName(colIdx + 1)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return columnHeaderMap, nil
