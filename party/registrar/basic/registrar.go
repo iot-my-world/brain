@@ -91,7 +91,7 @@ func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSyst
 		return nil, err
 	}
 
-	_, err = r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+	_, err = r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: userCreateResponse.User.Id},
 		NewPassword: string(request.User.Password),
@@ -295,7 +295,7 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
@@ -488,7 +488,7 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
@@ -693,7 +693,7 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
@@ -888,7 +888,7 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.ChangePassword(&userAdministrator.ChangePasswordRequest{
+	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),

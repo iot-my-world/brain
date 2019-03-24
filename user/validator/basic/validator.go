@@ -352,9 +352,44 @@ func (v *validator) Validate(request *userValidator.ValidateRequest) (*userValid
 				})
 			}
 		}
+
+	case userAction.UpdateAllowedFields:
+		// username update is allowed, this is to confirm that the username has not been used yet
+		// or that it has not changed
+		if (*userToValidate).Username != "" {
+			if userRetrieveResponse, err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				// we use system claims to make sure that all users are visible for this check
+				Claims: *v.systemClaims,
+				Identifier: username.Identifier{
+					Username: (*userToValidate).Username,
+				},
+			}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Unknown,
+						Help:  "retrieve failed",
+						Data:  (*userToValidate).Username,
+					})
+				}
+			} else {
+				// there was no error, confirm that the username belongs to this user being validated
+				if (*userToValidate).Id != userRetrieveResponse.User.Id {
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "username",
+						Type:  reasonInvalid.Duplicate,
+						Help:  "already exists",
+						Data:  (*userToValidate).Username,
+					})
+				}
+			}
+		}
 	}
 
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
+	returnedReasonsInvalid := allReasonsInvalid
 
 	// Ignore reasons applicable to method if relevant
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {

@@ -100,3 +100,61 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 
 	return nil
 }
+
+type UpdatePasswordRequest struct {
+	ExistingPassword string `json:"existingPassword"`
+	NewPassword      string `json:"newPassword"`
+}
+
+type UpdatePasswordResponse struct {
+	User user.User `json:"user"`
+}
+
+func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest, response *UpdatePasswordResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	updatePasswordResponse, err := a.userAdministrator.UpdatePassword(&userAdministrator.UpdatePasswordRequest{
+		Claims:           claims,
+		ExistingPassword: request.ExistingPassword,
+		NewPassword:      request.NewPassword,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.User = updatePasswordResponse.User
+
+	return nil
+}
+
+type CheckPasswordRequest struct {
+	Password string `json:"password"`
+}
+
+type CheckPasswordResponse struct {
+	Result bool `json:"result"`
+}
+
+func (a *adaptor) CheckPassword(r *http.Request, request *CheckPasswordRequest, response *CheckPasswordResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	checkPasswordResponse, err := a.userAdministrator.CheckPassword(&userAdministrator.CheckPasswordRequest{
+		Claims:   claims,
+		Password: request.Password,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.Result = checkPasswordResponse.Result
+
+	return nil
+}

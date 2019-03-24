@@ -193,8 +193,9 @@ func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest) (*tk
 		}
 	}
 
+	returnedReasonsInvalid := allReasonsInvalid
+
 	// Ignore reasons applicable to method if relevant
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
 			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {

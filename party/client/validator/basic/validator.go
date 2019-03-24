@@ -180,8 +180,9 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 		}
 	}
 
+	returnedReasonsInvalid := allReasonsInvalid
+
 	// Ignore reasons applicable to method if relevant
-	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	if v.actionIgnoredReasons[request.Action].ReasonsInvalid != nil {
 		for _, reason := range allReasonsInvalid {
 			if !v.actionIgnoredReasons[request.Action].CanIgnore(reason) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/user"
@@ -67,7 +68,43 @@ func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAll
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
 		return nil, err
 	}
-	return nil, brainException.NotImplemented{}
+
+	// retrieve the user
+	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+	})
+	if err != nil {
+		return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+	}
+
+	// update allowed fields on the user
+	// userRetrieveResponse.user.Id =              request.User.Id
+	userRetrieveResponse.User.Name = request.User.Name
+	userRetrieveResponse.User.Surname = request.User.Surname
+	userRetrieveResponse.User.Username = request.User.Username
+	//userRetrieveResponse.User.EmailAddress = request.User.EmailAddress
+	//userRetrieveResponse.User.Password = request.User.Password
+	//userRetrieveResponse.User.Roles = request.User.Roles
+	//userRetrieveResponse.User.ParentPartyType = request.User.ParentPartyType
+	//userRetrieveResponse.User.ParentId = request.User.ParentId
+	//userRetrieveResponse.User.PartyType = request.User.ParentPartyType
+	//userRetrieveResponse.User.PartyId = request.User.PartyId
+	//userRetrieveResponse.User.Registered = request.User.Registered
+
+	// update the user
+	userUpdateResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: request.User.Id},
+		User:       userRetrieveResponse.User,
+	})
+	if err != nil {
+		return nil, userAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+	}
+
+	return &userAdministrator.UpdateAllowedFieldsResponse{
+		User: userUpdateResponse.User,
+	}, nil
 }
 
 func (a *administrator) ValidateGetMyUserRequest(request *userAdministrator.GetMyUserRequest) error {
@@ -167,7 +204,7 @@ func (a *administrator) Create(request *userAdministrator.CreateRequest) (*userA
 	return &userAdministrator.CreateResponse{User: createResponse.User}, nil
 }
 
-func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator.ChangePasswordRequest) error {
+func (a *administrator) ValidateSetPasswordRequest(request *userAdministrator.SetPasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -178,7 +215,9 @@ func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator
 		reasonsInvalid = append(reasonsInvalid, "password blank")
 	}
 
-	if !user.IsValidIdentifier(request.Identifier) {
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "user identifier is nil")
+	} else if !user.IsValidIdentifier(request.Identifier) {
 		reasonsInvalid = append(reasonsInvalid, "invalid user identifier")
 	}
 
@@ -188,8 +227,8 @@ func (a *administrator) ValidateChangePasswordRequest(request *userAdministrator
 	return nil
 }
 
-func (a *administrator) ChangePassword(request *userAdministrator.ChangePasswordRequest) (*userAdministrator.ChangePasswordResponse, error) {
-	if err := a.ValidateChangePasswordRequest(request); err != nil {
+func (a *administrator) SetPassword(request *userAdministrator.SetPasswordRequest) (*userAdministrator.SetPasswordResponse, error) {
+	if err := a.ValidateSetPasswordRequest(request); err != nil {
 		return nil, err
 	}
 
@@ -199,13 +238,13 @@ func (a *administrator) ChangePassword(request *userAdministrator.ChangePassword
 		Identifier: request.Identifier,
 	})
 	if err != nil {
-		return nil, userAdministratorException.ChangePassword{Reasons: []string{"retrieving record", err.Error()}}
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, userAdministratorException.ChangePassword{Reasons: []string{"hashing password", err.Error()}}
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	// update user
@@ -217,10 +256,139 @@ func (a *administrator) ChangePassword(request *userAdministrator.ChangePassword
 		User:       retrieveUserResponse.User,
 	})
 	if err != nil {
-		return nil, userAdministratorException.ChangePassword{Reasons: []string{"update user", err.Error()}}
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
 	}
 
-	return &userAdministrator.ChangePasswordResponse{
+	return &userAdministrator.SetPasswordResponse{
 		User: updateUserResponse.User,
+	}, nil
+}
+
+func (a *administrator) ValidateUpdatePasswordRequest(request *userAdministrator.UpdatePasswordRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// claims must be login claims to be able to get user
+		if request.Claims.Type() != claims.Login {
+			reasonsInvalid = append(reasonsInvalid, "claims must be of type login")
+		}
+	}
+
+	if request.ExistingPassword == "" {
+		reasonsInvalid = append(reasonsInvalid, "existing password blank")
+	}
+
+	if request.NewPassword == "" {
+		reasonsInvalid = append(reasonsInvalid, "new password blank")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) UpdatePassword(request *userAdministrator.UpdatePasswordRequest) (*userAdministrator.UpdatePasswordResponse, error) {
+	if err := a.ValidateUpdatePasswordRequest(request); err != nil {
+		return nil, err
+	}
+
+	// user identifier taken from claims as you can only update your own password
+	loginClaims, ok := request.Claims.(login.Login)
+	if !ok {
+		return nil, brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
+	}
+
+	// Retrieve User
+	retrieveUserResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: loginClaims.UserId,
+	})
+	if err != nil {
+		return nil, userAdministratorException.UpdatePassword{Reasons: []string{"retrieving user record", err.Error()}}
+	}
+
+	//User record retrieved successfully, check given old password
+	if err := bcrypt.CompareHashAndPassword(retrieveUserResponse.User.Password, []byte(request.ExistingPassword)); err != nil {
+		//Password Incorrect
+		return nil, userAdministratorException.UpdatePassword{Reasons: []string{"given existing password incorrect"}}
+	}
+
+	// Hash the new Password
+	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, userAdministratorException.UpdatePassword{Reasons: []string{"hashing password", err.Error()}}
+	}
+
+	// update user
+	retrieveUserResponse.User.Password = pwdHash
+
+	updateUserResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: loginClaims.UserId,
+		User:       retrieveUserResponse.User,
+	})
+	if err != nil {
+		return nil, userAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+	}
+
+	return &userAdministrator.UpdatePasswordResponse{
+		User: updateUserResponse.User,
+	}, nil
+}
+
+func (a *administrator) ValidateCheckPasswordRequest(request *userAdministrator.CheckPasswordRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else {
+		// claims must be login claims to be able to get user
+		if request.Claims.Type() != claims.Login {
+			reasonsInvalid = append(reasonsInvalid, "claims must be of type login")
+		}
+	}
+
+	if request.Password == "" {
+		reasonsInvalid = append(reasonsInvalid, "password blank")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) CheckPassword(request *userAdministrator.CheckPasswordRequest) (*userAdministrator.CheckPasswordResponse, error) {
+	if err := a.ValidateCheckPasswordRequest(request); err != nil {
+		return nil, err
+	}
+
+	// user identifier taken from claims as you can only update your own password
+	loginClaims, ok := request.Claims.(login.Login)
+	if !ok {
+		return nil, brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
+	}
+
+	// Retrieve User
+	retrieveUserResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: loginClaims.UserId,
+	})
+	if err != nil {
+		return nil, userAdministratorException.CheckPassword{Reasons: []string{"retrieving user record", err.Error()}}
+	}
+
+	result := true
+	//User record retrieved successfully, check given old password
+	if err := bcrypt.CompareHashAndPassword(retrieveUserResponse.User.Password, []byte(request.Password)); err != nil {
+		//Password Incorrect
+		result = false
+	}
+
+	return &userAdministrator.CheckPasswordResponse{
+		Result: result,
 	}, nil
 }
