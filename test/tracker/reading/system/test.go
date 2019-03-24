@@ -14,7 +14,7 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/device"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/tracker/reading"
-	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
+	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"math/rand"
 	"os"
@@ -120,11 +120,11 @@ func (suite *System) TestSystemReadingCreation() {
 
 			// try and create the new reading
 			if err := suite.jsonRpcClient.JsonRpcRequest(
-				"ReadingRecordHandler.Create",
-				readingRecordHandlerJsonRpcAdaptor.CreateRequest{
+				"ReadingAdministrator.Create",
+				readingAdministratorJsonRpcAdaptor.CreateRequest{
 					Reading: newReading,
 				},
-				&readingRecordHandlerJsonRpcAdaptor.CreateResponse{},
+				&readingAdministratorJsonRpcAdaptor.CreateResponse{},
 			); err != nil {
 				suite.FailNow("creating reading failed", err.Error())
 			}

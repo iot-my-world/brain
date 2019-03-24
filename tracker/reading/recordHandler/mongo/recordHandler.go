@@ -10,7 +10,6 @@ import (
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	readingRecordHandlerException "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/exception"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
 
@@ -55,23 +54,6 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 
 func (r *recordHandler) ValidateCreateRequest(request *readingRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
-
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	} else {
-		readingValidateResponse, err := r.Validate(&readingRecordHandler.ValidateRequest{
-			Claims:  request.Claims,
-			Reading: request.Reading,
-		})
-		if err != nil {
-			reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
-		}
-		if len(readingValidateResponse.ReasonsInvalid) > 0 {
-			for _, reason := range readingValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid reading: %s - %s - %s", reason.Field, reason.Type, reason.Help))
-			}
-		}
-	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
@@ -219,19 +201,6 @@ func (r *recordHandler) ValidateUpdateRequest(request *readingRecordHandler.Upda
 		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for reading", request.Identifier.Type()))
 	}
 
-	readingValidateResponse, err := r.Validate(&readingRecordHandler.ValidateRequest{
-		Claims:  request.Claims,
-		Reading: request.Reading,
-	})
-	if err != nil {
-		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())
-	}
-	if len(readingValidateResponse.ReasonsInvalid) > 0 {
-		for _, reason := range readingValidateResponse.ReasonsInvalid {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("invalid reading: %s - %s - %s", reason.Field, reason.Type, reason.Help))
-		}
-	}
-
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
 	}
@@ -277,26 +246,4 @@ func (r *recordHandler) Update(request *readingRecordHandler.UpdateRequest) (*re
 	}
 
 	return &readingRecordHandler.UpdateResponse{Reading: retrieveReadingResponse.Reading}, nil
-}
-
-func (r *recordHandler) ValidateValidateRequest(request *readingRecordHandler.ValidateRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	}
-
-	return nil
-}
-
-func (r *recordHandler) Validate(request *readingRecordHandler.ValidateRequest) (*readingRecordHandler.ValidateResponse, error) {
-	if err := r.ValidateValidateRequest(request); err != nil {
-		return nil, err
-	}
-
-	reasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-
-	return &readingRecordHandler.ValidateResponse{
-		ReasonsInvalid: reasonsInvalid,
-	}, nil
 }

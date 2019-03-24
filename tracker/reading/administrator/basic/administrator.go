@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	readingAction "gitlab.com/iotTracker/brain/tracker/reading/action"
 	readingAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator"
 	readingAdministratorException "gitlab.com/iotTracker/brain/tracker/reading/administrator/exception"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
@@ -29,6 +30,7 @@ func (a *administrator) ValidateCreateRequest(request *readingAdministrator.Crea
 
 	validateReadingResponse, err := a.readingValidator.Validate(&readingValidator.ValidateRequest{
 		Reading: request.Reading,
+		Action:  readingAction.Create,
 	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "error validating reading: "+err.Error())

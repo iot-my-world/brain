@@ -15,6 +15,7 @@ import (
 	tk1022 "gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	"gitlab.com/iotTracker/brain/tracker/reading"
+	readingAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"net"
 	"strconv"
@@ -25,6 +26,7 @@ import (
 // TK102Server is a TK102 Tracking Device tcp/id unix socket server
 type TK102Server struct {
 	readingRecordHandler readingRecordHandler.RecordHandler
+	readingAdministrator readingAdministrator.Administrator
 	tk102RecordHandler   tk102RecordHandler.RecordHandler
 	systemClaims         *login.Login
 	ip                   string
@@ -246,8 +248,7 @@ func (ts *TK102Server) handleConnection(c net.Conn) {
 			newReading.AssignedId = tk102Device.AssignedId
 
 			// create the reading
-			createReadingResponse, err := ts.readingRecordHandler.Create(&readingRecordHandler.CreateRequest{
-				Claims:  *ts.systemClaims,
+			createReadingResponse, err := ts.readingAdministrator.Create(&readingAdministrator.CreateRequest{
 				Reading: *newReading,
 			})
 			if err != nil {

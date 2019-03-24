@@ -49,8 +49,11 @@ import (
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
 	tk102DeviceServer "gitlab.com/iotTracker/brain/tracker/device/tk102/server"
+	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
+	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator/basic"
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
 	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
+	readingBasicValidator "gitlab.com/iotTracker/brain/tracker/reading/validator/basic"
 
 	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
 	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
@@ -233,6 +236,11 @@ func main() {
 		databaseName,
 		readingCollection,
 	)
+	ReadingValidator := readingBasicValidator.New()
+	ReadingAdministrator := readingBasicAdministrator.New(
+		ReadingRecordHandler,
+		ReadingValidator,
+	)
 
 	// Party
 	PartyBasicAdministrator := partyBasicAdministrator.New(
@@ -302,6 +310,7 @@ func main() {
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
+	ReadingAdministratorAdaptor := readingAdministratorJsonRpcAdaptor.New(ReadingAdministrator)
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -385,6 +394,9 @@ func main() {
 	// Reading
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(ReadingAdministratorAdaptor, "ReadingAdministrator"); err != nil {
+		log.Fatal("Unable to Register Reading Administrator Service")
 	}
 
 	// Reports
