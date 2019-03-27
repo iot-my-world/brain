@@ -1,4 +1,4 @@
-package wrappedClaims
+package wrapped
 
 import (
 	"encoding/json"
@@ -9,31 +9,31 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
-	wrappedClaimsException "gitlab.com/iotTracker/brain/security/wrappedClaims/exception"
+	wrappedClaimsException "gitlab.com/iotTracker/brain/security/claims/wrapped/exception"
 	"net/http"
 )
 
-type WrappedClaims struct {
+type Wrapped struct {
 	Type  claims.Type     `json:"type"`
 	Value json.RawMessage `json:"value"`
 }
 
-func Wrap(claimsToWrap claims.Claims) (WrappedClaims, error) {
+func Wrap(claimsToWrap claims.Claims) (Wrapped, error) {
 	if claimsToWrap == nil {
-		return WrappedClaims{}, wrappedClaimsException.Invalid{Reasons: []string{"nil claimsToWrap provided"}}
+		return Wrapped{}, wrappedClaimsException.Invalid{Reasons: []string{"nil claimsToWrap provided"}}
 	}
 
 	marshalledValue, err := json.Marshal(claimsToWrap)
 	if err != nil {
-		return WrappedClaims{}, wrappedClaimsException.Wrapping{Reasons: []string{"marshalling", err.Error()}}
+		return Wrapped{}, wrappedClaimsException.Wrapping{Reasons: []string{"marshalling", err.Error()}}
 	}
-	return WrappedClaims{
+	return Wrapped{
 		Type:  claimsToWrap.Type(),
 		Value: marshalledValue,
 	}, nil
 }
 
-func (wc WrappedClaims) Unwrap() (claims.Claims, error) {
+func (wc Wrapped) Unwrap() (claims.Claims, error) {
 	var result claims.Claims = nil
 
 	switch wc.Type {
@@ -89,7 +89,7 @@ func (wc WrappedClaims) Unwrap() (claims.Claims, error) {
 }
 
 func UnwrapClaimsFromContext(r *http.Request) (claims.Claims, error) {
-	wrapped, ok := r.Context().Value("wrappedClaims").(WrappedClaims)
+	wrapped, ok := r.Context().Value("wrappedClaims").(Wrapped)
 	if !ok {
 		return nil, wrappedClaimsException.CouldNotParseFromContext{}
 	}

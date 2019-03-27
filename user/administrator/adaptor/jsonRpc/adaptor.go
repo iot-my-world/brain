@@ -2,7 +2,7 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/user"
 	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
 	"net/http"
@@ -155,6 +155,24 @@ func (a *adaptor) CheckPassword(r *http.Request, request *CheckPasswordRequest, 
 	}
 
 	response.Result = checkPasswordResponse.Result
+
+	return nil
+}
+
+type ForgotPasswordRequest struct {
+	UsernameOrEmailAddress string `json:"usernameOrEmailAddress"`
+}
+
+type ForgotPasswordResponse struct {
+}
+
+func (a *adaptor) ForgotPassword(r *http.Request, request *ForgotPasswordRequest, response *ForgotPasswordResponse) error {
+	_, err := a.userAdministrator.ForgotPassword(&userAdministrator.ForgotPasswordRequest{
+		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
+	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

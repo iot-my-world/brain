@@ -3,10 +3,10 @@ package jsonRpc
 import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 	"net/http"
 )
 

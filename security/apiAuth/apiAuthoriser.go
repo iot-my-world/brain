@@ -8,10 +8,10 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/token"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
 )
 
 type APIAuthorizer struct {
@@ -19,16 +19,16 @@ type APIAuthorizer struct {
 	PermissionHandler permissionAdministrator.Administrator
 }
 
-func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedClaims.WrappedClaims, error) {
+func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedClaims.Wrapped, error) {
 
 	// Validate the jwt
 	wrappedJWTClaims, err := a.JWTValidator.ValidateJWT(jwt)
 	if err != nil {
-		return wrappedClaims.WrappedClaims{}, err
+		return wrappedClaims.Wrapped{}, err
 	}
 	unwrappedJWTClaims, err := wrappedJWTClaims.Unwrap()
 	if err != nil {
-		return wrappedClaims.WrappedClaims{}, err
+		return wrappedClaims.Wrapped{}, err
 	}
 
 	switch typedClaims := unwrappedJWTClaims.(type) {
@@ -41,10 +41,10 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 			Permission:     api.Permission(jsonRpcMethod),
 		})
 		if err != nil {
-			return wrappedClaims.WrappedClaims{}, brainException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
+			return wrappedClaims.Wrapped{}, brainException.Unexpected{Reasons: []string{"determining if user has permission", err.Error()}}
 		}
 		if !userHasPermissionResponse.Result {
-			return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+			return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 		}
 		// user was authorised
 		return wrappedJWTClaims, nil
@@ -58,7 +58,7 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerCompanyAdminUser.GrantedAPIPermissions)-1 {
-				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}
 
@@ -71,7 +71,7 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerCompanyUser.GrantedAPIPermissions)-1 {
-				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}
 
@@ -84,7 +84,7 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerClientAdminUser.GrantedAPIPermissions)-1 {
-				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}
 
@@ -97,13 +97,13 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerClientUser.GrantedAPIPermissions)-1 {
-				return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}
 
 	default:
-		return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+		return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 	}
 
-	return wrappedClaims.WrappedClaims{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+	return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 }

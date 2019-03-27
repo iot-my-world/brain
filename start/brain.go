@@ -158,6 +158,10 @@ func main() {
 	UserBasicAdministrator := userBasicAdministrator.New(
 		UserRecordHandler,
 		UserValidator,
+		Mailer,
+		rsaPrivateKey,
+		*mailRedirectBaseUrl,
+		&systemClaims,
 	)
 
 	// Permission

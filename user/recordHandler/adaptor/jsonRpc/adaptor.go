@@ -6,7 +6,7 @@ import (
 	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/user"
 	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
 	"net/http"

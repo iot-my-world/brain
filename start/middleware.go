@@ -32,8 +32,8 @@ func apiAuthApplier(next http.Handler) http.Handler {
 		// Check if Authorization Header is present in request indicating that the user is logged in
 		if r.Header["Authorization"] == nil {
 			// Header not present, this is only allowed for a few jsonRpcServiceMethods
-			switch {
-			case jsonRpcServiceMethod == "Auth.Login":
+			switch jsonRpcServiceMethod {
+			case "Auth.Login", "UserAdministrator.ForgotPassword":
 				next.ServeHTTP(w, r)
 			default:
 				log.Info("Unauthorised Json RPC access! - No Authorisation header!")

@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/party/registrar"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/user"
 	"net/http"
 )

@@ -13,6 +13,7 @@ type Administrator interface {
 	SetPassword(request *SetPasswordRequest) (*SetPasswordResponse, error)
 	CheckPassword(request *CheckPasswordRequest) (*CheckPasswordResponse, error)
 	UpdatePassword(request *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
+	ForgotPassword(request *ForgotPasswordRequest) (*ForgotPasswordResponse, error)
 }
 
 type UpdateAllowedFieldsRequest struct {
@@ -68,4 +69,11 @@ type UpdatePasswordRequest struct {
 
 type UpdatePasswordResponse struct {
 	User user.User
+}
+
+type ForgotPasswordRequest struct {
+	UsernameOrEmailAddress string
+}
+
+type ForgotPasswordResponse struct {
 }

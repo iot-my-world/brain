@@ -1,33 +1,53 @@
 package basic
 
 import (
+	"crypto/rsa"
 	"fmt"
+	"gitlab.com/iotTracker/brain/email/mailer"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/security/claims/forgotPassword"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/user"
 	userAction "gitlab.com/iotTracker/brain/user/action"
 	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
 	userAdministratorException "gitlab.com/iotTracker/brain/user/administrator/exception"
 	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
 	userValidator "gitlab.com/iotTracker/brain/user/validator"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type administrator struct {
-	userRecordHandler userRecordHandler.RecordHandler
-	userValidator     userValidator.Validator
+	userRecordHandler   userRecordHandler.RecordHandler
+	userValidator       userValidator.Validator
+	mailer              mailer.Mailer
+	jwtGenerator        token.JWTGenerator
+	mailRedirectBaseUrl string
+	systemClaims        *login.Login
 }
 
 func New(
 	userRecordHandler userRecordHandler.RecordHandler,
 	userValidator userValidator.Validator,
+	mailer mailer.Mailer,
+	rsaPrivateKey *rsa.PrivateKey,
+	mailRedirectBaseUrl string,
+	systemClaims *login.Login,
 ) userAdministrator.Administrator {
 	return &administrator{
-		userRecordHandler: userRecordHandler,
-		userValidator:     userValidator,
+		userRecordHandler:   userRecordHandler,
+		userValidator:       userValidator,
+		mailer:              mailer,
+		jwtGenerator:        token.NewJWTGenerator(rsaPrivateKey),
+		mailRedirectBaseUrl: mailRedirectBaseUrl,
+		systemClaims:        systemClaims,
 	}
 }
 
@@ -391,4 +411,85 @@ func (a *administrator) CheckPassword(request *userAdministrator.CheckPasswordRe
 	return &userAdministrator.CheckPasswordResponse{
 		Result: result,
 	}, nil
+}
+
+func (a *administrator) ValidateForgotPasswordRequest(request *userAdministrator.ForgotPasswordRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.UsernameOrEmailAddress == "" {
+		reasonsInvalid = append(reasonsInvalid, "UsernameOrEmailAddress blank")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPasswordRequest) (*userAdministrator.ForgotPasswordResponse, error) {
+	if err := a.ValidateForgotPasswordRequest(request); err != nil {
+		return nil, err
+	}
+	var retrieveUserResponse *userRecordHandler.RetrieveResponse
+	var err error
+
+	//try and retrieve User record with username
+	retrieveUserResponse, err = a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		Claims:     *a.systemClaims,
+		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
+	})
+	switch err.(type) {
+	case nil:
+		// do nothing, this means that the user could be retrieved
+
+	case userRecordHandlerException.NotFound:
+		//try and retrieve User record with email address
+		retrieveUserResponse, err = a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     *a.systemClaims,
+			Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
+		})
+		switch err.(type) {
+		case nil:
+			// do nothing, this means that the user could be retrieved
+		case userRecordHandlerException.NotFound:
+			return nil, nil
+		default:
+			// some other retrieval error
+			return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		}
+	default:
+		// some other retrieval error
+		return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+	}
+
+	// User record retrieved successfully
+	// generate reset password token for the user
+	forgotPasswordToken, err := a.jwtGenerator.GenerateToken(forgotPassword.ForgotPassword{
+		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
+		IssueTime:       time.Now().UTC().Unix(),
+		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
+		ParentPartyType: retrieveUserResponse.User.ParentPartyType,
+		ParentId:        retrieveUserResponse.User.ParentId,
+		PartyType:       retrieveUserResponse.User.PartyType,
+		PartyId:         retrieveUserResponse.User.PartyId,
+	})
+	if err != nil {
+		return nil, userAdministratorException.TokenGeneration{Reasons: []string{"forgot password", err.Error()}}
+	}
+	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
+
+	sendMailResponse := mailer.SendResponse{}
+	if err := a.mailer.Send(&mailer.SendRequest{
+		//From    string
+		To: retrieveUserResponse.User.EmailAddress,
+		//Cc      string
+		Subject: "Password Reset",
+		Body:    fmt.Sprintf("Click the link to continue password reset. %s", urlToken),
+		//Bcc     []string
+	},
+		&sendMailResponse); err != nil {
+		return nil, err
+	}
+
+	return &userAdministrator.ForgotPasswordResponse{}, nil
 }
