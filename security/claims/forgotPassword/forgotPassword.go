@@ -40,4 +40,6 @@ func (r ForgotPassword) PartyDetails() party.Details {
 }
 
 // permissions granted by having a valid set of these claims
-var GrantedAPIPermissions = []api.Permission{}
+var GrantedAPIPermissions = []api.Permission{
+	api.UserAdministratorSetPassword,
+}

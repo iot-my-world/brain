@@ -3,6 +3,7 @@ package apiAuth
 import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
+	"gitlab.com/iotTracker/brain/security/claims/forgotPassword"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
@@ -97,6 +98,19 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 				return wrappedJWTClaims, nil
 			}
 			if allowedPermIdx == len(registerClientUser.GrantedAPIPermissions)-1 {
+				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
+			}
+		}
+
+	case forgotPassword.ForgotPassword:
+		permissionForMethod := api.Permission(jsonRpcMethod)
+		// check the permissions granted by the ForgotPassword claims to see if this
+		// method is allowed
+		for allowedPermIdx := range forgotPassword.GrantedAPIPermissions {
+			if forgotPassword.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
+				return wrappedJWTClaims, nil
+			}
+			if allowedPermIdx == len(forgotPassword.GrantedAPIPermissions)-1 {
 				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}
