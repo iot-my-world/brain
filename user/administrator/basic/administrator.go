@@ -464,7 +464,7 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 
 	// User record retrieved successfully
 	// generate reset password token for the user
-	_, err = a.jwtGenerator.GenerateToken(forgotPassword.ForgotPassword{
+	forgotPasswordToken, err := a.jwtGenerator.GenerateToken(forgotPassword.ForgotPassword{
 		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
@@ -476,20 +476,20 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 	if err != nil {
 		return nil, userAdministratorException.TokenGeneration{Reasons: []string{"forgot password", err.Error()}}
 	}
-	//urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
-	//
-	//sendMailResponse := mailer.SendResponse{}
-	//if err := a.mailer.Send(&mailer.SendRequest{
-	//	//From    string
-	//	To: retrieveUserResponse.User.EmailAddress,
-	//	//Cc      string
-	//	Subject: "Password Reset",
-	//	Body:    fmt.Sprintf("Click the link to continue password reset. %s", urlToken),
-	//	//Bcc     []string
-	//},
-	//	&sendMailResponse); err != nil {
-	//	return nil, err
-	//}
+	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
+
+	sendMailResponse := mailer.SendResponse{}
+	if err := a.mailer.Send(&mailer.SendRequest{
+		//From    string
+		To: retrieveUserResponse.User.EmailAddress,
+		//Cc      string
+		Subject: "Password Reset",
+		Body:    fmt.Sprintf("Click the link to continue password reset. %s", urlToken),
+		//Bcc     []string
+	},
+		&sendMailResponse); err != nil {
+		return nil, err
+	}
 
 	return &userAdministrator.ForgotPasswordResponse{}, nil
 }
