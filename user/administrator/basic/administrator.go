@@ -4,13 +4,14 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"gitlab.com/iotTracker/brain/email/mailer"
+	forgotPasswordEmail "gitlab.com/iotTracker/brain/email/template/forgotPassword"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/claims/forgotPassword"
+	forgotPasswordClaims "gitlab.com/iotTracker/brain/security/claims/forgotPassword"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gitlab.com/iotTracker/brain/user"
@@ -464,7 +465,7 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 
 	// User record retrieved successfully
 	// generate reset password token for the user
-	forgotPasswordToken, err := a.jwtGenerator.GenerateToken(forgotPassword.ForgotPassword{
+	forgotPasswordToken, err := a.jwtGenerator.GenerateToken(forgotPasswordClaims.ForgotPassword{
 		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
@@ -478,13 +479,23 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 	}
 	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
 
+	forgotPasswordEmailData := forgotPasswordEmail.Data{
+		URLToken: urlToken,
+		User:     retrieveUserResponse.User,
+	}
+
+	email, err := forgotPasswordEmail.GenerateEmail(forgotPasswordEmailData)
+	if err != nil {
+		return nil, err
+	}
+
 	sendMailResponse := mailer.SendResponse{}
 	if err := a.mailer.Send(&mailer.SendRequest{
 		//From    string
 		To: retrieveUserResponse.User.EmailAddress,
 		//Cc      string
 		Subject: "Password Reset",
-		Body:    fmt.Sprintf("Click the link to continue password reset. %s", urlToken),
+		Body:    email,
 		//Bcc     []string
 	},
 		&sendMailResponse); err != nil {

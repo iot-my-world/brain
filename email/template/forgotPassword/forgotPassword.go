@@ -8,15 +8,13 @@ import (
 )
 
 type Data struct {
-	RedirectURL string
-	User        user.User
+	URLToken string
+	User     user.User
 }
 
 func GenerateEmail(data Data) (string, error) {
 	// parse html file as template
-	emailTemplate := template.New("emailTemplate")
-	var err error
-	emailTemplate, err = emailTemplate.ParseFiles("template.html")
+	emailTemplate, err := template.ParseFiles("email/template/forgotPassword/template.html")
 	if err != nil {
 		return "", errors.New("failed to parse file: " + err.Error())
 	}
