@@ -488,7 +488,6 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 	if err != nil {
 		return nil, err
 	}
-
 	sendMailResponse := mailer.SendResponse{}
 	if err := a.mailer.Send(&mailer.SendRequest{
 		//From    string
