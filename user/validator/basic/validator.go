@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/action"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	partyRegistrarAction "gitlab.com/iotTracker/brain/party/registrar/action"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	userAction "gitlab.com/iotTracker/brain/user/action"
@@ -349,6 +350,36 @@ func (v *validator) Validate(request *userValidator.ValidateRequest) (*userValid
 					Type:  reasonInvalid.Duplicate,
 					Help:  "already taken",
 					Data:  (*userToValidate).Username,
+				})
+			}
+		}
+
+		// check if the email address is already used
+		// is provided now, we check to see if it has been used yet
+		if (*userToValidate).EmailAddress != "" {
+			if _, err := v.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+				// we use system claims to make sure that all users are visible for this check
+				Claims:     *v.systemClaims,
+				Identifier: emailAddress.Identifier{EmailAddress: (*userToValidate).EmailAddress},
+			}); err != nil {
+				switch err.(type) {
+				case userRecordHandlerException.NotFound:
+					// this is what we want, user not found so username not taken yet
+				default:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "emailAddress",
+						Type:  reasonInvalid.Unknown,
+						Help:  "retrieve failed",
+						Data:  (*userToValidate).EmailAddress,
+					})
+				}
+			} else {
+				// err == nil, i.e. a user was retrieved
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "emailAddress",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already taken",
+					Data:  (*userToValidate).EmailAddress,
 				})
 			}
 		}
