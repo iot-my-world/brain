@@ -465,7 +465,7 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 
 	// User record retrieved successfully
 	// generate reset password token for the user
-	forgotPasswordToken, err := a.jwtGenerator.GenerateToken(forgotPasswordClaims.ForgotPassword{
+	forgotPasswordToken, err := a.jwtGenerator.GenerateToken(forgotPasswordClaims.ResetPassword{
 		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),

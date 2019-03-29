@@ -11,6 +11,7 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
 	wrappedClaimsException "gitlab.com/iotTracker/brain/security/claims/wrapped/exception"
 	"net/http"
+	"gitlab.com/iotTracker/brain/security/claims/resetPassword"
 )
 
 type Wrapped struct {
@@ -67,6 +68,13 @@ func (wc Wrapped) Unwrap() (claims.Claims, error) {
 
 	case claims.RegisterClientUser:
 		var unmarshalledClaims registerClientUser.RegisterClientUser
+		if err := json.Unmarshal(wc.Value, &unmarshalledClaims); err != nil {
+			return nil, wrappedClaimsException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledClaims
+
+	case claims.ResetPassword:
+		var unmarshalledClaims resetPassword.ResetPassword
 		if err := json.Unmarshal(wc.Value, &unmarshalledClaims); err != nil {
 			return nil, wrappedClaimsException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}

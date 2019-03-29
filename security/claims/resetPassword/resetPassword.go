@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type ForgotPassword struct {
+type ResetPassword struct {
 	UserId          id.Identifier `json:"userId"`
 	IssueTime       int64         `json:"issueTime"`
 	ExpirationTime  int64         `json:"expirationTime"`
@@ -18,15 +18,15 @@ type ForgotPassword struct {
 	PartyId         id.Identifier `json:"partyId"`
 }
 
-func (r ForgotPassword) Type() claims.Type {
+func (r ResetPassword) Type() claims.Type {
 	return claims.ResetPassword
 }
 
-func (r ForgotPassword) Expired() bool {
+func (r ResetPassword) Expired() bool {
 	return time.Now().UTC().After(time.Unix(r.ExpirationTime, 0).UTC())
 }
 
-func (r ForgotPassword) PartyDetails() party.Details {
+func (r ResetPassword) PartyDetails() party.Details {
 	return party.Details{
 		Detail: party.Detail{
 			PartyType: r.PartyType,

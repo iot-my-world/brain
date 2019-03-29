@@ -102,9 +102,9 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 			}
 		}
 
-	case resetPassword.ForgotPassword:
+	case resetPassword.ResetPassword:
 		permissionForMethod := api.Permission(jsonRpcMethod)
-		// check the permissions granted by the ForgotPassword claims to see if this
+		// check the permissions granted by the ResetPassword claims to see if this
 		// method is allowed
 		for allowedPermIdx := range resetPassword.GrantedAPIPermissions {
 			if resetPassword.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
