@@ -3,12 +3,12 @@ package apiAuth
 import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
-	"gitlab.com/iotTracker/brain/security/claims/forgotPassword"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	"gitlab.com/iotTracker/brain/security/claims/resetPassword"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	"gitlab.com/iotTracker/brain/security/permission/api"
@@ -102,15 +102,15 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 			}
 		}
 
-	case forgotPassword.ForgotPassword:
+	case resetPassword.ForgotPassword:
 		permissionForMethod := api.Permission(jsonRpcMethod)
 		// check the permissions granted by the ForgotPassword claims to see if this
 		// method is allowed
-		for allowedPermIdx := range forgotPassword.GrantedAPIPermissions {
-			if forgotPassword.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
+		for allowedPermIdx := range resetPassword.GrantedAPIPermissions {
+			if resetPassword.GrantedAPIPermissions[allowedPermIdx] == permissionForMethod {
 				return wrappedJWTClaims, nil
 			}
-			if allowedPermIdx == len(forgotPassword.GrantedAPIPermissions)-1 {
+			if allowedPermIdx == len(resetPassword.GrantedAPIPermissions)-1 {
 				return wrappedClaims.Wrapped{}, apiAuthException.NotAuthorised{Permission: api.Permission(jsonRpcMethod)}
 			}
 		}

@@ -1,4 +1,4 @@
-package forgotPassword
+package resetPassword
 
 import (
 	"gitlab.com/iotTracker/brain/party"
@@ -19,7 +19,7 @@ type ForgotPassword struct {
 }
 
 func (r ForgotPassword) Type() claims.Type {
-	return claims.ForgotPassword
+	return claims.ResetPassword
 }
 
 func (r ForgotPassword) Expired() bool {
