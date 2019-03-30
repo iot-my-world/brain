@@ -12,6 +12,7 @@ const RegisterCompanyAdminUser Type = "RegisterCompanyAdminUser"
 const RegisterCompanyUser Type = "RegisterCompanyUser"
 const RegisterClientAdminUser Type = "RegisterClientAdminUser"
 const RegisterClientUser Type = "RegisterClientUser"
+const ResetPassword Type = "ResetPassword"
 
 const ValidTime = 90 * time.Minute
 

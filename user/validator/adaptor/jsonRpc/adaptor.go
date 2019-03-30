@@ -3,7 +3,7 @@ package user
 import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/user"
 	userValidator "gitlab.com/iotTracker/brain/user/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"

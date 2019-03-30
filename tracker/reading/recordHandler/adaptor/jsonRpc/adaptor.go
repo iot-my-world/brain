@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/tracker/reading"
 	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	"net/http"

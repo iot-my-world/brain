@@ -14,7 +14,7 @@ import (
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTest "gitlab.com/iotTracker/brain/test/system"
@@ -40,6 +40,8 @@ func (suite *Company) SetupTest() {
 		suite.Fail("log in error", err.Error())
 	}
 }
+
+// <a href="https://imgur.com/WpehiuI"><img src="https://i.imgur.com/WpehiuI.jpg" title="source: imgur.com" /></a>
 
 func (suite *Company) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
@@ -112,7 +114,7 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		jwtPayload := reflect.ValueOf(jwtObject).Elem().FieldByName("payload")
 
 		// parse the bytes into wrapped claims
-		wrapped := wrappedClaims.WrappedClaims{}
+		wrapped := wrappedClaims.Wrapped{}
 		if err := json.Unmarshal(jwtPayload.Bytes(), &wrapped); err != nil {
 			suite.FailNow("error unmarshalling claims", err.Error())
 		}

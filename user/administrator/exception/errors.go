@@ -57,3 +57,19 @@ type CheckPassword struct {
 func (e CheckPassword) Error() string {
 	return "check password error: " + strings.Join(e.Reasons, "; ")
 }
+
+type TokenGeneration struct {
+	Reasons []string
+}
+
+func (e TokenGeneration) Error() string {
+	return "token generation error: " + strings.Join(e.Reasons, "; ")
+}
+
+type EmailGeneration struct {
+	Reasons []string
+}
+
+func (e EmailGeneration) Error() string {
+	return "email generation error: " + strings.Join(e.Reasons, "; ")
+}

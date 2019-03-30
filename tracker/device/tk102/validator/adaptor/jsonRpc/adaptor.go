@@ -3,7 +3,7 @@ package tk102
 import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102DeviceValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"

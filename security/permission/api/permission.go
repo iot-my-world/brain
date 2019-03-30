@@ -16,6 +16,7 @@ const UserAdministratorCreate Permission = "UserAdministrator.Create"
 const UserAdministratorUpdateAllowedFields Permission = "UserAdministrator.UpdateAllowedFields"
 const UserAdministratorUpdatePassword Permission = "UserAdministrator.UpdatePassword"
 const UserAdministratorCheckPassword Permission = "UserAdministrator.CheckPassword"
+const UserAdministratorSetPassword Permission = "UserAdministrator.SetPassword"
 
 const UserValidatorValidate Permission = "UserValidator.Validate"
 

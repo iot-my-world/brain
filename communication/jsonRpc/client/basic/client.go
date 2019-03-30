@@ -10,7 +10,7 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gopkg.in/square/go-jose.v2"
 	"io/ioutil"
 	"net/http"
@@ -135,7 +135,7 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 	// Access Underlying payload without verification
 	fv := reflect.ValueOf(object).Elem().FieldByName("payload")
 
-	wrapped := wrappedClaims.WrappedClaims{}
+	wrapped := wrappedClaims.Wrapped{}
 	if err := json.Unmarshal(fv.Bytes(), &wrapped); err != nil {
 		return errors.New("error unmarshalling claims " + err.Error())
 	}
@@ -171,7 +171,7 @@ func (c *client) SetJWT(jwt string) error {
 	// Access Underlying payload without verification
 	fv := reflect.ValueOf(object).Elem().FieldByName("payload")
 
-	wrapped := wrappedClaims.WrappedClaims{}
+	wrapped := wrappedClaims.Wrapped{}
 	if err := json.Unmarshal(fv.Bytes(), &wrapped); err != nil {
 		return errors.New("error unmarshalling claims " + err.Error())
 	}

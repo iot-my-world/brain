@@ -2,7 +2,7 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator"
 	"net/http"

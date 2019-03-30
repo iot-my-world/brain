@@ -45,3 +45,11 @@ type PartyTypeInvalid struct {
 func (e PartyTypeInvalid) Error() string {
 	return "party type invalid: " + strings.Join(e.Reasons, "; ")
 }
+
+type EmailGeneration struct {
+	Reasons []string
+}
+
+func (e EmailGeneration) Error() string {
+	return "email generation error: " + strings.Join(e.Reasons, "; ")
+}

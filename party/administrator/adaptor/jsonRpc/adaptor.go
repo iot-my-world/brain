@@ -6,7 +6,7 @@ import (
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	wrappedParty "gitlab.com/iotTracker/brain/party/wrapped"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"net/http"
 )
 

@@ -13,7 +13,7 @@ import (
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
-	"gitlab.com/iotTracker/brain/security/wrappedClaims"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	clientTestData "gitlab.com/iotTracker/brain/test/client/data"
 	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
@@ -117,7 +117,7 @@ func (suite *Client) TestCompanyInviteAndRegisterClients() {
 			jwtPayload := reflect.ValueOf(jwtObject).Elem().FieldByName("payload")
 
 			// parse the bytes into wrapped claims
-			wrapped := wrappedClaims.WrappedClaims{}
+			wrapped := wrappedClaims.Wrapped{}
 			if err := json.Unmarshal(jwtPayload.Bytes(), &wrapped); err != nil {
 				suite.FailNow("error unmarshalling claims", err.Error())
 			}

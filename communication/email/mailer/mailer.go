@@ -1,5 +1,7 @@
 package mailer
 
+import "gitlab.com/iotTracker/brain/communication/email"
+
 type AuthInfo struct {
 	Identity string
 	Username string
@@ -8,16 +10,11 @@ type AuthInfo struct {
 }
 
 type Mailer interface {
-	Send(request *SendRequest, response *SendResponse) error
+	Send(request *SendRequest) (*SendResponse, error)
 }
 
 type SendRequest struct {
-	From    string
-	To      string
-	Cc      string
-	Subject string
-	Body    string
-	Bcc     []string
+	Email email.Email
 }
 
 type SendResponse struct {

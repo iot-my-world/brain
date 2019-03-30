@@ -29,19 +29,19 @@ func apiAuthApplier(next http.Handler) http.Handler {
 			// TODO: Unauthorised access attempts like this should be getting tracked more formally. Could indicate an attack.
 		}
 
+		// UserAdministrator.ForgotPassword
 		// Check if Authorization Header is present in request indicating that the user is logged in
-		if r.Header["Authorization"] == nil {
-			// Header not present, this is only allowed for a few jsonRpcServiceMethods
-			switch {
-			case jsonRpcServiceMethod == "Auth.Login":
-				next.ServeHTTP(w, r)
-			default:
+		switch jsonRpcServiceMethod {
+		case "Auth.Login", "UserAdministrator.ForgotPassword":
+			next.ServeHTTP(w, r)
+			return
+		default:
+			if r.Header["Authorization"] == nil {
 				log.Info("Unauthorised Json RPC access! - No Authorisation header!")
 				// unauthorised api access, error 403
 				http.Error(w, "Unauthorised", http.StatusForbidden)
-				// TODO: Unauthorised access attempts like this should be getting tracked more formally. Could indicate an attack.
+				return
 			}
-			return
 		}
 
 		// Validate the jwt and confirm that user has appropriate claims to access given jsonrpc service
