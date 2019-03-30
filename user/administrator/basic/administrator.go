@@ -493,16 +493,9 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 		return nil, userAdministratorException.EmailGeneration{Reasons: []string{"set password", err.Error()}}
 	}
 
-	sendMailResponse := mailer.SendResponse{}
-	if err := a.mailer.Send(&mailer.SendRequest{
-		//From    string
-		To: retrieveUserResponse.User.EmailAddress,
-		//Cc      string
-		Subject: "Password Reset",
-		Body:    generateEmailResponse.Email.Body,
-		//Bcc     []string
-	},
-		&sendMailResponse); err != nil {
+	if _, err := a.mailer.Send(&mailer.SendRequest{
+		Email: generateEmailResponse.Email,
+	}); err != nil {
 		return nil, err
 	}
 

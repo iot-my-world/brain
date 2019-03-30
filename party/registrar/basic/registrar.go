@@ -3,6 +3,8 @@ package basic
 import (
 	"crypto/rsa"
 	"fmt"
+	emailGenerator "gitlab.com/iotTracker/brain/communication/email/generator"
+	registrationEmail "gitlab.com/iotTracker/brain/communication/email/generator/registration"
 	"gitlab.com/iotTracker/brain/communication/email/mailer"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
@@ -31,15 +33,16 @@ import (
 )
 
 type registrar struct {
-	companyRecordHandler companyRecordHandler.RecordHandler
-	userRecordHandler    userRecordHandler.RecordHandler
-	userValidator        userValidator.Validator
-	userAdministrator    userAdministrator.Administrator
-	clientRecordHandler  clientRecordHandler.RecordHandler
-	mailer               mailer.Mailer
-	jwtGenerator         token.JWTGenerator
-	mailRedirectBaseUrl  string
-	systemClaims         *login.Login
+	companyRecordHandler       companyRecordHandler.RecordHandler
+	userRecordHandler          userRecordHandler.RecordHandler
+	userValidator              userValidator.Validator
+	userAdministrator          userAdministrator.Administrator
+	clientRecordHandler        clientRecordHandler.RecordHandler
+	mailer                     mailer.Mailer
+	jwtGenerator               token.JWTGenerator
+	mailRedirectBaseUrl        string
+	systemClaims               *login.Login
+	registrationEmailGenerator emailGenerator.Generator
 }
 
 func New(
@@ -52,17 +55,19 @@ func New(
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
 	systemClaims *login.Login,
+	registrationEmailGenerator emailGenerator.Generator,
 ) partyRegistrar.Registrar {
 	return &registrar{
-		companyRecordHandler: companyRecordHandler,
-		userRecordHandler:    userRecordHandler,
-		userValidator:        userValidator,
-		userAdministrator:    userAdministrator,
-		clientRecordHandler:  clientRecordHandler,
-		mailer:               mailer,
-		jwtGenerator:         token.NewJWTGenerator(rsaPrivateKey),
-		mailRedirectBaseUrl:  mailRedirectBaseUrl,
-		systemClaims:         systemClaims,
+		companyRecordHandler:       companyRecordHandler,
+		userRecordHandler:          userRecordHandler,
+		userValidator:              userValidator,
+		userAdministrator:          userAdministrator,
+		clientRecordHandler:        clientRecordHandler,
+		mailer:                     mailer,
+		jwtGenerator:               token.NewJWTGenerator(rsaPrivateKey),
+		mailRedirectBaseUrl:        mailRedirectBaseUrl,
+		systemClaims:               systemClaims,
+		registrationEmailGenerator: registrationEmailGenerator,
 	}
 }
 
@@ -166,21 +171,24 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		return nil, partyRegistrarException.TokenGeneration{Reasons: []string{"inviteCompanyAdminUser", err.Error()}}
 	}
 
-	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
 
-	sendMailResponse := mailer.SendResponse{}
-	if err := r.mailer.Send(&mailer.SendRequest{
-		//From    string
-		To: userRetrieveResponse.User.EmailAddress,
-		//Cc      string
-		Subject: "Welcome to SpotNav",
-		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s", urlToken),
-		//Bcc     []string
-	},
-		&sendMailResponse); err != nil {
+	generateEmailResponse, err := r.registrationEmailGenerator.Generate(&emailGenerator.GenerateRequest{
+		Data: registrationEmail.Data{
+			URLToken: urlToken,
+			User:     userRetrieveResponse.User,
+		},
+	})
+	if err != nil {
+		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+	}
+
+	if _, err := r.mailer.Send(&mailer.SendRequest{
+		Email: generateEmailResponse.Email,
+	}); err != nil {
 		return nil, err
 	}
+
 	return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: urlToken}, nil
 }
 
@@ -361,16 +369,19 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
 
-	sendMailResponse := mailer.SendResponse{}
-	if err := r.mailer.Send(&mailer.SendRequest{
-		//From    string
-		To: userRetrieveResponse.User.EmailAddress,
-		//Cc      string
-		Subject: "Welcome to SpotNav",
-		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s", urlToken),
-		//Bcc     []string
-	},
-		&sendMailResponse); err != nil {
+	generateEmailResponse, err := r.registrationEmailGenerator.Generate(&emailGenerator.GenerateRequest{
+		Data: registrationEmail.Data{
+			URLToken: urlToken,
+			User:     userRetrieveResponse.User,
+		},
+	})
+	if err != nil {
+		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+	}
+
+	if _, err := r.mailer.Send(&mailer.SendRequest{
+		Email: generateEmailResponse.Email,
+	}); err != nil {
 		return nil, err
 	}
 
@@ -567,16 +578,19 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 	//http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
 
-	sendMailResponse := mailer.SendResponse{}
-	if err := r.mailer.Send(&mailer.SendRequest{
-		//From    string
-		To: userRetrieveResponse.User.EmailAddress,
-		//Cc      string
-		Subject: "Welcome to SpotNav",
-		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s", urlToken),
-		//Bcc     []string
-	},
-		&sendMailResponse); err != nil {
+	generateEmailResponse, err := r.registrationEmailGenerator.Generate(&emailGenerator.GenerateRequest{
+		Data: registrationEmail.Data{
+			URLToken: urlToken,
+			User:     userRetrieveResponse.User,
+		},
+	})
+	if err != nil {
+		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+	}
+
+	if _, err := r.mailer.Send(&mailer.SendRequest{
+		Email: generateEmailResponse.Email,
+	}); err != nil {
 		return nil, err
 	}
 
@@ -760,16 +774,19 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
 
-	sendMailResponse := mailer.SendResponse{}
-	if err := r.mailer.Send(&mailer.SendRequest{
-		//From    string
-		To: userRetrieveResponse.User.EmailAddress,
-		//Cc      string
-		Subject: "Welcome to SpotNav",
-		Body:    fmt.Sprintf("Welcome to Spot Nav. Click the link to continue. %s", urlToken),
-		//Bcc     []string
-	},
-		&sendMailResponse); err != nil {
+	generateEmailResponse, err := r.registrationEmailGenerator.Generate(&emailGenerator.GenerateRequest{
+		Data: registrationEmail.Data{
+			URLToken: urlToken,
+			User:     userRetrieveResponse.User,
+		},
+	})
+	if err != nil {
+		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+	}
+
+	if _, err := r.mailer.Send(&mailer.SendRequest{
+		Email: generateEmailResponse.Email,
+	}); err != nil {
 		return nil, err
 	}
 

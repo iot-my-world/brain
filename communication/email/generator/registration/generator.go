@@ -1,4 +1,4 @@
-package password
+package registration
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ func New(
 	pathToTemplateFolder string,
 ) emailGenerator.Generator {
 
-	emailTemplate, err := template.ParseFiles(fmt.Sprintf("%s/%s", pathToTemplateFolder, "set/password/template.html"))
+	emailTemplate, err := template.ParseFiles(fmt.Sprintf("%s/%s", pathToTemplateFolder, "registration/template.html"))
 	if err != nil {
 		log.Fatal("failed to parse file: " + err.Error())
 	}

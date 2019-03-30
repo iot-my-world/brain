@@ -13,7 +13,7 @@ type Email struct {
 
 type Details struct {
 	Subject string
-	To      mail.Address
+	To      []mail.Address
 	From    mail.Address
 }
 

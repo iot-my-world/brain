@@ -200,7 +200,7 @@
 
     <!-- Visually Hidden Preheader Text : BEGIN -->
     <div style="display:none;font-size:1px;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;font-family: sans-serif;">
-        Reset Your Spotnav Password
+        Activate Your SpotNav Account
     </div>
     <!-- Visually Hidden Preheader Text : END -->
 
@@ -271,31 +271,26 @@
                         <![endif]-->
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center"
                                width="100%" style="max-width:500px; margin: auto;">
-
-                            <tr>
-                                <td height="20" style="font-size:20px; line-height:20px;">&nbsp;</td>
-                            </tr>
-
                             <tr>
                                 <td align="center" valign="middle">
 
                                     <table>
                                         <tr>
-                                            <td valign="top" style="text-align: center; padding: 60px 0 10px 20px;">
+                                            <td valign="top" style="text-align: center; padding: 40px 0 10px 20px;">
                                                 <h1 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 30px; line-height: 36px; color: #ffffff; font-weight: bold;">
-                                                    PASSWORD RESET
+                                                    WELCOME {{.User.Name}}
                                                 </h1>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td valign="top"
                                                 style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 20px; line-height: 20px; color: #ffffff;">
-                                                <p style="margin: 0;">Select the link to reset your password</p>
+                                                <p style="margin: 0;">Select the link to active your account</p>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td valign="top" align="center"
-                                                style="text-align: center; padding: 15px 0px 60px 0px;">
+                                                style="text-align: center; padding: 15px 0px 40px 0px;">
 
                                                 <!-- Button : BEGIN -->
                                                 <center>
@@ -308,7 +303,7 @@
                                                                 <a href="{{.URLToken}}"
                                                                    style="background: #26a4d3; border: 15px solid #26a4d3; font-family: 'Montserrat', sans-serif; font-size: 14px; line-height: 1.1; text-align: center; text-decoration: none; display: block; border-radius: 50px; font-weight: bold;"
                                                                    class="button-a">
-                                                                    <span style="color:#ffffff;" class="button-link">&nbsp;&nbsp;&nbsp;&nbsp;RESET&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                                                    <span style="color:#ffffff;" class="button-link">&nbsp;&nbsp;&nbsp;&nbsp;ACTIVATE&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                                                 </a>
                                                             </td>
                                                         </tr>
@@ -322,11 +317,6 @@
 
                                 </td>
                             </tr>
-
-                            <tr>
-                                <td height="20" style="font-size:20px; line-height:20px;">&nbsp;</td>
-                            </tr>
-
                         </table>
                         <!--[if mso]>
                         </td>
@@ -349,25 +339,41 @@
                         <tr>
                             <td style="padding: 40px 40px 20px 40px; text-align: left;">
                                 <h1 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 20px; line-height: 26px; color: #333333; font-weight: bold;">
-                                    YOUR ACCOUNT IS NOW ACTIVE</h1>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0px 40px 20px 40px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; text-align: left; font-weight:bold;">
-                                <p style="margin: 0;">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                    eiusmod
-                                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                                    consequat.</p>
+                                    Dear {{.User.Name}},
+                                </h1>
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 0px 40px 20px 40px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; text-align: left; font-weight:normal;">
                                 <p style="margin: 0;">
-                                    You are getting this email because we received a password reset request for your username or email address.
-                                    If you didn't request a password reset or you feel you've received this message in error,
+                                    You are getting this email because a new SpotNav account was recently registered
+                                    with your email address.
+                                    Verifying all of our user's email addresses is an important part of our security
+                                    protocol. <b>We need
+                                    to be sure that we can reach you.</b>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0px 40px 20px 40px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; text-align: left; font-weight:normal;">
+                                <p style="margin: 0;">
+                                    If you feel that you received this email in error,
                                     please send an email to our support team at support@spotnav.co.za.
-                                    If you take no action, don't worry — nobody will be able to change your password without access to this email.
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0px 40px 20px 40px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; text-align: left; font-weight:normal;">
+                                <p style="margin: 0;">
+                                    If it wasn't you who submitted your email address to us, we are sorry. You can
+                                    simply ignore this email. You will not receive any further emails from us.
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0px 40px 20px 40px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; text-align: left; font-weight:normal;">
+                                <p style="margin: 0;">
+                                    Please do not reply to this email. Emails sent to this address will not be answered.
                                 </p>
                             </td>
                         </tr>
@@ -431,26 +437,26 @@
                                 <table align="center" style="text-align: center;">
                                     <tr>
                                         <td>
-                                            <img src="https://i.imgur.com/hgmmdHM.png" width=""
-                                                 height="" style="margin:0; padding:0; border:none; display:block;"
+                                            <img src="https://i.imgur.com/hgmmdHM.png" width="40"
+                                                 style="margin:0; padding:0; border:none; display:block;"
                                                  border="0" alt="">
                                         </td>
                                         <td width="10">&nbsp;</td>
                                         <td>
-                                            <img src="https://i.imgur.com/p8v1Y0N.png" width=""
-                                                 height="" style="margin:0; padding:0; border:none; display:block;"
+                                            <img src="https://i.imgur.com/p8v1Y0N.png" width="40"
+                                                 style="margin:0; padding:0; border:none; display:block;"
                                                  border="0" alt="">
                                         </td>
                                         <td width="10">&nbsp;</td>
                                         <td>
-                                            <img src="https://i.imgur.com/pOihSja.png" width=""
-                                                 height="" style="margin:0; padding:0; border:none; display:block;"
+                                            <img src="https://i.imgur.com/pOihSja.png" width="40"
+                                                 style="margin:0; padding:0; border:none; display:block;"
                                                  border="0" alt="">
                                         </td>
                                         <td width="10">&nbsp;</td>
                                         <td>
-                                            <img src="https://i.imgur.com/jTXlgLp.png" width=""
-                                                 height="" style="margin:0; padding:0; border:none; display:block;"
+                                            <img src="https://i.imgur.com/jTXlgLp.png" width="40"
+                                                 style="margin:0; padding:0; border:none; display:block;"
                                                  border="0" alt="">
                                         </td>
                                     </tr>

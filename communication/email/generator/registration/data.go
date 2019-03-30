@@ -1,4 +1,4 @@
-package password
+package registration
 
 import (
 	"gitlab.com/iotTracker/brain/communication/email"
@@ -13,7 +13,7 @@ type Data struct {
 
 func (d Data) Details() email.Details {
 	return email.Details{
-		Subject: "Set Password",
+		Subject: "Welcome To SpotNav",
 		To: []mail.Address{{
 			Name:    d.User.Name,
 			Address: d.User.EmailAddress,
