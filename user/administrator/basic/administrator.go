@@ -4,8 +4,8 @@ import (
 	"crypto/rsa"
 	"fmt"
 	emailGenerator "gitlab.com/iotTracker/brain/communication/email/generator"
+	setPasswordEmail "gitlab.com/iotTracker/brain/communication/email/generator/set/password"
 	"gitlab.com/iotTracker/brain/communication/email/mailer"
-	forgotPasswordEmail "gitlab.com/iotTracker/brain/communication/email/template/forgotPassword"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
@@ -483,22 +483,23 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 	}
 	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
 
-	forgotPasswordEmailData := forgotPasswordEmail.Data{
-		URLToken: urlToken,
-		User:     retrieveUserResponse.User,
+	generateEmailResponse, err := a.setPasswordEmailGenerator.Generate(&emailGenerator.GenerateRequest{
+		Data: setPasswordEmail.Data{
+			URLToken: urlToken,
+			User:     retrieveUserResponse.User,
+		},
+	})
+	if err != nil {
+		return nil, userAdministratorException.EmailGeneration{Reasons: []string{"set password", err.Error()}}
 	}
 
-	email, err := forgotPasswordEmail.GenerateEmail(forgotPasswordEmailData)
-	if err != nil {
-		return nil, err
-	}
 	sendMailResponse := mailer.SendResponse{}
 	if err := a.mailer.Send(&mailer.SendRequest{
 		//From    string
 		To: retrieveUserResponse.User.EmailAddress,
 		//Cc      string
 		Subject: "Password Reset",
-		Body:    email,
+		Body:    generateEmailResponse.Email.Body,
 		//Bcc     []string
 	},
 		&sendMailResponse); err != nil {
