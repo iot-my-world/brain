@@ -3,6 +3,7 @@ package basic
 import (
 	"crypto/rsa"
 	"fmt"
+	emailGenerator "gitlab.com/iotTracker/brain/communication/email/generator"
 	"gitlab.com/iotTracker/brain/communication/email/mailer"
 	forgotPasswordEmail "gitlab.com/iotTracker/brain/communication/email/template/forgotPassword"
 	brainException "gitlab.com/iotTracker/brain/exception"
@@ -26,12 +27,13 @@ import (
 )
 
 type administrator struct {
-	userRecordHandler   userRecordHandler.RecordHandler
-	userValidator       userValidator.Validator
-	mailer              mailer.Mailer
-	jwtGenerator        token.JWTGenerator
-	mailRedirectBaseUrl string
-	systemClaims        *login.Login
+	userRecordHandler         userRecordHandler.RecordHandler
+	userValidator             userValidator.Validator
+	mailer                    mailer.Mailer
+	jwtGenerator              token.JWTGenerator
+	mailRedirectBaseUrl       string
+	systemClaims              *login.Login
+	setPasswordEmailGenerator emailGenerator.Generator
 }
 
 func New(
@@ -41,14 +43,16 @@ func New(
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
 	systemClaims *login.Login,
+	setPasswordEmailGenerator emailGenerator.Generator,
 ) userAdministrator.Administrator {
 	return &administrator{
-		userRecordHandler:   userRecordHandler,
-		userValidator:       userValidator,
-		mailer:              mailer,
-		jwtGenerator:        token.NewJWTGenerator(rsaPrivateKey),
-		mailRedirectBaseUrl: mailRedirectBaseUrl,
-		systemClaims:        systemClaims,
+		userRecordHandler:         userRecordHandler,
+		userValidator:             userValidator,
+		mailer:                    mailer,
+		jwtGenerator:              token.NewJWTGenerator(rsaPrivateKey),
+		mailRedirectBaseUrl:       mailRedirectBaseUrl,
+		systemClaims:              systemClaims,
+		setPasswordEmailGenerator: setPasswordEmailGenerator,
 	}
 }
 

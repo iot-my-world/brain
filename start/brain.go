@@ -71,6 +71,8 @@ import (
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 
+	setPasswordEmailGenerator "gitlab.com/iotTracker/brain/communication/email/generator/set/password"
+
 	partyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
 	partyBasicAdministrator "gitlab.com/iotTracker/brain/party/administrator/basic"
 
@@ -90,6 +92,7 @@ func main() {
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
 	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
+	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
 
 	flag.Parse()
 
@@ -128,6 +131,11 @@ func main() {
 		Host:     "smtp.gmail.com",
 	})
 
+	// email generators
+	SetPasswordEmailGenerator := setPasswordEmailGenerator.New(
+		*pathToEmailTemplateFolder,
+	)
+
 	// Create system claims for the services that root privileges
 	var systemClaims = login.Login{
 		//UserId          id.Identifier `json:"userId"`
@@ -162,6 +170,7 @@ func main() {
 		rsaPrivateKey,
 		*mailRedirectBaseUrl,
 		&systemClaims,
+		SetPasswordEmailGenerator,
 	)
 
 	// Permission
