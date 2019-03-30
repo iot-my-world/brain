@@ -71,6 +71,7 @@ import (
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 
+	registrationEmailGenerator "gitlab.com/iotTracker/brain/communication/email/generator/registration"
 	setPasswordEmailGenerator "gitlab.com/iotTracker/brain/communication/email/generator/set/password"
 
 	partyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
@@ -132,6 +133,9 @@ func main() {
 	})
 
 	// email generators
+	RegistrationEmailGenerator := registrationEmailGenerator.New(
+		*pathToEmailTemplateFolder,
+	)
 	SetPasswordEmailGenerator := setPasswordEmailGenerator.New(
 		*pathToEmailTemplateFolder,
 	)
@@ -231,6 +235,7 @@ func main() {
 		rsaPrivateKey,
 		*mailRedirectBaseUrl,
 		&systemClaims,
+		RegistrationEmailGenerator,
 	)
 
 	// System
