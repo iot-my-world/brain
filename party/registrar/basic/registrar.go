@@ -3,7 +3,7 @@ package basic
 import (
 	"crypto/rsa"
 	"fmt"
-	"gitlab.com/iotTracker/brain/email/mailer"
+	"gitlab.com/iotTracker/brain/communication/email/mailer"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"

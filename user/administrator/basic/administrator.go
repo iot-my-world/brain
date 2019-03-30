@@ -3,8 +3,8 @@ package basic
 import (
 	"crypto/rsa"
 	"fmt"
-	"gitlab.com/iotTracker/brain/email/mailer"
-	forgotPasswordEmail "gitlab.com/iotTracker/brain/email/template/forgotPassword"
+	"gitlab.com/iotTracker/brain/communication/email/mailer"
+	forgotPasswordEmail "gitlab.com/iotTracker/brain/communication/email/template/forgotPassword"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"

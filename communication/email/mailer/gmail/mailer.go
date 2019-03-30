@@ -2,7 +2,7 @@ package gmail
 
 import (
 	"github.com/jpoehls/gophermail"
-	"gitlab.com/iotTracker/brain/email/mailer"
+	"gitlab.com/iotTracker/brain/communication/email/mailer"
 	"net/mail"
 	"net/smtp"
 )

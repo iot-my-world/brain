@@ -66,8 +66,8 @@ import (
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
 
 	"flag"
-	"gitlab.com/iotTracker/brain/email/mailer"
-	gmailMailer "gitlab.com/iotTracker/brain/email/mailer/gmail"
+	"gitlab.com/iotTracker/brain/communication/email/mailer"
+	gmailMailer "gitlab.com/iotTracker/brain/communication/email/mailer/gmail"
 	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
 
