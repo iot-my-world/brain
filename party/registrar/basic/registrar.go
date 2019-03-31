@@ -173,6 +173,8 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
 
+	userRetrieveResponse.User.Name = fmt.Sprintf("%s Administrator", companyRetrieveResponse.Company.Name)
+
 	generateEmailResponse, err := r.registrationEmailGenerator.Generate(&emailGenerator.GenerateRequest{
 		Data: registrationEmail.Data{
 			URLToken: urlToken,
@@ -577,6 +579,8 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 
 	//http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
+
+	userRetrieveResponse.User.Name = fmt.Sprintf("%s Administrator", clientRetrieveResponse.Client.Name)
 
 	generateEmailResponse, err := r.registrationEmailGenerator.Generate(&emailGenerator.GenerateRequest{
 		Data: registrationEmail.Data{
@@ -1047,16 +1051,16 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	}
 
 	// compose id lists for exact list criteria
-	for _, partyDetail := range request.PartyDetails {
-		switch partyDetail.PartyType {
+	for _, partyIdentifier := range request.PartyIdentifiers {
+		switch partyIdentifier.PartyType {
 		case party.System:
-			response.Result[partyDetail.PartyId.Id] = true
+			response.Result[partyIdentifier.PartyIdIdentifier.Id] = true
 		case party.Company:
-			companyIds = append(companyIds, partyDetail.PartyId.Id)
+			companyIds = append(companyIds, partyIdentifier.PartyIdIdentifier.Id)
 		case party.Client:
-			clientIds = append(clientIds, partyDetail.PartyId.Id)
+			clientIds = append(clientIds, partyIdentifier.PartyIdIdentifier.Id)
 		default:
-			return nil, partyRegistrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyDetail.PartyType)}}
+			return nil, partyRegistrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyIdentifier.PartyType)}}
 		}
 	}
 
