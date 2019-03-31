@@ -2,7 +2,7 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party"
+	partyIdentifier "gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/party/registrar"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
@@ -201,7 +201,7 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 }
 
 type AreAdminsRegisteredRequest struct {
-	PartyDetails []party.Detail `json:"partyDetails"`
+	PartyIdentifiers []partyIdentifier.Identifier `json:"partyIdentifiers"`
 }
 
 type AreAdminsRegisteredResponse struct {
@@ -216,8 +216,8 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 	}
 
 	areAdminsRegisteredResponse, err := a.registrar.AreAdminsRegistered(&registrar.AreAdminsRegisteredRequest{
-		Claims:       claims,
-		PartyDetails: request.PartyDetails,
+		Claims:           claims,
+		PartyIdentifiers: request.PartyIdentifiers,
 	})
 	if err != nil {
 		log.Warn(err.Error())

@@ -1047,16 +1047,16 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	}
 
 	// compose id lists for exact list criteria
-	for _, partyDetail := range request.PartyDetails {
-		switch partyDetail.PartyType {
+	for _, partyIdentifier := range request.PartyIdentifiers {
+		switch partyIdentifier.PartyType {
 		case party.System:
-			response.Result[partyDetail.PartyId.Id] = true
+			response.Result[partyIdentifier.PartyIdIdentifier.Id] = true
 		case party.Company:
-			companyIds = append(companyIds, partyDetail.PartyId.Id)
+			companyIds = append(companyIds, partyIdentifier.PartyIdIdentifier.Id)
 		case party.Client:
-			clientIds = append(clientIds, partyDetail.PartyId.Id)
+			clientIds = append(clientIds, partyIdentifier.PartyIdIdentifier.Id)
 		default:
-			return nil, partyRegistrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyDetail.PartyType)}}
+			return nil, partyRegistrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyIdentifier.PartyType)}}
 		}
 	}
 
