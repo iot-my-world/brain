@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	exactText "gitlab.com/iotTracker/brain/search/criterion/exact/text"
 	criterionException "gitlab.com/iotTracker/brain/search/criterion/exception"
 	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
 	"gitlab.com/iotTracker/brain/search/criterion/or"
@@ -24,6 +25,13 @@ func (cw Wrapped) UnWrap() (criterion.Criterion, error) {
 	switch cw.Type {
 	case criterion.Text:
 		var unmarshalledCriterion text.Criterion
+		if err := json.Unmarshal(cw.Value, &unmarshalledCriterion); err != nil {
+			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledCriterion
+
+	case criterion.ExactText:
+		var unmarshalledCriterion exactText.Criterion
 		if err := json.Unmarshal(cw.Value, &unmarshalledCriterion); err != nil {
 			return nil, criterionException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
