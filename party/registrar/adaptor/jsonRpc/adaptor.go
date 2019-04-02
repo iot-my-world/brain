@@ -2,8 +2,8 @@ package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/log"
-	partyIdentifier "gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/party/registrar"
+	"gitlab.com/iotTracker/brain/search/identifier/party"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/user"
@@ -201,7 +201,7 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 }
 
 type AreAdminsRegisteredRequest struct {
-	PartyIdentifiers []partyIdentifier.Identifier `json:"partyIdentifiers"`
+	PartyIdentifiers []wrappedIdentifier.Wrapped`json:"partyIdentifiers"`
 }
 
 type AreAdminsRegisteredResponse struct {
@@ -215,9 +215,23 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 		return err
 	}
 
+	partyIdentifiers := make([]party.Identifier,0)
+
+	for i := range request.PartyIdentifiers {
+		id, err := request.PartyIdentifiers[i].UnWrap()
+		if err != nil {
+			return err
+		}
+		//TODO fix this
+		switch v:=id.(type) {
+		case party.Identifier:
+			partyIdentifiers = append(partyIdentifiers, v)
+		}
+	}
+
 	areAdminsRegisteredResponse, err := a.registrar.AreAdminsRegistered(&registrar.AreAdminsRegisteredRequest{
 		Claims:           claims,
-		PartyIdentifiers: request.PartyIdentifiers,
+		PartyIdentifiers: partyIdentifiers,
 	})
 	if err != nil {
 		log.Warn(err.Error())
