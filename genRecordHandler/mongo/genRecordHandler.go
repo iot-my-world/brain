@@ -20,7 +20,7 @@ type mongoRecordHandler struct {
 	collection    string
 	uniqueIndexes []mgo.Index
 	enityType     string //TODO
-	ContextualiseFilter func()
+	ContextualiseFilter func() //TODO this should be removed here
 }
 
 // New mongo record handler
@@ -124,14 +124,14 @@ func (mrh *mongoRecordHandler) Retrieve(request *genRecordHandler.RetrieveReques
 	filter := request.Identifier.ToFilter()
 	filter = company.ContextualiseFilter(filter, request.Claims)
 
-	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
+	if err := companyCollection.Find(filter).One(&entityRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, genRecordHandlerException.NotFound{}
 		}
 		return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
 
-	return &genRecordHandler.RetrieveResponse{Company: companyRecord}, nil
+	return &genRecordHandler.RetrieveResponse{Entity: entityRecord}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *genRecordHandler.UpdateRequest) error {
@@ -163,26 +163,26 @@ func (mrh *mongoRecordHandler) Update(request *genRecordHandler.UpdateRequest) (
 
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	// Retrieve Company
-	retrieveCompanyResponse, err := mrh.Retrieve(&genRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: request.Identifier,
-	})
-	if err != nil {
-		return nil, genRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
-	}
+	//// Retrieve Company
+	//retrieveCompanyResponse, err := mrh.Retrieve(&genRecordHandler.RetrieveRequest{
+	//	Claims:     request.Claims,
+	//	Identifier: request.Identifier,
+	//})
+	//if err != nil {
+	//	return nil, genRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
+	//}
 
 	// Update fields:
 	// retrieveCompanyResponse.Company.Id = request.Company.Id // cannot update ever
-	retrieveCompanyResponse.Company.Name = request.Company.Name
+	//retrieveCompanyResponse.Company.Name = request.Company.Name //Update
 
 	filter := request.Identifier.ToFilter()
 	filter = company.ContextualiseFilter(filter, request.Claims)
-	if err := companyCollection.Update(filter, retrieveCompanyResponse.Company); err != nil {
+	if err := companyCollection.Update(filter, request.Entity); err != nil {
 		return nil, genRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	return &genRecordHandler.UpdateResponse{Company: retrieveCompanyResponse.Company}, nil
+	return &genRecordHandler.UpdateResponse{Entity: request.Entity}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *genRecordHandler.DeleteRequest) error {
