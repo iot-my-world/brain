@@ -35,6 +35,7 @@ type GetAllUsersAPIPermissionsResponse struct {
 type GetAllUsersViewPermissionsRequest struct {
 	Claims         claims.Claims
 	UserIdentifier identifier.Identifier
+
 }
 
 type GetAllUsersViewPermissionsResponse struct {

@@ -24,7 +24,7 @@ func New(
 }
 
 type LiveRequest struct {
-	PartyIdentifiers []party.Identifier `json:"partyIdentifiers"`
+	PartyIdentifiers []wrappedIdentifier.Wrapped`json:"partyIdentifiers"`
 }
 
 type LiveResponse struct {
@@ -38,10 +38,24 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 		return err
 	}
 
+	partyIdentifiers := make([]party.Identifier,0)
+
+	for i := range request.PartyIdentifiers {
+		id, err := request.PartyIdentifiers[i].UnWrap()
+		if err != nil {
+			return err
+		}
+		//TODO fix this
+		switch v:=id.(type) {
+		case party.Identifier:
+			partyIdentifiers = append(partyIdentifiers, v)
+		}
+	}
+
 	// get report
 	liveTrackingReportResponse, err := a.trackingReport.Live(&trackingReport.LiveRequest{
 		Claims:           claims,
-		PartyIdentifiers: request.PartyIdentifiers,
+		PartyIdentifiers: partyIdentifiers,
 	})
 	if err != nil {
 		return err
