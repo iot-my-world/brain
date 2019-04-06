@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/genRecordHandler"
 	genRecordHandlerException "gitlab.com/iotTracker/brain/genRecordHandler/exception"
@@ -19,8 +18,6 @@ type mongoRecordHandler struct {
 	database      string
 	collection    string
 	uniqueIndexes []mgo.Index
-	enityType     string //TODO
-	ContextualiseFilter func() //TODO this should be removed here
 }
 
 // New mongo record handler
@@ -74,12 +71,9 @@ func (mrh *mongoRecordHandler) Create(request *genRecordHandler.CreateRequest) (
 
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	//newID, err := uuid.NewV4()
-	//if err != nil {
-	//	return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
-	//}
-	//request.Company.Id = newID.String()
-	request.Entity.SetId()
+	if err := request.Entity.SetId(); err != nil {
+		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+	}
 
 	if err := companyCollection.Insert(request.Entity); err != nil {
 		return nil, genRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
@@ -119,7 +113,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *genRecordHandler.RetrieveReques
 
 	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
 
-	var entityRecord genRecordHandler.Party
+	var entityRecord genRecordHandler.GenEntity
 
 	filter := request.Identifier.ToFilter()
 	filter = company.ContextualiseFilter(filter, request.Claims)
@@ -268,7 +262,7 @@ func (mrh *mongoRecordHandler) Collect(request *genRecordHandler.CollectRequest)
 	mongoSortOrder := request.Query.ToMongoSortFormat()
 
 	// Populate records
-	response.Records = make([]interface{}, 0)
+	response.Records = make([]genRecordHandler.GenEntity, 0)
 	if err := query.
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).

@@ -22,16 +22,16 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []Party
+	Records []GenEntity
 	Total   int
 }
 
 type CreateRequest struct {
-	Entity Party
+	Entity GenEntity
 }
 
 type CreateResponse struct {
-	Entity Party
+	Entity GenEntity
 }
 
 type DeleteRequest struct {
@@ -40,17 +40,17 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Entity Party
+	Entity GenEntity
 }
 
 type UpdateRequest struct {
 	Claims     claims.Claims
 	Identifier identifier.Identifier
-	Entity     Party
+	Entity     GenEntity
 }
 
 type UpdateResponse struct {
-	Entity Party
+	Entity GenEntity
 }
 
 type RetrieveRequest struct {
@@ -59,5 +59,5 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Entity Party
+	Entity GenEntity
 }

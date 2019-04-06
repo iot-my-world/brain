@@ -1,8 +1,8 @@
 package genRecordHandler
 
-// Party is a type which returns party details
-type Party interface {
-	Details() Details
-	SetId()
+// GenEntity is a type which returns party details
+type GenEntity interface {
+	//Details() Details
+	SetId() error
 }
 

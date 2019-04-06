@@ -38,6 +38,9 @@ import (
 	companyValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "gitlab.com/iotTracker/brain/party/company/validator/basic"
 
+	genericRecordHandler "gitlab.com/iotTracker/brain/genRecordHandler/mongo"
+	companyGenRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/genJsonRpc"
+
 	clientAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/administrator/adaptor/jsonRpc"
 	clientBasicAdministrator "gitlab.com/iotTracker/brain/party/client/administrator/basic"
 	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
@@ -196,6 +199,25 @@ func main() {
 		databaseName,
 		companyCollection,
 	)
+
+	// Company using generic record Handler
+	CompanyGenRecordHandler := genericRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		companyCollection,
+		[]mgo.Index{
+			{
+				Key:    []string{"id"},
+				Unique: true,
+			},
+			{
+				Key:    []string{"adminEmailAddress"},
+				Unique: true,
+			},
+		},
+	)
+	//TODO, try let client use the same generic recordHandler
+
 	CompanyValidator := companyBasicValidator.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
@@ -305,7 +327,8 @@ func main() {
 	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
 
 	// Company
-	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
+	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)          // TODO
+	CompanyGenRecordHandlerAdaptor := companyGenRecordHandlerJsonRpcAdaptor.New(CompanyGenRecordHandler) // TODO
 	CompanyValidatorAdaptor := companyValidatorJsonRpcAdaptor.New(CompanyValidator)
 	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyBasicAdministrator)
 
@@ -367,6 +390,12 @@ func main() {
 	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
+
+	if err := secureAPIServer.RegisterService(CompanyGenRecordHandlerAdaptor, "CompanyGenRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Company Record Handler Service")
+	}
+	//TODO
+
 	if err := secureAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
 		log.Fatal("Unable to Register Company Validator Service")
 	}

@@ -1,6 +1,7 @@
 package company
 
 import (
+	"github.com/satori/go.uuid"
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
@@ -30,4 +31,13 @@ func (c Company) Details() party.Details {
 			PartyType: party.Company,
 		},
 	}
+}
+
+func (c Company) SetId() error {
+	newId, err := uuid.NewV4()
+	c.Id = newId.String()
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -27,3 +27,8 @@ type User struct {
 
 	Registered bool `json:"registered" bson:"registered"`
 }
+
+
+func SetId() {
+
+}
