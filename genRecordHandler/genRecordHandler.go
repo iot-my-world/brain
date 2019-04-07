@@ -8,11 +8,12 @@ import (
 )
 
 type RecordHandler interface {
-	Create(request *CreateRequest) (*CreateResponse, error)
-	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
-	Update(request *UpdateRequest) (*UpdateResponse, error)
-	Delete(request *DeleteRequest) (*DeleteResponse, error)
-	Collect(request *CollectRequest) (*CollectResponse, error)
+	GCreate(request *CreateRequest) (*CreateResponse, error)
+	GRetrieve(request *RetrieveRequest) (*RetrieveResponse, error)
+	GUpdate(request *UpdateRequest) (*UpdateResponse, error)
+	GDelete(request *DeleteRequest) (*DeleteResponse, error)
+	GCollect(request *CollectRequest) (*CollectResponse, error)
+	Start()
 }
 
 type CollectRequest struct {

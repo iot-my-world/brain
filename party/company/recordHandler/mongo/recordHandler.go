@@ -2,64 +2,49 @@ package mongo
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/genRecordHandler"
+	imp "gitlab.com/iotTracker/brain/genRecordHandler/mongo"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
-	"gitlab.com/iotTracker/brain/search/criterion"
 	"gopkg.in/mgo.v2"
 )
 
 type mongoRecordHandler struct {
-	mongoSession *mgo.Session
-	database     string
-	collection   string
+	genRecordHandler.RecordHandler
 }
 
 // New mongo record handler
 func New(
 	mongoSession *mgo.Session,
 	database string,
-	collection string,
 ) companyRecordHandler.RecordHandler {
 
-	setupIndices(mongoSession, database, collection)
+	//setupIndices(mongoSession, database, collection)
+
+	CompGen := imp.New(
+		mongoSession,
+		database,
+		"company",
+		[]mgo.Index{
+			{
+				Key:    []string{"id"},
+				Unique: true,
+			},
+			{
+				Key:    []string{"adminEmailAddress"},
+				Unique: true,
+			},
+		},
+	)
 
 	newCompanyMongoRecordHandler := mongoRecordHandler{
-		mongoSession: mongoSession,
-		database:     database,
-		collection:   collection,
+		RecordHandler: CompGen,
 	}
+
+	newCompanyMongoRecordHandler.RecordHandler.Start()
 
 	return &newCompanyMongoRecordHandler
-}
-
-func setupIndices(mongoSession *mgo.Session, database, collection string) {
-	//Initialise Company collection in database
-	mgoSesh := mongoSession.Copy()
-	defer mgoSesh.Close()
-	companyCollection := mgoSesh.DB(database).C(collection)
-
-	// Ensure id uniqueness
-	idUnique := mgo.Index{
-		Key:    []string{"id"},
-		Unique: true,
-	}
-	if err := companyCollection.EnsureIndex(idUnique); err != nil {
-		log.Fatal("Could not ensure id uniqueness: ", err)
-	}
-
-	// Ensure admin email uniqueness
-	adminEmailUnique := mgo.Index{
-		Key:    []string{"adminEmailAddress"},
-		Unique: true,
-	}
-	if err := companyCollection.EnsureIndex(adminEmailUnique); err != nil {
-		log.Fatal("Could not ensure admin email uniqueness: ", err)
-	}
-
 }
 
 func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandler.CreateRequest) error {
@@ -72,26 +57,10 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 }
 
 func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
-	if err := mrh.ValidateCreateRequest(request); err != nil {
-		return nil, err
-	}
-
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	newID, err := uuid.NewV4()
-	if err != nil {
-		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
-	}
-	request.Company.Id = newID.String()
-
-	if err := companyCollection.Insert(request.Company); err != nil {
-		return nil, companyRecordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
-	}
-
-	return &companyRecordHandler.CreateResponse{Company: request.Company}, nil
+	if err := mrh.ValidateCreateRequest(request); err != nil {return nil, err} //TODO CRUD validation can be generic
+	resp, _ := mrh.GCreate(&genRecordHandler.CreateRequest{Entity: request.Company})
+	comp, _ := resp.Entity.(company.Company)
+	return &companyRecordHandler.CreateResponse{Company: comp}, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
@@ -119,25 +88,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *companyRecordHandler.RetrieveRe
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return nil, err
 	}
-
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	var companyRecord company.Company
-
-	filter := request.Identifier.ToFilter()
-	filter = company.ContextualiseFilter(filter, request.Claims)
-
-	if err := companyCollection.Find(filter).One(&companyRecord); err != nil {
-		if err == mgo.ErrNotFound {
-			return nil, companyRecordHandlerException.NotFound{}
-		}
-		return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
-	}
-
-	return &companyRecordHandler.RetrieveResponse{Company: companyRecord}, nil
+	return nil, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *companyRecordHandler.UpdateRequest) error {
@@ -164,31 +115,7 @@ func (mrh *mongoRecordHandler) Update(request *companyRecordHandler.UpdateReques
 		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	// Retrieve Company
-	retrieveCompanyResponse, err := mrh.Retrieve(&companyRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: request.Identifier,
-	})
-	if err != nil {
-		return nil, companyRecordHandlerException.Update{Reasons: []string{"retrieving record", err.Error()}}
-	}
-
-	// Update fields:
-	// retrieveCompanyResponse.Company.Id = request.Company.Id // cannot update ever
-	retrieveCompanyResponse.Company.Name = request.Company.Name
-
-	filter := request.Identifier.ToFilter()
-	filter = company.ContextualiseFilter(filter, request.Claims)
-	if err := companyCollection.Update(filter, retrieveCompanyResponse.Company); err != nil {
-		return nil, companyRecordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
-	}
-
-	return &companyRecordHandler.UpdateResponse{Company: retrieveCompanyResponse.Company}, nil
+	return nil, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *companyRecordHandler.DeleteRequest) error {
@@ -213,18 +140,7 @@ func (mrh *mongoRecordHandler) Delete(request *companyRecordHandler.DeleteReques
 		return nil, err
 	}
 
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-
-	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	filter := request.Identifier.ToFilter()
-	filter = company.ContextualiseFilter(filter, request.Claims)
-	if err := companyCollection.Remove(filter); err != nil {
-		return nil, err
-	}
-
-	return &companyRecordHandler.DeleteResponse{}, nil
+	return nil, nil
 }
 
 func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
@@ -241,46 +157,20 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHand
 }
 
 func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest) (*companyRecordHandler.CollectResponse, error) {
-	if err := mrh.ValidateCollectRequest(request); err != nil {
-		return nil, err
+	if err := mrh.ValidateCollectRequest(request); err != nil {return nil, err} //TODO use generic validation
+	resp, _ := mrh.GCollect(&genRecordHandler.CollectRequest{
+		Claims:   request.Claims,
+		Criteria: request.Criteria,
+		Query:    request.Query,
+	})
+
+	compResp := make([]company.Company,0)
+	for _, c := range resp.Records{
+		comp, _ := c.(company.Company)
+		compResp = append(compResp, comp)
 	}
-
-	filter := criterion.CriteriaToFilter(request.Criteria)
-	filter = company.ContextualiseFilter(filter, request.Claims)
-
-	response := companyRecordHandler.CollectResponse{}
-
-	// Get Company Collection
-	mgoSession := mrh.mongoSession.Copy()
-	defer mgoSession.Close()
-	companyCollection := mgoSession.DB(mrh.database).C(mrh.collection)
-
-	// Perform Query
-	query := companyCollection.Find(filter)
-
-	// Apply the count
-	if total, err := query.Count(); err == nil {
-		response.Total = total
-	} else {
-		return nil, err
-	}
-
-	// Apply limit if applicable
-	if request.Query.Limit > 0 {
-		query.Limit(request.Query.Limit)
-	}
-
-	// Determine the Sort Order
-	mongoSortOrder := request.Query.ToMongoSortFormat()
-
-	// Populate records
-	response.Records = make([]company.Company, 0)
-	if err := query.
-		Skip(request.Query.Offset).
-		Sort(mongoSortOrder...).
-		All(&response.Records); err != nil {
-		return nil, err
-	}
-
-	return &response, nil
+	return &companyRecordHandler.CollectResponse{
+		Records: compResp,
+		Total:   resp.Total,
+	}, nil
 }

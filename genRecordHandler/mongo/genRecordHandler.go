@@ -11,9 +11,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-// BASED ON COMPANY
-
-type mongoRecordHandler struct {
+type MongoRecordHandler struct {
 	mongoSession  *mgo.Session
 	database      string
 	collection    string
@@ -27,9 +25,9 @@ func New(
 	collection string,
 	uniqueIndexes []mgo.Index,
 ) genRecordHandler.RecordHandler {
-	setupIndices(mongoSession, database, collection, uniqueIndexes)
 
-	newCompanyMongoRecordHandler := mongoRecordHandler{
+	setupIndices(mongoSession, database, collection, uniqueIndexes)
+	newCompanyMongoRecordHandler := MongoRecordHandler{
 		mongoSession:  mongoSession,
 		database:      database,
 		collection:    collection,
@@ -37,6 +35,10 @@ func New(
 	}
 
 	return &newCompanyMongoRecordHandler
+}
+
+func (mrh *MongoRecordHandler) Start() {
+	setupIndices(mrh.mongoSession, mrh.database, mrh.collection, mrh.uniqueIndexes)
 }
 
 func setupIndices(mongoSession *mgo.Session, database, collection string, uniqueIndexes []mgo.Index) {
@@ -52,7 +54,7 @@ func setupIndices(mongoSession *mgo.Session, database, collection string, unique
 	}
 }
 
-func (mrh *mongoRecordHandler) ValidateCreateRequest(request *genRecordHandler.CreateRequest) error {
+func (mrh *MongoRecordHandler) ValidateCreateRequest(request *genRecordHandler.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -61,7 +63,7 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *genRecordHandler.C
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Create(request *genRecordHandler.CreateRequest) (*genRecordHandler.CreateResponse, error) {
+func (mrh *MongoRecordHandler) GCreate(request *genRecordHandler.CreateRequest) (*genRecordHandler.CreateResponse, error) {
 	if err := mrh.ValidateCreateRequest(request); err != nil {
 		return nil, err
 	}
@@ -82,7 +84,7 @@ func (mrh *mongoRecordHandler) Create(request *genRecordHandler.CreateRequest) (
 	return &genRecordHandler.CreateResponse{Entity: request.Entity}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *genRecordHandler.RetrieveRequest) error {
+func (mrh *MongoRecordHandler) ValidateRetrieveRequest(request *genRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -103,7 +105,7 @@ func (mrh *mongoRecordHandler) ValidateRetrieveRequest(request *genRecordHandler
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Retrieve(request *genRecordHandler.RetrieveRequest) (*genRecordHandler.RetrieveResponse, error) {
+func (mrh *MongoRecordHandler) GRetrieve(request *genRecordHandler.RetrieveRequest) (*genRecordHandler.RetrieveResponse, error) {
 	if err := mrh.ValidateRetrieveRequest(request); err != nil {
 		return nil, err
 	}
@@ -128,7 +130,7 @@ func (mrh *mongoRecordHandler) Retrieve(request *genRecordHandler.RetrieveReques
 	return &genRecordHandler.RetrieveResponse{Entity: entityRecord}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *genRecordHandler.UpdateRequest) error {
+func (mrh *MongoRecordHandler) ValidateUpdateRequest(request *genRecordHandler.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -147,7 +149,7 @@ func (mrh *mongoRecordHandler) ValidateUpdateRequest(request *genRecordHandler.U
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Update(request *genRecordHandler.UpdateRequest) (*genRecordHandler.UpdateResponse, error) {
+func (mrh *MongoRecordHandler) GUpdate(request *genRecordHandler.UpdateRequest) (*genRecordHandler.UpdateResponse, error) {
 	if err := mrh.ValidateUpdateRequest(request); err != nil {
 		return nil, err
 	}
@@ -179,7 +181,7 @@ func (mrh *mongoRecordHandler) Update(request *genRecordHandler.UpdateRequest) (
 	return &genRecordHandler.UpdateResponse{Entity: request.Entity}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *genRecordHandler.DeleteRequest) error {
+func (mrh *MongoRecordHandler) ValidateDeleteRequest(request *genRecordHandler.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -196,7 +198,7 @@ func (mrh *mongoRecordHandler) ValidateDeleteRequest(request *genRecordHandler.D
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Delete(request *genRecordHandler.DeleteRequest) (*genRecordHandler.DeleteResponse, error) {
+func (mrh *MongoRecordHandler) GDelete(request *genRecordHandler.DeleteRequest) (*genRecordHandler.DeleteResponse, error) {
 	if err := mrh.ValidateDeleteRequest(request); err != nil {
 		return nil, err
 	}
@@ -215,7 +217,7 @@ func (mrh *mongoRecordHandler) Delete(request *genRecordHandler.DeleteRequest) (
 	return &genRecordHandler.DeleteResponse{}, nil
 }
 
-func (mrh *mongoRecordHandler) ValidateCollectRequest(request *genRecordHandler.CollectRequest) error {
+func (mrh *MongoRecordHandler) ValidateCollectRequest(request *genRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -228,7 +230,7 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *genRecordHandler.
 	return nil
 }
 
-func (mrh *mongoRecordHandler) Collect(request *genRecordHandler.CollectRequest) (*genRecordHandler.CollectResponse, error) {
+func (mrh *MongoRecordHandler) GCollect(request *genRecordHandler.CollectRequest) (*genRecordHandler.CollectResponse, error) {
 	if err := mrh.ValidateCollectRequest(request); err != nil {
 		return nil, err
 	}
@@ -262,7 +264,6 @@ func (mrh *mongoRecordHandler) Collect(request *genRecordHandler.CollectRequest)
 	mongoSortOrder := request.Query.ToMongoSortFormat()
 
 	// Populate records
-	response.Records = make([]genRecordHandler.GenEntity, 0)
 	if err := query.
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
