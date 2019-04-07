@@ -3,6 +3,7 @@ package tk102
 import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/tracker/device"
 )
 
 type TK102 struct {
@@ -14,4 +15,8 @@ type TK102 struct {
 	OwnerId           id.Identifier `json:"ownerId" bson:"ownerId"`
 	AssignedPartyType party.Type    `json:"assignedPartyType" bson:"assignedPartyType"`
 	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
+}
+
+func (t TK102) Type() device.Type {
+	return device.TK102
 }
