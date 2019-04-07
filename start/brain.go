@@ -48,7 +48,6 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	tk102DeviceServer "gitlab.com/iotTracker/brain/tracker/device/tk102/server"
 	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
 	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator/basic"
 	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
@@ -432,15 +431,6 @@ func main() {
 	go func() {
 		err := http.ListenAndServe(":"+serverPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
-		os.Exit(1)
-	}()
-
-	// Set up tracker tcp server
-	tk102DeviceServerInstance := tk102DeviceServer.New(ReadingRecordHandler, &systemClaims, TK102DeviceRecordHandler, "0.0.0.0", "7018")
-	log.Info("Starting TK102 Device Server")
-	go func() {
-		err := tk102DeviceServerInstance.Start()
-		log.Error("tcp server stopped: ", err)
 		os.Exit(1)
 	}()
 
