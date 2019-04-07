@@ -75,3 +75,6 @@ const ReadingAdministratorCreateBulk Permission = "ReadingAdministrator.CreateBu
 
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"
+
+// Barcode Scanner
+const BarcodeScannerScan Permission = "BarcodeScanner.Scan"
