@@ -110,6 +110,7 @@ var CompanyAdmin = role.Role{
 		api.CompanyRecordHandlerCollect,
 
 		api.CompanyAdministratorUpdateAllowedFields,
+		api.CompanyValidatorValidate,
 
 		// Client
 		api.ClientRecordHandlerRetrieve,
@@ -198,6 +199,8 @@ var ClientAdmin = role.Role{
 		api.ClientRecordHandlerCollect,
 
 		api.ClientAdministratorUpdateAllowedFields,
+
+		api.ClientValidatorValidate,
 
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
