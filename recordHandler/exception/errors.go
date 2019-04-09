@@ -5,7 +5,7 @@ import "strings"
 type NotFound struct{}
 
 func (e NotFound) Error() string {
-	return "company not found"
+	return "not found"
 }
 
 type Create struct {
@@ -13,7 +13,7 @@ type Create struct {
 }
 
 func (e Create) Error() string {
-	return "company creation error: " + strings.Join(e.Reasons, "; ")
+	return "creation error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Update struct {
@@ -21,5 +21,5 @@ type Update struct {
 }
 
 func (e Update) Error() string {
-	return "company update error: " + strings.Join(e.Reasons, "; ")
+	return "update error: " + strings.Join(e.Reasons, "; ")
 }

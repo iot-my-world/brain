@@ -2,10 +2,24 @@ package exception
 
 import "strings"
 
+type RecordHandlerNil struct{}
+
+func (e RecordHandlerNil) Error() string {
+	return "given brain company recordHandler is nil"
+}
+
 type NotFound struct{}
 
 func (e NotFound) Error() string {
 	return "company not found"
+}
+
+type Retrieval struct {
+	Reasons []string
+}
+
+func (e Retrieval) Error() string {
+	return "company retrieval error: " + strings.Join(e.Reasons)
 }
 
 type Create struct {

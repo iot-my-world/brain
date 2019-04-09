@@ -1,12 +1,11 @@
 package company
 
 import (
-	"github.com/satori/go.uuid"
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
-// Company is the model for the company entities in the system
 type Company struct {
 	Id   string `json:"id" bson:"id"`
 	Name string `json:"name" bson:"name"`
@@ -19,7 +18,6 @@ type Company struct {
 	ParentId        id.Identifier `json:"parentId" bson:"parentId"`
 }
 
-// Details returns the party details of the company party
 func (c Company) Details() party.Details {
 	return party.Details{
 		ParentDetail: party.ParentDetail{
@@ -33,11 +31,19 @@ func (c Company) Details() party.Details {
 	}
 }
 
-func (c Company) SetId() error {
-	newId, err := uuid.NewV4()
-	c.Id = newId.String()
-	if err != nil {
-		return err
+func (c Company) SetId(id string) {
+	c.Id = id
+}
+
+func (c Company) ValidIdentifier(id identifier.Identifier) bool {
+	if id == nil {
+		return false
 	}
-	return nil
+
+	switch id.Type() {
+	case identifier.Id, identifier.EmailAddress, identifier.AdminEmailAddress:
+		return true
+	default:
+		return false
+	}
 }

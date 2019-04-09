@@ -95,7 +95,7 @@ func (r *recordHandler) ValidateRetrieveRequest(request *brainRecordHandler.Retr
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
 		if !r.entity.ValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity type", request.Identifier.Type(), r.entity.Type()))
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity type", request.Identifier.Type(), r.collection))
 		}
 	}
 
@@ -140,7 +140,7 @@ func (r *recordHandler) ValidateUpdateRequest(request *brainRecordHandler.Update
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else if !r.entity.ValidIdentifier(request.Identifier) {
-		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.entity.Type()))
+		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.collection))
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -179,7 +179,7 @@ func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.Delete
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
 		if !r.entity.ValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.entity.Type()))
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.collection()))
 		}
 	}
 
