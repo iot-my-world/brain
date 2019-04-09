@@ -38,15 +38,15 @@ func New(
 	return &newRecordHandler
 }
 
-func setupIndices(mongoSession *mgo.Session, database, collection string, uniqueIndexes []mgo.Index) {
+func setupIndices(mongoSession *mgo.Session, database, collectionName string, uniqueIndexes []mgo.Index) {
 
 	mgoSesh := mongoSession.Copy()
 	defer mgoSesh.Close()
-	collection := mgoSesh.DB(database).C(collection)
+	collection := mgoSesh.DB(database).C(collectionName)
 
 	for _, uI := range uniqueIndexes {
 		if err := collection.EnsureIndex(uI); err != nil {
-			log.Fatal("Could not ensure uniqueness: ", err)
+			log.Fatal(fmt.Sprintf("Could not ensure uniqueness in %s collection: %s", collectionName, err.Error()))
 		}
 	}
 }
