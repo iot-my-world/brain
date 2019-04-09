@@ -26,6 +26,7 @@ func New(
 	database string,
 	collection string,
 	uniqueIndexes []mgo.Index,
+	entity brainEntity.Entity,
 ) brainRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection, uniqueIndexes)
@@ -33,6 +34,7 @@ func New(
 		mongoSession: mongoSession,
 		database:     database,
 		collection:   collection,
+		entity:       entity,
 	}
 
 	return &newRecordHandler
@@ -179,7 +181,7 @@ func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.Delete
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
 		if !r.entity.ValidIdentifier(request.Identifier) {
-			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.collection()))
+			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.collection))
 		}
 	}
 

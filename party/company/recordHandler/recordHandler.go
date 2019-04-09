@@ -1,6 +1,7 @@
 package recordHandler
 
 import (
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	brainRecordHandler "gitlab.com/iotTracker/brain/recordHandler"
@@ -17,14 +18,14 @@ type RecordHandler struct {
 
 func New(
 	brainCompanyRecordHandler brainRecordHandler.RecordHandler,
-) (*RecordHandler, error) {
+) *RecordHandler {
 
 	if brainCompanyRecordHandler == nil {
-		return nil, companyRecordHandlerException.RecordHandlerNil{}
+		log.Fatal(companyRecordHandlerException.RecordHandlerNil{}.Error())
 	}
 	return &RecordHandler{
 		recordHandler: brainCompanyRecordHandler,
-	}, nil
+	}
 }
 
 type CreateRequest struct {

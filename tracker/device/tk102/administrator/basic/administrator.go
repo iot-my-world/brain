@@ -20,7 +20,7 @@ import (
 
 type administrator struct {
 	tk102RecordHandler   tk102RecordHandler.RecordHandler
-	companyRecordHandler companyRecordHandler.RecordHandler
+	companyRecordHandler *companyRecordHandler.RecordHandler
 	clientRecordHandler  clientRecordHandler.RecordHandler
 	partyAdministrator   partyAdministrator.Administrator
 	readingRecordHandler readingRecordHandler.RecordHandler
@@ -30,7 +30,7 @@ type administrator struct {
 // New tk102 basic administrator
 func New(
 	tk102RecordHandler tk102RecordHandler.RecordHandler,
-	companyRecordHandler companyRecordHandler.RecordHandler,
+	companyRecordHandler *companyRecordHandler.RecordHandler,
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	partyAdministrator partyAdministrator.Administrator,
 	readingRecordHandler readingRecordHandler.RecordHandler,

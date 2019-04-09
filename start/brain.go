@@ -24,6 +24,8 @@ import (
 
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
+	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
+
 	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
 	userBasicAdministrator "gitlab.com/iotTracker/brain/user/administrator/basic"
 	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/recordHandler/adaptor/jsonRpc"
@@ -33,8 +35,8 @@ import (
 
 	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
 	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
-	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
 	companyValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "gitlab.com/iotTracker/brain/party/company/validator/basic"
 
@@ -80,6 +82,7 @@ import (
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/party/company"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"strings"
 )
@@ -193,13 +196,21 @@ func main() {
 	)
 
 	// Company
-	CompanyRecordHandler := companyMongoRecordHandler.New(
+	companyMongoRecordHandler := brainMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
+		companyCollection,
+		[]mgo.Index{{
+			Key:    []string{"id"},
+			Unique: true,
+		}},
+		company.Company{},
+	)
+	CompanyRecordHandler := companyRecordHandler.New(
+		companyMongoRecordHandler,
 	)
 
 	CompanyValidator := companyBasicValidator.New(
-
 		CompanyRecordHandler,
 		UserRecordHandler,
 		&systemClaims,

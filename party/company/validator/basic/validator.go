@@ -16,7 +16,7 @@ import (
 )
 
 type validator struct {
-	companyRecordHandler companyRecordHandler.RecordHandler
+	companyRecordHandler *companyRecordHandler.RecordHandler
 	userRecordHandler    userRecordHandler.RecordHandler
 	systemClaims         *login.Login
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
@@ -24,7 +24,7 @@ type validator struct {
 
 // New mongo record handler
 func New(
-	companyRecordHandler companyRecordHandler.RecordHandler,
+	companyRecordHandler *companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	systemClaims *login.Login,
 ) companyValidator.Validator {
