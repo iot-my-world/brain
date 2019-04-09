@@ -1,6 +1,7 @@
-package genRecordHandler
+package recordHandler
 
 import (
+	"gitlab.com/iotTracker/brain/entity"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/query"
@@ -8,12 +9,11 @@ import (
 )
 
 type RecordHandler interface {
-	GCreate(request *CreateRequest) (*CreateResponse, error)
-	GRetrieve(request *RetrieveRequest) (*RetrieveResponse, error)
-	GUpdate(request *UpdateRequest) (*UpdateResponse, error)
-	GDelete(request *DeleteRequest) (*DeleteResponse, error)
-	GCollect(request *CollectRequest) (*CollectResponse, error)
-	Start()
+	Create(request *CreateRequest) (*CreateResponse, error)
+	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
+	Update(request *UpdateRequest) (*UpdateResponse, error)
+	Delete(request *DeleteRequest) (*DeleteResponse, error)
+	Collect(request *CollectRequest) (*CollectResponse, error)
 }
 
 type CollectRequest struct {
@@ -23,16 +23,16 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []GenEntity
+	Records []entity.Entity
 	Total   int
 }
 
 type CreateRequest struct {
-	Entity GenEntity
+	Entity entity.Entity
 }
 
 type CreateResponse struct {
-	Entity GenEntity
+	Entity entity.Entity
 }
 
 type DeleteRequest struct {
@@ -41,17 +41,17 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Entity GenEntity
+	Entity entity.Entity
 }
 
 type UpdateRequest struct {
 	Claims     claims.Claims
 	Identifier identifier.Identifier
-	Entity     GenEntity
+	Entity     entity.Entity
 }
 
 type UpdateResponse struct {
-	Entity GenEntity
+	Entity entity.Entity
 }
 
 type RetrieveRequest struct {
@@ -60,5 +60,5 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Entity GenEntity
+	Entity entity.Entity
 }

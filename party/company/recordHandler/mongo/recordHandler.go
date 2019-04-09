@@ -11,7 +11,7 @@ import (
 )
 
 type mongoRecordHandler struct {
-	genRecordHandler.RecordHandler
+	recordHandler.RecordHandler
 }
 
 // New mongo record handler
@@ -57,8 +57,10 @@ func (mrh *mongoRecordHandler) ValidateCreateRequest(request *companyRecordHandl
 }
 
 func (mrh *mongoRecordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
-	if err := mrh.ValidateCreateRequest(request); err != nil {return nil, err} //TODO CRUD validation can be generic
-	resp, _ := mrh.GCreate(&genRecordHandler.CreateRequest{Entity: request.Company})
+	if err := mrh.ValidateCreateRequest(request); err != nil {
+		return nil, err
+	} //TODO CRUD validation can be generic
+	resp, _ := mrh.GCreate(&recordHandler.CreateRequest{Entity: request.Company})
 	comp, _ := resp.Entity.(company.Company)
 	return &companyRecordHandler.CreateResponse{Company: comp}, nil
 }
@@ -157,15 +159,17 @@ func (mrh *mongoRecordHandler) ValidateCollectRequest(request *companyRecordHand
 }
 
 func (mrh *mongoRecordHandler) Collect(request *companyRecordHandler.CollectRequest) (*companyRecordHandler.CollectResponse, error) {
-	if err := mrh.ValidateCollectRequest(request); err != nil {return nil, err} //TODO use generic validation
-	resp, _ := mrh.GCollect(&genRecordHandler.CollectRequest{
+	if err := mrh.ValidateCollectRequest(request); err != nil {
+		return nil, err
+	} //TODO use generic validation
+	resp, _ := mrh.GCollect(&recordHandler.CollectRequest{
 		Claims:   request.Claims,
 		Criteria: request.Criteria,
 		Query:    request.Query,
 	})
 
-	compResp := make([]company.Company,0)
-	for _, c := range resp.Records{
+	compResp := make([]company.Company, 0)
+	for _, c := range resp.Records {
 		comp, _ := c.(company.Company)
 		compResp = append(compResp, comp)
 	}

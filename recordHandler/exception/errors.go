@@ -23,4 +23,3 @@ type Update struct {
 func (e Update) Error() string {
 	return "company update error: " + strings.Join(e.Reasons, "; ")
 }
-
