@@ -76,6 +76,9 @@ import (
 	partyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
 	partyBasicAdministrator "gitlab.com/iotTracker/brain/party/administrator/basic"
 
+	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
+	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
+
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"strings"
@@ -292,6 +295,9 @@ func main() {
 		TK102DeviceRecordHandler,
 	)
 
+	// Barcode Scanner
+	BarcodeScanner := barcodeScanner.New()
+
 	// Create Service Provider Adaptors
 	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
@@ -332,6 +338,9 @@ func main() {
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
+
+	// Barcode Scanner
+	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
 	// Initialise the APIAuthorizer
 	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
@@ -420,6 +429,11 @@ func main() {
 	// Reports
 	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
+	}
+
+	// Barcode Scanner
+	if err := secureAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
+		log.Fatal("Unable to Register Barcode Scanner Service")
 	}
 
 	// Set up Router for secureAPIServer
