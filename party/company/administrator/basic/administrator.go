@@ -129,14 +129,13 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 	//companyRetrieveResponse.Company.AdminEmailAddress = request.Company.AdminEmailAddress
 
 	// update the company
-	companyUpdateResponse, err := a.companyRecordHandler.Update(&companyRecordHandler.UpdateRequest{
+	if _, err := a.companyRecordHandler.Update(&companyRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Company.Id},
 		Company:    companyRetrieveResponse.Company,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, companyAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 
-	return &companyAdministrator.UpdateAllowedFieldsResponse{Company: companyUpdateResponse.Company}, nil
+	return &companyAdministrator.UpdateAllowedFieldsResponse{Company: companyRetrieveResponse.Company}, nil
 }

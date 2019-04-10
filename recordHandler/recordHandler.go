@@ -9,10 +9,10 @@ import (
 )
 
 type RecordHandler interface {
-	Create(request *CreateRequest) (*CreateResponse, error)
-	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
-	Update(request *UpdateRequest) (*UpdateResponse, error)
-	Delete(request *DeleteRequest) (*DeleteResponse, error)
+	Create(request *CreateRequest, response *CreateResponse) error
+	Retrieve(request *RetrieveRequest, response *RetrieveResponse) error
+	Update(request *UpdateRequest, response *UpdateResponse) error
+	Delete(request *DeleteRequest, response *DeleteResponse) error
 	Collect(request *CollectRequest, response *CollectResponse) error
 }
 
@@ -40,9 +40,7 @@ type DeleteRequest struct {
 	Identifier identifier.Identifier
 }
 
-type DeleteResponse struct {
-	Entity entity.Entity
-}
+type DeleteResponse struct{}
 
 type UpdateRequest struct {
 	Claims     claims.Claims
@@ -50,9 +48,7 @@ type UpdateRequest struct {
 	Entity     entity.Entity
 }
 
-type UpdateResponse struct {
-	Entity entity.Entity
-}
+type UpdateResponse struct{}
 
 type RetrieveRequest struct {
 	Claims     claims.Claims

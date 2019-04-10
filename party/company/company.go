@@ -2,7 +2,6 @@ package company
 
 import (
 	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
@@ -47,19 +46,7 @@ func (c Company) SetId(id string) {
 	c.Id = id
 }
 
-func (c Company) ValidIdentifier(id identifier.Identifier) bool {
-	if id == nil {
-		return false
-	}
-
-	switch id.Type() {
-	case identifier.Id, identifier.EmailAddress, identifier.AdminEmailAddress:
-		return true
-	default:
-		return false
-	}
-}
-
+//
 //func (c Company) GetBSON() (interface{}, error) {
 //	return wrapped{
 //		Id:                c.Id,

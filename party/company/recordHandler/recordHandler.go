@@ -37,19 +37,14 @@ type CreateResponse struct {
 }
 
 func (r *RecordHandler) Create(request *CreateRequest) (*CreateResponse, error) {
-	createResponse, err := r.recordHandler.Create(&brainRecordHandler.CreateRequest{
+	createdCompany := company.Company{}
+	createResponse := brainRecordHandler.CreateResponse{
+		Entity: &createdCompany,
+	}
+	if err := r.recordHandler.Create(&brainRecordHandler.CreateRequest{
 		Entity: request.Company,
-	})
-	if err != nil {
+	}, &createResponse); err != nil {
 		return nil, companyRecordHandlerException.Create{Reasons: []string{err.Error()}}
-	}
-
-	if createResponse.Entity == nil {
-		return nil, companyRecordHandlerException.Create{Reasons: []string{"created entity is nil"}}
-	}
-	createdCompany, ok := createResponse.Entity.(company.Company)
-	if !ok {
-		return nil, companyRecordHandlerException.Create{Reasons: []string{"could not cast created entity to company"}}
 	}
 
 	return &CreateResponse{Company: createdCompany}, nil
@@ -65,25 +60,20 @@ type RetrieveResponse struct {
 }
 
 func (r *RecordHandler) Retrieve(request *RetrieveRequest) (*RetrieveResponse, error) {
-	retrieveResponse, err := r.recordHandler.Retrieve(&brainRecordHandler.RetrieveRequest{
+	retrievedCompany := company.Company{}
+	retrieveResponse := brainRecordHandler.RetrieveResponse{
+		Entity: &retrievedCompany,
+	}
+	if err := r.recordHandler.Retrieve(&brainRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	})
-	if err != nil {
+	}, &retrieveResponse); err != nil {
 		switch err.(type) {
 		case brainRecordHandlerException.NotFound:
 			return nil, companyRecordHandlerException.NotFound{}
 		default:
 			return nil, err
 		}
-	}
-
-	if retrieveResponse.Entity == nil {
-		return nil, companyRecordHandlerException.Retrieve{Reasons: []string{"retrieved entity is nil"}}
-	}
-	retrievedCompany, ok := retrieveResponse.Entity.(company.Company)
-	if !ok {
-		return nil, companyRecordHandlerException.Retrieve{Reasons: []string{"could not case retrieved entity to company"}}
 	}
 
 	return &RetrieveResponse{
@@ -97,29 +87,19 @@ type UpdateRequest struct {
 	Company    company.Company
 }
 
-type UpdateResponse struct {
-	Company company.Company
-}
+type UpdateResponse struct{}
 
 func (r *RecordHandler) Update(request *UpdateRequest) (*UpdateResponse, error) {
-	updateResponse, err := r.recordHandler.Update(&brainRecordHandler.UpdateRequest{
+	updateResponse := brainRecordHandler.UpdateResponse{}
+	if err := r.recordHandler.Update(&brainRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 		Entity:     request.Company,
-	})
-	if err != nil {
+	}, &updateResponse); err != nil {
 		return nil, companyRecordHandlerException.Update{Reasons: []string{err.Error()}}
 	}
 
-	if updateResponse.Entity == nil {
-		return nil, companyRecordHandlerException.Update{Reasons: []string{"updated entity is nil"}}
-	}
-	updatedCompany, ok := updateResponse.Entity.(company.Company)
-	if !ok {
-		return nil, companyRecordHandlerException.Update{Reasons: []string{"could not cast updated entity to company"}}
-	}
-
-	return &UpdateResponse{Company: updatedCompany}, nil
+	return &UpdateResponse{}, nil
 }
 
 type DeleteRequest struct {
@@ -128,27 +108,18 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Company company.Company
 }
 
 func (r *RecordHandler) Delete(request *DeleteRequest) (*DeleteResponse, error) {
-	deleteResponse, err := r.recordHandler.Delete(&brainRecordHandler.DeleteRequest{
+	deleteResponse := brainRecordHandler.DeleteResponse{}
+	if err := r.recordHandler.Delete(&brainRecordHandler.DeleteRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-	})
-	if err != nil {
+	}, &deleteResponse); err != nil {
 		return nil, companyRecordHandlerException.Delete{Reasons: []string{err.Error()}}
 	}
 
-	if deleteResponse.Entity == nil {
-		return nil, companyRecordHandlerException.Delete{Reasons: []string{"updated entity is nil"}}
-	}
-	deletedCompany, ok := deleteResponse.Entity.(company.Company)
-	if !ok {
-		return nil, companyRecordHandlerException.Delete{Reasons: []string{"could not cast deleted entity to company"}}
-	}
-
-	return &DeleteResponse{Company: deletedCompany}, nil
+	return &DeleteResponse{}, nil
 }
 
 type CollectRequest struct {

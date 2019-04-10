@@ -3,22 +3,21 @@ package mongo
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
-	brainEntity "gitlab.com/iotTracker/brain/entity"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	brainRecordHandler "gitlab.com/iotTracker/brain/recordHandler"
 	recordHandlerException "gitlab.com/iotTracker/brain/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gopkg.in/mgo.v2"
 )
 
 type recordHandler struct {
-	mongoSession *mgo.Session
-	database     string
-	collection   string
-	entity       brainEntity.Entity
-	entitySlice  interface{}
+	mongoSession    *mgo.Session
+	database        string
+	collection      string
+	validIdentifier func(id identifier.Identifier) bool
 }
 
 // New mongo record handler
@@ -27,15 +26,15 @@ func New(
 	database string,
 	collection string,
 	uniqueIndexes []mgo.Index,
-	entity brainEntity.Entity,
+	validIdentifier func(id identifier.Identifier) bool,
 ) brainRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection, uniqueIndexes)
 	newRecordHandler := recordHandler{
-		mongoSession: mongoSession,
-		database:     database,
-		collection:   collection,
-		entity:       entity,
+		mongoSession:    mongoSession,
+		database:        database,
+		collection:      collection,
+		validIdentifier: validIdentifier,
 	}
 
 	return &newRecordHandler
@@ -63,9 +62,9 @@ func (r *recordHandler) ValidateCreateRequest(request *brainRecordHandler.Create
 	return nil
 }
 
-func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest) (*brainRecordHandler.CreateResponse, error) {
+func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest, response *brainRecordHandler.CreateResponse) error {
 	if err := r.ValidateCreateRequest(request); err != nil {
-		return nil, err
+		return err
 	}
 
 	mgoSession := r.mongoSession.Copy()
@@ -75,16 +74,16 @@ func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest) (*brai
 
 	newId, err := uuid.NewV4()
 	if err != nil {
-		return nil, brainException.UUIDGeneration{Reasons: []string{err.Error()}}
+		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 
 	request.Entity.SetId(newId.String())
 
 	if err := collection.Insert(request.Entity); err != nil {
-		return nil, recordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return recordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
-	return &brainRecordHandler.CreateResponse{Entity: request.Entity}, nil
+	return nil
 }
 
 func (r *recordHandler) ValidateRetrieveRequest(request *brainRecordHandler.RetrieveRequest) error {
@@ -97,7 +96,7 @@ func (r *recordHandler) ValidateRetrieveRequest(request *brainRecordHandler.Retr
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !r.entity.ValidIdentifier(request.Identifier) {
+		if !r.validIdentifier(request.Identifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity type", request.Identifier.Type(), r.collection))
 		}
 	}
@@ -108,9 +107,9 @@ func (r *recordHandler) ValidateRetrieveRequest(request *brainRecordHandler.Retr
 	return nil
 }
 
-func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest) (*brainRecordHandler.RetrieveResponse, error) {
+func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest, response *brainRecordHandler.RetrieveResponse) error {
 	if err := r.ValidateRetrieveRequest(request); err != nil {
-		return nil, err
+		return err
 	}
 
 	mgoSession := r.mongoSession.Copy()
@@ -118,19 +117,17 @@ func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest) (*
 
 	collection := mgoSession.DB(r.database).C(r.collection)
 
-	var entityRecord brainEntity.Entity
-
 	filter := request.Identifier.ToFilter()
 	filter = claims.ContextualiseFilter(filter, request.Claims)
 
-	if err := collection.Find(filter).One(&entityRecord); err != nil {
+	if err := collection.Find(filter).One(&response.Entity); err != nil {
 		if err == mgo.ErrNotFound {
-			return nil, recordHandlerException.NotFound{}
+			return recordHandlerException.NotFound{}
 		}
-		return nil, brainException.Unexpected{Reasons: []string{err.Error()}}
+		return brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
 
-	return &brainRecordHandler.RetrieveResponse{Entity: entityRecord}, nil
+	return nil
 }
 
 func (r *recordHandler) ValidateUpdateRequest(request *brainRecordHandler.UpdateRequest) error {
@@ -142,7 +139,7 @@ func (r *recordHandler) ValidateUpdateRequest(request *brainRecordHandler.Update
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
-	} else if !r.entity.ValidIdentifier(request.Identifier) {
+	} else if !r.validIdentifier(request.Identifier) {
 		reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.collection))
 	}
 
@@ -152,9 +149,9 @@ func (r *recordHandler) ValidateUpdateRequest(request *brainRecordHandler.Update
 	return nil
 }
 
-func (r *recordHandler) Update(request *brainRecordHandler.UpdateRequest) (*brainRecordHandler.UpdateResponse, error) {
+func (r *recordHandler) Update(request *brainRecordHandler.UpdateRequest, response *brainRecordHandler.UpdateResponse) error {
 	if err := r.ValidateUpdateRequest(request); err != nil {
-		return nil, err
+		return err
 	}
 
 	mgoSession := r.mongoSession.Copy()
@@ -164,11 +161,12 @@ func (r *recordHandler) Update(request *brainRecordHandler.UpdateRequest) (*brai
 
 	filter := request.Identifier.ToFilter()
 	filter = claims.ContextualiseFilter(filter, request.Claims)
+
 	if err := collection.Update(filter, request.Entity); err != nil {
-		return nil, recordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return recordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
-	return &brainRecordHandler.UpdateResponse{Entity: request.Entity}, nil
+	return nil
 }
 
 func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.DeleteRequest) error {
@@ -181,7 +179,7 @@ func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.Delete
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !r.entity.ValidIdentifier(request.Identifier) {
+		if !r.validIdentifier(request.Identifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for %s entity", request.Identifier.Type(), r.collection))
 		}
 	}
@@ -192,9 +190,9 @@ func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.Delete
 	return nil
 }
 
-func (r *recordHandler) Delete(request *brainRecordHandler.DeleteRequest) (*brainRecordHandler.DeleteResponse, error) {
+func (r *recordHandler) Delete(request *brainRecordHandler.DeleteRequest, response *brainRecordHandler.DeleteResponse) error {
 	if err := r.ValidateDeleteRequest(request); err != nil {
-		return nil, err
+		return err
 	}
 
 	mgoSession := r.mongoSession.Copy()
@@ -204,11 +202,12 @@ func (r *recordHandler) Delete(request *brainRecordHandler.DeleteRequest) (*brai
 
 	filter := request.Identifier.ToFilter()
 	filter = claims.ContextualiseFilter(filter, request.Claims)
+
 	if err := collection.Remove(filter); err != nil {
-		return nil, err
+		return err
 	}
 
-	return &brainRecordHandler.DeleteResponse{}, nil
+	return nil
 }
 
 func (r *recordHandler) ValidateCollectRequest(request *brainRecordHandler.CollectRequest) error {

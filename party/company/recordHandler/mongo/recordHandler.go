@@ -20,7 +20,7 @@ func New(
 			Key:    []string{"id"},
 			Unique: true,
 		}},
-		company.Company{},
+		company.IsValidIdentifier,
 	)
 
 	return companyRecordHandler.New(
