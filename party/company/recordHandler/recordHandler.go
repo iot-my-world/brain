@@ -163,30 +163,17 @@ type CollectResponse struct {
 }
 
 func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, error) {
-	collectResponse, err := r.recordHandler.Collect(&brainRecordHandler.CollectRequest{
+	var collectedCompanies []company.Company
+	collectResponse := brainRecordHandler.CollectResponse{
+		Records: &collectedCompanies,
+	}
+	err := r.recordHandler.Collect(&brainRecordHandler.CollectRequest{
 		Claims:   request.Claims,
 		Criteria: request.Criteria,
 		Query:    request.Query,
-	})
+	}, &collectResponse)
 	if err != nil {
-		return nil, companyRecordHandlerException.Delete{Reasons: []string{err.Error()}}
-	}
-
-	collectedCompanies := make([]company.Company, 0)
-	if collectResponse.Records == nil {
-		return nil, companyRecordHandlerException.Collect{Reasons: []string{"entities are nil in collect response"}}
-	} else {
-		for _, companyEntity := range collectResponse.Records {
-
-			if companyEntity == nil {
-				return nil, companyRecordHandlerException.Collect{Reasons: []string{"a collected entity is nil"}}
-			}
-			collectedCompany, ok := companyEntity.(company.Company)
-			if !ok {
-				return nil, companyRecordHandlerException.Collect{Reasons: []string{"could not cast a collected entity to company"}}
-			}
-			collectedCompanies = append(collectedCompanies, collectedCompany)
-		}
+		return nil, companyRecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
 	return &CollectResponse{

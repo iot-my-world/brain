@@ -18,6 +18,7 @@ type recordHandler struct {
 	database     string
 	collection   string
 	entity       brainEntity.Entity
+	entitySlice  interface{}
 }
 
 // New mongo record handler
@@ -27,6 +28,7 @@ func New(
 	collection string,
 	uniqueIndexes []mgo.Index,
 	entity brainEntity.Entity,
+	entitySlice interface{},
 ) brainRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection, uniqueIndexes)
@@ -35,6 +37,7 @@ func New(
 		database:     database,
 		collection:   collection,
 		entity:       entity,
+		entitySlice:  entitySlice,
 	}
 
 	return &newRecordHandler
@@ -233,15 +236,13 @@ func (r *recordHandler) ValidateCollectRequest(request *brainRecordHandler.Colle
 	return nil
 }
 
-func (r *recordHandler) Collect(request *brainRecordHandler.CollectRequest) (*brainRecordHandler.CollectResponse, error) {
+func (r *recordHandler) Collect(request *brainRecordHandler.CollectRequest, response *brainRecordHandler.CollectResponse) error {
 	if err := r.ValidateCollectRequest(request); err != nil {
-		return nil, err
+		return err
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
 	filter = claims.ContextualiseFilter(filter, request.Claims)
-
-	response := brainRecordHandler.CollectResponse{}
 
 	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
@@ -254,7 +255,7 @@ func (r *recordHandler) Collect(request *brainRecordHandler.CollectRequest) (*br
 	if total, err := query.Count(); err == nil {
 		response.Total = total
 	} else {
-		return nil, err
+		return err
 	}
 
 	// Apply limit if applicable
@@ -269,9 +270,9 @@ func (r *recordHandler) Collect(request *brainRecordHandler.CollectRequest) (*br
 	if err := query.
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).
-		All(&response.Records); err != nil {
-		return nil, err
+		All(response.Records); err != nil {
+		return err
 	}
 
-	return &response, nil
+	return nil
 }

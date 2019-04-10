@@ -13,7 +13,7 @@ type RecordHandler interface {
 	Retrieve(request *RetrieveRequest) (*RetrieveResponse, error)
 	Update(request *UpdateRequest) (*UpdateResponse, error)
 	Delete(request *DeleteRequest) (*DeleteResponse, error)
-	Collect(request *CollectRequest) (*CollectResponse, error)
+	Collect(request *CollectRequest, response *CollectResponse) error
 }
 
 type CollectRequest struct {
@@ -23,7 +23,7 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []entity.Entity
+	Records interface{}
 	Total   int
 }
 

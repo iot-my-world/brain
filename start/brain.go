@@ -205,6 +205,7 @@ func main() {
 			Unique: true,
 		}},
 		company.Company{},
+		make([]company.Company, 0),
 	)
 	CompanyRecordHandler := companyRecordHandler.New(
 		companyMongoRecordHandler,
