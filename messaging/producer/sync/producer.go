@@ -13,8 +13,14 @@ type producer struct {
 	topic    string
 }
 
-func New() messagingProducer.Producer {
-	return &producer{}
+func New(
+	brokers []string,
+	topic string,
+) messagingProducer.Producer {
+	return &producer{
+		brokers: brokers,
+		topic:   topic,
+	}
 }
 
 func (p *producer) Start() error {
@@ -43,7 +49,9 @@ func (p *producer) Start() error {
 func (p *producer) Produce(data []byte) error {
 	// We are not setting a message key, which means that all messages will
 	// be distributed randomly over the different partitions.
-	partition, offset, err := p.producer.SendMessage(&sarama.ProducerMessage{
+
+	//partition, offset, err := p.producer.SendMessage(&sarama.ProducerMessage{
+	_, _, err := p.producer.SendMessage(&sarama.ProducerMessage{
 		Topic: p.topic,
 		Value: sarama.ByteEncoder(data),
 	})
@@ -52,7 +60,7 @@ func (p *producer) Produce(data []byte) error {
 	} else {
 		// The tuple (topic, partition, offset) can be used as a unique identifier
 		// for a message in a Kafka cluster.
-		log.Debug("Published kafka message", "`"+string(data)[:30]+"...`", "to", "`"+p.topic+"`", "on partition", partition, "with offset", offset)
+		log.Debug("Published kafka message")
 	}
 	return nil
 }
