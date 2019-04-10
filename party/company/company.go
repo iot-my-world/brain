@@ -42,7 +42,7 @@ func (c Company) Details() party.Details {
 	}
 }
 
-func (c Company) SetId(id string) {
+func (c *Company) SetId(id string) {
 	c.Id = id
 }
 

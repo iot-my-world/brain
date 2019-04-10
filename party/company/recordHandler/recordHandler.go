@@ -37,17 +37,20 @@ type CreateResponse struct {
 }
 
 func (r *RecordHandler) Create(request *CreateRequest) (*CreateResponse, error) {
-	createdCompany := company.Company{}
-	createResponse := brainRecordHandler.CreateResponse{
-		Entity: &createdCompany,
-	}
+	createResponse := brainRecordHandler.CreateResponse{}
 	if err := r.recordHandler.Create(&brainRecordHandler.CreateRequest{
-		Entity: request.Company,
+		Entity: &request.Company,
 	}, &createResponse); err != nil {
 		return nil, companyRecordHandlerException.Create{Reasons: []string{err.Error()}}
 	}
+	createdCompany, ok := createResponse.Entity.(*company.Company)
+	if !ok {
+		return nil, companyRecordHandlerException.Create{Reasons: []string{"could not cast created entity to company"}}
+	}
 
-	return &CreateResponse{Company: createdCompany}, nil
+	return &CreateResponse{
+		Company: *createdCompany,
+	}, nil
 }
 
 type RetrieveRequest struct {
@@ -94,7 +97,7 @@ func (r *RecordHandler) Update(request *UpdateRequest) (*UpdateResponse, error) 
 	if err := r.recordHandler.Update(&brainRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-		Entity:     request.Company,
+		Entity:     &request.Company,
 	}, &updateResponse); err != nil {
 		return nil, companyRecordHandlerException.Update{Reasons: []string{err.Error()}}
 	}

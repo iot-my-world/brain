@@ -91,6 +91,8 @@ func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest, respon
 		return recordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
+	response.Entity = request.Entity
+
 	return nil
 }
 
@@ -128,7 +130,7 @@ func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest, re
 	filter := request.Identifier.ToFilter()
 	filter = r.contextualiseFilter(filter, request.Claims)
 
-	if err := collection.Find(filter).One(&response.Entity); err != nil {
+	if err := collection.Find(filter).One(response.Entity); err != nil {
 		if err == mgo.ErrNotFound {
 			return recordHandlerException.NotFound{}
 		}
