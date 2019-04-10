@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/Shopify/sarama"
+	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
+	consumerGroupException "gitlab.com/iotTracker/brain/message/consumer/group/exception"
 	"os"
 	"os/signal"
 	"syscall"
@@ -65,7 +67,7 @@ func (g *group) Start() error {
 
 	version, err := sarama.ParseKafkaVersion(sarama.V1_1_1_0.String())
 	if err != nil {
-		log.Fatal(err)
+		return brainException.Unexpected{Reasons: []string{"parsing kafka version", err.Error()}}
 	}
 
 	/*
@@ -82,7 +84,7 @@ func (g *group) Start() error {
 	ctx := context.Background()
 	client, err := sarama.NewConsumerGroup(g.brokers, g.groupName, config)
 	if err != nil {
-		panic(err)
+		return consumerGroupException.GroupCreation{GroupName: g.groupName, Reasons: []string{err.Error()}}
 	}
 
 	go func() {
@@ -90,7 +92,7 @@ func (g *group) Start() error {
 			consumer.ready = make(chan bool, 0)
 			err := client.Consume(ctx, g.topics, &consumer)
 			if err != nil {
-				panic(err)
+				log.Fatal(consumerGroupException.Consumption{Reasons: []string{err.Error()}}.Error())
 			}
 		}
 	}()
