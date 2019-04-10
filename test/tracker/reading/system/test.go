@@ -10,7 +10,7 @@ import (
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
-	systemTest "gitlab.com/iotTracker/brain/test/system"
+	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
 	"gitlab.com/iotTracker/brain/tracker/device"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/tracker/reading"
@@ -33,8 +33,8 @@ func (suite *System) SetupTest() {
 
 	// log in the client
 	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
-		UsernameOrEmailAddress: systemTest.User.Username,
-		Password:               string(systemTest.User.Password),
+		UsernameOrEmailAddress: systemTestData.User.Username,
+		Password:               string(systemTestData.User.Password),
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}

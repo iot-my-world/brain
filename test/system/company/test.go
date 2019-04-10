@@ -41,8 +41,6 @@ func (suite *Company) SetupTest() {
 	}
 }
 
-// <a href="https://imgur.com/WpehiuI"><img src="https://i.imgur.com/WpehiuI.jpg" title="source: imgur.com" /></a>
-
 func (suite *Company) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
 	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
