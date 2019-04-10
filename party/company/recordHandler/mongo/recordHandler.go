@@ -21,6 +21,7 @@ func New(
 			Unique: true,
 		}},
 		company.IsValidIdentifier,
+		company.ContextualiseFilter,
 	)
 
 	return companyRecordHandler.New(

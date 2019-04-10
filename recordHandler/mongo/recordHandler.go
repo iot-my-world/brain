@@ -11,13 +11,15 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type recordHandler struct {
-	mongoSession    *mgo.Session
-	database        string
-	collection      string
-	validIdentifier func(id identifier.Identifier) bool
+	mongoSession        *mgo.Session
+	database            string
+	collection          string
+	validIdentifier     func(id identifier.Identifier) bool
+	contextualiseFilter func(filter bson.M, claimsToAdd claims.Claims) bson.M
 }
 
 // New mongo record handler
@@ -27,14 +29,20 @@ func New(
 	collection string,
 	uniqueIndexes []mgo.Index,
 	validIdentifier func(id identifier.Identifier) bool,
+	contextualiseFilter func(filter bson.M, claimsToAdd claims.Claims) bson.M,
 ) brainRecordHandler.RecordHandler {
+
+	if contextualiseFilter == nil {
+		contextualiseFilter = claims.ContextualiseFilter
+	}
 
 	setupIndices(mongoSession, database, collection, uniqueIndexes)
 	newRecordHandler := recordHandler{
-		mongoSession:    mongoSession,
-		database:        database,
-		collection:      collection,
-		validIdentifier: validIdentifier,
+		mongoSession:        mongoSession,
+		database:            database,
+		collection:          collection,
+		validIdentifier:     validIdentifier,
+		contextualiseFilter: contextualiseFilter,
 	}
 
 	return &newRecordHandler
@@ -118,7 +126,7 @@ func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest, re
 	collection := mgoSession.DB(r.database).C(r.collection)
 
 	filter := request.Identifier.ToFilter()
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = r.contextualiseFilter(filter, request.Claims)
 
 	if err := collection.Find(filter).One(&response.Entity); err != nil {
 		if err == mgo.ErrNotFound {
@@ -160,7 +168,7 @@ func (r *recordHandler) Update(request *brainRecordHandler.UpdateRequest, respon
 	collection := mgoSession.DB(r.database).C(r.collection)
 
 	filter := request.Identifier.ToFilter()
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = r.contextualiseFilter(filter, request.Claims)
 
 	if err := collection.Update(filter, request.Entity); err != nil {
 		return recordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
@@ -201,7 +209,7 @@ func (r *recordHandler) Delete(request *brainRecordHandler.DeleteRequest, respon
 	collection := mgoSession.DB(r.database).C(r.collection)
 
 	filter := request.Identifier.ToFilter()
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = r.contextualiseFilter(filter, request.Claims)
 
 	if err := collection.Remove(filter); err != nil {
 		return err
@@ -239,7 +247,7 @@ func (r *recordHandler) Collect(request *brainRecordHandler.CollectRequest, resp
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = r.contextualiseFilter(filter, request.Claims)
 
 	mgoSession := r.mongoSession.Copy()
 	defer mgoSession.Close()
