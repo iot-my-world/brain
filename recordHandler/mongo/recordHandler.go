@@ -28,7 +28,6 @@ func New(
 	collection string,
 	uniqueIndexes []mgo.Index,
 	entity brainEntity.Entity,
-	entitySlice interface{},
 ) brainRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection, uniqueIndexes)
@@ -37,7 +36,6 @@ func New(
 		database:     database,
 		collection:   collection,
 		entity:       entity,
-		entitySlice:  entitySlice,
 	}
 
 	return &newRecordHandler
