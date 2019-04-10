@@ -198,6 +198,7 @@ func main() {
 		databaseName,
 		companyCollection,
 	)
+
 	CompanyValidator := companyBasicValidator.New(
 		CompanyRecordHandler,
 		UserRecordHandler,

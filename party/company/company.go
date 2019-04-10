@@ -5,7 +5,6 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
-// Company is the model for the company entities in the system
 type Company struct {
 	Id   string `json:"id" bson:"id"`
 	Name string `json:"name" bson:"name"`
@@ -18,7 +17,18 @@ type Company struct {
 	ParentId        id.Identifier `json:"parentId" bson:"parentId"`
 }
 
-// Details returns the party details of the company party
+type wrapped struct {
+	Id   string `json:"id" bson:"id"`
+	Name string `json:"name" bson:"name"`
+	// The email address which will be used to invite the admin
+	// user of the company
+	// I.e. the first user of the system from the company
+	AdminEmailAddress string `json:"adminEmailAddress" bson:"adminEmailAddress"`
+
+	ParentPartyType party.Type    `json:"parentPartyType" bson:"parentPartyType"`
+	ParentId        id.Identifier `json:"parentId" bson:"parentId"`
+}
+
 func (c Company) Details() party.Details {
 	return party.Details{
 		ParentDetail: party.ParentDetail{
@@ -31,3 +41,34 @@ func (c Company) Details() party.Details {
 		},
 	}
 }
+
+func (c *Company) SetId(id string) {
+	c.Id = id
+}
+
+//
+//func (c Company) GetBSON() (interface{}, error) {
+//	return wrapped{
+//		Id:                c.Id,
+//		Name:              c.Name,
+//		AdminEmailAddress: c.AdminEmailAddress,
+//		ParentPartyType:   c.ParentPartyType,
+//		ParentId:          c.ParentId,
+//	}, nil
+//}
+//
+//func (c Company) SetBSON(raw bson.Raw) error {
+//	unmarshalledCompany := new(wrapped)
+//	err := raw.Unmarshal(unmarshalledCompany)
+//	if err != nil {
+//		return err
+//	}
+//
+//	c.Id = unmarshalledCompany.Id
+//	c.Name = unmarshalledCompany.Name
+//	c.AdminEmailAddress = unmarshalledCompany.AdminEmailAddress
+//	c.ParentPartyType = unmarshalledCompany.ParentPartyType
+//	c.ParentId = unmarshalledCompany.ParentId
+//
+//	return nil
+//}

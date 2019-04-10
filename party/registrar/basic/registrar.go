@@ -33,7 +33,7 @@ import (
 )
 
 type registrar struct {
-	companyRecordHandler       companyRecordHandler.RecordHandler
+	companyRecordHandler       *companyRecordHandler.RecordHandler
 	userRecordHandler          userRecordHandler.RecordHandler
 	userValidator              userValidator.Validator
 	userAdministrator          userAdministrator.Administrator
@@ -46,7 +46,7 @@ type registrar struct {
 }
 
 func New(
-	companyRecordHandler companyRecordHandler.RecordHandler,
+	companyRecordHandler *companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	userValidator userValidator.Validator,
 	userAdministrator userAdministrator.Administrator,

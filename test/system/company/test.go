@@ -17,7 +17,7 @@ import (
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
-	systemTest "gitlab.com/iotTracker/brain/test/system"
+	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"
@@ -34,14 +34,12 @@ func (suite *Company) SetupTest() {
 
 	// log in the client
 	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
-		UsernameOrEmailAddress: systemTest.User.Username,
-		Password:               string(systemTest.User.Password),
+		UsernameOrEmailAddress: systemTestData.User.Username,
+		Password:               string(systemTestData.User.Password),
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
 }
-
-// <a href="https://imgur.com/WpehiuI"><img src="https://i.imgur.com/WpehiuI.jpg" title="source: imgur.com" /></a>
 
 func (suite *Company) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
