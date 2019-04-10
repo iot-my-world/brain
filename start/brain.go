@@ -79,6 +79,8 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
+	messageConsumerGroup "gitlab.com/iotTracker/brain/message/consumer/group"
+
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"strings"
@@ -96,8 +98,11 @@ func main() {
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
 	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
 	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
+	kafkaBrokers := flag.String("kafkaBrokers", "127.0.0.1:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
+
+	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
 
 	// Connect to database
 	log.Info("connecting to mongo...")
@@ -445,6 +450,18 @@ func main() {
 	go func() {
 		err := http.ListenAndServe(":"+serverPort, secureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
+		os.Exit(1)
+	}()
+
+	// set up kafka consumer group
+	MessageConsumerGroup := messageConsumerGroup.New(
+		kafkaBrokerNodes,
+		[]string{"brainQueue"},
+		"brain",
+	)
+	go func() {
+		err := MessageConsumerGroup.Start()
+		log.Error(err.Error())
 		os.Exit(1)
 	}()
 
