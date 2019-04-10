@@ -79,7 +79,7 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
-	messageConsumerGroup "gitlab.com/iotTracker/brain/message/consumer/group"
+	messageConsumerGroup "gitlab.com/iotTracker/brain/messaging/consumer/group"
 
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
@@ -98,11 +98,9 @@ func main() {
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
 	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
 	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
-	kafkaBrokers := flag.String("kafkaBrokers", "127.0.0.1:9092", "ipAddress:port of each kafka broker node (, separated)")
+	kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
-
-	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
 
 	// Connect to database
 	log.Info("connecting to mongo...")
@@ -453,7 +451,8 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// set up kafka consumer group
+	// set up kafka messaging
+	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
 	MessageConsumerGroup := messageConsumerGroup.New(
 		kafkaBrokerNodes,
 		[]string{"brainQueue"},

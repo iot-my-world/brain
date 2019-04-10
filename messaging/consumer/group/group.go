@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/Shopify/sarama"
-	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
-	consumerGroupException "gitlab.com/iotTracker/brain/message/consumer/group/exception"
+	consumerGroupException "gitlab.com/iotTracker/brain/messaging/consumer/group/exception"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,6 +19,7 @@ type consumer struct {
 // Setup is run at the beginning of a new session, before ConsumeClaim
 func (c *consumer) Setup(sarama.ConsumerGroupSession) error {
 	// Mark the consumer as ready
+	c.ready <- true
 	close(c.ready)
 	return nil
 }
@@ -37,7 +37,7 @@ func (c *consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 	// The `ConsumeClaim` itself is called within a goroutine, see:
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
-		log.Info("Message claimed: value = %s, timestamp = %v, topic = %s", string(message.Value), message.Timestamp, message.Topic)
+		log.Info(fmt.Sprintf("Message claimed: value = %s, timestamp = %v, topic = %s", string(message.Value), message.Timestamp, message.Topic))
 		session.MarkMessage(message, "")
 	}
 
@@ -65,32 +65,29 @@ func New(
 func (g *group) Start() error {
 	log.Info(fmt.Sprintf("Starting a Consumer Group %s", g.groupName))
 
-	version, err := sarama.ParseKafkaVersion(sarama.V1_1_1_0.String())
+	config := sarama.NewConfig()
+	config.Version = sarama.V1_1_1_0
+	config.Consumer.Return.Errors = true
+
+	client, err := sarama.NewClient(g.brokers, config)
 	if err != nil {
-		return brainException.Unexpected{Reasons: []string{"parsing kafka version", err.Error()}}
+		log.Fatal("Failed to create kafka client: ", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	consumer := consumer{
+		ready: make(chan bool, 0),
 	}
 
-	/*
-		Construct a new Sarama configuration.
-		The Kafka cluster version has to be defined before the consumer/producer is initialized.
-	*/
-	config := sarama.NewConfig()
-	config.Version = version
-
-	config.Consumer.Offsets.Initial = sarama.OffsetOldest
-
-	consumer := consumer{}
-
 	ctx := context.Background()
-	client, err := sarama.NewConsumerGroup(g.brokers, g.groupName, config)
+	consumerGroup, err := sarama.NewConsumerGroupFromClient(g.groupName, client)
 	if err != nil {
 		return consumerGroupException.GroupCreation{GroupName: g.groupName, Reasons: []string{err.Error()}}
 	}
 
 	go func() {
 		for {
-			consumer.ready = make(chan bool, 0)
-			err := client.Consume(ctx, g.topics, &consumer)
+			err := consumerGroup.Consume(ctx, g.topics, &consumer)
 			if err != nil {
 				log.Fatal(consumerGroupException.Consumption{Reasons: []string{err.Error()}}.Error())
 			}
