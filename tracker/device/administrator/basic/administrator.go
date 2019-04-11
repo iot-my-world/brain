@@ -48,3 +48,20 @@ func (a *administrator) Collect(request *deviceAdministrator.CollectRequest) (*d
 		Records: make([]device.Device, 0),
 	}, nil
 }
+
+func (a *administrator) ValidateCreateRequest(request *deviceAdministrator.CreateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Create(request *deviceAdministrator.CreateRequest) (*deviceAdministrator.CreateResponse, error) {
+	if err := a.ValidateCreateRequest(request); err != nil {
+		return nil, err
+	}
+
+	return &deviceAdministrator.CreateResponse{}, nil
+}

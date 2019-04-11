@@ -67,6 +67,8 @@ const TK102DeviceValidatorValidate Permission = "TK102DeviceValidator.Validate"
 const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
 const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Create"
 
+const DeviceAdministratorCreate Permission = "DeviceAdministrator.Create"
+
 // Reading
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
 

@@ -61,6 +61,9 @@ import (
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
 
+	deviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/administrator/adaptor/jsonRpc"
+	deviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator/basic"
+
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
 
@@ -291,6 +294,9 @@ func main() {
 		TK102DeviceValidator,
 	)
 
+	// Device
+	DeviceAdministrator := deviceBasicAdministrator.New()
+
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
@@ -334,6 +340,9 @@ func main() {
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
+
+	// Device
+	DeviceAdministratorAdaptor := deviceAdministratorJsonRpcAdaptor.New(DeviceAdministrator)
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
@@ -419,6 +428,9 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
+	}
+	if err := secureAPIServer.RegisterService(DeviceAdministratorAdaptor, "DeviceAdministrator"); err != nil {
+		log.Fatal("Unable to Register Device Administrator")
 	}
 
 	// Reading

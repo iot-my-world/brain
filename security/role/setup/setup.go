@@ -47,6 +47,9 @@ var initialRoles = func() []role.Role {
 		api.TK102DeviceAdministratorCreate,
 		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
 
+		// Device
+		api.DeviceAdministratorCreate,
+
 		// Reading
 		api.ReadingAdministratorCreate,
 		api.ReadingAdministratorCreateBulk,

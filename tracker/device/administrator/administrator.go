@@ -9,6 +9,7 @@ import (
 
 type Administrator interface {
 	Collect(request *CollectRequest) (*CollectResponse, error)
+	Create(request *CreateRequest) (*CreateResponse, error)
 }
 
 type CollectRequest struct {
@@ -20,4 +21,13 @@ type CollectRequest struct {
 type CollectResponse struct {
 	Records []device.Device
 	Total   int
+}
+
+type CreateRequest struct {
+	Claims claims.Claims
+	Device device.Device
+}
+
+type CreateResponse struct {
+	Device device.Device
 }
