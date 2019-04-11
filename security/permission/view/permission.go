@@ -8,6 +8,8 @@ const PartyClientConfiguration Permission = "PartyClientConfiguration"
 const PartyUserConfiguration Permission = "PartyUserConfiguration"
 const DeviceConfiguration Permission = "DeviceConfiguration"
 
+const PartyProfileEditing Permission = "PartyProfileEditing"
+
 const Dashboards Permission = "Dashboards"
 const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"

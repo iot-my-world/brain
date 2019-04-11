@@ -150,6 +150,7 @@ var CompanyAdmin = role.Role{
 		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+		view.PartyProfileEditing,
 	},
 }
 var CompanyUser = role.Role{
@@ -228,6 +229,7 @@ var ClientAdmin = role.Role{
 		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+		view.PartyProfileEditing,
 	},
 }
 
