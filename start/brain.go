@@ -61,6 +61,7 @@ import (
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
 
+	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
 	deviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/administrator/adaptor/jsonRpc"
 	deviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator/basic"
 
@@ -295,7 +296,14 @@ func main() {
 	)
 
 	// Device
-	DeviceAdministrator := deviceBasicAdministrator.New()
+	DeviceRecordHandler := deviceMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		deviceCollection,
+	)
+	DeviceAdministrator := deviceBasicAdministrator.New(
+		DeviceRecordHandler,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(

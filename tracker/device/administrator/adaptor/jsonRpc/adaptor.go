@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/tracker/device"
+	wrappedDevice "gitlab.com/iotTracker/brain/tracker/device/wrapped"
 	deviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator"
 	"net/http"
 )
@@ -21,7 +22,7 @@ func New(
 }
 
 type CreateRequest struct {
-	Device device.Device `json:"device"`
+	WrappedDevice wrappedDevice.Wrapped `json:"device"`
 }
 
 type CreateResponse struct {
@@ -38,7 +39,7 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 	createDeviceResponse, err := a.deviceAdministrator.Create(
 		&deviceAdministrator.CreateRequest{
 			Claims: claims,
-			Device: request.Device,
+			Device: request.WrappedDevice.Device,
 		})
 	if err != nil {
 		return err
