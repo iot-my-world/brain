@@ -116,6 +116,7 @@ var CompanyAdmin = role.Role{
 		api.CompanyRecordHandlerCollect,
 
 		api.CompanyAdministratorUpdateAllowedFields,
+		api.CompanyValidatorValidate,
 
 		// Client
 		api.ClientRecordHandlerRetrieve,
@@ -152,6 +153,7 @@ var CompanyAdmin = role.Role{
 		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+		view.PartyProfileEditing,
 	},
 }
 var CompanyUser = role.Role{
@@ -205,6 +207,8 @@ var ClientAdmin = role.Role{
 
 		api.ClientAdministratorUpdateAllowedFields,
 
+		api.ClientValidatorValidate,
+
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
 		api.TK102DeviceRecordHandlerRetrieve,
@@ -228,6 +232,7 @@ var ClientAdmin = role.Role{
 		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+		view.PartyProfileEditing,
 	},
 }
 
