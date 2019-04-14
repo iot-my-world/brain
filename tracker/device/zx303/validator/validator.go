@@ -1,32 +1,22 @@
 package validator
 
 import (
-	brainException "gitlab.com/iotTracker/brain/exception"
-	deviceValidator "gitlab.com/iotTracker/brain/tracker/device/validator"
+	"gitlab.com/iotTracker/brain/action"
+	"gitlab.com/iotTracker/brain/security/claims"
+	"gitlab.com/iotTracker/brain/tracker/device/zx303"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
-type validator struct{}
-
-func New() deviceValidator.Validator {
-	return &validator{}
+type Validator interface {
+	Validate(request *ValidateRequest) (*ValidateResponse, error)
 }
 
-func (v *validator) ValidateValidateRequest(request *deviceValidator.ValidateRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	}
-	return nil
+type ValidateRequest struct {
+	Claims claims.Claims
+	ZX303  zx303.ZX303
+	Action action.Action
 }
 
-func (v *validator) Validate(request *deviceValidator.ValidateRequest) (*deviceValidator.ValidateResponse, error) {
-	if err := v.ValidateValidateRequest(request); err != nil {
-		return nil, err
-	}
-
-	return &deviceValidator.ValidateResponse{
-		ReasonsInvalid: make([]reasonInvalid.ReasonInvalid, 0),
-	}, nil
+type ValidateResponse struct {
+	ReasonsInvalid []reasonInvalid.ReasonInvalid
 }

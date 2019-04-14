@@ -61,14 +61,12 @@ import (
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
 
-	deviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/administrator/adaptor/jsonRpc"
-	deviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator/basic"
-	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
-	deviceValidator "gitlab.com/iotTracker/brain/tracker/device/validator"
-	deviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/validator/adaptor/jsonRpc"
-	deviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/validator/basic"
-
-	zx303DeviceValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator"
+	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/basic"
+	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/mongo"
+	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/basic"
+	//zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/adaptor/jsonRpc"
+	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/adaptor/jsonRpc"
+	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/adaptor/jsonRpc"
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
@@ -92,7 +90,6 @@ import (
 
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
-	"gitlab.com/iotTracker/brain/tracker/device"
 	"strings"
 )
 
@@ -302,18 +299,16 @@ func main() {
 	)
 
 	// Device
-	DeviceRecordHandler := deviceMongoRecordHandler.New(
+	// ZX303 Device
+	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		deviceCollection,
+		zx303DeviceCollection,
 	)
-	DeviceAdministrator := deviceBasicAdministrator.New(
-		DeviceRecordHandler,
-	)
-	DeviceValidator := deviceBasicValidator.New(
-		map[device.Type]deviceValidator.Validator{
-			device.ZX303: zx303DeviceValidator.New(),
-		},
+	ZX303DeviceValidator := zx303DeviceBasicValidator.New()
+	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
+		ZX303DeviceValidator,
+		ZX303DeviceRecordHandler,
 	)
 
 	// Report
@@ -360,9 +355,10 @@ func main() {
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
 
-	// Device
-	DeviceAdministratorAdaptor := deviceAdministratorJsonRpcAdaptor.New(DeviceAdministrator)
-	DeviceValidatorAdaptor := deviceValidatorJsonRpcAdaptor.New(DeviceValidator)
+	// ZX303 Device
+	//ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
+	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
+	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
@@ -450,12 +446,15 @@ func main() {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
 
-	// Device
-	if err := secureAPIServer.RegisterService(DeviceAdministratorAdaptor, "DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register Device Administrator")
+	// ZX303 Device
+	//if err := secureAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
+	//	log.Fatal("Unable to Register ZX303 Device Record Handler Service")
+	//}
+	if err := secureAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Device Validator")
 	}
-	if err := secureAPIServer.RegisterService(DeviceValidatorAdaptor, "DeviceValidator"); err != nil {
-		log.Fatal("Unable to Register Device Validator")
+	if err := secureAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Device Administrator")
 	}
 
 	// Reading

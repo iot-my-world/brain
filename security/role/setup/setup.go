@@ -47,9 +47,10 @@ var initialRoles = func() []role.Role {
 		api.TK102DeviceAdministratorCreate,
 		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
 
-		// Device
-		api.DeviceAdministratorCreate,
-		api.DeviceValidatorValidate,
+		// ZX303 Device
+		api.ZX303DeviceValidatorValidate,
+		api.ZX303DeviceAdministratorCreate,
+		api.ZX303DeviceAdministratorChangeOwnershipAndAssignment,
 
 		// Reading
 		api.ReadingAdministratorCreate,
@@ -137,6 +138,10 @@ var CompanyAdmin = role.Role{
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerCollect,
 
+		// ZX303 Device
+		api.ZX303DeviceRecordHandlerRetrieve,
+		api.ZX303DeviceRecordHandlerCollect,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
@@ -212,8 +217,13 @@ var ClientAdmin = role.Role{
 
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
+		// ZX102 Device
 		api.TK102DeviceRecordHandlerRetrieve,
 		api.TK102DeviceRecordHandlerCollect,
+
+		// ZX303 Device
+		api.ZX303DeviceRecordHandlerRetrieve,
+		api.ZX303DeviceRecordHandlerCollect,
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,

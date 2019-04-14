@@ -64,11 +64,17 @@ const TK102DeviceRecordHandlerCollect Permission = "TK102DeviceRecordHandler.Col
 
 const TK102DeviceValidatorValidate Permission = "TK102DeviceValidator.Validate"
 
-const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
-const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Create"
+const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "ZX303DeviceAdministrator.ChangeOwnershipAndAssignment"
+const TK102DeviceAdministratorCreate Permission = "ZX303DeviceAdministrator.Create"
 
-const DeviceAdministratorCreate Permission = "DeviceAdministrator.Create"
-const DeviceValidatorValidate Permission = "DeviceValidator.Validate"
+// ZX303 Tracking Device
+const ZX303DeviceRecordHandlerRetrieve Permission = "ZX303DeviceRecordHandler.Retrieve"
+const ZX303DeviceRecordHandlerCollect Permission = "ZX303DeviceRecordHandler.Collect"
+
+const ZX303DeviceValidatorValidate Permission = "ZX303DeviceValidator.Validate"
+
+const ZX303DeviceAdministratorChangeOwnershipAndAssignment Permission = "ZX303DeviceAdministrator.ChangeOwnershipAndAssignment"
+const ZX303DeviceAdministratorCreate Permission = "ZX303DeviceAdministrator.Create"
 
 // Reading
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
