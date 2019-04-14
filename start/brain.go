@@ -305,7 +305,9 @@ func main() {
 		databaseName,
 		zx303DeviceCollection,
 	)
-	ZX303DeviceValidator := zx303DeviceBasicValidator.New()
+	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
+		PartyBasicAdministrator,
+	)
 	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
 		ZX303DeviceValidator,
 		ZX303DeviceRecordHandler,

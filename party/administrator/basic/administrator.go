@@ -140,7 +140,12 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 			Identifier: request.Identifier,
 		})
 		if err != nil {
-			return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
+			switch err.(type) {
+			case systemRecordHandlerException.NotFound:
+				return nil, partyAdministratorException.NotFound{}
+			default:
+				return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
+			}
 		}
 		response.Party = systemRecordHandlerRetrieveResponse.System
 
@@ -150,7 +155,12 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 			Identifier: request.Identifier,
 		})
 		if err != nil {
-			return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
+			switch err.(type) {
+			case companyRecordHandlerException.NotFound:
+				return nil, partyAdministratorException.NotFound{}
+			default:
+				return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
+			}
 		}
 		response.Party = companyRecordHandlerRetrieveResponse.Company
 
@@ -160,7 +170,12 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 			Identifier: request.Identifier,
 		})
 		if err != nil {
-			return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
+			switch err.(type) {
+			case clientRecordHandlerException.NotFound:
+				return nil, partyAdministratorException.NotFound{}
+			default:
+				return nil, partyAdministratorException.PartyRetrieval{Reasons: []string{err.Error()}}
+			}
 		}
 		response.Party = clientRecordHandlerRetrieveResponse.Client
 
