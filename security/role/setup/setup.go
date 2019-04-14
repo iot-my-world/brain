@@ -49,6 +49,7 @@ var initialRoles = func() []role.Role {
 
 		// Device
 		api.DeviceAdministratorCreate,
+		api.DeviceValidatorValidate,
 
 		// Reading
 		api.ReadingAdministratorCreate,

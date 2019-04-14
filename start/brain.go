@@ -61,9 +61,11 @@ import (
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
 
-	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
 	deviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/administrator/adaptor/jsonRpc"
 	deviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator/basic"
+	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
+	deviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/validator/adaptor/jsonRpc"
+	deviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/validator/basic"
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
@@ -304,6 +306,7 @@ func main() {
 	DeviceAdministrator := deviceBasicAdministrator.New(
 		DeviceRecordHandler,
 	)
+	DeviceValidator := deviceBasicValidator.New()
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
@@ -351,6 +354,7 @@ func main() {
 
 	// Device
 	DeviceAdministratorAdaptor := deviceAdministratorJsonRpcAdaptor.New(DeviceAdministrator)
+	DeviceValidatorAdaptor := deviceValidatorJsonRpcAdaptor.New(DeviceValidator)
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
@@ -437,8 +441,13 @@ func main() {
 	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
+
+	// Device
 	if err := secureAPIServer.RegisterService(DeviceAdministratorAdaptor, "DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register Device Administrator")
+	}
+	if err := secureAPIServer.RegisterService(DeviceValidatorAdaptor, "DeviceValidator"); err != nil {
+		log.Fatal("Unable to Register Device Validator")
 	}
 
 	// Reading
