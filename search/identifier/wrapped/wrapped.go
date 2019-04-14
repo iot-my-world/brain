@@ -103,9 +103,9 @@ func (i *Wrapped) UnmarshalJSON(data []byte) error {
 		return brainException.Unexpected{Reasons: []string{"identifier still nil"}}
 	}
 
-	if err := i.Identifier.IsValid(); err != nil {
-		return identifierException.Invalid{Reasons: []string{err.Error()}}
-	}
+	//if err := i.Identifier.IsValid(); err != nil {
+	//	return identifierException.Invalid{Reasons: []string{err.Error()}}
+	//}
 
 	return nil
 }
