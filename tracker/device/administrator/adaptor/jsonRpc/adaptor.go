@@ -4,8 +4,8 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gitlab.com/iotTracker/brain/tracker/device"
-	wrappedDevice "gitlab.com/iotTracker/brain/tracker/device/wrapped"
 	deviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator"
+	wrappedDevice "gitlab.com/iotTracker/brain/tracker/device/wrapped"
 	"net/http"
 )
 

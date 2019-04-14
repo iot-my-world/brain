@@ -2,8 +2,8 @@ package mongo
 
 import (
 	"gitlab.com/iotTracker/brain/party/company"
-	deviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler"
 	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
+	deviceRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler"
 	"gopkg.in/mgo.v2"
 )
 

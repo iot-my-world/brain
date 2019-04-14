@@ -21,7 +21,7 @@ func New(permissionAdministrator permissionAdministrator.Administrator) *adaptor
 }
 
 type GetAllUsersAPIPermissionsRequest struct {
-	UserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
+	WrappedUserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
 }
 
 type GetAllUsersAPIPermissionsResponse struct {
@@ -35,14 +35,9 @@ func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUser
 		return err
 	}
 
-	id, err := request.UserIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	getAllUsersAPIPermissionsResponse, err := s.permissionAdministrator.GetAllUsersAPIPermissions(&permissionAdministrator.GetAllUsersAPIPermissionsRequest{
 		Claims:         claims,
-		UserIdentifier: id,
+		UserIdentifier: request.WrappedUserIdentifier.Identifier,
 	})
 	if err != nil {
 		return err
@@ -52,7 +47,7 @@ func (s *adaptor) GetAllUsersAPIPermissions(r *http.Request, request *GetAllUser
 }
 
 type GetAllUsersViewPermissionsRequest struct {
-	UserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
+	WrappedUserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
 }
 
 type GetAllUsersViewPermissionsResponse struct {
@@ -66,14 +61,9 @@ func (s *adaptor) GetAllUsersViewPermissions(r *http.Request, request *GetAllUse
 		return err
 	}
 
-	id, err := request.UserIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	getAllUsersViewPermissionsResponse, err := s.permissionAdministrator.GetAllUsersViewPermissions(&permissionAdministrator.GetAllUsersViewPermissionsRequest{
 		Claims:         claims,
-		UserIdentifier: id,
+		UserIdentifier: request.WrappedUserIdentifier.Identifier,
 	})
 	if err != nil {
 		return err
