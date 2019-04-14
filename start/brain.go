@@ -64,8 +64,11 @@ import (
 	deviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/administrator/adaptor/jsonRpc"
 	deviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/administrator/basic"
 	deviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/recordHandler/mongo"
+	deviceValidator "gitlab.com/iotTracker/brain/tracker/device/validator"
 	deviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/validator/adaptor/jsonRpc"
 	deviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/validator/basic"
+
+	zx303DeviceValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator"
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
@@ -89,6 +92,7 @@ import (
 
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
+	"gitlab.com/iotTracker/brain/tracker/device"
 	"strings"
 )
 
@@ -306,7 +310,11 @@ func main() {
 	DeviceAdministrator := deviceBasicAdministrator.New(
 		DeviceRecordHandler,
 	)
-	DeviceValidator := deviceBasicValidator.New()
+	DeviceValidator := deviceBasicValidator.New(
+		map[device.Type]deviceValidator.Validator{
+			device.ZX303: zx303DeviceValidator.New(),
+		},
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(

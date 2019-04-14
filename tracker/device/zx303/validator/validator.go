@@ -1,21 +1,15 @@
-package basic
+package validator
 
 import (
 	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/tracker/device"
 	deviceValidator "gitlab.com/iotTracker/brain/tracker/device/validator"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
-type validator struct {
-	deviceValidators map[device.Type]deviceValidator.Validator
-}
+type validator struct{}
 
-func New(
-	deviceValidators map[device.Type]deviceValidator.Validator,
-) deviceValidator.Validator {
-	return &validator{
-		deviceValidators: deviceValidators,
-	}
+func New() deviceValidator.Validator {
+	return &validator{}
 }
 
 func (v *validator) ValidateValidateRequest(request *deviceValidator.ValidateRequest) error {
@@ -32,5 +26,7 @@ func (v *validator) Validate(request *deviceValidator.ValidateRequest) (*deviceV
 		return nil, err
 	}
 
-	return &deviceValidator.ValidateResponse{}, nil
+	return &deviceValidator.ValidateResponse{
+		ReasonsInvalid: make([]reasonInvalid.ReasonInvalid, 0),
+	}, nil
 }
