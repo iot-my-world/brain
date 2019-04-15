@@ -33,3 +33,7 @@ func (c Client) Details() party.Details {
 		},
 	}
 }
+
+func (c *Client) SetId(id string) {
+	c.Id = id
+}
