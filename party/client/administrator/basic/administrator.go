@@ -15,13 +15,13 @@ import (
 )
 
 type administrator struct {
-	clientRecordHandler clientRecordHandler.RecordHandler
+	clientRecordHandler *clientRecordHandler.RecordHandler
 	clientValidator     clientValidator.Validator
 	userRecordHandler   userRecordHandler.RecordHandler
 }
 
 func New(
-	clientRecordHandler clientRecordHandler.RecordHandler,
+	clientRecordHandler *clientRecordHandler.RecordHandler,
 	clientValidator clientValidator.Validator,
 	userRecordHandler userRecordHandler.RecordHandler,
 ) clientAdministrator.Administrator {
@@ -141,7 +141,7 @@ func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateA
 	//clientRetrieveResponse.Client.AdminEmailAddress = request.Client.AdminEmailAddress
 
 	// update the client
-	clientUpdateResponse, err := a.clientRecordHandler.Update(&clientRecordHandler.UpdateRequest{
+	_, err = a.clientRecordHandler.Update(&clientRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.Client.Id},
 		Client:     clientRetrieveResponse.Client,
@@ -151,6 +151,6 @@ func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateA
 	}
 
 	return &clientAdministrator.UpdateAllowedFieldsResponse{
-		Client: clientUpdateResponse.Client,
+		Client: clientRetrieveResponse.Client,
 	}, nil
 }
