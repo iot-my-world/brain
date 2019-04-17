@@ -2,6 +2,7 @@ package mongo
 
 import (
 	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
+	"gitlab.com/iotTracker/brain/tracker/device/zx303"
 	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler"
 	"gopkg.in/mgo.v2"
 )
@@ -26,8 +27,8 @@ func New(
 				Sparse: true, // Only index documents containing the Key fields
 			},
 		},
-		nil,
-		nil,
+		zx303.IsValidIdentifier,
+		zx303.ContextualiseFilter,
 	)
 
 	return zx303RecordHandler.New(

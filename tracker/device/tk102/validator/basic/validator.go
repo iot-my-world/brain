@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
+	"gitlab.com/iotTracker/brain/tracker/device"
 	tk102DeviceAction "gitlab.com/iotTracker/brain/tracker/device/tk102/action"
 	tk102DeviceValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -56,6 +57,15 @@ func (v *validator) Validate(request *tk102DeviceValidator.ValidateRequest) (*tk
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	tk102ToValidate := &request.TK102
+
+	if (*tk102ToValidate).Type != device.TK102 {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "type",
+			Type:  reasonInvalid.Invalid,
+			Help:  "must be TK102",
+			Data:  (*tk102ToValidate).Type,
+		})
+	}
 
 	if (*tk102ToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

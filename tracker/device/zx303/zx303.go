@@ -7,6 +7,7 @@ import (
 )
 
 type ZX303 struct {
+	Type              device.Type   `json:"type" bson:"type"`
 	Id                string        `json:"id" bson:"id"`
 	IMEI              string        `json:"imei" bson:"imei"`
 	SimCountryCode    string        `json:"simCountryCode" bson:"simCountryCode"`
@@ -21,6 +22,6 @@ func (z *ZX303) SetId(id string) {
 	z.Id = id
 }
 
-func (z ZX303) Type() device.Type {
-	return device.ZX303
+func (z ZX303) DeviceType() device.Type {
+	return z.Type
 }

@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
+	"gitlab.com/iotTracker/brain/tracker/device"
 	zx303DeviceAction "gitlab.com/iotTracker/brain/tracker/device/zx303/action"
 	deviceValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -56,6 +57,15 @@ func (v *validator) Validate(request *deviceValidator.ValidateRequest) (*deviceV
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 	zx303ToValidate := &request.ZX303
+
+	if (*zx303ToValidate).Type != device.ZX303 {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "type",
+			Type:  reasonInvalid.Invalid,
+			Help:  "must be ZX303",
+			Data:  (*zx303ToValidate).Type,
+		})
+	}
 
 	if (*zx303ToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

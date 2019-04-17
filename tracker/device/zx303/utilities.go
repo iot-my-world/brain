@@ -1,4 +1,4 @@
-package tk102
+package zx303
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
@@ -13,7 +13,7 @@ func IsValidIdentifier(id identifier.Identifier) bool {
 	}
 
 	switch id.Type() {
-	case identifier.Id, identifier.DeviceTK102:
+	case identifier.Id:
 		return true
 	default:
 		return false
@@ -26,7 +26,7 @@ func ContextualiseFilter(filter bson.M, claimsToAdd claims.Claims) bson.M {
 	return bson.M{
 		"$and": []bson.M{
 			contextualFilter,
-			{"type": bson.M{"$eq": device.TK102}},
+			{"type": bson.M{"$eq": device.ZX303}},
 		},
 	}
 
