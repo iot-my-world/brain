@@ -148,9 +148,9 @@ type CollectResponse struct {
 }
 
 func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, error) {
-	var collectedCompanies []zx303.ZX303
+	var collectedZX303 []zx303.ZX303
 	collectResponse := brainRecordHandler.CollectResponse{
-		Records: &collectedCompanies,
+		Records: &collectedZX303,
 	}
 	err := r.recordHandler.Collect(&brainRecordHandler.CollectRequest{
 		Claims:   request.Claims,
@@ -161,8 +161,12 @@ func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, erro
 		return nil, zx303RecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
+	if collectedZX303 == nil {
+		collectedZX303 = make([]zx303.ZX303, 0)
+	}
+
 	return &CollectResponse{
-		Records: collectedCompanies,
+		Records: collectedZX303,
 		Total:   collectResponse.Total,
 	}, nil
 }
