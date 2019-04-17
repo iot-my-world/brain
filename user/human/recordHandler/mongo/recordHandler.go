@@ -6,9 +6,9 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
 	"gopkg.in/mgo.v2"
 )
 
@@ -103,7 +103,7 @@ func (r *recordHandler) ValidateRetrieveRequest(request *userRecordHandler.Retri
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.Identifier) {
+		if !humanUser.IsValidIdentifier(request.Identifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.Identifier.Type()))
 		}
 	}
@@ -125,9 +125,9 @@ func (r *recordHandler) Retrieve(request *userRecordHandler.RetrieveRequest) (*u
 
 	userCollection := mgoSession.DB(r.database).C(r.collection)
 
-	var userRecord user.User
+	var userRecord humanUser.User
 
-	filter := user.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	filter := humanUser.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := userCollection.Find(filter).One(&userRecord); err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, userRecordHandlerException.NotFound{}
@@ -201,7 +201,7 @@ func (r *recordHandler) ValidateDeleteRequest(request *userRecordHandler.DeleteR
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.Identifier) {
+		if !humanUser.IsValidIdentifier(request.Identifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.Identifier.Type()))
 		}
 	}
@@ -250,7 +250,7 @@ func (r *recordHandler) Collect(request *userRecordHandler.CollectRequest) (*use
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
-	filter = user.ContextualiseFilter(filter, request.Claims)
+	filter = humanUser.ContextualiseFilter(filter, request.Claims)
 
 	response := userRecordHandler.CollectResponse{}
 
@@ -278,7 +278,7 @@ func (r *recordHandler) Collect(request *userRecordHandler.CollectRequest) (*use
 	mongoSortOrder := request.Query.ToMongoSortFormat()
 
 	// Populate records
-	response.Records = make([]user.User, 0)
+	response.Records = make([]humanUser.User, 0)
 	if err := query.
 		Skip(request.Query.Offset).
 		Sort(mongoSortOrder...).

@@ -1,8 +1,8 @@
 package data
 
-import "gitlab.com/iotTracker/brain/user"
+import humanUser "gitlab.com/iotTracker/brain/user/human"
 
-var User = user.User{
+var User = humanUser.User{
 	//Id string
 
 	// Personal Details

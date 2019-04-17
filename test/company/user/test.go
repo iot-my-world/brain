@@ -15,7 +15,7 @@ import (
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	companyTestData "gitlab.com/iotTracker/brain/test/company/data"
 	testData "gitlab.com/iotTracker/brain/test/data"
-	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/administrator/adaptor/jsonRpc"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
 	"strings"

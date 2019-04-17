@@ -4,27 +4,27 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/user"
-	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	humanUserAdministrator "gitlab.com/iotTracker/brain/user/human/administrator"
 	"net/http"
 )
 
 type adaptor struct {
-	userAdministrator userAdministrator.Administrator
+	humanUserAdministrator humanUserAdministrator.Administrator
 }
 
 func New(
-	userAdministrator userAdministrator.Administrator,
+	humanUserAdministrator humanUserAdministrator.Administrator,
 ) *adaptor {
 	return &adaptor{
-		userAdministrator: userAdministrator,
+		humanUserAdministrator: humanUserAdministrator,
 	}
 }
 
 type GetMyUserRequest struct{}
 
 type GetMyUserResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) GetMyUser(r *http.Request, request *GetMyUserRequest, response *GetMyUserResponse) error {
@@ -34,7 +34,7 @@ func (a *adaptor) GetMyUser(r *http.Request, request *GetMyUserRequest, response
 		return err
 	}
 
-	getMyUserResponse, err := a.userAdministrator.GetMyUser(&userAdministrator.GetMyUserRequest{
+	getMyUserResponse, err := a.humanUserAdministrator.GetMyUser(&humanUserAdministrator.GetMyUserRequest{
 		Claims: claims,
 	})
 	if err != nil {
@@ -47,11 +47,11 @@ func (a *adaptor) GetMyUser(r *http.Request, request *GetMyUserRequest, response
 }
 
 type UpdateAllowedFieldsRequest struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 type UpdateAllowedFieldsResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
@@ -61,7 +61,7 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse, err := a.userAdministrator.UpdateAllowedFields(&userAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.humanUserAdministrator.UpdateAllowedFields(&humanUserAdministrator.UpdateAllowedFieldsRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -75,11 +75,11 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 }
 
 type CreateRequest struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 type CreateResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
@@ -89,7 +89,7 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse, err := a.userAdministrator.Create(&userAdministrator.CreateRequest{
+	createResponse, err := a.humanUserAdministrator.Create(&humanUserAdministrator.CreateRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -108,7 +108,7 @@ type UpdatePasswordRequest struct {
 }
 
 type UpdatePasswordResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest, response *UpdatePasswordResponse) error {
@@ -118,7 +118,7 @@ func (a *adaptor) UpdatePassword(r *http.Request, request *UpdatePasswordRequest
 		return err
 	}
 
-	updatePasswordResponse, err := a.userAdministrator.UpdatePassword(&userAdministrator.UpdatePasswordRequest{
+	updatePasswordResponse, err := a.humanUserAdministrator.UpdatePassword(&humanUserAdministrator.UpdatePasswordRequest{
 		Claims:           claims,
 		ExistingPassword: request.ExistingPassword,
 		NewPassword:      request.NewPassword,
@@ -147,7 +147,7 @@ func (a *adaptor) CheckPassword(r *http.Request, request *CheckPasswordRequest, 
 		return err
 	}
 
-	checkPasswordResponse, err := a.userAdministrator.CheckPassword(&userAdministrator.CheckPasswordRequest{
+	checkPasswordResponse, err := a.humanUserAdministrator.CheckPassword(&humanUserAdministrator.CheckPasswordRequest{
 		Claims:   claims,
 		Password: request.Password,
 	})
@@ -168,7 +168,7 @@ type ForgotPasswordResponse struct {
 }
 
 func (a *adaptor) ForgotPassword(r *http.Request, request *ForgotPasswordRequest, response *ForgotPasswordResponse) error {
-	_, err := a.userAdministrator.ForgotPassword(&userAdministrator.ForgotPasswordRequest{
+	_, err := a.humanUserAdministrator.ForgotPassword(&humanUserAdministrator.ForgotPasswordRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 	})
 	if err != nil {
@@ -192,7 +192,7 @@ func (a *adaptor) SetPassword(r *http.Request, request *SetPasswordRequest, resp
 		return err
 	}
 
-	if _, err := a.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
+	if _, err := a.humanUserAdministrator.SetPassword(&humanUserAdministrator.SetPasswordRequest{
 		Claims:      claims,
 		Identifier:  request.WrappedIdentifier.Identifier,
 		NewPassword: request.NewPassword,

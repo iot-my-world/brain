@@ -25,10 +25,10 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
 	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gitlab.com/iotTracker/brain/security/token"
-	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
-	userValidator "gitlab.com/iotTracker/brain/user/validator"
+	userAdministrator "gitlab.com/iotTracker/brain/user/human/administrator"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/user/human/validator"
 	"time"
 )
 

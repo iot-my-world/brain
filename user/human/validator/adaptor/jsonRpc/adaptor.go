@@ -4,8 +4,8 @@ import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/log"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/user"
-	userValidator "gitlab.com/iotTracker/brain/user/validator"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	userValidator "gitlab.com/iotTracker/brain/user/human/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
@@ -21,8 +21,8 @@ func New(recordHandler userValidator.Validator) *adaptor {
 }
 
 type ValidateRequest struct {
-	User   user.User     `json:"user"`
-	Action action.Action `json:"action"`
+	User   humanUser.User `json:"user"`
+	Action action.Action  `json:"action"`
 }
 
 type ValidateResponse struct {

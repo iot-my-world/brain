@@ -4,7 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 )
 
 type Registrar interface {
@@ -27,11 +27,11 @@ type Registrar interface {
 
 type RegisterSystemAdminUserRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type RegisterSystemAdminUserResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type InviteCompanyAdminUserRequest struct {
@@ -45,11 +45,11 @@ type InviteCompanyAdminUserResponse struct {
 
 type RegisterCompanyAdminUserRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type RegisterCompanyAdminUserResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type InviteCompanyUserRequest struct {
@@ -63,11 +63,11 @@ type InviteCompanyUserResponse struct {
 
 type RegisterCompanyUserRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type RegisterCompanyUserResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type InviteClientAdminUserRequest struct {
@@ -81,11 +81,11 @@ type InviteClientAdminUserResponse struct {
 
 type RegisterClientAdminUserRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type RegisterClientAdminUserResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type InviteClientUserRequest struct {
@@ -99,11 +99,11 @@ type InviteClientUserResponse struct {
 
 type RegisterClientUserRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type RegisterClientUserResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type InviteUserRequest struct {

@@ -1,4 +1,4 @@
-package user
+package human
 
 import (
 	"gitlab.com/iotTracker/brain/party"

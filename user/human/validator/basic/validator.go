@@ -7,10 +7,10 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims/login"
-	userAction "gitlab.com/iotTracker/brain/user/action"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
-	userValidator "gitlab.com/iotTracker/brain/user/validator"
+	userAction "gitlab.com/iotTracker/brain/user/human/action"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/user/human/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 

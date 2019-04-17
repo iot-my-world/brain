@@ -7,7 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/party"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 	"net/http"
 )
 
@@ -50,11 +50,11 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 }
 
 type RegisterCompanyAdminUserRequest struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 type RegisterCompanyAdminUserResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error {
@@ -79,11 +79,11 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 }
 
 type RegisterCompanyUserRequest struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 type RegisterCompanyUserResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error {
@@ -135,11 +135,11 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 }
 
 type RegisterClientAdminUserRequest struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 type RegisterClientAdminUserResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error {
@@ -164,11 +164,11 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 }
 
 type RegisterClientUserRequest struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 type RegisterClientUserResponse struct {
-	User user.User `json:"user"`
+	User humanUser.User `json:"user"`
 }
 
 func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUserRequest, response *RegisterClientUserResponse) error {

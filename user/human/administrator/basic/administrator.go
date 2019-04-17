@@ -15,19 +15,19 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	forgotPasswordClaims "gitlab.com/iotTracker/brain/security/claims/resetPassword"
 	"gitlab.com/iotTracker/brain/security/token"
-	"gitlab.com/iotTracker/brain/user"
-	userAction "gitlab.com/iotTracker/brain/user/action"
-	userAdministrator "gitlab.com/iotTracker/brain/user/administrator"
-	userAdministratorException "gitlab.com/iotTracker/brain/user/administrator/exception"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
-	userValidator "gitlab.com/iotTracker/brain/user/validator"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	humanUserAction "gitlab.com/iotTracker/brain/user/human/action"
+	humanUserAdministrator "gitlab.com/iotTracker/brain/user/human/administrator"
+	humanUserAdministratorException "gitlab.com/iotTracker/brain/user/human/administrator/exception"
+	humanUserRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	humanUserRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/user/human/validator"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
 type administrator struct {
-	userRecordHandler         userRecordHandler.RecordHandler
+	humanUserRecordHandler    humanUserRecordHandler.RecordHandler
 	userValidator             userValidator.Validator
 	mailer                    mailer.Mailer
 	jwtGenerator              token.JWTGenerator
@@ -37,16 +37,16 @@ type administrator struct {
 }
 
 func New(
-	userRecordHandler userRecordHandler.RecordHandler,
+	humanUserRecordHandler humanUserRecordHandler.RecordHandler,
 	userValidator userValidator.Validator,
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
 	systemClaims *login.Login,
 	setPasswordEmailGenerator emailGenerator.Generator,
-) userAdministrator.Administrator {
+) humanUserAdministrator.Administrator {
 	return &administrator{
-		userRecordHandler:         userRecordHandler,
+		humanUserRecordHandler:    humanUserRecordHandler,
 		userValidator:             userValidator,
 		mailer:                    mailer,
 		jwtGenerator:              token.NewJWTGenerator(rsaPrivateKey),
@@ -56,7 +56,7 @@ func New(
 	}
 }
 
-func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *userAdministrator.UpdateAllowedFieldsRequest) error {
+func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *humanUserAdministrator.UpdateAllowedFieldsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -71,7 +71,7 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *userAdminist
 		validationResponse, err := a.userValidator.Validate(&userValidator.ValidateRequest{
 			Claims: request.Claims,
 			User:   request.User,
-			Action: userAction.UpdateAllowedFields,
+			Action: humanUserAction.UpdateAllowedFields,
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
@@ -89,18 +89,18 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *userAdminist
 	return nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAllowedFieldsRequest) (*userAdministrator.UpdateAllowedFieldsResponse, error) {
+func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.UpdateAllowedFieldsRequest) (*humanUserAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
 		return nil, err
 	}
 
 	// retrieve the user
-	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.User.Id},
 	})
 	if err != nil {
-		return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
 	}
 
 	// update allowed fields on the user
@@ -118,21 +118,21 @@ func (a *administrator) UpdateAllowedFields(request *userAdministrator.UpdateAll
 	//userRetrieveResponse.User.Registered = request.User.Registered
 
 	// update the user
-	userUpdateResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+	userUpdateResponse, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: id.Identifier{Id: request.User.Id},
 		User:       userRetrieveResponse.User,
 	})
 	if err != nil {
-		return nil, userAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+		return nil, humanUserAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 
-	return &userAdministrator.UpdateAllowedFieldsResponse{
+	return &humanUserAdministrator.UpdateAllowedFieldsResponse{
 		User: userUpdateResponse.User,
 	}, nil
 }
 
-func (a *administrator) ValidateGetMyUserRequest(request *userAdministrator.GetMyUserRequest) error {
+func (a *administrator) ValidateGetMyUserRequest(request *humanUserAdministrator.GetMyUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -141,7 +141,7 @@ func (a *administrator) ValidateGetMyUserRequest(request *userAdministrator.GetM
 	return nil
 }
 
-func (a *administrator) GetMyUser(request *userAdministrator.GetMyUserRequest) (*userAdministrator.GetMyUserResponse, error) {
+func (a *administrator) GetMyUser(request *humanUserAdministrator.GetMyUserRequest) (*humanUserAdministrator.GetMyUserResponse, error) {
 	if err := a.ValidateGetMyUserRequest(request); err != nil {
 		return nil, err
 	}
@@ -149,21 +149,21 @@ func (a *administrator) GetMyUser(request *userAdministrator.GetMyUserRequest) (
 	// infer the login claims type
 	loginClaims, ok := request.Claims.(login.Login)
 	if !ok {
-		return nil, userAdministratorException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
+		return nil, humanUserAdministratorException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
 	}
 
 	// retrieve user
-	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	userRetrieveResponse, err := a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: loginClaims.UserId,
 	})
 	if err != nil {
-		return nil, userAdministratorException.UserRetrieval{Reasons: []string{"user retrieval", err.Error()}}
+		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{"user retrieval", err.Error()}}
 	}
-	return &userAdministrator.GetMyUserResponse{User: userRetrieveResponse.User}, nil
+	return &humanUserAdministrator.GetMyUserResponse{User: userRetrieveResponse.User}, nil
 }
 
-func (a *administrator) ValidateCreateRequest(request *userAdministrator.CreateRequest) error {
+func (a *administrator) ValidateCreateRequest(request *humanUserAdministrator.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -194,7 +194,7 @@ func (a *administrator) ValidateCreateRequest(request *userAdministrator.CreateR
 		validationResponse, err := a.userValidator.Validate(&userValidator.ValidateRequest{
 			Claims: request.Claims,
 			User:   request.User,
-			Action: userAction.Create,
+			Action: humanUserAction.Create,
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
@@ -213,23 +213,23 @@ func (a *administrator) ValidateCreateRequest(request *userAdministrator.CreateR
 	return nil
 }
 
-func (a *administrator) Create(request *userAdministrator.CreateRequest) (*userAdministrator.CreateResponse, error) {
+func (a *administrator) Create(request *humanUserAdministrator.CreateRequest) (*humanUserAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
 		return nil, err
 	}
 
 	// create the user
-	createResponse, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
+	createResponse, err := a.humanUserRecordHandler.Create(&humanUserRecordHandler.CreateRequest{
 		User: request.User,
 	})
 	if err != nil {
-		return nil, userAdministratorException.UserCreation{Reasons: []string{"user creation", err.Error()}}
+		return nil, humanUserAdministratorException.UserCreation{Reasons: []string{"user creation", err.Error()}}
 	}
 
-	return &userAdministrator.CreateResponse{User: createResponse.User}, nil
+	return &humanUserAdministrator.CreateResponse{User: createResponse.User}, nil
 }
 
-func (a *administrator) ValidateSetPasswordRequest(request *userAdministrator.SetPasswordRequest) error {
+func (a *administrator) ValidateSetPasswordRequest(request *humanUserAdministrator.SetPasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -242,7 +242,7 @@ func (a *administrator) ValidateSetPasswordRequest(request *userAdministrator.Se
 
 	if request.Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "user identifier is nil")
-	} else if !user.IsValidIdentifier(request.Identifier) {
+	} else if !humanUser.IsValidIdentifier(request.Identifier) {
 		reasonsInvalid = append(reasonsInvalid, "invalid user identifier")
 	}
 
@@ -252,44 +252,44 @@ func (a *administrator) ValidateSetPasswordRequest(request *userAdministrator.Se
 	return nil
 }
 
-func (a *administrator) SetPassword(request *userAdministrator.SetPasswordRequest) (*userAdministrator.SetPasswordResponse, error) {
+func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordRequest) (*humanUserAdministrator.SetPasswordResponse, error) {
 	if err := a.ValidateSetPasswordRequest(request); err != nil {
 		return nil, err
 	}
 
 	// Retrieve User
-	retrieveUserResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err := a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 	})
 	if err != nil {
-		return nil, userAdministratorException.SetPassword{Reasons: []string{"retrieving record", err.Error()}}
+		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"retrieving record", err.Error()}}
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, userAdministratorException.SetPassword{Reasons: []string{"hashing password", err.Error()}}
+		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
 
-	updateUserResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+	updateUserResponse, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 		User:       retrieveUserResponse.User,
 	})
 	if err != nil {
-		return nil, userAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
 	}
 
-	return &userAdministrator.SetPasswordResponse{
+	return &humanUserAdministrator.SetPasswordResponse{
 		User: updateUserResponse.User,
 	}, nil
 }
 
-func (a *administrator) ValidateUpdatePasswordRequest(request *userAdministrator.UpdatePasswordRequest) error {
+func (a *administrator) ValidateUpdatePasswordRequest(request *humanUserAdministrator.UpdatePasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -315,7 +315,7 @@ func (a *administrator) ValidateUpdatePasswordRequest(request *userAdministrator
 	return nil
 }
 
-func (a *administrator) UpdatePassword(request *userAdministrator.UpdatePasswordRequest) (*userAdministrator.UpdatePasswordResponse, error) {
+func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePasswordRequest) (*humanUserAdministrator.UpdatePasswordResponse, error) {
 	if err := a.ValidateUpdatePasswordRequest(request); err != nil {
 		return nil, err
 	}
@@ -327,44 +327,44 @@ func (a *administrator) UpdatePassword(request *userAdministrator.UpdatePassword
 	}
 
 	// Retrieve User
-	retrieveUserResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err := a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: loginClaims.UserId,
 	})
 	if err != nil {
-		return nil, userAdministratorException.UpdatePassword{Reasons: []string{"retrieving user record", err.Error()}}
+		return nil, humanUserAdministratorException.UpdatePassword{Reasons: []string{"retrieving user record", err.Error()}}
 	}
 
 	//User record retrieved successfully, check given old password
 	if err := bcrypt.CompareHashAndPassword(retrieveUserResponse.User.Password, []byte(request.ExistingPassword)); err != nil {
 		//Password Incorrect
-		return nil, userAdministratorException.UpdatePassword{Reasons: []string{"given existing password incorrect"}}
+		return nil, humanUserAdministratorException.UpdatePassword{Reasons: []string{"given existing password incorrect"}}
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, userAdministratorException.UpdatePassword{Reasons: []string{"hashing password", err.Error()}}
+		return nil, humanUserAdministratorException.UpdatePassword{Reasons: []string{"hashing password", err.Error()}}
 	}
 
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
 
-	updateUserResponse, err := a.userRecordHandler.Update(&userRecordHandler.UpdateRequest{
+	updateUserResponse, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: loginClaims.UserId,
 		User:       retrieveUserResponse.User,
 	})
 	if err != nil {
-		return nil, userAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
 	}
 
-	return &userAdministrator.UpdatePasswordResponse{
+	return &humanUserAdministrator.UpdatePasswordResponse{
 		User: updateUserResponse.User,
 	}, nil
 }
 
-func (a *administrator) ValidateCheckPasswordRequest(request *userAdministrator.CheckPasswordRequest) error {
+func (a *administrator) ValidateCheckPasswordRequest(request *humanUserAdministrator.CheckPasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -386,7 +386,7 @@ func (a *administrator) ValidateCheckPasswordRequest(request *userAdministrator.
 	return nil
 }
 
-func (a *administrator) CheckPassword(request *userAdministrator.CheckPasswordRequest) (*userAdministrator.CheckPasswordResponse, error) {
+func (a *administrator) CheckPassword(request *humanUserAdministrator.CheckPasswordRequest) (*humanUserAdministrator.CheckPasswordResponse, error) {
 	if err := a.ValidateCheckPasswordRequest(request); err != nil {
 		return nil, err
 	}
@@ -398,12 +398,12 @@ func (a *administrator) CheckPassword(request *userAdministrator.CheckPasswordRe
 	}
 
 	// Retrieve User
-	retrieveUserResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err := a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: loginClaims.UserId,
 	})
 	if err != nil {
-		return nil, userAdministratorException.CheckPassword{Reasons: []string{"retrieving user record", err.Error()}}
+		return nil, humanUserAdministratorException.CheckPassword{Reasons: []string{"retrieving user record", err.Error()}}
 	}
 
 	result := true
@@ -413,12 +413,12 @@ func (a *administrator) CheckPassword(request *userAdministrator.CheckPasswordRe
 		result = false
 	}
 
-	return &userAdministrator.CheckPasswordResponse{
+	return &humanUserAdministrator.CheckPasswordResponse{
 		Result: result,
 	}, nil
 }
 
-func (a *administrator) ValidateForgotPasswordRequest(request *userAdministrator.ForgotPasswordRequest) error {
+func (a *administrator) ValidateForgotPasswordRequest(request *humanUserAdministrator.ForgotPasswordRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UsernameOrEmailAddress == "" {
@@ -431,15 +431,15 @@ func (a *administrator) ValidateForgotPasswordRequest(request *userAdministrator
 	return nil
 }
 
-func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPasswordRequest) (*userAdministrator.ForgotPasswordResponse, error) {
+func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPasswordRequest) (*humanUserAdministrator.ForgotPasswordResponse, error) {
 	if err := a.ValidateForgotPasswordRequest(request); err != nil {
 		return nil, err
 	}
-	var retrieveUserResponse *userRecordHandler.RetrieveResponse
+	var retrieveUserResponse *humanUserRecordHandler.RetrieveResponse
 	var err error
 
 	//try and retrieve User record with username
-	retrieveUserResponse, err = a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+	retrieveUserResponse, err = a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 		Claims:     *a.systemClaims,
 		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
 	})
@@ -447,24 +447,24 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 	case nil:
 		// do nothing, this means that the user could be retrieved
 
-	case userRecordHandlerException.NotFound:
+	case humanUserRecordHandlerException.NotFound:
 		//try and retrieve User record with email address
-		retrieveUserResponse, err = a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+		retrieveUserResponse, err = a.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 			Claims:     *a.systemClaims,
 			Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 		})
 		switch err.(type) {
 		case nil:
 			// do nothing, this means that the user could be retrieved
-		case userRecordHandlerException.NotFound:
+		case humanUserRecordHandlerException.NotFound:
 			return nil, nil
 		default:
 			// some other retrieval error
-			return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+			return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
 		}
 	default:
 		// some other retrieval error
-		return nil, userAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
 	}
 
 	// User record retrieved successfully
@@ -479,7 +479,7 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 		PartyId:         retrieveUserResponse.User.PartyId,
 	})
 	if err != nil {
-		return nil, userAdministratorException.TokenGeneration{Reasons: []string{"forgot password", err.Error()}}
+		return nil, humanUserAdministratorException.TokenGeneration{Reasons: []string{"forgot password", err.Error()}}
 	}
 	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
 
@@ -490,7 +490,7 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 		},
 	})
 	if err != nil {
-		return nil, userAdministratorException.EmailGeneration{Reasons: []string{"set password", err.Error()}}
+		return nil, humanUserAdministratorException.EmailGeneration{Reasons: []string{"set password", err.Error()}}
 	}
 
 	if _, err := a.mailer.Send(&mailer.SendRequest{
@@ -499,5 +499,5 @@ func (a *administrator) ForgotPassword(request *userAdministrator.ForgotPassword
 		return nil, err
 	}
 
-	return &userAdministrator.ForgotPasswordResponse{}, nil
+	return &humanUserAdministrator.ForgotPasswordResponse{}, nil
 }

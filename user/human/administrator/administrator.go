@@ -3,7 +3,7 @@ package administrator
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 )
 
 type Administrator interface {
@@ -18,11 +18,11 @@ type Administrator interface {
 
 type UpdateAllowedFieldsRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type UpdateAllowedFieldsResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type GetMyUserRequest struct {
@@ -30,16 +30,16 @@ type GetMyUserRequest struct {
 }
 
 type GetMyUserResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type CreateRequest struct {
 	Claims claims.Claims
-	User   user.User
+	User   humanUser.User
 }
 
 type CreateResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type SetPasswordRequest struct {
@@ -49,7 +49,7 @@ type SetPasswordRequest struct {
 }
 
 type SetPasswordResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type CheckPasswordRequest struct {
@@ -68,7 +68,7 @@ type UpdatePasswordRequest struct {
 }
 
 type UpdatePasswordResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type ForgotPasswordRequest struct {

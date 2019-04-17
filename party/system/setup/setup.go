@@ -11,7 +11,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
 	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -24,7 +24,7 @@ var systemEntity = system.System{
 	AdminEmailAddress: "root@root.com",
 }
 
-var systemAdminUser = user.User{
+var systemAdminUser = humanUser.User{
 	Name:    "root",
 	Surname: "root",
 

@@ -2,13 +2,13 @@ package password
 
 import (
 	"gitlab.com/iotTracker/brain/communication/email"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 	"net/mail"
 )
 
 type Data struct {
 	URLToken string
-	User     user.User
+	User     humanUser.User
 }
 
 func (d Data) Details() email.Details {

@@ -5,18 +5,18 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 	"time"
 )
 
 type RegisterClientAdminUser struct {
-	IssueTime       int64         `json:"issueTime"`
-	ExpirationTime  int64         `json:"expirationTime"`
-	ParentPartyType party.Type    `json:"parentPartyType"`
-	ParentId        id.Identifier `json:"parentId"`
-	PartyType       party.Type    `json:"partyType"`
-	PartyId         id.Identifier `json:"partyId"`
-	User            user.User     `json:"user"`
+	IssueTime       int64          `json:"issueTime"`
+	ExpirationTime  int64          `json:"expirationTime"`
+	ParentPartyType party.Type     `json:"parentPartyType"`
+	ParentId        id.Identifier  `json:"parentId"`
+	PartyType       party.Type     `json:"partyType"`
+	PartyId         id.Identifier  `json:"partyId"`
+	User            humanUser.User `json:"user"`
 }
 
 func (r RegisterClientAdminUser) Type() claims.Type {

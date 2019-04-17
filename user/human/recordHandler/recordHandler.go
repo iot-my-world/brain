@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 )
 
 type RecordHandler interface {
@@ -17,11 +17,11 @@ type RecordHandler interface {
 }
 
 type CreateRequest struct {
-	User user.User
+	User humanUser.User
 }
 
 type CreateResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type DeleteRequest struct {
@@ -29,17 +29,17 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type UpdateRequest struct {
 	Claims     claims.Claims
 	Identifier identifier.Identifier
-	User       user.User
+	User       humanUser.User
 }
 
 type UpdateResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type RetrieveRequest struct {
@@ -48,7 +48,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	User user.User
+	User humanUser.User
 }
 
 type CollectRequest struct {
@@ -58,6 +58,6 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []user.User
+	Records []humanUser.User
 	Total   int
 }

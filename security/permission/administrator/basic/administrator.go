@@ -9,8 +9,8 @@ import (
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	"gitlab.com/iotTracker/brain/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
 )
 
 type administrator struct {
@@ -34,7 +34,7 @@ func (a *administrator) ValidateUserHasPermissionRequest(request *permissionAdmi
 	if request.UserIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.UserIdentifier) {
+		if !humanUser.IsValidIdentifier(request.UserIdentifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
 		}
 	}
@@ -86,7 +86,7 @@ func (a *administrator) ValidateGetAllUsersAPIPermissionsRequest(request *permis
 	if request.UserIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.UserIdentifier) {
+		if !humanUser.IsValidIdentifier(request.UserIdentifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
 		}
 	}
@@ -136,7 +136,7 @@ func (a *administrator) ValidateGetAllUsersViewPermissionsRequest(request *permi
 	if request.UserIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.UserIdentifier) {
+		if !humanUser.IsValidIdentifier(request.UserIdentifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
 		}
 	}

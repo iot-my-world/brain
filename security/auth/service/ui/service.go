@@ -10,8 +10,8 @@ import (
 	authService "gitlab.com/iotTracker/brain/security/auth/service"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/token"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/user/recordHandler/exception"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
