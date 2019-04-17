@@ -16,8 +16,9 @@ import (
 )
 
 type Wrapped struct {
-	Type  identifier.Type `json:"type"`
-	Value json.RawMessage `json:"value"`
+	Type       identifier.Type       `json:"type"`
+	Value      json.RawMessage       `json:"value"`
+	Identifier identifier.Identifier `json:"-"`
 }
 
 func Wrap(id identifier.Identifier) (*Wrapped, error) {
@@ -32,69 +33,79 @@ func Wrap(id identifier.Identifier) (*Wrapped, error) {
 	}, nil
 }
 
-func (i Wrapped) UnWrap() (identifier.Identifier, error) {
-	var result identifier.Identifier = nil
-	switch i.Type {
+func (i *Wrapped) UnmarshalJSON(data []byte) error {
+	type Alias Wrapped
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(i),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	switch aux.Type {
 	case identifier.Id:
 		var unmarshalledId id.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	case identifier.Name:
 		var unmarshalledId name.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	case identifier.Username:
 		var unmarshalledId username.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	case identifier.EmailAddress:
 		var unmarshalledId emailAddress.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	case identifier.AdminEmailAddress:
 		var unmarshalledId adminEmailAddress.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	case identifier.DeviceTK102:
 		var unmarshalledId tk102.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	case identifier.Party:
 		var unmarshalledId party.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
-			return nil, identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledId
+		i.Identifier = unmarshalledId
 
 	default:
-		return nil, identifierException.Invalid{Reasons: []string{"invalid type", string(i.Type)}}
+		return identifierException.Invalid{Reasons: []string{"invalid type", string(i.Type)}}
 	}
 
-	if result == nil {
-		return nil, brainException.Unexpected{Reasons: []string{"identifier still nil"}}
+	if i.Identifier == nil {
+		return brainException.Unexpected{Reasons: []string{"identifier still nil"}}
 	}
 
-	if err := result.IsValid(); err != nil {
-		return nil, identifierException.Invalid{Reasons: []string{err.Error()}}
-	}
+	//if err := i.Identifier.IsValid(); err != nil {
+	//	return identifierException.Invalid{Reasons: []string{err.Error()}}
+	//}
 
-	return result, nil
+	return nil
 }

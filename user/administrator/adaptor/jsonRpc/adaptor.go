@@ -179,8 +179,8 @@ func (a *adaptor) ForgotPassword(r *http.Request, request *ForgotPasswordRequest
 }
 
 type SetPasswordRequest struct {
-	Identifier  wrappedIdentifier.Wrapped `json:"identifier"`
-	NewPassword string                    `json:"newPassword"`
+	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
+	NewPassword       string                    `json:"newPassword"`
 }
 
 type SetPasswordResponse struct{}
@@ -192,14 +192,9 @@ func (a *adaptor) SetPassword(r *http.Request, request *SetPasswordRequest, resp
 		return err
 	}
 
-	id, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	if _, err := a.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      claims,
-		Identifier:  id,
+		Identifier:  request.WrappedIdentifier.Identifier,
 		NewPassword: request.NewPassword,
 	}); err != nil {
 		return err

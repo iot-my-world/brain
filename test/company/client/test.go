@@ -99,7 +99,7 @@ func (suite *Client) TestCompanyInviteAndRegisterClients() {
 			if err := suite.jsonRpcClient.JsonRpcRequest(
 				"PartyRegistrar.InviteClientAdminUser",
 				partyRegistrarJsonRpcAdaptor.InviteClientAdminUserRequest{
-					ClientIdentifier: *clientIdentifier,
+					WrappedClientIdentifier: *clientIdentifier,
 				},
 				&inviteClientAdminUserResponse,
 			); err != nil {

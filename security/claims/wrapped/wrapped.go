@@ -9,9 +9,9 @@ import (
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	"gitlab.com/iotTracker/brain/security/claims/resetPassword"
 	wrappedClaimsException "gitlab.com/iotTracker/brain/security/claims/wrapped/exception"
 	"net/http"
-	"gitlab.com/iotTracker/brain/security/claims/resetPassword"
 )
 
 type Wrapped struct {

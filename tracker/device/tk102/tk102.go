@@ -7,6 +7,7 @@ import (
 )
 
 type TK102 struct {
+	Type              device.Type   `json:"type" bson:"type"`
 	Id                string        `json:"id" bson:"id"`
 	ManufacturerId    string        `json:"manufacturerId" bson:"manufacturerId"`
 	SimCountryCode    string        `json:"simCountryCode" bson:"simCountryCode"`
@@ -17,6 +18,6 @@ type TK102 struct {
 	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
 }
 
-func (t TK102) Type() device.Type {
-	return device.TK102
+func (t TK102) DeviceType() device.Type {
+	return t.Type
 }

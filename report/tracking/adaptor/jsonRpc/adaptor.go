@@ -1,6 +1,7 @@
 package jsonRpc
 
 import (
+	"errors"
 	"gitlab.com/iotTracker/brain/log"
 	trackingReport "gitlab.com/iotTracker/brain/report/tracking"
 	"gitlab.com/iotTracker/brain/search/identifier"
@@ -24,7 +25,7 @@ func New(
 }
 
 type LiveRequest struct {
-	PartyIdentifiers []wrappedIdentifier.Wrapped`json:"partyIdentifiers"`
+	WrappedPartyIdentifiers []wrappedIdentifier.Wrapped `json:"partyIdentifiers"`
 }
 
 type LiveResponse struct {
@@ -38,18 +39,14 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 		return err
 	}
 
-	partyIdentifiers := make([]party.Identifier,0)
+	partyIdentifiers := make([]party.Identifier, 0)
 
-	for i := range request.PartyIdentifiers {
-		id, err := request.PartyIdentifiers[i].UnWrap()
-		if err != nil {
-			return err
+	for i := range request.WrappedPartyIdentifiers {
+		partyIdentifier, ok := request.WrappedPartyIdentifiers[i].Identifier.(party.Identifier)
+		if !ok {
+			return errors.New("could not cast identifier.Identifier to party.Identifier")
 		}
-		//TODO fix this
-		switch v:=id.(type) {
-		case party.Identifier:
-			partyIdentifiers = append(partyIdentifiers, v)
-		}
+		partyIdentifiers = append(partyIdentifiers, partyIdentifier)
 	}
 
 	// get report
@@ -67,8 +64,8 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 }
 
 type HistoricalRequest struct {
-	CompanyIdentifiers []wrappedIdentifier.Wrapped `json:"companyIdentifiers"`
-	ClientIdentifiers  []wrappedIdentifier.Wrapped `json:"clientIdentifiers"`
+	WrappedCompanyIdentifiers []wrappedIdentifier.Wrapped `json:"companyIdentifiers"`
+	WrappedClientIdentifiers  []wrappedIdentifier.Wrapped `json:"clientIdentifiers"`
 }
 
 type HistoricalResponse struct {
@@ -84,21 +81,21 @@ func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, respon
 
 	// unwrap company identifiers
 	companyIdentifiers := make([]identifier.Identifier, 0)
-	for idIdx := range request.CompanyIdentifiers {
-		if c, err := request.CompanyIdentifiers[idIdx].UnWrap(); err == nil {
-			companyIdentifiers = append(companyIdentifiers, c)
-		} else {
-			return err
+	for i := range request.WrappedCompanyIdentifiers {
+		partyIdentifier, ok := request.WrappedCompanyIdentifiers[i].Identifier.(party.Identifier)
+		if !ok {
+			return errors.New("could not cast identifier.Identifier to party.Identifier")
 		}
+		companyIdentifiers = append(companyIdentifiers, partyIdentifier)
 	}
 	// unwrap client criteria
 	clientIdentifiers := make([]identifier.Identifier, 0)
-	for idIdx := range request.ClientIdentifiers {
-		if c, err := request.ClientIdentifiers[idIdx].UnWrap(); err == nil {
-			clientIdentifiers = append(clientIdentifiers, c)
-		} else {
-			return err
+	for i := range request.WrappedClientIdentifiers {
+		partyIdentifier, ok := request.WrappedClientIdentifiers[i].Identifier.(party.Identifier)
+		if !ok {
+			return errors.New("could not cast identifier.Identifier to party.Identifier")
 		}
+		clientIdentifiers = append(clientIdentifiers, partyIdentifier)
 	}
 
 	// get report

@@ -1,7 +1,6 @@
 package recordHandler
 
 import (
-	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/company"
 	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
 	brainRecordHandler "gitlab.com/iotTracker/brain/recordHandler"
@@ -20,9 +19,6 @@ func New(
 	brainCompanyRecordHandler brainRecordHandler.RecordHandler,
 ) *RecordHandler {
 
-	if brainCompanyRecordHandler == nil {
-		log.Fatal(companyRecordHandlerException.RecordHandlerNil{}.Error())
-	}
 	return &RecordHandler{
 		recordHandler: brainCompanyRecordHandler,
 	}

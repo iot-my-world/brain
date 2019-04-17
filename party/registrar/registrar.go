@@ -2,9 +2,9 @@ package registrar
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/user"
-	"gitlab.com/iotTracker/brain/search/identifier/party"
 )
 
 type Registrar interface {

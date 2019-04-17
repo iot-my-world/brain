@@ -1,0 +1,18 @@
+version: '2'
+services:
+  iotzookeeper:
+    container_name: iotTracker-zookeeper
+    image: wurstmeister/zookeeper
+    ports:
+    - "2181:2181"
+  iotkafka:
+    container_name: iotTracker-kafka
+    image: wurstmeister/kafka
+    ports:
+    - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: iotzookeeper:2181
+      KAFKA_CREATE_TOPICS: "brainQueue:1:1"
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

@@ -23,7 +23,7 @@ func New(recordHandler systemRecordHandler.RecordHandler) *adaptor {
 }
 
 type RetrieveRequest struct {
-	Identifier wrappedIdentifier.Wrapped `json:"identifier"`
+	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
 }
 
 type RetrieveResponse struct {
@@ -37,15 +37,10 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	id, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	retrieveSystemResponse, err := s.RecordHandler.Retrieve(
 		&systemRecordHandler.RetrieveRequest{
 			Claims:     claims,
-			Identifier: id,
+			Identifier: request.WrappedIdentifier.Identifier,
 		})
 	if err != nil {
 		return err

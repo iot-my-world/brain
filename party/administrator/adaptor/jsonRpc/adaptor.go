@@ -50,8 +50,8 @@ func (a *adaptor) GetMyParty(r *http.Request, request *GetMyPartyRequest, respon
 }
 
 type RetrievePartyRequest struct {
-	PartyType  party.Type
-	Identifier wrappedIdentifier.Wrapped
+	PartyType         party.Type
+	WrappedIdentifier wrappedIdentifier.Wrapped
 }
 
 type RetrievePartyResponse struct {
@@ -65,15 +65,10 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 		return err
 	}
 
-	partyIdentifier, err := request.Identifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	retrievePartyResponse, err := a.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 		Claims:     claims,
 		PartyType:  request.PartyType,
-		Identifier: partyIdentifier,
+		Identifier: request.WrappedIdentifier.Identifier,
 	})
 	if err != nil {
 		return err

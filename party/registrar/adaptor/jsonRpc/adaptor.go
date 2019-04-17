@@ -1,6 +1,7 @@
 package jsonRpc
 
 import (
+	"errors"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/party/registrar"
 	"gitlab.com/iotTracker/brain/search/identifier/party"
@@ -23,7 +24,7 @@ func New(
 }
 
 type InviteCompanyAdminUserRequest struct {
-	CompanyIdentifier wrappedIdentifier.Wrapped `json:"companyIdentifier"`
+	WrappedCompanyIdentifier wrappedIdentifier.Wrapped `json:"companyIdentifier"`
 }
 
 type InviteCompanyAdminUserResponse struct {
@@ -31,11 +32,6 @@ type InviteCompanyAdminUserResponse struct {
 }
 
 func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error {
-	companyIdentifier, err := request.CompanyIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -44,7 +40,7 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 
 	inviteCompanyAdminUserResponse, err := a.registrar.InviteCompanyAdminUser(&registrar.InviteCompanyAdminUserRequest{
 		Claims:            claims,
-		CompanyIdentifier: companyIdentifier,
+		CompanyIdentifier: request.WrappedCompanyIdentifier.Identifier,
 	})
 	if err != nil {
 		return err
@@ -112,7 +108,7 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 }
 
 type InviteClientAdminUserRequest struct {
-	ClientIdentifier wrappedIdentifier.Wrapped `json:"clientIdentifier"`
+	WrappedClientIdentifier wrappedIdentifier.Wrapped `json:"clientIdentifier"`
 }
 
 type InviteClientAdminUserResponse struct {
@@ -120,10 +116,6 @@ type InviteClientAdminUserResponse struct {
 }
 
 func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAdminUserRequest, response *InviteClientAdminUserResponse) error {
-	clientIdentifier, err := request.ClientIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
 
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
@@ -133,7 +125,7 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 
 	inviteClientAdminUserResponse, err := a.registrar.InviteClientAdminUser(&registrar.InviteClientAdminUserRequest{
 		Claims:           claims,
-		ClientIdentifier: clientIdentifier,
+		ClientIdentifier: request.WrappedClientIdentifier.Identifier,
 	})
 	if err != nil {
 		return err
@@ -201,7 +193,7 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 }
 
 type AreAdminsRegisteredRequest struct {
-	PartyIdentifiers []wrappedIdentifier.Wrapped`json:"partyIdentifiers"`
+	WrappedPartyIdentifiers []wrappedIdentifier.Wrapped `json:"partyIdentifiers"`
 }
 
 type AreAdminsRegisteredResponse struct {
@@ -215,18 +207,14 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 		return err
 	}
 
-	partyIdentifiers := make([]party.Identifier,0)
+	partyIdentifiers := make([]party.Identifier, 0)
 
-	for i := range request.PartyIdentifiers {
-		id, err := request.PartyIdentifiers[i].UnWrap()
-		if err != nil {
-			return err
+	for i := range request.WrappedPartyIdentifiers {
+		partyIdentifier, ok := request.WrappedPartyIdentifiers[i].Identifier.(party.Identifier)
+		if !ok {
+			return errors.New("could not cast identifier.Identifier to party.Identifier")
 		}
-		//TODO fix this
-		switch v:=id.(type) {
-		case party.Identifier:
-			partyIdentifiers = append(partyIdentifiers, v)
-		}
+		partyIdentifiers = append(partyIdentifiers, partyIdentifier)
 	}
 
 	areAdminsRegisteredResponse, err := a.registrar.AreAdminsRegistered(&registrar.AreAdminsRegisteredRequest{
@@ -244,7 +232,7 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 }
 
 type InviteUserRequest struct {
-	UserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
+	WrappedUserIdentifier wrappedIdentifier.Wrapped `json:"userIdentifier"`
 }
 
 type InviteUserResponse struct {
@@ -258,14 +246,9 @@ func (a *adaptor) InviteUser(r *http.Request, request *InviteUserRequest, respon
 		return err
 	}
 
-	userId, err := request.UserIdentifier.UnWrap()
-	if err != nil {
-		return err
-	}
-
 	userInviteResponse, err := a.registrar.InviteUser(&registrar.InviteUserRequest{
 		Claims:         claims,
-		UserIdentifier: userId,
+		UserIdentifier: request.WrappedUserIdentifier.Identifier,
 	})
 	if err != nil {
 		log.Warn(err.Error())

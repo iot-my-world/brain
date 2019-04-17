@@ -77,7 +77,7 @@ func (suite *System) TestSystemReadingCreation() {
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"TK102DeviceRecordHandler.Retrieve",
 			tk102DeviceRecordHandlerJsonRpcAdaptor.RetrieveRequest{
-				Identifier: *deviceIdentifier,
+				WrappedIdentifier: *deviceIdentifier,
 			},
 			&retrieveTK102DeviceResponse,
 		); err != nil {

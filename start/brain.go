@@ -61,6 +61,13 @@ import (
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
 
+	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/adaptor/jsonRpc"
+	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/basic"
+	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/adaptor/jsonRpc"
+	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/mongo"
+	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/adaptor/jsonRpc"
+	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/basic"
+
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
 
@@ -79,6 +86,8 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
+	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
+
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"strings"
@@ -96,6 +105,7 @@ func main() {
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
 	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
 	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
+	kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
 
@@ -274,7 +284,7 @@ func main() {
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		tk102DeviceCollection,
+		deviceCollection,
 	)
 	TK102DeviceValidator := tk102DeviceBasicValidator.New(
 		PartyBasicAdministrator,
@@ -286,6 +296,21 @@ func main() {
 		PartyBasicAdministrator,
 		ReadingRecordHandler,
 		TK102DeviceValidator,
+	)
+
+	// Device
+	// ZX303 Device
+	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		deviceCollection,
+	)
+	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
+		ZX303DeviceValidator,
+		ZX303DeviceRecordHandler,
 	)
 
 	// Report
@@ -331,6 +356,11 @@ func main() {
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
+
+	// ZX303 Device
+	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
+	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
+	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
@@ -418,6 +448,17 @@ func main() {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
 
+	// ZX303 Device
+	if err := secureAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
+		log.Fatal("Unable to Register ZX303 Device Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Device Validator")
+	}
+	if err := secureAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Device Administrator")
+	}
+
 	// Reading
 	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
@@ -448,9 +489,22 @@ func main() {
 		os.Exit(1)
 	}()
 
+	// set up kafka messaging
+	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
+	MessageConsumerGroup := messageConsumerGroup.New(
+		kafkaBrokerNodes,
+		[]string{"brainQueue"},
+		"brain",
+	)
+	go func() {
+		err := MessageConsumerGroup.Start()
+		log.Error(err.Error())
+		os.Exit(1)
+	}()
+
 	//Wait for interrupt signal
 	systemSignalsChannel := make(chan os.Signal, 1)
-	signal.Notify(systemSignalsChannel)
+	signal.Notify(systemSignalsChannel, os.Interrupt)
 	for {
 		select {
 		case s := <-systemSignalsChannel:

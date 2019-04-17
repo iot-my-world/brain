@@ -3,17 +3,18 @@ package wrapped
 import (
 	"encoding/json"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	trackerDevice "gitlab.com/iotTracker/brain/tracker/device"
+	"gitlab.com/iotTracker/brain/tracker/device"
 	deviceException "gitlab.com/iotTracker/brain/tracker/device/exception"
-	"gitlab.com/iotTracker/brain/tracker/device/tk102"
+	"gitlab.com/iotTracker/brain/tracker/device/zx303"
 )
 
 type Wrapped struct {
-	Type  trackerDevice.Type `json:"type"`
-	Value json.RawMessage    `json:"value"`
+	Type   device.Type     `json:"type"`
+	Value  json.RawMessage `json:"value"`
+	Device device.Device   `json:"-"`
 }
 
-func Wrap(device trackerDevice.Device) (*Wrapped, error) {
+func Wrap(device device.Device) (*Wrapped, error) {
 	if device == nil {
 		return nil, deviceException.Wrapping{Reasons: []string{"device is nil"}}
 	}
@@ -29,22 +30,32 @@ func Wrap(device trackerDevice.Device) (*Wrapped, error) {
 	}, nil
 }
 
-func (d Wrapped) UnWrap() (trackerDevice.Device, error) {
-	var result trackerDevice.Device = nil
-	switch d.Type {
-	case trackerDevice.TK102:
-		var unmarshalledDevice tk102.TK102
-		if err := json.Unmarshal(d.Value, &unmarshalledDevice); err != nil {
-			return nil, deviceException.UnWrapping{Reasons: []string{"unmarshalling", err.Error()}}
+func (d *Wrapped) UnmarshalJSON(data []byte) error {
+	type Alias Wrapped
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(d),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	switch aux.Type {
+	case device.ZX303:
+		var unmarshalledDevice zx303.ZX303
+		if err := json.Unmarshal(aux.Value, &unmarshalledDevice); err != nil {
+			return deviceException.UnWrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}
-		result = unmarshalledDevice
+		d.Device = unmarshalledDevice
 	default:
-		return nil, deviceException.UnWrapping{Reasons: []string{"invalid type", string(d.Type)}}
+		return deviceException.UnWrapping{Reasons: []string{"invalid type", string(d.Type)}}
 	}
 
-	if result == nil {
-		return nil, brainException.Unexpected{Reasons: []string{"device still nil"}}
+	if d.Device == nil {
+		return brainException.Unexpected{Reasons: []string{"device still nil"}}
 	}
 
-	return result, nil
+	return nil
 }

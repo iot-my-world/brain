@@ -7,13 +7,13 @@ type InitialSetup struct {
 }
 
 func (e InitialSetup) Error() string {
-	return "initial company setup error: " + strings.Join(e.Reasons, "; ")
+	return "initial tk102 setup error: " + strings.Join(e.Reasons, "; ")
 }
 
 type NotFound struct{}
 
 func (e NotFound) Error() string {
-	return "company not found"
+	return "tk102 not found"
 }
 
 type Create struct {
@@ -21,7 +21,7 @@ type Create struct {
 }
 
 func (e Create) Error() string {
-	return "company creation error: " + strings.Join(e.Reasons, "; ")
+	return "tk102 creation error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Update struct {
@@ -29,5 +29,5 @@ type Update struct {
 }
 
 func (e Update) Error() string {
-	return "company update error: " + strings.Join(e.Reasons, "; ")
+	return "tk102 update error: " + strings.Join(e.Reasons, "; ")
 }
