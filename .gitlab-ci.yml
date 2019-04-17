@@ -22,14 +22,15 @@ before_script:
  - chmod 644 ~/.ssh/known_hosts
 
  # - apt-get update
+ # create directories and gopath for golang
  - mkdir -p /go/src/gitlab.com/iotTracker
+ 
  # navigate and clone messaging repo dependencies
  - cd /go/src/gitlab.com/iotTracker
  - git clone https://gitlab+deploy-token-61057:${CI_JOB_TOKEN}@gitlab.com/iotTracker/messaging
- - pwd
+
  # create link between brain build directory and iot tracker directory so that
  # golang import paths work correctly
- - ls -ln
  - ln -s /builds/iotTracker/brain /go/src/gitlab.com/iotTracker
 
 deploy_stage:
@@ -40,12 +41,12 @@ deploy_stage:
   script:
     - ls
     - pwd
-#    - cd /go/src/gitlab.com/iotTracker/brain/start
-#    - go get
-#    - cd ../build
-#    - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
-#    - ls
-#    - scp ./brain gitlabcli@spotnav.net:/home/gitlabcli
-#    - ssh gitlabcli@spotnav.net "sudo /bin/systemctl stop brain.service"
-#    - ssh gitlabcli@spotnav.net "sudo /bin/mv /home/gitlabcli/brain /home/brain"
-#    - ssh gitlabcli@spotnav.net "sudo /bin/systemctl start brain.service"
+    - cd /go/src/gitlab.com/iotTracker/brain/start
+    - go get
+    - cd ../build
+    - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
+    - ls
+    - scp ./brain gitlabcli@spotnav.net:/home/gitlabcli
+    - ssh gitlabcli@spotnav.net "sudo /bin/systemctl stop brain.service"
+    - ssh gitlabcli@spotnav.net "sudo /bin/mv /home/gitlabcli/brain /home/brain"
+    - ssh gitlabcli@spotnav.net "sudo /bin/systemctl start brain.service"
