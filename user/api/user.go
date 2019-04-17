@@ -21,3 +21,7 @@ type User struct {
 	PartyType party.Type    `json:"parentPartyType" bson:"parentPartyType"`
 	PartyId   id.Identifier `json:"partyId" bson:"partyId"`
 }
+
+func (u *User) SetId(id string) {
+	u.Id = id
+}
