@@ -3,16 +3,16 @@ package jsonRpc
 import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/tracker/device/apiUser"
-	apiUserDeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/apiUser/administrator"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
+	apiUserAdministrator "gitlab.com/iotTracker/brain/user/api/administrator"
 	"net/http"
 )
 
 type Adaptor struct {
-	administrator apiUserDeviceAdministrator.Administrator
+	administrator apiUserAdministrator.Administrator
 }
 
-func New(administrator apiUserDeviceAdministrator.Administrator) *Adaptor {
+func New(administrator apiUserAdministrator.Administrator) *Adaptor {
 	return &Adaptor{
 		administrator: administrator,
 	}
@@ -33,7 +33,7 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse, err := a.administrator.Create(&apiUserDeviceAdministrator.CreateRequest{
+	createResponse, err := a.administrator.Create(&apiUserAdministrator.CreateRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -61,7 +61,7 @@ func (a *Adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&apiUserDeviceAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&apiUserAdministrator.UpdateAllowedFieldsRequest{
 		Claims: claims,
 		User:   request.User,
 	})

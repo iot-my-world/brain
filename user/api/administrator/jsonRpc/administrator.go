@@ -3,7 +3,7 @@ package jsonRpc
 import (
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	apiUserDeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/apiUser/administrator"
+	apiUserAdministrator "gitlab.com/iotTracker/brain/user/api/administrator"
 )
 
 type administrator struct {
@@ -12,16 +12,16 @@ type administrator struct {
 
 func New(
 	jsonRpcClient jsonRpcClient.Client,
-) apiUserDeviceAdministrator.Administrator {
+) apiUserAdministrator.Administrator {
 	return &administrator{
 		jsonRpcClient: jsonRpcClient,
 	}
 }
 
-func (a *administrator) Create(request *apiUserDeviceAdministrator.CreateRequest) (*apiUserDeviceAdministrator.CreateResponse, error) {
+func (a *administrator) Create(request *apiUserAdministrator.CreateRequest) (*apiUserAdministrator.CreateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (a *administrator) UpdateAllowedFields(request *apiUserDeviceAdministrator.UpdateAllowedFieldsRequest) (*apiUserDeviceAdministrator.UpdateAllowedFieldsResponse, error) {
+func (a *administrator) UpdateAllowedFields(request *apiUserAdministrator.UpdateAllowedFieldsRequest) (*apiUserAdministrator.UpdateAllowedFieldsResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
