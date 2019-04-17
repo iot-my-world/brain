@@ -17,7 +17,7 @@ import (
 	"time"
 
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
-	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
+	uiAuthService "gitlab.com/iotTracker/brain/security/auth/service/ui"
 
 	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
@@ -196,7 +196,7 @@ func main() {
 	)
 
 	// Auth
-	AuthService := authBasicService.New(
+	AuthService := uiAuthService.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
