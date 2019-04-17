@@ -6,7 +6,6 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler"
 	tk102RecordHandlerException "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/exception"
@@ -139,7 +138,7 @@ func (mrh *recordHandler) Retrieve(request *tk102RecordHandler.RetrieveRequest) 
 
 	var tk102Record tk102.TK102
 
-	filter := claims.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	filter := tk102.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
 	if err := tk102Collection.Find(filter).One(&tk102Record); err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, tk102RecordHandlerException.NotFound{}
@@ -258,7 +257,7 @@ func (mrh *recordHandler) Collect(request *tk102RecordHandler.CollectRequest) (*
 	}
 
 	filter := criterion.CriteriaToFilter(request.Criteria)
-	filter = claims.ContextualiseFilter(filter, request.Claims)
+	filter = tk102.ContextualiseFilter(filter, request.Claims)
 
 	response := tk102RecordHandler.CollectResponse{}
 

@@ -12,6 +12,7 @@ import (
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
+	"gitlab.com/iotTracker/brain/tracker/device"
 	"gitlab.com/iotTracker/brain/tracker/device/tk102"
 	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
@@ -58,6 +59,7 @@ func (suite *System) TestSystemDeviceCreation() {
 		// create new device
 		newDevice := tk102.TK102{
 			Id:                "",
+			Type:              device.TK102,
 			ManufacturerId:    rowMap["ManufacturerId"],
 			SimCountryCode:    rowMap["SimCountryCode"],
 			SimNumber:         rowMap["SimNumber"],
