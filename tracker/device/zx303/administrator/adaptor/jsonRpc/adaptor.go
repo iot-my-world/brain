@@ -45,3 +45,31 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 
 	return nil
 }
+
+type UpdateAllowedFieldsRequest struct {
+	ZX303 zx303.ZX303 `json:"zx303"`
+}
+
+type UpdateAllowedFieldsResponse struct {
+	ZX303 zx303.ZX303 `json:"zx303"`
+}
+
+func (a *Adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&zx303DeviceAdministrator.UpdateAllowedFieldsRequest{
+		Claims: claims,
+		ZX303:  request.ZX303,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.ZX303 = updateAllowedFieldsResponse.ZX303
+
+	return nil
+}

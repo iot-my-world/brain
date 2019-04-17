@@ -75,6 +75,7 @@ const ZX303DeviceValidatorValidate Permission = "ZX303DeviceValidator.Validate"
 
 const ZX303DeviceAdministratorChangeOwnershipAndAssignment Permission = "ZX303DeviceAdministrator.ChangeOwnershipAndAssignment"
 const ZX303DeviceAdministratorCreate Permission = "ZX303DeviceAdministrator.Create"
+const ZX303DeviceAdministratorUpdateAllowedFields Permission = "ZX303DeviceAdministrator.UpdateAllowedFields"
 
 // Reading
 const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
