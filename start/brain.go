@@ -86,7 +86,7 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
-	messageConsumerGroup "gitlab.com/iotTracker/brain/messaging/consumer/group"
+	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
 
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/security/claims/login"

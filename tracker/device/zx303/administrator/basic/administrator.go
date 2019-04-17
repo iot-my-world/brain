@@ -113,15 +113,15 @@ func (a *administrator) UpdateAllowedFields(request *zx303DeviceAdministrator.Up
 	}
 
 	// update the allowed fields on the device
-	deviceRetrieveResponse.ZX303.Type = request.ZX303.Type
-	deviceRetrieveResponse.ZX303.Id = request.ZX303.Id
+	//deviceRetrieveResponse.ZX303.Type = request.ZX303.Type
+	//deviceRetrieveResponse.ZX303.Id = request.ZX303.Id
 	deviceRetrieveResponse.ZX303.IMEI = request.ZX303.IMEI
 	deviceRetrieveResponse.ZX303.SimCountryCode = request.ZX303.SimCountryCode
 	deviceRetrieveResponse.ZX303.SimNumber = request.ZX303.SimNumber
-	deviceRetrieveResponse.ZX303.OwnerPartyType = request.ZX303.OwnerPartyType
-	deviceRetrieveResponse.ZX303.OwnerId = request.ZX303.OwnerId
-	deviceRetrieveResponse.ZX303.AssignedPartyType = request.ZX303.AssignedPartyType
-	deviceRetrieveResponse.ZX303.AssignedId = request.ZX303.AssignedId
+	//deviceRetrieveResponse.ZX303.OwnerPartyType = request.ZX303.OwnerPartyType
+	//deviceRetrieveResponse.ZX303.OwnerId = request.ZX303.OwnerId
+	//deviceRetrieveResponse.ZX303.AssignedPartyType = request.ZX303.AssignedPartyType
+	//deviceRetrieveResponse.ZX303.AssignedId = request.ZX303.AssignedId
 
 	// update the device
 	_, err = a.zx303RecordHandler.Update(&zx303RecordHandler.UpdateRequest{
