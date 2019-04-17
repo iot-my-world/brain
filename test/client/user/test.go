@@ -78,7 +78,7 @@ func (suite *User) TestClientInviteAndRegisterUsers() {
 				if err := suite.jsonRpcClient.JsonRpcRequest(
 					"PartyRegistrar.InviteUser",
 					partyRegistrarJsonRpcAdaptor.InviteUserRequest{
-						UserIdentifier: *userIdentifier,
+						WrappedUserIdentifier: *userIdentifier,
 					},
 					&inviteClientUserResponse,
 				); err != nil {

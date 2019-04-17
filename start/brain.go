@@ -284,7 +284,7 @@ func main() {
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		tk102DeviceCollection,
+		deviceCollection,
 	)
 	TK102DeviceValidator := tk102DeviceBasicValidator.New(
 		PartyBasicAdministrator,
@@ -303,7 +303,7 @@ func main() {
 	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		zx303DeviceCollection,
+		deviceCollection,
 	)
 	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
 		PartyBasicAdministrator,

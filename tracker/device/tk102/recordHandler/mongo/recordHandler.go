@@ -54,7 +54,8 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	// Ensure admin manufacturerIdUnique uniqueness
 	manufacturerIdUnique := mgo.Index{
 		Key:    []string{"manufacturerId"},
-		Unique: true,
+		Unique: true, // Prevent two documents from having the same index key
+		Sparse: true, // Only index documents containing the Key fields
 	}
 	if err := tk102Collection.EnsureIndex(manufacturerIdUnique); err != nil {
 		log.Fatal("Could not ensure manufacturerId uniqueness: ", err)
@@ -63,7 +64,8 @@ func setupIndices(mongoSession *mgo.Session, database, collection string) {
 	// Ensure country code + number uniqueness
 	countryCodeNumberUnique := mgo.Index{
 		Key:    []string{"simCountryCode", "simNumber"},
-		Unique: true,
+		Unique: true, // Prevent two documents from having the same index key
+		Sparse: true, // Only index documents containing the Key fields
 	}
 	if err := tk102Collection.EnsureIndex(countryCodeNumberUnique); err != nil {
 		log.Fatal("Could not ensure sim country code and number combination unique: ", err)

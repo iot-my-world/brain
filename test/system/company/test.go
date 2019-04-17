@@ -94,7 +94,7 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"PartyRegistrar.InviteCompanyAdminUser",
 			partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
-				CompanyIdentifier: *companyIdentifier,
+				WrappedCompanyIdentifier: *companyIdentifier,
 			},
 			&inviteCompanyAdminUserResponse,
 		); err != nil {

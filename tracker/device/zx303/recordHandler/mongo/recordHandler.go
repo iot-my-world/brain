@@ -22,7 +22,8 @@ func New(
 			},
 			{
 				Key:    []string{"imei"},
-				Unique: true,
+				Unique: true, // Prevent two documents from having the same index key
+				Sparse: true, // Only index documents containing the Key fields
 			},
 		},
 		nil,

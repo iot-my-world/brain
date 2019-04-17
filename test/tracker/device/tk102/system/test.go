@@ -78,8 +78,8 @@ func (suite *System) TestSystemDeviceCreation() {
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"PartyAdministrator.RetrieveParty",
 			partyAdministratorJsonAdaptor.RetrievePartyRequest{
-				PartyType:  newDevice.OwnerPartyType,
-				Identifier: *ownerPartyIdentifier,
+				PartyType:         newDevice.OwnerPartyType,
+				WrappedIdentifier: *ownerPartyIdentifier,
 			},
 			&retrieveOwnerPartyResponse,
 		); err != nil {
@@ -109,8 +109,8 @@ func (suite *System) TestSystemDeviceCreation() {
 			if err := suite.jsonRpcClient.JsonRpcRequest(
 				"PartyAdministrator.RetrieveParty",
 				partyAdministratorJsonAdaptor.RetrievePartyRequest{
-					PartyType:  newDevice.AssignedPartyType,
-					Identifier: *assignedPartyIdentifier,
+					PartyType:         newDevice.AssignedPartyType,
+					WrappedIdentifier: *assignedPartyIdentifier,
 				},
 				&retrieveAssignedPartyResponse,
 			); err != nil {
