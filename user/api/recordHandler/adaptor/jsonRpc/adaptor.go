@@ -7,16 +7,16 @@ import (
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/tracker/device/zx303"
-	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler"
+	"gitlab.com/iotTracker/brain/tracker/device/apiUser"
+	apiUserRecordHandler "gitlab.com/iotTracker/brain/tracker/device/apiUser/recordHandler"
 	"net/http"
 )
 
 type adaptor struct {
-	RecordHandler *zx303RecordHandler.RecordHandler
+	RecordHandler *apiUserRecordHandler.RecordHandler
 }
 
-func New(recordHandler *zx303RecordHandler.RecordHandler) *adaptor {
+func New(recordHandler *apiUserRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -27,7 +27,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	ZX303 zx303.ZX303 `json:"zx303"`
+	User apiUser.User `json:"apiUser"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -37,8 +37,8 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveZX303Response, err := s.RecordHandler.Retrieve(
-		&zx303RecordHandler.RetrieveRequest{
+	retrieveUserResponse, err := s.RecordHandler.Retrieve(
+		&apiUserRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
 		})
@@ -46,7 +46,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	response.ZX303 = retrieveZX303Response.ZX303
+	response.User = retrieveUserResponse.User
 
 	return nil
 }
@@ -57,8 +57,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []zx303.ZX303 `json:"records"`
-	Total   int           `json:"total"`
+	Records []apiUser.User `json:"records"`
+	Total   int            `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
@@ -77,7 +77,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectZX303Response, err := s.RecordHandler.Collect(&zx303RecordHandler.CollectRequest{
+	collectUserResponse, err := s.RecordHandler.Collect(&apiUserRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
@@ -86,7 +86,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		return err
 	}
 
-	response.Records = collectZX303Response.Records
-	response.Total = collectZX303Response.Total
+	response.Records = collectUserResponse.Records
+	response.Total = collectUserResponse.Total
 	return nil
 }

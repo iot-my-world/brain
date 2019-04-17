@@ -2,7 +2,7 @@ package administrator
 
 import (
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/device/zx303"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
 )
 
 type Administrator interface {
@@ -12,18 +12,18 @@ type Administrator interface {
 
 type CreateRequest struct {
 	Claims claims.Claims
-	ZX303  zx303.ZX303
+	User   apiUser.User
 }
 
 type CreateResponse struct {
-	ZX303 zx303.ZX303
+	User apiUser.User
 }
 
 type UpdateAllowedFieldsRequest struct {
 	Claims claims.Claims
-	ZX303  zx303.ZX303
+	User   apiUser.User
 }
 
 type UpdateAllowedFieldsResponse struct {
-	ZX303 zx303.ZX303
+	User apiUser.User
 }

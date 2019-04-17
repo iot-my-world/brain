@@ -3,7 +3,7 @@ package validator
 import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/device/zx303"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
@@ -13,7 +13,7 @@ type Validator interface {
 
 type ValidateRequest struct {
 	Claims claims.Claims
-	ZX303  zx303.ZX303
+	User   apiUser.User
 	Action action.Action
 }
 

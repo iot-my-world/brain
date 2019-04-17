@@ -18,7 +18,7 @@ type User struct {
 	Roles    []string `json:"roles" bson:"roles"`
 
 	// Party Details
-	PartyType party.Type    `json:"parentPartyType" bson:"parentPartyType"`
+	PartyType party.Type    `json:"partyType" bson:"partyType"`
 	PartyId   id.Identifier `json:"partyId" bson:"partyId"`
 }
 

@@ -6,9 +6,8 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	zx303DeviceAction "gitlab.com/iotTracker/brain/tracker/device/zx303/action"
-	deviceValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator"
+	apiUserAction "gitlab.com/iotTracker/brain/user/api/action"
+	apiUserValidator "gitlab.com/iotTracker/brain/user/api/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
@@ -19,10 +18,10 @@ type validator struct {
 
 func New(
 	partyAdministrator partyAdministrator.Administrator,
-) deviceValidator.Validator {
+) apiUserValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
-		zx303DeviceAction.Create: {
+		apiUserAction.Create: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
@@ -37,7 +36,7 @@ func New(
 	}
 }
 
-func (v *validator) ValidateValidateRequest(request *deviceValidator.ValidateRequest) error {
+func (v *validator) ValidateValidateRequest(request *apiUserValidator.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -50,155 +49,102 @@ func (v *validator) ValidateValidateRequest(request *deviceValidator.ValidateReq
 	return nil
 }
 
-func (v *validator) Validate(request *deviceValidator.ValidateRequest) (*deviceValidator.ValidateResponse, error) {
+func (v *validator) Validate(request *apiUserValidator.ValidateRequest) (*apiUserValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
 		return nil, err
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	zx303ToValidate := &request.ZX303
+	apiUserToValidate := &request.User
 
-	if (*zx303ToValidate).Type != device.ZX303 {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "type",
-			Type:  reasonInvalid.Invalid,
-			Help:  "must be ZX303",
-			Data:  (*zx303ToValidate).Type,
-		})
-	}
-
-	if (*zx303ToValidate).Id == "" {
+	if (*apiUserToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*zx303ToValidate).Id,
+			Data:  (*apiUserToValidate).Id,
 		})
 	}
 
-	if (*zx303ToValidate).IMEI == "" {
+	if (*apiUserToValidate).Name == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "imei",
+			Field: "name",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*zx303ToValidate).IMEI,
+			Data:  (*apiUserToValidate).Name,
 		})
 	}
 
-	if (*zx303ToValidate).SimCountryCode == "" {
+	if (*apiUserToValidate).Description == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "simCountryCode",
+			Field: "description",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*zx303ToValidate).SimCountryCode,
+			Data:  (*apiUserToValidate).Description,
 		})
 	}
 
-	if (*zx303ToValidate).SimNumber == "" {
+	if (*apiUserToValidate).Username == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "simNumber",
+			Field: "username",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*zx303ToValidate).SimNumber,
+			Data:  (*apiUserToValidate).Username,
 		})
 	}
 
-	// owner party type must be set, cannot be blank
-	if (*zx303ToValidate).OwnerPartyType == "" {
+	if len((*apiUserToValidate).Password) == 0 {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "ownerPartyType",
+			Field: "password",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*zx303ToValidate).OwnerPartyType,
+			Data:  (*apiUserToValidate).Password,
+		})
+	}
+
+	// party type must be set, cannot be blank
+	if (*apiUserToValidate).PartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "partyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*apiUserToValidate).PartyType,
 		})
 	} else {
 		// if it is not blank
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
-		switch (*zx303ToValidate).OwnerPartyType {
+		switch (*apiUserToValidate).PartyType {
 		case party.System, party.Client, party.Company:
 			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 				Claims:     request.Claims,
-				PartyType:  (*zx303ToValidate).OwnerPartyType,
-				Identifier: (*zx303ToValidate).OwnerId,
+				PartyType:  (*apiUserToValidate).PartyType,
+				Identifier: (*apiUserToValidate).PartyId,
 			})
 			if err != nil {
 				switch err.(type) {
 				case partyAdministratorException.NotFound:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "ownerId",
+						Field: "partyId",
 						Type:  reasonInvalid.MustExist,
-						Help:  "owner party must exist",
-						Data:  (*zx303ToValidate).OwnerId,
+						Help:  "party must exist",
+						Data:  (*apiUserToValidate).PartyId,
 					})
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "ownerId",
+						Field: "partyId",
 						Type:  reasonInvalid.Unknown,
-						Help:  "error retrieving owner party: " + err.Error(),
-						Data:  (*zx303ToValidate).OwnerId,
+						Help:  "error retrieving party: " + err.Error(),
+						Data:  (*apiUserToValidate).PartyId,
 					})
 				}
 			}
 
 		default:
 			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "ownerPartyType",
+				Field: "partyType",
 				Type:  reasonInvalid.Invalid,
 				Help:  "must be a valid type",
-				Data:  (*zx303ToValidate).OwnerPartyType,
-			})
-		}
-	}
-
-	// although assigned party type can be blank, if it is then the assigned id must also be blank
-	if ((*zx303ToValidate).AssignedPartyType == "" && (*zx303ToValidate).AssignedId.Id != "") ||
-		((*zx303ToValidate).AssignedId.Id == "" && (*zx303ToValidate).AssignedPartyType != "") {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "assignedPartyType",
-			Type:  reasonInvalid.Invalid,
-			Help:  "must both be blank or set",
-			Data:  (*zx303ToValidate).AssignedPartyType,
-		})
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "assignedId",
-			Type:  reasonInvalid.Invalid,
-			Help:  "must both be blank or set",
-			Data:  (*zx303ToValidate).AssignedId,
-		})
-	} else if (*zx303ToValidate).AssignedPartyType != "" && (*zx303ToValidate).AssignedId.Id != "" {
-		// neither are blank
-		switch (*zx303ToValidate).AssignedPartyType {
-		case party.System, party.Client, party.Company:
-			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-				Claims:     request.Claims,
-				PartyType:  (*zx303ToValidate).AssignedPartyType,
-				Identifier: (*zx303ToValidate).AssignedId,
-			})
-			if err != nil {
-				switch err.(type) {
-				case partyAdministratorException.NotFound:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "assignedId",
-						Type:  reasonInvalid.MustExist,
-						Help:  "assigned party must exist",
-						Data:  (*zx303ToValidate).AssignedId,
-					})
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "assignedId",
-						Type:  reasonInvalid.Unknown,
-						Help:  "error retrieving assigned party: " + err.Error(),
-						Data:  (*zx303ToValidate).AssignedId,
-					})
-				}
-			}
-
-		default:
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "assignedPartyType",
-				Type:  reasonInvalid.Invalid,
-				Help:  "must be a valid type",
-				Data:  (*zx303ToValidate).AssignedPartyType,
+				Data:  (*apiUserToValidate).PartyType,
 			})
 		}
 	}
@@ -215,7 +161,7 @@ func (v *validator) Validate(request *deviceValidator.ValidateRequest) (*deviceV
 		}
 	}
 
-	return &deviceValidator.ValidateResponse{
+	return &apiUserValidator.ValidateResponse{
 		ReasonsInvalid: returnedReasonsInvalid,
 	}, nil
 }

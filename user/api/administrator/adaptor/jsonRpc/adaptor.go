@@ -3,27 +3,27 @@ package jsonRpc
 import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/tracker/device/zx303"
-	zx303DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator"
+	"gitlab.com/iotTracker/brain/tracker/device/apiUser"
+	apiUserDeviceAdministrator "gitlab.com/iotTracker/brain/tracker/device/apiUser/administrator"
 	"net/http"
 )
 
 type Adaptor struct {
-	administrator zx303DeviceAdministrator.Administrator
+	administrator apiUserDeviceAdministrator.Administrator
 }
 
-func New(administrator zx303DeviceAdministrator.Administrator) *Adaptor {
+func New(administrator apiUserDeviceAdministrator.Administrator) *Adaptor {
 	return &Adaptor{
 		administrator: administrator,
 	}
 }
 
 type CreateRequest struct {
-	ZX303 zx303.ZX303 `json:"zx303"`
+	User apiUser.User `json:"apiUser"`
 }
 
 type CreateResponse struct {
-	ZX303 zx303.ZX303 `json:"zx303"`
+	User apiUser.User `json:"apiUser"`
 }
 
 func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
@@ -33,25 +33,25 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse, err := a.administrator.Create(&zx303DeviceAdministrator.CreateRequest{
+	createResponse, err := a.administrator.Create(&apiUserDeviceAdministrator.CreateRequest{
 		Claims: claims,
-		ZX303:  request.ZX303,
+		User:   request.User,
 	})
 	if err != nil {
 		return err
 	}
 
-	response.ZX303 = createResponse.ZX303
+	response.User = createResponse.User
 
 	return nil
 }
 
 type UpdateAllowedFieldsRequest struct {
-	ZX303 zx303.ZX303 `json:"zx303"`
+	User apiUser.User `json:"apiUser"`
 }
 
 type UpdateAllowedFieldsResponse struct {
-	ZX303 zx303.ZX303 `json:"zx303"`
+	User apiUser.User `json:"apiUser"`
 }
 
 func (a *Adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
@@ -61,15 +61,15 @@ func (a *Adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&zx303DeviceAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&apiUserDeviceAdministrator.UpdateAllowedFieldsRequest{
 		Claims: claims,
-		ZX303:  request.ZX303,
+		User:   request.User,
 	})
 	if err != nil {
 		return err
 	}
 
-	response.ZX303 = updateAllowedFieldsResponse.ZX303
+	response.User = updateAllowedFieldsResponse.User
 
 	return nil
 }

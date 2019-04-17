@@ -2,8 +2,8 @@ package mongo
 
 import (
 	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
-	"gitlab.com/iotTracker/brain/tracker/device/zx303"
-	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
+	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
 	"gopkg.in/mgo.v2"
 )
 
@@ -11,7 +11,7 @@ func New(
 	mongoSession *mgo.Session,
 	databaseName string,
 	collectionName string,
-) *zx303RecordHandler.RecordHandler {
+) *apiUserRecordHandler.RecordHandler {
 	mongoRecordHandler := brainMongoRecordHandler.New(
 		mongoSession,
 		databaseName,
@@ -22,16 +22,14 @@ func New(
 				Unique: true,
 			},
 			{
-				Key:    []string{"imei"},
-				Unique: true, // Prevent two documents from having the same index key
-				Sparse: true, // Only index documents containing the Key fields
+				Key: []string{"username"},
 			},
 		},
-		zx303.IsValidIdentifier,
-		zx303.ContextualiseFilter,
+		apiUser.IsValidIdentifier,
+		apiUser.ContextualiseFilter,
 	)
 
-	return zx303RecordHandler.New(
+	return apiUserRecordHandler.New(
 		mongoRecordHandler,
 	)
 }

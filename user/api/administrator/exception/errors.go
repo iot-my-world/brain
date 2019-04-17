@@ -4,12 +4,12 @@ import (
 	"strings"
 )
 
-type DeviceRetrieval struct {
+type APIUserRetrieval struct {
 	Reasons []string
 }
 
-func (e DeviceRetrieval) Error() string {
-	return "error retrieving device: " + strings.Join(e.Reasons, "; ")
+func (e APIUserRetrieval) Error() string {
+	return "error retrieving api user: " + strings.Join(e.Reasons, "; ")
 }
 
 type ReadingCollection struct {
@@ -20,12 +20,12 @@ func (e ReadingCollection) Error() string {
 	return "error collecting readings : " + strings.Join(e.Reasons, "; ")
 }
 
-type DeviceUpdate struct {
+type APIUserUpdate struct {
 	Reasons []string
 }
 
-func (e DeviceUpdate) Error() string {
-	return "error updating device: " + strings.Join(e.Reasons, "; ")
+func (e APIUserUpdate) Error() string {
+	return "error updating api user: " + strings.Join(e.Reasons, "; ")
 }
 
 type ReadingUpdate struct {
@@ -36,10 +36,10 @@ func (e ReadingUpdate) Error() string {
 	return "error updating reading: " + strings.Join(e.Reasons, "; ")
 }
 
-type DeviceCreation struct {
+type APIUserCreation struct {
 	Reasons []string
 }
 
-func (e DeviceCreation) Error() string {
-	return "error creating device: " + strings.Join(e.Reasons, "; ")
+func (e APIUserCreation) Error() string {
+	return "error creating api user: " + strings.Join(e.Reasons, "; ")
 }
