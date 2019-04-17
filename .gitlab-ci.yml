@@ -23,6 +23,10 @@ before_script:
 
  # - apt-get update
  - mkdir -p /go/src/gitlab.com/iotTracker
+ #                                                             gitlab.com/iotTracker/messaging
+ - git clone https://gitlab+deploy-token-61057:${CI_JOB_TOKEN}@gitlab.com/iotTracker/messaging
+ - pwd
+ - ls -ln
  - ln -s /builds/iotTracker/brain /go/src/gitlab.com/iotTracker
 
 deploy_stage:
@@ -31,8 +35,8 @@ deploy_stage:
   only:
     - master
   script:
-    -ls
-    -pwd
+    - ls
+    - pwd
 #    - cd /go/src/gitlab.com/iotTracker/brain/start
 #    - go get
 #    - cd ../build
