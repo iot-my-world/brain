@@ -68,6 +68,13 @@ import (
 	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/adaptor/jsonRpc"
 	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/basic"
 
+	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
+	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
+	apiUserRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/recordHandler/adaptor/jsonRpc"
+	apiUserMongoRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler/mongo"
+	apiUserValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/validator/adaptor/jsonRpc"
+	apiUserBasicValidator "gitlab.com/iotTracker/brain/user/api/validator/basic"
+
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
 
@@ -280,6 +287,20 @@ func main() {
 		SystemRecordHandler,
 	)
 
+	// API User
+	APIUserRecordHandler := apiUserMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		apiUserCollection,
+	)
+	APIUserValidator := apiUserBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	APIUserAdministrator := apiUserBasicAdministrator.New(
+		APIUserValidator,
+		APIUserRecordHandler,
+	)
+
 	// TK102 Device
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
@@ -328,6 +349,11 @@ func main() {
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
 	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
+
+	// APIUser
+	APIUserRecordHandlerAdaptor := apiUserRecordHandlerJsonRpcAdaptor.New(APIUserRecordHandler)
+	APIUserValidatorAdaptor := apiUserValidatorJsonRpcAdaptor.New(APIUserValidator)
+	APIUserAdministratorAdaptor := apiUserAdministratorJsonRpcAdaptor.New(APIUserAdministrator)
 
 	// Auth
 	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
@@ -390,6 +416,16 @@ func main() {
 	}
 	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
 		log.Fatal("Unable to Register User Administrator Service")
+	}
+	// API User
+	if err := secureAPIServer.RegisterService(APIUserRecordHandlerAdaptor, "APIUserRecordHandler"); err != nil {
+		log.Fatal("Unable to Register API User Record Handler Service")
+	}
+	if err := secureAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {
+		log.Fatal("Unable to Register API User Validator Service")
+	}
+	if err := secureAPIServer.RegisterService(APIUserAdministratorAdaptor, "APIUserAdministrator"); err != nil {
+		log.Fatal("Unable to Register API User Administrator Service")
 	}
 
 	// Auth
