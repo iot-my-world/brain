@@ -17,11 +17,11 @@ type RecordHandler struct {
 }
 
 func New(
-	brainUserRecordHandler brainRecordHandler.RecordHandler,
+	brainAPIUserRecordHandler brainRecordHandler.RecordHandler,
 ) *RecordHandler {
 
 	return &RecordHandler{
-		recordHandler: brainUserRecordHandler,
+		recordHandler: brainAPIUserRecordHandler,
 	}
 }
 

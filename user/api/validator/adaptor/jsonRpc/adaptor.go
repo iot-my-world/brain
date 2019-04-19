@@ -4,8 +4,8 @@ import (
 	"gitlab.com/iotTracker/brain/action"
 	"gitlab.com/iotTracker/brain/log"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/tracker/device/apiUser"
-	apiUserDeviceValidator "gitlab.com/iotTracker/brain/tracker/device/apiUser/validator"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
+	apiUserDeviceValidator "gitlab.com/iotTracker/brain/user/api/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
