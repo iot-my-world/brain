@@ -7,6 +7,7 @@ const PartyCompanyConfiguration Permission = "PartyCompanyConfiguration"
 const PartyClientConfiguration Permission = "PartyClientConfiguration"
 const PartyUserConfiguration Permission = "PartyUserConfiguration"
 const DeviceConfiguration Permission = "DeviceConfiguration"
+const APIUserConfiguration Permission = "APIUserConfiguration"
 
 const PartyProfileEditing Permission = "PartyProfileEditing"
 

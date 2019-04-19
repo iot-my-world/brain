@@ -76,6 +76,7 @@ var initialRoles = func() []role.Role {
 		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+		view.APIUserConfiguration,
 	}
 
 	// Create root role and apply permissions of all other roles to root
