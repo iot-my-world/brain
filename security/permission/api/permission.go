@@ -20,6 +20,13 @@ const UserAdministratorSetPassword Permission = "UserAdministrator.SetPassword"
 
 const UserValidatorValidate Permission = "UserValidator.Validate"
 
+// API User
+const APIUserRecordHandlerCollect Permission = "APIUserRecordHandler.Collect"
+
+const APIUserAdministratorCreate Permission = "APIUserAdministrator.Create"
+
+const APIUserValidatorValidate Permission = "APIUserValidator.Validate"
+
 // System
 const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 

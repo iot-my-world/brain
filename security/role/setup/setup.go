@@ -31,6 +31,11 @@ var initialRoles = func() []role.Role {
 		api.RoleUpdate,
 		api.RoleDelete,
 
+		// API User
+		api.APIUserRecordHandlerCollect,
+		api.APIUserAdministratorCreate,
+		api.APIUserValidatorValidate,
+
 		api.CompanyRecordHandlerRetrieve,
 
 		api.CompanyValidatorValidate,
