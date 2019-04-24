@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"gitlab.com/iotTracker/brain/log"
-	httpAPIAuthorisationApplier "gitlab.com/iotTracker/brain/security/authorisation/api/applier/http"
-	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer"
+	httpAPIAuthorisationApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http"
+	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer"
 	"io/ioutil"
 	"net/http"
 )

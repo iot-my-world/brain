@@ -8,7 +8,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
 	"gitlab.com/iotTracker/brain/tracker/device"

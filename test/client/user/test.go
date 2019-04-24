@@ -9,7 +9,7 @@ import (
 	partyRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"

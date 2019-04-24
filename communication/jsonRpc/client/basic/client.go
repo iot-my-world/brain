@@ -8,7 +8,7 @@ import (
 	"github.com/satori/go.uuid"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gopkg.in/square/go-jose.v2"

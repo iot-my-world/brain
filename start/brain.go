@@ -15,11 +15,11 @@ import (
 	"runtime/debug"
 	"time"
 
-	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
-	uiAuthService "gitlab.com/iotTracker/brain/security/auth/service/ui"
+	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
+	uiAuthService "gitlab.com/iotTracker/brain/security/authorization/service/ui"
 
-	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorisation/api/applier/http/user/human"
-	humanUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer/user/human"
+	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/human"
+	humanUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/human"
 
 	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"

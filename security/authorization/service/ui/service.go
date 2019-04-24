@@ -7,7 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
-	authService "gitlab.com/iotTracker/brain/security/auth/service"
+	authService "gitlab.com/iotTracker/brain/security/authorization/service"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/token"
 	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
