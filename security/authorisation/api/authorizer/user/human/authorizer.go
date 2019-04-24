@@ -1,8 +1,8 @@
 package human
 
 import (
-	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer"
 	apiAuthException "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer/exception"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
