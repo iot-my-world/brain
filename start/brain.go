@@ -22,6 +22,9 @@ import (
 	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/human"
 	humanUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/human"
 
+	apiUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/api"
+	apiUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/api"
+
 	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
 
@@ -104,6 +107,7 @@ import (
 )
 
 var humanUserAPIServerPort = "9010"
+var apiUserAPIServerPort = "9011"
 
 func main() {
 	// get the command line args
@@ -517,7 +521,7 @@ func main() {
 		log.Fatal("Unable to Register Barcode Scanner Service")
 	}
 
-	// Set up Secure Human API Server i.e. the Portal API Server
+	// Set up Secure Human User API Server i.e. the Portal API Server
 	HumanUserAPIAuthorizer := humanUserAPIAuthorizer.New(
 		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
 		PermissionBasicHandler,
@@ -529,7 +533,7 @@ func main() {
 	humanUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(HumanUserHttpAPIAuthApplier.PreFlightHandler)
 	humanUserSecureAPIServerMux.Handle("/api", HumanUserHttpAPIAuthApplier.ApplyAuth(secureHumanUserAPIServer)).Methods("POST")
 	// Start secureHumanUserAPIServer
-	log.Info("Starting human user secure API Server on port " + humanUserAPIServerPort)
+	log.Info("Starting Human User secure API Server on port " + humanUserAPIServerPort)
 	go func() {
 		err := http.ListenAndServe(":"+humanUserAPIServerPort, humanUserSecureAPIServerMux)
 		log.Error("secureHumanUserAPIServer stopped: ", err, "\n", string(debug.Stack()))
@@ -544,6 +548,25 @@ func main() {
 	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
 	}
+
+	// Set up Secure API User API Server
+	APIUserAPIAuthorizer := apiUserAPIAuthorizer.New(
+		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+		PermissionBasicHandler,
+	)
+	APIUserHttpAPIAuthApplier := apiUserHttpAPIAuthApplier.New(
+		APIUserAPIAuthorizer,
+	)
+	apiUserSecureAPIServerMux := mux.NewRouter()
+	apiUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(APIUserHttpAPIAuthApplier.PreFlightHandler)
+	apiUserSecureAPIServerMux.Handle("/api", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	// Start secureAPIUserAPIServer
+	log.Info("Starting API User Secure API Server on port " + apiUserAPIServerPort)
+	go func() {
+		err := http.ListenAndServe(":"+apiUserAPIServerPort, apiUserSecureAPIServerMux)
+		log.Error("apiUserSecureAPIServerMux stopped: ", err, "\n", string(debug.Stack()))
+		os.Exit(1)
+	}()
 
 	// set up kafka messaging
 	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
