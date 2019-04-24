@@ -16,6 +16,7 @@ import (
 	"time"
 
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
+	apiUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/api"
 	humanUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/human"
 
 	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/human"
@@ -203,7 +204,7 @@ func main() {
 	)
 
 	// Auth
-	AuthService := humanUserAuthorizationService.New(
+	HumanUserAuthorizationService := humanUserAuthorizationService.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
@@ -301,6 +302,12 @@ func main() {
 		APIUserRecordHandler,
 	)
 
+	APIUserAuthorizationService := apiUserAuthorizationService.New(
+		APIUserRecordHandler,
+		rsaPrivateKey,
+		&systemClaims,
+	)
+
 	// TK102 Device
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
@@ -356,7 +363,8 @@ func main() {
 	APIUserAdministratorAdaptor := apiUserAdministratorJsonRpcAdaptor.New(APIUserAdministrator)
 
 	// Auth
-	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
+	HumanUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(HumanUserAuthorizationService)
+	APIUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(APIUserAuthorizationService)
 
 	// Permission
 	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
@@ -398,114 +406,114 @@ func main() {
 	// Barcode Scanner
 	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
-	// Create secureAPIServer
-	secureAPIServer := rpc.NewServer()
-	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
+	// Create secureHumanUserAPIServer
+	secureHumanUserAPIServer := rpc.NewServer()
+	secureHumanUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
-	// Register Service Provider Adaptors with secureAPIServer
+	// Register Service Provider Adaptors with secureHumanUserAPIServer
 	// User
-	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
 		log.Fatal("Unable to Register User Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
 		log.Fatal("Unable to Register User Administrator Service")
 	}
 	// API User
-	if err := secureAPIServer.RegisterService(APIUserRecordHandlerAdaptor, "APIUserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, "APIUserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register API User Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {
 		log.Fatal("Unable to Register API User Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(APIUserAdministratorAdaptor, "APIUserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserAdministratorAdaptor, "APIUserAdministrator"); err != nil {
 		log.Fatal("Unable to Register API User Administrator Service")
 	}
 
 	// Auth
-	if err := secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserAuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
 
 	// Permission
-	if err := secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
 
 	// Company
-	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
 		log.Fatal("Unable to Register Company Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
 		log.Fatal("Unable to Register Company Administrator Service")
 	}
 
 	// Client
-	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
 		log.Fatal("Unable to Register Client Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
 		log.Fatal("Unable to Register Client Administrator Service")
 	}
 
 	// Party
-	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
-	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
 		log.Fatal("Unable to Register Party Administrator Service")
 	}
 
 	// System
-	if err := secureAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
 
 	// TK102 Device
-	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(TK102DeviceValidatorAdaptor, "TK102DeviceValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceValidatorAdaptor, "TK102DeviceValidator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Validator")
 	}
-	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
 
 	// ZX303 Device
-	if err := secureAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Validator")
 	}
-	if err := secureAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Administrator")
 	}
 
 	// Reading
-	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(ReadingAdministratorAdaptor, "ReadingAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ReadingAdministratorAdaptor, "ReadingAdministrator"); err != nil {
 		log.Fatal("Unable to Register Reading Administrator Service")
 	}
 
 	// Reports
-	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
 	}
 
 	// Barcode Scanner
-	if err := secureAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
 		log.Fatal("Unable to Register Barcode Scanner Service")
 	}
 
@@ -519,14 +527,23 @@ func main() {
 	)
 	humanUserSecureAPIServerMux := mux.NewRouter()
 	humanUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(HumanUserHttpAPIAuthApplier.PreFlightHandler)
-	humanUserSecureAPIServerMux.Handle("/api", HumanUserHttpAPIAuthApplier.ApplyAuth(secureAPIServer)).Methods("POST")
-	// Start secureAPIServer
+	humanUserSecureAPIServerMux.Handle("/api", HumanUserHttpAPIAuthApplier.ApplyAuth(secureHumanUserAPIServer)).Methods("POST")
+	// Start secureHumanUserAPIServer
 	log.Info("Starting human user secure API Server on port " + humanUserAPIServerPort)
 	go func() {
 		err := http.ListenAndServe(":"+humanUserAPIServerPort, humanUserSecureAPIServerMux)
-		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
+		log.Error("secureHumanUserAPIServer stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()
+
+	// Create secureAPIUserAPIServer
+	secureAPIUserAPIServer := rpc.NewServer()
+	secureAPIUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
+
+	// Auth
+	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, "Auth"); err != nil {
+		log.Fatal("Unable to Register API User Authorization Service Adaptor")
+	}
 
 	// set up kafka messaging
 	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
