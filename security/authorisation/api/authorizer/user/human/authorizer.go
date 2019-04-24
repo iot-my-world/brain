@@ -1,8 +1,9 @@
-package apiAuth
+package human
 
 import (
+	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	apiAuthException "gitlab.com/iotTracker/brain/security/apiAuth/exception"
+	apiAuthException "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer/exception"
 	"gitlab.com/iotTracker/brain/security/claims/login"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
@@ -15,15 +16,25 @@ import (
 	"gitlab.com/iotTracker/brain/security/token"
 )
 
-type APIAuthorizer struct {
-	JWTValidator      token.JWTValidator
-	PermissionHandler permissionAdministrator.Administrator
+type authorizer struct {
+	jwtValidator      token.JWTValidator
+	permissionHandler permissionAdministrator.Administrator
 }
 
-func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedClaims.Wrapped, error) {
+func New(
+	jwtValidator token.JWTValidator,
+	permissionHandler permissionAdministrator.Administrator,
+) apiAuthorizer.Authorizer {
+	return &authorizer{
+		jwtValidator:      jwtValidator,
+		permissionHandler: permissionHandler,
+	}
+}
+
+func (a *authorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedClaims.Wrapped, error) {
 
 	// Validate the jwt
-	wrappedJWTClaims, err := a.JWTValidator.ValidateJWT(jwt)
+	wrappedJWTClaims, err := a.jwtValidator.ValidateJWT(jwt)
 	if err != nil {
 		return wrappedClaims.Wrapped{}, err
 	}
@@ -36,7 +47,7 @@ func (a *APIAuthorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrapp
 	case login.Login:
 		// if these are login claims we check in the normal way if the user has the
 		// required permission to check access the api
-		userHasPermissionResponse, err := a.PermissionHandler.UserHasPermission(&permissionAdministrator.UserHasPermissionRequest{
+		userHasPermissionResponse, err := a.permissionHandler.UserHasPermission(&permissionAdministrator.UserHasPermissionRequest{
 			Claims:         typedClaims,
 			UserIdentifier: typedClaims.UserId,
 			Permission:     api.Permission(jsonRpcMethod),

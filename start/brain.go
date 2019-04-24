@@ -6,7 +6,6 @@ import (
 	gorillaJson "github.com/gorilla/rpc/json"
 	"gitlab.com/iotTracker/brain/cors"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/apiAuth"
 	"gitlab.com/iotTracker/brain/security/encrypt"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gopkg.in/mgo.v2"
@@ -18,6 +17,9 @@ import (
 
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
 	uiAuthService "gitlab.com/iotTracker/brain/security/auth/service/ui"
+
+	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorisation/api/applier/http/user/human"
+	humanUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer/user/human"
 
 	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
@@ -100,9 +102,7 @@ import (
 	"strings"
 )
 
-var serverPort = "9010"
-
-var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
+var humanUserAPIServerPort = "9010"
 
 func main() {
 	// get the command line args
@@ -398,10 +398,6 @@ func main() {
 	// Barcode Scanner
 	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
-	// Initialise the APIAuthorizer
-	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
-	mainAPIAuthorizer.PermissionHandler = PermissionBasicHandler
-
 	// Create secureAPIServer
 	secureAPIServer := rpc.NewServer()
 	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
@@ -513,14 +509,21 @@ func main() {
 		log.Fatal("Unable to Register Barcode Scanner Service")
 	}
 
-	// Set up Router for secureAPIServer
-	secureAPIServerMux := mux.NewRouter()
-	secureAPIServerMux.Methods("OPTIONS").HandlerFunc(preFlightHandler)
-	secureAPIServerMux.Handle("/api", apiAuthApplier(secureAPIServer)).Methods("POST")
+	// Set up Secure Human API Server i.e. the Portal API Server
+	HumanUserAPIAuthorizer := humanUserAPIAuthorizer.New(
+		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+		PermissionBasicHandler,
+	)
+	HumanUserHttpAPIAuthApplier := humanUserHttpAPIAuthApplier.New(
+		HumanUserAPIAuthorizer,
+	)
+	humanUserSecureAPIServerMux := mux.NewRouter()
+	humanUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(HumanUserHttpAPIAuthApplier.PreFlightHandler)
+	humanUserSecureAPIServerMux.Handle("/api", HumanUserHttpAPIAuthApplier.ApplyAuth(secureAPIServer)).Methods("POST")
 	// Start secureAPIServer
-	log.Info("Starting secureAPIServer on port " + serverPort)
+	log.Info("Starting human user secure API Server on port " + humanUserAPIServerPort)
 	go func() {
-		err := http.ListenAndServe(":"+serverPort, secureAPIServerMux)
+		err := http.ListenAndServe(":"+humanUserAPIServerPort, humanUserSecureAPIServerMux)
 		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()

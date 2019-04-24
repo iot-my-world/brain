@@ -1,4 +1,4 @@
-package main
+package human
 
 import (
 	"bytes"
@@ -6,18 +6,25 @@ import (
 	"encoding/json"
 	"errors"
 	"gitlab.com/iotTracker/brain/log"
+	httpAPIAuthorisationApplier "gitlab.com/iotTracker/brain/security/authorisation/api/applier/http"
+	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorisation/api/authorizer"
 	"io/ioutil"
 	"net/http"
 )
 
-// JSONRPCReq is a Json Rpc request
-type JSONRPCReq struct {
-	// To unmarshal the received json
-	Id     string `json:"id"`
-	Method string `json:"method"`
+type applier struct {
+	apiAuthorizer apiAuthorizer.Authorizer
 }
 
-func apiAuthApplier(next http.Handler) http.Handler {
+func New(
+	apiAuthorizer apiAuthorizer.Authorizer,
+) httpAPIAuthorisationApplier.Applier {
+	return &applier{
+		apiAuthorizer: apiAuthorizer,
+	}
+}
+
+func (a *applier) ApplyAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// Retrieve json rpc service method from request body
@@ -46,7 +53,7 @@ func apiAuthApplier(next http.Handler) http.Handler {
 
 		// Validate the jwt and confirm that user has appropriate claims to access given jsonrpc service
 		jwt := r.Header["Authorization"][0]
-		if wrappedClaims, err := mainAPIAuthorizer.AuthorizeAPIReq(jwt, jsonRpcServiceMethod); err == nil {
+		if wrappedClaims, err := a.apiAuthorizer.AuthorizeAPIReq(jwt, jsonRpcServiceMethod); err == nil {
 			ctx := context.WithValue(r.Context(), "wrappedClaims", wrappedClaims)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
@@ -62,6 +69,21 @@ func apiAuthApplier(next http.Handler) http.Handler {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	})
+}
+
+func (a *applier) PreFlightHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Origin, Authorization")
+
+	w.WriteHeader(http.StatusOK)
+}
+
+type JSONRPCReq struct {
+	// To unmarshal the received json
+	Id     string `json:"id"`
+	Method string `json:"method"`
 }
 
 func getJsonRpcServiceMethod(r *http.Request) (string, error) {
@@ -83,19 +105,4 @@ func getJsonRpcServiceMethod(r *http.Request) (string, error) {
 		return "", err
 	}
 	return req.Method, nil
-}
-
-func preFlightHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Headers",
-		"Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Origin, Authorization")
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func healthcheck() func(w http.ResponseWriter, req *http.Request) {
-	return func(w http.ResponseWriter, req *http.Request) {
-		w.WriteHeader(200)
-	}
 }
