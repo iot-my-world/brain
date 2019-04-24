@@ -1,4 +1,4 @@
-package ui
+package human
 
 import (
 	"crypto/rsa"
