@@ -38,7 +38,7 @@ func (wc Wrapped) Unwrap() (claims.Claims, error) {
 	var result claims.Claims = nil
 
 	switch wc.Type {
-	case claims.Login:
+	case claims.HumanUserLogin:
 		var unmarshalledClaims humanUserLogin.Login
 		if err := json.Unmarshal(wc.Value, &unmarshalledClaims); err != nil {
 			return nil, wrappedClaimsException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}

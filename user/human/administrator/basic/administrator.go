@@ -63,7 +63,7 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *humanUserAdm
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 		// claims must be login claims to be able to get user
-		if request.Claims.Type() != claims.Login {
+		if request.Claims.Type() != claims.HumanUserLogin {
 			reasonsInvalid = append(reasonsInvalid, "claims must be of type login")
 		}
 
@@ -296,7 +296,7 @@ func (a *administrator) ValidateUpdatePasswordRequest(request *humanUserAdminist
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 		// claims must be login claims to be able to get user
-		if request.Claims.Type() != claims.Login {
+		if request.Claims.Type() != claims.HumanUserLogin {
 			reasonsInvalid = append(reasonsInvalid, "claims must be of type login")
 		}
 	}
@@ -371,7 +371,7 @@ func (a *administrator) ValidateCheckPasswordRequest(request *humanUserAdministr
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
 		// claims must be login claims to be able to get user
-		if request.Claims.Type() != claims.Login {
+		if request.Claims.Type() != claims.HumanUserLogin {
 			reasonsInvalid = append(reasonsInvalid, "claims must be of type login")
 		}
 	}

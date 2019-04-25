@@ -7,7 +7,7 @@ import (
 
 type Type string
 
-const Login Type = "Login"
+const HumanUserLogin Type = "HumanUserLogin"
 const RegisterCompanyAdminUser Type = "RegisterCompanyAdminUser"
 const RegisterCompanyUser Type = "RegisterCompanyUser"
 const RegisterClientAdminUser Type = "RegisterClientAdminUser"

@@ -18,7 +18,7 @@ type Login struct {
 }
 
 func (l Login) Type() claims.Type {
-	return claims.Login
+	return claims.HumanUserLogin
 }
 
 func (l Login) Expired() bool {
