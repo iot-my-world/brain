@@ -20,6 +20,7 @@ var initialRoles = func() []role.Role {
 		ClientUser,
 		CompanyAdmin,
 		CompanyUser,
+		NerveAPIUser,
 	}
 
 	// Register additional root api permissions here
@@ -103,6 +104,14 @@ var initialRoles = func() []role.Role {
 }()
 
 // Create Roles here
+var NerveAPIUser = role.Role{
+	Name: "nerveAPIUser",
+	APIPermissions: []api.Permission{
+		api.ZX303DeviceAuthenticatorLogin,
+	},
+	ViewPermissions: []view.Permission{},
+}
+
 var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{

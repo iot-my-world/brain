@@ -41,6 +41,9 @@ func (a *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginR
 		Claims:     claims,
 		Identifier: request.WrappedIdentifier.Identifier,
 	})
+	if err != nil {
+		return err
+	}
 
 	response.Result = loginResponse.Result
 	response.ZX303 = loginResponse.ZX303

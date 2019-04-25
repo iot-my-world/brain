@@ -13,7 +13,7 @@ func IsValidIdentifier(id identifier.Identifier) bool {
 	}
 
 	switch id.Type() {
-	case identifier.Id:
+	case identifier.Id, identifier.DeviceZX303:
 		return true
 	default:
 		return false
