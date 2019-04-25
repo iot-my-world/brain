@@ -26,6 +26,12 @@ func New(
 				"id": {
 					reasonInvalid.Blank,
 				},
+				"username": {
+					reasonInvalid.Blank,
+				},
+				"password": {
+					reasonInvalid.Blank,
+				},
 			},
 		},
 	}
