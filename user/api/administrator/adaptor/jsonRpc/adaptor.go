@@ -23,7 +23,8 @@ type CreateRequest struct {
 }
 
 type CreateResponse struct {
-	User apiUser.User `json:"apiUser"`
+	User     apiUser.User `json:"apiUser"`
+	Password string       `json:"password"`
 }
 
 func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
@@ -42,6 +43,7 @@ func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 	}
 
 	response.User = createResponse.User
+	response.Password = createResponse.Password
 
 	return nil
 }

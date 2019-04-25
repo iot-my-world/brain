@@ -16,7 +16,8 @@ type CreateRequest struct {
 }
 
 type CreateResponse struct {
-	User apiUser.User
+	User     apiUser.User
+	Password string
 }
 
 type UpdateAllowedFieldsRequest struct {

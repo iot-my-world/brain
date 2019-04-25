@@ -43,3 +43,19 @@ type APIUserCreation struct {
 func (e APIUserCreation) Error() string {
 	return "error creating api user: " + strings.Join(e.Reasons, "; ")
 }
+
+type PasswordGeneration struct {
+	Reasons []string
+}
+
+func (e PasswordGeneration) Error() string {
+	return "error generating api user password: " + strings.Join(e.Reasons, "; ")
+}
+
+type PasswordHash struct {
+	Reasons []string
+}
+
+func (e PasswordHash) Error() string {
+	return "error hashing api user password: " + strings.Join(e.Reasons, "; ")
+}

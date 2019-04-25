@@ -2,27 +2,33 @@ package basic
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	apiUserAction "gitlab.com/iotTracker/brain/user/api/action"
 	apiUserAdministrator "gitlab.com/iotTracker/brain/user/api/administrator"
 	apiUserAdministratorException "gitlab.com/iotTracker/brain/user/api/administrator/exception"
+	apiUserPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator"
 	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
 	apiUserValidator "gitlab.com/iotTracker/brain/user/api/validator"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type administrator struct {
-	apiUserValidator     apiUserValidator.Validator
-	apiUserRecordHandler *apiUserRecordHandler.RecordHandler
+	apiUserValidator         apiUserValidator.Validator
+	apiUserRecordHandler     *apiUserRecordHandler.RecordHandler
+	apiUserPasswordGenerator apiUserPasswordGenerator.Generator
 }
 
 func New(
 	apiUserValidator apiUserValidator.Validator,
 	apiUserRecordHandler *apiUserRecordHandler.RecordHandler,
+	apiUserPasswordGenerator apiUserPasswordGenerator.Generator,
 ) apiUserAdministrator.Administrator {
 	return &administrator{
-		apiUserValidator:     apiUserValidator,
-		apiUserRecordHandler: apiUserRecordHandler,
+		apiUserValidator:         apiUserValidator,
+		apiUserRecordHandler:     apiUserRecordHandler,
+		apiUserPasswordGenerator: apiUserPasswordGenerator,
 	}
 }
 
@@ -59,6 +65,29 @@ func (a *administrator) Create(request *apiUserAdministrator.CreateRequest) (*ap
 		return nil, err
 	}
 
+	// generate a username
+	username, err := uuid.NewV4()
+	if err != nil {
+		return nil, brainException.UUIDGeneration{Reasons: []string{"username", err.Error()}}
+	}
+
+	// generate a password
+	apiPasswordGenerateResponse, err := a.apiUserPasswordGenerator.Generate(&apiUserPasswordGenerator.GenerateRequest{
+		CryptoBytesLength: 16,
+	})
+	if err != nil {
+		return nil, apiUserAdministratorException.PasswordGeneration{Reasons: []string{err.Error()}}
+	}
+
+	// Hash the new Password
+	pwdHash, err := bcrypt.GenerateFromPassword([]byte(apiPasswordGenerateResponse.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, apiUserAdministratorException.PasswordHash{Reasons: []string{err.Error()}}
+	}
+
+	request.User.Username = username.String()
+	request.User.Password = pwdHash
+
 	createResponse, err := a.apiUserRecordHandler.Create(&apiUserRecordHandler.CreateRequest{
 		User: request.User,
 	})
@@ -67,7 +96,8 @@ func (a *administrator) Create(request *apiUserAdministrator.CreateRequest) (*ap
 	}
 
 	return &apiUserAdministrator.CreateResponse{
-		User: createResponse.User,
+		User:     createResponse.User,
+		Password: apiPasswordGenerateResponse.Password,
 	}, nil
 }
 
