@@ -4,7 +4,7 @@ import (
 	brainException "gitlab.com/iotTracker/brain/exception"
 	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer"
 	apiAuthException "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/exception"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	"gitlab.com/iotTracker/brain/security/permission/api"
@@ -39,7 +39,7 @@ func (a *authorizer) AuthorizeAPIReq(jwt string, jsonRpcMethod string) (wrappedC
 	}
 
 	switch typedClaims := unwrappedJWTClaims.(type) {
-	case login.Login:
+	case humanUserLoginClaims.Login:
 		// if these are login claims we check in the normal way if the user has the
 		// required permission to check access the api
 		userHasPermissionResponse, err := a.permissionHandler.UserHasPermission(&permissionAdministrator.UserHasPermissionRequest{

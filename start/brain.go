@@ -103,7 +103,7 @@ import (
 	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
 
 	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"strings"
 )
 
@@ -166,7 +166,7 @@ func main() {
 	)
 
 	// Create system claims for the services that root privileges
-	var systemClaims = login.Login{
+	var systemClaims = humanUserLoginClaims.Login{
 		//UserId          id.Identifier `json:"userId"`
 		//IssueTime       int64         `json:"issueTime"`
 		//ExpirationTime  int64         `json:"expirationTime"`

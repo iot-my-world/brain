@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLogin "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
@@ -39,7 +39,7 @@ func (wc Wrapped) Unwrap() (claims.Claims, error) {
 
 	switch wc.Type {
 	case claims.Login:
-		var unmarshalledClaims login.Login
+		var unmarshalledClaims humanUserLogin.Login
 		if err := json.Unmarshal(wc.Value, &unmarshalledClaims); err != nil {
 			return nil, wrappedClaimsException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}

@@ -8,7 +8,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	authService "gitlab.com/iotTracker/brain/security/authorization/service"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"gitlab.com/iotTracker/brain/security/token"
 	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
@@ -19,13 +19,13 @@ import (
 type service struct {
 	apiUserRecordHandler *apiUserRecordHandler.RecordHandler
 	jwtGenerator         token.JWTGenerator
-	systemClaims         *login.Login
+	systemClaims         *humanUserLoginClaims.Login
 }
 
 func New(
 	apiUserRecordHandler *apiUserRecordHandler.RecordHandler,
 	rsaPrivateKey *rsa.PrivateKey,
-	systemClaims *login.Login,
+	systemClaims *humanUserLoginClaims.Login,
 ) *service {
 	return &service{
 		apiUserRecordHandler: apiUserRecordHandler,
@@ -71,7 +71,7 @@ func (s *service) Login(request *authService.LoginRequest) (*authService.LoginRe
 	}
 
 	// Password is correct. Try and generate loginToken
-	loginToken, err := s.jwtGenerator.GenerateToken(login.Login{
+	loginToken, err := s.jwtGenerator.GenerateToken(humanUserLoginClaims.Login{
 		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),

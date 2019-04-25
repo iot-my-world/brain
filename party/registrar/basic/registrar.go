@@ -18,7 +18,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLogin "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
 	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
@@ -41,7 +41,7 @@ type registrar struct {
 	mailer                     mailer.Mailer
 	jwtGenerator               token.JWTGenerator
 	mailRedirectBaseUrl        string
-	systemClaims               *login.Login
+	systemClaims               *humanUserLogin.Login
 	registrationEmailGenerator emailGenerator.Generator
 }
 
@@ -54,7 +54,7 @@ func New(
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
-	systemClaims *login.Login,
+	systemClaims *humanUserLogin.Login,
 	registrationEmailGenerator emailGenerator.Generator,
 ) partyRegistrar.Registrar {
 	return &registrar{

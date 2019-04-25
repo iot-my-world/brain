@@ -6,6 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	apiUserAction "gitlab.com/iotTracker/brain/user/api/action"
 	apiUserValidator "gitlab.com/iotTracker/brain/user/api/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -47,6 +48,8 @@ func (v *validator) ValidateValidateRequest(request *apiUserValidator.ValidateRe
 
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	} else if _, ok := request.Claims.(humanUserLoginClaims.Login); !ok {
+		reasonsInvalid = append(reasonsInvalid, "can only validate against user login claims")
 	}
 
 	if len(reasonsInvalid) > 0 {

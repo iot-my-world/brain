@@ -11,7 +11,7 @@ import (
 	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
 	"gitlab.com/iotTracker/brain/search/criterion"
-	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
@@ -29,7 +29,7 @@ func New(
 	collection,
 	rootPasswordFileLocation string,
 	registrar partyRegistrar.Registrar,
-	systemClaims *loginClaims.Login,
+	systemClaims *humanUserLoginClaims.Login,
 ) systemRecordHandler.RecordHandler {
 
 	setupIndices(mongoSession, database, collection)

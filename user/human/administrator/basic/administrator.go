@@ -12,7 +12,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	forgotPasswordClaims "gitlab.com/iotTracker/brain/security/claims/resetPassword"
 	"gitlab.com/iotTracker/brain/security/token"
 	humanUser "gitlab.com/iotTracker/brain/user/human"
@@ -32,7 +32,7 @@ type administrator struct {
 	mailer                    mailer.Mailer
 	jwtGenerator              token.JWTGenerator
 	mailRedirectBaseUrl       string
-	systemClaims              *login.Login
+	systemClaims              *humanUserLoginClaims.Login
 	setPasswordEmailGenerator emailGenerator.Generator
 }
 
@@ -42,7 +42,7 @@ func New(
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,
-	systemClaims *login.Login,
+	systemClaims *humanUserLoginClaims.Login,
 	setPasswordEmailGenerator emailGenerator.Generator,
 ) humanUserAdministrator.Administrator {
 	return &administrator{
@@ -147,7 +147,7 @@ func (a *administrator) GetMyUser(request *humanUserAdministrator.GetMyUserReque
 	}
 
 	// infer the login claims type
-	loginClaims, ok := request.Claims.(login.Login)
+	loginClaims, ok := request.Claims.(humanUserLoginClaims.Login)
 	if !ok {
 		return nil, humanUserAdministratorException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
 	}
@@ -321,7 +321,7 @@ func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePas
 	}
 
 	// user identifier taken from claims as you can only update your own password
-	loginClaims, ok := request.Claims.(login.Login)
+	loginClaims, ok := request.Claims.(humanUserLoginClaims.Login)
 	if !ok {
 		return nil, brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
 	}
@@ -392,7 +392,7 @@ func (a *administrator) CheckPassword(request *humanUserAdministrator.CheckPassw
 	}
 
 	// user identifier taken from claims as you can only update your own password
-	loginClaims, ok := request.Claims.(login.Login)
+	loginClaims, ok := request.Claims.(humanUserLoginClaims.Login)
 	if !ok {
 		return nil, brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
 	}
