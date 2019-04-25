@@ -14,6 +14,7 @@ type Client interface {
 	Claims() claims.Claims
 	SetJWT(jwt string) error
 	GetJWT() string
+	LoggedIn() bool
 }
 
 type Request struct {

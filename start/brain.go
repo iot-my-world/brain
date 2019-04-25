@@ -69,6 +69,8 @@ import (
 
 	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/adaptor/jsonRpc"
 	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/basic"
+	zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/authenticator/adaptor/jsonRpc"
+	zx303DeviceBasicAuthenticator "gitlab.com/iotTracker/brain/tracker/device/zx303/authenticator/basic"
 	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/adaptor/jsonRpc"
 	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/mongo"
 	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/adaptor/jsonRpc"
@@ -348,6 +350,9 @@ func main() {
 		ZX303DeviceValidator,
 		ZX303DeviceRecordHandler,
 	)
+	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
+		ZX303DeviceRecordHandler,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
@@ -403,6 +408,7 @@ func main() {
 	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
 	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
 	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
+	ZX303DeviceAuthenticatorAdaptor := zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor.New(ZX303DeviceAuthenticator)
 
 	// Reading
 	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
@@ -554,8 +560,8 @@ func main() {
 	}
 
 	// ZX303 Device
-	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Administrator")
+	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAuthenticatorAdaptor, "ZX303DeviceAuthenticator"); err != nil {
+		log.Fatal("Unable to Register API User ZX303 Device Authenticator Service Adaptor")
 	}
 
 	// Set up Secure API User API Server

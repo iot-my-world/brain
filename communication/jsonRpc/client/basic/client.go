@@ -19,9 +19,10 @@ import (
 )
 
 type client struct {
-	url    string
-	jwt    string
-	claims claims.Claims
+	url      string
+	jwt      string
+	claims   claims.Claims
+	loggedIn bool
 }
 
 // Create New basic json rpc client
@@ -31,6 +32,10 @@ func New(
 	return &client{
 		url: url,
 	}
+}
+
+func (c *client) LoggedIn() bool {
+	return c.loggedIn
 }
 
 func (c *client) Post(request *jsonRpcClient.Request) (*jsonRpcClient.Response, error) {
@@ -146,6 +151,7 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 	}
 
 	c.claims = unwrappedClaims
+	c.loggedIn = true
 
 	return nil
 }
@@ -153,6 +159,7 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 func (c *client) Logout() {
 	c.jwt = ""
 	c.claims = nil
+	c.loggedIn = false
 }
 
 func (c *client) Claims() claims.Claims {
