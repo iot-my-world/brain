@@ -8,6 +8,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/username"
 	authService "gitlab.com/iotTracker/brain/security/authorization/service"
+	apiUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/api"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"gitlab.com/iotTracker/brain/security/token"
 	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
@@ -71,7 +72,7 @@ func (s *service) Login(request *authService.LoginRequest) (*authService.LoginRe
 	}
 
 	// Password is correct. Try and generate loginToken
-	loginToken, err := s.jwtGenerator.GenerateToken(humanUserLoginClaims.Login{
+	loginToken, err := s.jwtGenerator.GenerateToken(apiUserLoginClaims.Login{
 		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),

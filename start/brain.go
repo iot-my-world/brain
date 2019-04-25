@@ -552,6 +552,11 @@ func main() {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
 	}
 
+	// ZX303 Device
+	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Device Administrator")
+	}
+
 	// Set up Secure API User API Server
 	APIUserAPIAuthorizer := apiUserAPIAuthorizer.New(
 		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
