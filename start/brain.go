@@ -202,12 +202,6 @@ func main() {
 		SetPasswordEmailGenerator,
 	)
 
-	// Permission
-	PermissionBasicHandler := permissionBasicAdministrator.New(
-		UserRecordHandler,
-		RoleRecordHandler,
-	)
-
 	// Auth
 	HumanUserAuthorizationService := humanUserAuthorizationService.New(
 		UserRecordHandler,
@@ -313,6 +307,13 @@ func main() {
 		APIUserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
+	)
+
+	// Permission
+	PermissionBasicHandler := permissionBasicAdministrator.New(
+		UserRecordHandler,
+		RoleRecordHandler,
+		APIUserRecordHandler,
 	)
 
 	// TK102 Device
