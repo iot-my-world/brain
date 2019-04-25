@@ -76,6 +76,7 @@ import (
 
 	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
+	apiUserBasicPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator/basic"
 	apiUserRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/recordHandler/adaptor/jsonRpc"
 	apiUserMongoRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler/mongo"
 	apiUserValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/validator/adaptor/jsonRpc"
@@ -301,9 +302,11 @@ func main() {
 	APIUserValidator := apiUserBasicValidator.New(
 		PartyBasicAdministrator,
 	)
+	APIUserPasswordGenerator := apiUserBasicPasswordGenerator.New()
 	APIUserAdministrator := apiUserBasicAdministrator.New(
 		APIUserValidator,
 		APIUserRecordHandler,
+		APIUserPasswordGenerator,
 	)
 
 	APIUserAuthorizationService := apiUserAuthorizationService.New(
