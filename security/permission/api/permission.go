@@ -74,6 +74,10 @@ const TK102DeviceValidatorValidate Permission = "TK102DeviceValidator.Validate"
 const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
 const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Create"
 
+const TK102ReadingRecordHandlerCollect Permission = "TK102ReadingRecordHandler.Collect"
+const TK102ReadingAdministratorCreate Permission = "TK102ReadingAdministrator.Create"
+const TK102ReadingAdministratorCreateBulk Permission = "TK102ReadingAdministrator.CreateBulk"
+
 // ZX303 Tracking Device
 const ZX303DeviceRecordHandlerRetrieve Permission = "ZX303DeviceRecordHandler.Retrieve"
 const ZX303DeviceRecordHandlerCollect Permission = "ZX303DeviceRecordHandler.Collect"
@@ -85,12 +89,6 @@ const ZX303DeviceAdministratorCreate Permission = "ZX303DeviceAdministrator.Crea
 const ZX303DeviceAdministratorUpdateAllowedFields Permission = "ZX303DeviceAdministrator.UpdateAllowedFields"
 
 const ZX303DeviceAuthenticatorLogin Permission = "ZX303DeviceAuthenticator.Login"
-
-// Reading
-const ReadingRecordHandlerCollect Permission = "ReadingRecordHandler.Collect"
-
-const ReadingAdministratorCreate Permission = "ReadingAdministrator.Create"
-const ReadingAdministratorCreateBulk Permission = "ReadingAdministrator.CreateBulk"
 
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"

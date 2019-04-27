@@ -121,7 +121,7 @@ func (suite *System) TestSystemReadingCreation() {
 
 		// try and create the readings in bulk
 		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"ReadingAdministrator.CreateBulk",
+			"TK102ReadingAdministrator.CreateBulk",
 			readingAdministratorJsonRpcAdaptor.CreateBulkRequest{
 				Readings: readingsToCreate,
 			},

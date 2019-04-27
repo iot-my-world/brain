@@ -516,7 +516,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingRecordHandlerAdaptor, "TK102ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "tk102ReadingAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "TK102ReadingAdministrator"); err != nil {
 		log.Fatal("Unable to Register Reading Administrator Service")
 	}
 

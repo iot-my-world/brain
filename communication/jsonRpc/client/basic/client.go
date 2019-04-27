@@ -88,7 +88,7 @@ func (c *client) Post(request *jsonRpcClient.Request) (*jsonRpcClient.Response, 
 	response := jsonRpcClient.Response{}
 	err = json.Unmarshal(postResponseBytes, &response)
 	if err != nil {
-		return nil, errors.New("error unmarshalling response bytes into json rpc response " + err.Error())
+		return nil, errors.New("error unmarshalling response bytes into json rpc response: " + err.Error())
 	}
 
 	if response.Error != "" {

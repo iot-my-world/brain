@@ -60,8 +60,8 @@ var initialRoles = func() []role.Role {
 		api.ZX303DeviceAdministratorUpdateAllowedFields,
 
 		// Reading
-		api.ReadingAdministratorCreate,
-		api.ReadingAdministratorCreateBulk,
+		api.TK102ReadingAdministratorCreate,
+		api.TK102ReadingAdministratorCreateBulk,
 
 		// Barcode Scanner
 		api.BarcodeScannerScan,
@@ -161,8 +161,6 @@ var CompanyAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
-		api.ReadingRecordHandlerCollect,
-
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
 		api.PartyAdministratorRetrieveParty,
@@ -185,8 +183,6 @@ var CompanyUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		api.ReadingRecordHandlerCollect,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
@@ -244,8 +240,6 @@ var ClientAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
-		api.ReadingRecordHandlerCollect,
-
 		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
@@ -270,8 +264,6 @@ var ClientUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		api.ReadingRecordHandlerCollect,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
