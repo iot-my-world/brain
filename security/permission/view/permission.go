@@ -14,3 +14,6 @@ const PartyProfileEditing Permission = "PartyProfileEditing"
 const Dashboards Permission = "Dashboards"
 const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"
+
+const DeviceDiagnostics Permission = "DeviceDiagnostics"
+const ZX303DeviceDiagnostics Permission = "ZX303DeviceDiagnostics"
