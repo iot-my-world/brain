@@ -11,7 +11,6 @@ import (
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
-	"gitlab.com/iotTracker/brain/tracker"
 	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
 	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
@@ -109,7 +108,6 @@ func (suite *System) TestSystemReadingCreation() {
 			readingsToCreate = append(readingsToCreate, reading.Reading{
 				//Id:                "",
 				DeviceId:          id.Identifier{Id: retrieveTK102DeviceResponse.TK102.Id},
-				DeviceType:        device.TK102,
 				OwnerPartyType:    retrieveTK102DeviceResponse.TK102.OwnerPartyType,
 				OwnerId:           retrieveTK102DeviceResponse.TK102.OwnerId,
 				AssignedPartyType: retrieveTK102DeviceResponse.TK102.AssignedPartyType,
