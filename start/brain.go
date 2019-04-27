@@ -609,7 +609,10 @@ func main() {
 		[]string{"brainQueue"},
 		"brain",
 		[]messagingMessageHandler.Handler{
-			zx303GPSReadingMessageHandler.New(),
+			zx303GPSReadingMessageHandler.New(
+				&systemClaims,
+				ZX303GPSReadingAdministrator,
+			),
 		},
 	)
 	go func() {

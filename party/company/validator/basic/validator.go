@@ -9,7 +9,7 @@ import (
 	companyValidator "gitlab.com/iotTracker/brain/party/company/validator"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	humanUserLogin "gitlab.com/iotTracker/brain/security/claims/login/user/human"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
 	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
@@ -18,7 +18,7 @@ import (
 type validator struct {
 	companyRecordHandler *companyRecordHandler.RecordHandler
 	userRecordHandler    userRecordHandler.RecordHandler
-	systemClaims         *humanUserLogin.Login
+	systemClaims         *humanUserLoginClaims.Login
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
@@ -26,7 +26,7 @@ type validator struct {
 func New(
 	companyRecordHandler *companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
-	systemClaims *humanUserLogin.Login,
+	systemClaims *humanUserLoginClaims.Login,
 ) companyValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
