@@ -2,6 +2,7 @@ package reading
 
 import (
 	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"math"
 )
@@ -26,6 +27,23 @@ type Reading struct {
 	Longitude    float32 `json:"longitude" bson:"longitude"`
 	Speed        int64   `json:"speed" bson:"speed"`
 	Heading      int64   `json:"heading" bson:"heading"`
+}
+
+func (r *Reading) SetId(id string) {
+	r.Id = id
+}
+
+func IsValidIdentifier(id identifier.Identifier) bool {
+	if id == nil {
+		return false
+	}
+
+	switch id.Type() {
+	case identifier.Id:
+		return true
+	default:
+		return false
+	}
 }
 
 const earthRadiusInKm float64 = 6378.137

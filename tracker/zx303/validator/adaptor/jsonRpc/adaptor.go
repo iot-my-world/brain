@@ -1,4 +1,4 @@
-package zx303
+package jsonRpc
 
 import (
 	"gitlab.com/iotTracker/brain/action"
@@ -14,9 +14,9 @@ type adaptor struct {
 	zx303DeviceValidator zx303DeviceValidator.Validator
 }
 
-func New(companyValidator zx303DeviceValidator.Validator) *adaptor {
+func New(zx303DeviceValidator zx303DeviceValidator.Validator) *adaptor {
 	return &adaptor{
-		zx303DeviceValidator: companyValidator,
+		zx303DeviceValidator: zx303DeviceValidator,
 	}
 }
 
