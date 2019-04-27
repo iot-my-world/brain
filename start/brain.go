@@ -66,10 +66,16 @@ import (
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/validator/adaptor/jsonRpc"
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/validator/basic"
 
+	zx303GPSReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
 	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
 	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
 	zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
 	zx303DeviceBasicAuthenticator "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/basic"
+	zx303GPSReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/adaptor/jsonRpc"
+	zx303GPSReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/basic"
+	zx303GPSReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/adaptor/jsonRpc"
+	zx303GPSReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/mongo"
+	zx303GPSReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/validator/basic"
 	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/adaptor/jsonRpc"
 	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/mongo"
 	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/validator/adaptor/jsonRpc"
@@ -101,7 +107,6 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
-	zx303GPSReadingHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
 	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
 	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
 
@@ -271,18 +276,6 @@ func main() {
 		&systemClaims,
 	)
 
-	// Reading
-	TK102ReadingRecordHandler := tk102ReadingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		tk102ReadingCollection,
-	)
-	ReadingValidator := tk102ReadingBasicValidator.New()
-	tk102ReadingAdministrator := tk102ReadingBasicAdministrator.New(
-		TK102ReadingRecordHandler,
-		ReadingValidator,
-	)
-
 	// Party
 	PartyBasicAdministrator := partyBasicAdministrator.New(
 		ClientRecordHandler,
@@ -325,9 +318,15 @@ func main() {
 		databaseName,
 		tk102DeviceCollection,
 	)
+	TK102ReadingRecordHandler := tk102ReadingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		tk102ReadingCollection,
+	)
 	TK102DeviceValidator := tk102DeviceBasicValidator.New(
 		PartyBasicAdministrator,
 	)
+	TK102ReadingValidator := tk102ReadingBasicValidator.New()
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
 		TK102DeviceRecordHandler,
 		CompanyRecordHandler,
@@ -336,20 +335,35 @@ func main() {
 		TK102ReadingRecordHandler,
 		TK102DeviceValidator,
 	)
+	tk102ReadingAdministrator := tk102ReadingBasicAdministrator.New(
+		TK102ReadingRecordHandler,
+		TK102ReadingValidator,
+	)
 
-	// Device
 	// ZX303 Device
 	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		zx303DeviceCollection,
 	)
+	ZX303GPSReadingRecordHandler := zx303GPSReadingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		zx303GPSReadingCollection,
+	)
 	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	ZX303GPSReadingValidator := zx303GPSReadingBasicValidator.New(
 		PartyBasicAdministrator,
 	)
 	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
 		ZX303DeviceValidator,
 		ZX303DeviceRecordHandler,
+	)
+	ZX303GPSReadingAdministrator := zx303GPSReadingBasicAdministrator.New(
+		ZX303GPSReadingValidator,
+		ZX303GPSReadingRecordHandler,
 	)
 	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
 		ZX303DeviceRecordHandler,
@@ -412,6 +426,8 @@ func main() {
 	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
 	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
 	ZX303DeviceAuthenticatorAdaptor := zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor.New(ZX303DeviceAuthenticator)
+	ZX303GPSReadingRecordHandlerAdaptor := zx303GPSReadingRecordHandlerJsonRpcAdaptor.New(ZX303GPSReadingRecordHandler)
+	ZX303GPSReadingAdministratorAdaptor := zx303GPSReadingAdministratorJsonRpcAdaptor.New(ZX303GPSReadingAdministrator)
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -500,6 +516,12 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
 	}
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingRecordHandlerAdaptor, "TK102ReadingRecordHandler"); err != nil {
+		log.Fatal("Unable to Register TK102 Reading Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "TK102ReadingAdministrator"); err != nil {
+		log.Fatal("Unable to Register TK102 Reading Administrator Service")
+	}
 
 	// ZX303 Device
 	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
@@ -511,13 +533,11 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Administrator")
 	}
-
-	// Reading
-	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingRecordHandlerAdaptor, "TK102ReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register Reading Record Handler Service")
+	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingRecordHandlerAdaptor, "ZX303GPSReadingRecordHandler"); err != nil {
+		log.Fatal("Unable to Register ZX303 GPS Reading Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "TK102ReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register Reading Administrator Service")
+	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingAdministratorAdaptor, "ZX303GPSReadingAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 GPS Reading Administrator Service")
 	}
 
 	// Reports
@@ -589,7 +609,7 @@ func main() {
 		[]string{"brainQueue"},
 		"brain",
 		[]messagingMessageHandler.Handler{
-			zx303GPSReadingHandler.New(),
+			zx303GPSReadingMessageHandler.New(),
 		},
 	)
 	go func() {
