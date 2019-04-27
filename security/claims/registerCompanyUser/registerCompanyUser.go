@@ -27,6 +27,10 @@ func (r RegisterCompanyUser) Expired() bool {
 	return time.Now().UTC().After(time.Unix(r.ExpirationTime, 0).UTC())
 }
 
+func (r RegisterCompanyUser) TimeToExpiry() time.Duration {
+	return time.Unix(r.ExpirationTime, 0).UTC().Sub(time.Now().UTC())
+}
+
 func (r RegisterCompanyUser) PartyDetails() party.Details {
 	return party.Details{
 		Detail: party.Detail{

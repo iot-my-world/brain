@@ -37,3 +37,7 @@ func (l Login) PartyDetails() party.Details {
 		},
 	}
 }
+
+func (l Login) TimeToExpiry() time.Duration {
+	return time.Unix(l.ExpirationTime, 0).UTC().Sub(time.Now().UTC())
+}

@@ -2,6 +2,7 @@ package claims
 
 import (
 	"gitlab.com/iotTracker/brain/party"
+	"time"
 )
 
 type Type string
@@ -17,5 +18,6 @@ const ResetPassword Type = "ResetPassword"
 type Claims interface {
 	Type() Type
 	Expired() bool
+	TimeToExpiry() time.Duration
 	PartyDetails() party.Details
 }

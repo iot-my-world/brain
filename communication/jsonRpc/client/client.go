@@ -15,6 +15,8 @@ type Client interface {
 	SetJWT(jwt string) error
 	GetJWT() string
 	LoggedIn() bool
+	RefreshLogin() error
+	MaintainLogin() error
 }
 
 type Request struct {
