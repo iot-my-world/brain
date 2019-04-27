@@ -3,8 +3,8 @@ package mongo
 import (
 	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
 	"gitlab.com/iotTracker/brain/security/claims"
-	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
 	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
+	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler"
 	"gopkg.in/mgo.v2"
 )
 

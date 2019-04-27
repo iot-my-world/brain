@@ -5,13 +5,13 @@ import "strings"
 type RecordHandlerNil struct{}
 
 func (e RecordHandlerNil) Error() string {
-	return "given brain zx303 Status Reading recordHandler is nil"
+	return "given brain zx303 Task Reading recordHandler is nil"
 }
 
 type NotFound struct{}
 
 func (e NotFound) Error() string {
-	return "zx303 Status Reading not found"
+	return "zx303 Task Reading not found"
 }
 
 type Create struct {
@@ -19,7 +19,7 @@ type Create struct {
 }
 
 func (e Create) Error() string {
-	return "zx303 Status Reading creation error: " + strings.Join(e.Reasons, "; ")
+	return "zx303 Task Reading creation error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Retrieve struct {
@@ -27,7 +27,7 @@ type Retrieve struct {
 }
 
 func (e Retrieve) Error() string {
-	return "zx303 Status Reading retrieval error: " + strings.Join(e.Reasons, "; ")
+	return "zx303 Task Reading retrieval error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Update struct {
@@ -35,7 +35,7 @@ type Update struct {
 }
 
 func (e Update) Error() string {
-	return "zx303 Status Reading update error: " + strings.Join(e.Reasons, "; ")
+	return "zx303 Task Reading update error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Delete struct {
@@ -43,7 +43,7 @@ type Delete struct {
 }
 
 func (e Delete) Error() string {
-	return "zx303 Status Reading delete error: " + strings.Join(e.Reasons, "; ")
+	return "zx303 Task Reading delete error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Collect struct {
@@ -51,5 +51,5 @@ type Collect struct {
 }
 
 func (e Collect) Error() string {
-	return "zx303 Status Reading collect error: " + strings.Join(e.Reasons, "; ")
+	return "zx303 Task Reading collect error: " + strings.Join(e.Reasons, "; ")
 }

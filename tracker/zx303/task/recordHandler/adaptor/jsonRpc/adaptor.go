@@ -7,8 +7,8 @@ import (
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
 	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
+	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler"
 	"net/http"
 )
 
