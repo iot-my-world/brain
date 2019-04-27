@@ -12,8 +12,8 @@ import (
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
-	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/tracker/tk102"
+	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
