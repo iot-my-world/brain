@@ -8,8 +8,8 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/security/claims"
-	zx303StatusReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/status"
-	zx303StatusReadingRecordHandlerException "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/exception"
+	zx303TaskRecordHandlerException "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/exception"
+	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
 )
 
 type RecordHandler struct {
@@ -17,20 +17,20 @@ type RecordHandler struct {
 }
 
 func New(
-	brainZX303StatusReadingRecordHandler brainRecordHandler.RecordHandler,
+	brainZX303TaskRecordHandler brainRecordHandler.RecordHandler,
 ) *RecordHandler {
 
 	return &RecordHandler{
-		recordHandler: brainZX303StatusReadingRecordHandler,
+		recordHandler: brainZX303TaskRecordHandler,
 	}
 }
 
 type CreateRequest struct {
-	ZX303StatusReading zx303StatusReading.Reading
+	ZX303Task zx303Task.Task
 }
 
 type CreateResponse struct {
-	ZX303StatusReading zx303StatusReading.Reading
+	ZX303Task zx303Task.Task
 }
 
 func (r *RecordHandler) ValidateCreateRequest(request *CreateRequest) error {
@@ -50,17 +50,17 @@ func (r *RecordHandler) Create(request *CreateRequest) (*CreateResponse, error) 
 
 	createResponse := brainRecordHandler.CreateResponse{}
 	if err := r.recordHandler.Create(&brainRecordHandler.CreateRequest{
-		Entity: &request.ZX303StatusReading,
+		Entity: &request.ZX303Task,
 	}, &createResponse); err != nil {
-		return nil, zx303StatusReadingRecordHandlerException.Create{Reasons: []string{err.Error()}}
+		return nil, zx303TaskRecordHandlerException.Create{Reasons: []string{err.Error()}}
 	}
-	createdReading, ok := createResponse.Entity.(*zx303StatusReading.Reading)
+	createdReading, ok := createResponse.Entity.(*zx303Task.Task)
 	if !ok {
-		return nil, zx303StatusReadingRecordHandlerException.Create{Reasons: []string{"could not cast created entity to zx303StatusReading"}}
+		return nil, zx303TaskRecordHandlerException.Create{Reasons: []string{"could not cast created entity to zx303Task"}}
 	}
 
 	return &CreateResponse{
-		ZX303StatusReading: *createdReading,
+		ZX303Task: *createdReading,
 	}, nil
 }
 
@@ -70,13 +70,13 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	ZX303StatusReading zx303StatusReading.Reading
+	ZX303Task zx303Task.Task
 }
 
 func (r *RecordHandler) Retrieve(request *RetrieveRequest) (*RetrieveResponse, error) {
-	retrievedZX303StatusReading := zx303StatusReading.Reading{}
+	retrievedZX303Task := zx303Task.Task{}
 	retrieveResponse := brainRecordHandler.RetrieveResponse{
-		Entity: &retrievedZX303StatusReading,
+		Entity: &retrievedZX303Task,
 	}
 	if err := r.recordHandler.Retrieve(&brainRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
@@ -84,21 +84,21 @@ func (r *RecordHandler) Retrieve(request *RetrieveRequest) (*RetrieveResponse, e
 	}, &retrieveResponse); err != nil {
 		switch err.(type) {
 		case brainRecordHandlerException.NotFound:
-			return nil, zx303StatusReadingRecordHandlerException.NotFound{}
+			return nil, zx303TaskRecordHandlerException.NotFound{}
 		default:
 			return nil, err
 		}
 	}
 
 	return &RetrieveResponse{
-		ZX303StatusReading: retrievedZX303StatusReading,
+		ZX303Task: retrievedZX303Task,
 	}, nil
 }
 
 type UpdateRequest struct {
-	Claims             claims.Claims
-	Identifier         identifier.Identifier
-	ZX303StatusReading zx303StatusReading.Reading
+	Claims     claims.Claims
+	Identifier identifier.Identifier
+	ZX303Task  zx303Task.Task
 }
 
 type UpdateResponse struct{}
@@ -108,9 +108,9 @@ func (r *RecordHandler) Update(request *UpdateRequest) (*UpdateResponse, error) 
 	if err := r.recordHandler.Update(&brainRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
-		Entity:     &request.ZX303StatusReading,
+		Entity:     &request.ZX303Task,
 	}, &updateResponse); err != nil {
-		return nil, zx303StatusReadingRecordHandlerException.Update{Reasons: []string{err.Error()}}
+		return nil, zx303TaskRecordHandlerException.Update{Reasons: []string{err.Error()}}
 	}
 
 	return &UpdateResponse{}, nil
@@ -130,7 +130,7 @@ func (r *RecordHandler) Delete(request *DeleteRequest) (*DeleteResponse, error) 
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 	}, &deleteResponse); err != nil {
-		return nil, zx303StatusReadingRecordHandlerException.Delete{Reasons: []string{err.Error()}}
+		return nil, zx303TaskRecordHandlerException.Delete{Reasons: []string{err.Error()}}
 	}
 
 	return &DeleteResponse{}, nil
@@ -143,14 +143,14 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []zx303StatusReading.Reading
+	Records []zx303Task.Task
 	Total   int
 }
 
 func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, error) {
-	var collectedZX303StatusReading []zx303StatusReading.Reading
+	var collectedZX303Task []zx303Task.Task
 	collectResponse := brainRecordHandler.CollectResponse{
-		Records: &collectedZX303StatusReading,
+		Records: &collectedZX303Task,
 	}
 	err := r.recordHandler.Collect(&brainRecordHandler.CollectRequest{
 		Claims:   request.Claims,
@@ -158,15 +158,15 @@ func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, erro
 		Query:    request.Query,
 	}, &collectResponse)
 	if err != nil {
-		return nil, zx303StatusReadingRecordHandlerException.Collect{Reasons: []string{err.Error()}}
+		return nil, zx303TaskRecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
-	if collectedZX303StatusReading == nil {
-		collectedZX303StatusReading = make([]zx303StatusReading.Reading, 0)
+	if collectedZX303Task == nil {
+		collectedZX303Task = make([]zx303Task.Task, 0)
 	}
 
 	return &CollectResponse{
-		Records: collectedZX303StatusReading,
+		Records: collectedZX303Task,
 		Total:   collectResponse.Total,
 	}, nil
 }

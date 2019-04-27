@@ -3,8 +3,8 @@ package mongo
 import (
 	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
 	"gitlab.com/iotTracker/brain/security/claims"
-	zx303StatusReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/status"
-	zx303StatusReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
+	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
+	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
 	"gopkg.in/mgo.v2"
 )
 
@@ -12,7 +12,7 @@ func New(
 	mongoSession *mgo.Session,
 	databaseName string,
 	collectionName string,
-) *zx303StatusReadingRecordHandler.RecordHandler {
+) *zx303TaskRecordHandler.RecordHandler {
 	mongoRecordHandler := brainMongoRecordHandler.New(
 		mongoSession,
 		databaseName,
@@ -23,11 +23,11 @@ func New(
 				Unique: true,
 			},
 		},
-		zx303StatusReading.IsValidIdentifier,
+		zx303Task.IsValidIdentifier,
 		claims.ContextualiseFilter,
 	)
 
-	return zx303StatusReadingRecordHandler.New(
+	return zx303TaskRecordHandler.New(
 		mongoRecordHandler,
 	)
 }

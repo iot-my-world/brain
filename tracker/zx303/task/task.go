@@ -12,6 +12,11 @@ const Finished Status = "Finished"
 const Failed Status = "Failed"
 
 type Task struct {
+	Id    string      `json:"id" bson:"id"`
 	Type  Type        `json:"type" bson:"type"`
 	Steps []step.Step `json:"steps" bson:"steps"`
+}
+
+func (t *Task) SetId(id string) {
+	t.Id = id
 }

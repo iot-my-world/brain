@@ -7,16 +7,16 @@ import (
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	"gitlab.com/iotTracker/brain/search/query"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	zx303StatusReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/status"
-	zx303StatusReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
+	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
+	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
 	"net/http"
 )
 
 type adaptor struct {
-	RecordHandler *zx303StatusReadingRecordHandler.RecordHandler
+	RecordHandler *zx303TaskRecordHandler.RecordHandler
 }
 
-func New(recordHandler *zx303StatusReadingRecordHandler.RecordHandler) *adaptor {
+func New(recordHandler *zx303TaskRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -27,7 +27,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	ZX303StatusReading zx303StatusReading.Reading `json:"zx303StatusReading"`
+	ZX303Task zx303Task.Task `json:"zx303Task"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -38,7 +38,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 	}
 
 	retrieveZX303Response, err := s.RecordHandler.Retrieve(
-		&zx303StatusReadingRecordHandler.RetrieveRequest{
+		&zx303TaskRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
 		})
@@ -46,7 +46,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	response.ZX303StatusReading = retrieveZX303Response.ZX303StatusReading
+	response.ZX303Task = retrieveZX303Response.ZX303Task
 
 	return nil
 }
@@ -57,8 +57,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []zx303StatusReading.Reading `json:"records"`
-	Total   int                          `json:"total"`
+	Records []zx303Task.Task `json:"records"`
+	Total   int              `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
@@ -77,7 +77,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectZX303Response, err := s.RecordHandler.Collect(&zx303StatusReadingRecordHandler.CollectRequest{
+	collectZX303Response, err := s.RecordHandler.Collect(&zx303TaskRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
