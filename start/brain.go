@@ -54,14 +54,13 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	tk102ReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
-	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/basic"
-	tk102ReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
-	tk102ReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
-	readingBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator/basic"
-
 	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
 	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/administrator/basic"
+	tk102ReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
+	tk102ReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/basic"
+	tk102ReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
+	tk102ReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
+	tk102ReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator/basic"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
 	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/mongo"
 	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/validator/adaptor/jsonRpc"
@@ -278,8 +277,8 @@ func main() {
 		databaseName,
 		tk102ReadingCollection,
 	)
-	ReadingValidator := readingBasicValidator.New()
-	tk102ReadingAdministrator := readingBasicAdministrator.New(
+	ReadingValidator := tk102ReadingBasicValidator.New()
+	tk102ReadingAdministrator := tk102ReadingBasicAdministrator.New(
 		TK102ReadingRecordHandler,
 		ReadingValidator,
 	)
