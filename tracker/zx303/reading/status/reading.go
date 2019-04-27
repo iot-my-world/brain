@@ -1,4 +1,4 @@
-package reading
+package status
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"

@@ -4,7 +4,7 @@ import (
 	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
 	"gitlab.com/iotTracker/brain/security/claims"
 	zx303GPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
-	zx303GPSReadigRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler"
+	zx303GPSReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler"
 	"gopkg.in/mgo.v2"
 )
 
@@ -12,7 +12,7 @@ func New(
 	mongoSession *mgo.Session,
 	databaseName string,
 	collectionName string,
-) *zx303GPSReadigRecordHandler.RecordHandler {
+) *zx303GPSReadingRecordHandler.RecordHandler {
 	mongoRecordHandler := brainMongoRecordHandler.New(
 		mongoSession,
 		databaseName,
@@ -27,7 +27,7 @@ func New(
 		claims.ContextualiseFilter,
 	)
 
-	return zx303GPSReadigRecordHandler.New(
+	return zx303GPSReadingRecordHandler.New(
 		mongoRecordHandler,
 	)
 }

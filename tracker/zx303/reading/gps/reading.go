@@ -1,4 +1,4 @@
-package reading
+package gps
 
 import (
 	"gitlab.com/iotTracker/brain/party"
