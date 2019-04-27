@@ -101,7 +101,7 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
-	gpsLocationMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/gpsLocation"
+	zx303GPSReadingHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
 	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
 	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
 
@@ -589,7 +589,7 @@ func main() {
 		[]string{"brainQueue"},
 		"brain",
 		[]messagingMessageHandler.Handler{
-			gpsLocationMessageHandler.New(),
+			zx303GPSReadingHandler.New(),
 		},
 	)
 	go func() {
