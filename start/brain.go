@@ -67,6 +67,7 @@ import (
 	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/validator/basic"
 
 	zx303GPSReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
+	zx303StatusReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/status"
 	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
 	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
 	zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
@@ -639,6 +640,10 @@ func main() {
 			zx303GPSReadingMessageHandler.New(
 				&systemClaims,
 				ZX303GPSReadingAdministrator,
+			),
+			zx303StatusReadingMessageHandler.New(
+				&systemClaims,
+				ZX303StatusReadingAdministrator,
 			),
 		},
 	)

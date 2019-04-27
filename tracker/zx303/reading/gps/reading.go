@@ -14,15 +14,14 @@ type Reading struct {
 	DeviceId id.Identifier `json:"deviceId" bson:"deviceId"`
 
 	// Owner Details
-	// derived from device when device is retrieved for reading to be saved
 	OwnerPartyType    party.Type    `json:"ownerPartyType" bson:"ownerPartyType"`
 	OwnerId           id.Identifier `json:"ownerId" bson:"ownerId"`
 	AssignedPartyType party.Type    `json:"assignedPartyType" bson:"assignedPartyType"`
 	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
 
 	// Reading Details
-	NoSatellites int64   `json:"noSatellites" bson:"noSatellites"`
 	TimeStamp    int64   `json:"timeStamp" bson:"timeStamp"`
+	NoSatellites int64   `json:"noSatellites" bson:"noSatellites"`
 	Latitude     float32 `json:"latitude" bson:"latitude"`
 	Longitude    float32 `json:"longitude" bson:"longitude"`
 	Speed        int64   `json:"speed" bson:"speed"`
