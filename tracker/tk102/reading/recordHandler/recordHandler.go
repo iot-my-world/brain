@@ -5,7 +5,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/query"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/reading"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
 )
 
 type RecordHandler interface {

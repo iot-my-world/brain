@@ -3,11 +3,11 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	readingAction "gitlab.com/iotTracker/brain/tracker/reading/action"
-	readingAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator"
-	readingAdministratorException "gitlab.com/iotTracker/brain/tracker/reading/administrator/exception"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
-	readingValidator "gitlab.com/iotTracker/brain/tracker/reading/validator"
+	readingAction "gitlab.com/iotTracker/brain/tracker/tk102/reading/action"
+	readingAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator"
+	readingAdministratorException "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/exception"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler"
+	readingValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator"
 )
 
 type administrator struct {

@@ -10,8 +10,8 @@ import (
 	textListCriterion "gitlab.com/iotTracker/brain/search/criterion/list/text"
 	"gitlab.com/iotTracker/brain/search/criterion/or"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/tracker/reading"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler"
 	tk102DeviceRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler"
 )
 

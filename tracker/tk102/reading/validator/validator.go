@@ -2,7 +2,7 @@ package validator
 
 import (
 	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/tracker/reading"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 

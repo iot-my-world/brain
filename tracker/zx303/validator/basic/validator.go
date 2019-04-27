@@ -6,7 +6,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
 	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
-	zx303DeviceAction "gitlab.com/iotTracker/brain/tracker/zx303"
+	zx303DeviceAction "gitlab.com/iotTracker/brain/tracker/zx303/action"
 	deviceValidator "gitlab.com/iotTracker/brain/tracker/zx303/validator"
 	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )

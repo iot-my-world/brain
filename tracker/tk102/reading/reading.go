@@ -3,7 +3,6 @@ package reading
 import (
 	"gitlab.com/iotTracker/brain/party"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/tracker"
 	"math"
 )
 
@@ -11,8 +10,7 @@ type Reading struct {
 	Id string `json:"id" bson:"id"`
 
 	// Device Details
-	DeviceId   id.Identifier `json:"deviceId" bson:"deviceId"`
-	DeviceType device.Type   `json:"deviceType" bson:"deviceType"`
+	DeviceId id.Identifier `json:"deviceId" bson:"deviceId"`
 
 	// Owner Details
 	// derived from device when device is retrieved for reading to be saved

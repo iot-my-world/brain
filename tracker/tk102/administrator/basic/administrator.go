@@ -10,10 +10,10 @@ import (
 	"gitlab.com/iotTracker/brain/search/criterion"
 	exactTextCriterion "gitlab.com/iotTracker/brain/search/criterion/exact/text"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
 	tk102DeviceAction "gitlab.com/iotTracker/brain/tracker/tk102/action"
 	tk102DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/administrator"
 	tk102DeviceAdministratorException "gitlab.com/iotTracker/brain/tracker/tk102/administrator/exception"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler"
 	tk102RecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler"
 	tk102DeviceValidator "gitlab.com/iotTracker/brain/tracker/tk102/validator"
 )

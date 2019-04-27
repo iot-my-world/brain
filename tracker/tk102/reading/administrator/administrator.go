@@ -1,6 +1,6 @@
 package administrator
 
-import "gitlab.com/iotTracker/brain/tracker/reading"
+import "gitlab.com/iotTracker/brain/tracker/tk102/reading"
 
 type Administrator interface {
 	Create(request *CreateRequest) (*CreateResponse, error)

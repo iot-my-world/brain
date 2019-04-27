@@ -54,11 +54,11 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
-	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator/basic"
-	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
-	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
-	readingBasicValidator "gitlab.com/iotTracker/brain/tracker/reading/validator/basic"
+	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
+	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/basic"
+	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
+	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
+	readingBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator/basic"
 
 	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
 	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/administrator/basic"

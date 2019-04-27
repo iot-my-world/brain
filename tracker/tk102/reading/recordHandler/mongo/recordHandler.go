@@ -7,9 +7,9 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/reading"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler"
-	readingRecordHandlerException "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/exception"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler"
+	readingRecordHandlerException "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/exception"
 	"gopkg.in/mgo.v2"
 )
 
