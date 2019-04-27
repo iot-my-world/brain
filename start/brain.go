@@ -54,10 +54,10 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
+	tk102ReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
 	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/basic"
-	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
-	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
+	tk102ReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
+	tk102ReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
 	readingBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator/basic"
 
 	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
@@ -273,14 +273,14 @@ func main() {
 	)
 
 	// Reading
-	ReadingRecordHandler := readingMongoRecordHandler.New(
+	TK102ReadingRecordHandler := tk102ReadingMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		readingCollection,
+		tk102ReadingCollection,
 	)
 	ReadingValidator := readingBasicValidator.New()
-	ReadingAdministrator := readingBasicAdministrator.New(
-		ReadingRecordHandler,
+	tk102ReadingAdministrator := readingBasicAdministrator.New(
+		TK102ReadingRecordHandler,
 		ReadingValidator,
 	)
 
@@ -334,7 +334,7 @@ func main() {
 		CompanyRecordHandler,
 		ClientRecordHandler,
 		PartyBasicAdministrator,
-		ReadingRecordHandler,
+		TK102ReadingRecordHandler,
 		TK102DeviceValidator,
 	)
 
@@ -359,7 +359,7 @@ func main() {
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
-		ReadingRecordHandler,
+		TK102ReadingRecordHandler,
 		TK102DeviceRecordHandler,
 	)
 
@@ -405,16 +405,14 @@ func main() {
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
+	tk102ReadingRecordHandlerAdaptor := tk102ReadingRecordHandlerJsonRpcAdaptor.New(TK102ReadingRecordHandler)
+	tk102ReadingAdministratorAdaptor := tk102ReadingAdministratorJsonRpcAdaptor.New(tk102ReadingAdministrator)
 
 	// ZX303 Device
 	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
 	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
 	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
 	ZX303DeviceAuthenticatorAdaptor := zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor.New(ZX303DeviceAuthenticator)
-
-	// Reading
-	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
-	ReadingAdministratorAdaptor := readingAdministratorJsonRpcAdaptor.New(ReadingAdministrator)
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -516,10 +514,10 @@ func main() {
 	}
 
 	// Reading
-	if err := secureHumanUserAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingRecordHandlerAdaptor, "TK102ReadingRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Reading Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(ReadingAdministratorAdaptor, "ReadingAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "tk102ReadingAdministrator"); err != nil {
 		log.Fatal("Unable to Register Reading Administrator Service")
 	}
 
