@@ -102,7 +102,9 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
+	gpsLocationMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/gpsLocation"
 	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
+	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
 
 	"gitlab.com/iotTracker/brain/party"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
@@ -589,6 +591,9 @@ func main() {
 		kafkaBrokerNodes,
 		[]string{"brainQueue"},
 		"brain",
+		[]messagingMessageHandler.Handler{
+			gpsLocationMessageHandler.New(),
+		},
 	)
 	go func() {
 		err := MessageConsumerGroup.Start()
