@@ -58,6 +58,9 @@ var initialRoles = func() []role.Role {
 		api.ZX303DeviceAdministratorCreate,
 		api.ZX303DeviceAdministratorChangeOwnershipAndAssignment,
 		api.ZX303DeviceAdministratorUpdateAllowedFields,
+		api.ZX303TaskRecordHandlerCollect,
+		api.ZX303TaskValidatorValidate,
+		api.ZX303TaskAdministratorSubmit,
 
 		// Reading
 		api.TK102ReadingAdministratorCreate,

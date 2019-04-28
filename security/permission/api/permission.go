@@ -90,6 +90,10 @@ const ZX303DeviceAdministratorUpdateAllowedFields Permission = "ZX303DeviceAdmin
 
 const ZX303DeviceAuthenticatorLogin Permission = "ZX303DeviceAuthenticator.Login"
 
+const ZX303TaskRecordHandlerCollect Permission = "ZX303TaskRecordHandler.Collect"
+const ZX303TaskValidatorValidate Permission = "ZX303TaskValidator.Validate"
+const ZX303TaskAdministratorSubmit Permission = "ZX303TaskAdministrator.Submit"
+
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"
 
