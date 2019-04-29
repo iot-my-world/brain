@@ -2,6 +2,7 @@ package task
 
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 )
 
@@ -15,9 +16,11 @@ const Finished Status = "Finished"
 const Failed Status = "Failed"
 
 type Task struct {
-	Id    string      `json:"id" bson:"id"`
-	Type  Type        `json:"type" bson:"type"`
-	Steps []step.Step `json:"steps" bson:"steps"`
+	Id       string        `json:"id" bson:"id"`
+	DeviceId id.Identifier `json:"deviceId" bson:"deviceId"`
+	Type     Type          `json:"type" bson:"type"`
+	Status   Status        `json:"status" bson:"status"`
+	Steps    []step.Step   `json:"steps" bson:"steps"`
 }
 
 func IsValidIdentifier(id identifier.Identifier) bool {

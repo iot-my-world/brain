@@ -25,7 +25,7 @@ func New(
 	}
 }
 
-func (a *administrator) ValidateCreateRequest(request *zx303TaskAdministrator.CreateRequest) error {
+func (a *administrator) ValidateSubmitRequest(request *zx303TaskAdministrator.SubmitRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -53,8 +53,8 @@ func (a *administrator) ValidateCreateRequest(request *zx303TaskAdministrator.Cr
 	return nil
 }
 
-func (a *administrator) Create(request *zx303TaskAdministrator.CreateRequest) (*zx303TaskAdministrator.CreateResponse, error) {
-	if err := a.ValidateCreateRequest(request); err != nil {
+func (a *administrator) Submit(request *zx303TaskAdministrator.SubmitRequest) (*zx303TaskAdministrator.SubmitResponse, error) {
+	if err := a.ValidateSubmitRequest(request); err != nil {
 		return nil, err
 	}
 
@@ -65,7 +65,7 @@ func (a *administrator) Create(request *zx303TaskAdministrator.CreateRequest) (*
 		return nil, zx303TaskAdministratorException.ZX303TaskCreation{Reasons: []string{err.Error()}}
 	}
 
-	return &zx303TaskAdministrator.CreateResponse{
+	return &zx303TaskAdministrator.SubmitResponse{
 		ZX303Task: createResponse.ZX303Task,
 	}, nil
 }

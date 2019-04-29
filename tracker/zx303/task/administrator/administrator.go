@@ -6,14 +6,14 @@ import (
 )
 
 type Administrator interface {
-	Create(request *CreateRequest) (*CreateResponse, error)
+	Submit(request *SubmitRequest) (*SubmitResponse, error)
 }
 
-type CreateRequest struct {
+type SubmitRequest struct {
 	Claims    claims.Claims
 	ZX303Task zx303Task.Task
 }
 
-type CreateResponse struct {
+type SubmitResponse struct {
 	ZX303Task zx303Task.Task
 }
