@@ -673,7 +673,6 @@ func main() {
 	}()
 
 	// set up kafka messaging
-	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
 	MessageConsumerGroup := messageConsumerGroup.New(
 		kafkaBrokerNodes,
 		[]string{"brainQueue"},
