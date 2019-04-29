@@ -122,6 +122,7 @@ import (
 
 	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
 	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
+	asyncMessagingProducer "gitlab.com/iotTracker/messaging/producer/sync"
 
 	"gitlab.com/iotTracker/brain/party"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
@@ -185,6 +186,16 @@ func main() {
 	SetPasswordEmailGenerator := setPasswordEmailGenerator.New(
 		*pathToEmailTemplateFolder,
 	)
+
+	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
+	brainQueueProducer := asyncMessagingProducer.New(
+		kafkaBrokerNodes,
+		"nerveBroadcast",
+	)
+	log.Info("Starting nerveBroadcast producer")
+	if err := brainQueueProducer.Start(); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	// Create system claims for the services that root privileges
 	var systemClaims = humanUserLoginClaims.Login{
