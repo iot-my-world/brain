@@ -2,6 +2,8 @@ package step
 
 type Type string
 
+const SendResetCommand Type = "SendResetCommand"
+
 type Status string
 
 const Pending Status = "Pending"

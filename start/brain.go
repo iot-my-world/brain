@@ -690,9 +690,10 @@ func main() {
 		},
 	)
 	go func() {
-		err := MessageConsumerGroup.Start()
-		log.Error(err.Error())
-		os.Exit(1)
+		if err := MessageConsumerGroup.Start(); err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
 	}()
 
 	//Wait for interrupt signal

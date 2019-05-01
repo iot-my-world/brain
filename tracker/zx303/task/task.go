@@ -3,6 +3,7 @@ package task
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	taskException "gitlab.com/iotTracker/brain/tracker/zx303/task/exception"
 	"gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 )
 
@@ -38,4 +39,60 @@ func IsValidIdentifier(id identifier.Identifier) bool {
 
 func (t *Task) SetId(id string) {
 	t.Id = id
+}
+
+func (t *Task) ExecutingStep() (*step.Step, error) {
+	if t.Status == Finished || t.Status == Failed {
+		return nil, taskException.NextStep{Reasons: []string{"task in Finished or Failed status", string(t.Status)}}
+	}
+
+	for stepIdx := range t.Steps {
+		switch t.Steps[stepIdx].Status {
+		case step.Pending:
+			return nil, taskException.ExecutingStep{Reasons: []string{"pending step found before an executing step"}}
+
+		case step.Executing:
+			return &t.Steps[stepIdx], nil
+
+		case step.Finished:
+			// we continue, the next step should be executing and return this function
+
+		case step.Failed:
+			// if the task has a failed step we can't determine what should be the executing step
+			return nil, taskException.ExecutingStep{Reasons: []string{"task has a failed step"}}
+
+		default:
+			return nil, taskException.ExecutingStep{Reasons: []string{"task step has invalid status", string(t.Steps[stepIdx].Status)}}
+		}
+	}
+
+	return nil, taskException.ExecutingStep{Reasons: []string{"task complete"}}
+}
+
+func (t *Task) PendingStep() (*step.Step, error) {
+	if t.Status == Finished || t.Status == Failed {
+		return nil, taskException.NextStep{Reasons: []string{"task in Finished or Failed status", string(t.Status)}}
+	}
+
+	for stepIdx := range t.Steps {
+		switch t.Steps[stepIdx].Status {
+		case step.Pending:
+			return &t.Steps[stepIdx], nil
+
+		case step.Executing:
+			return nil, taskException.NextStep{Reasons: []string{"task has an executing step"}}
+
+		case step.Finished:
+			// we continue, the next step should be pending and return this function
+
+		case step.Failed:
+			// if the task has a failed step we can't determine what should be the pending step
+			return nil, taskException.NextStep{Reasons: []string{"task has a failed step"}}
+
+		default:
+			return nil, taskException.NextStep{Reasons: []string{"task step has invalid status", string(t.Steps[stepIdx].Status)}}
+		}
+	}
+
+	return nil, taskException.NextStep{Reasons: []string{"task complete"}}
 }
