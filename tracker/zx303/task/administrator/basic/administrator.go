@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
 	zx303TaskAction "gitlab.com/iotTracker/brain/tracker/zx303/task/action"
 	zx303TaskAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator"
 	zx303TaskAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/exception"
@@ -80,5 +81,54 @@ func (a *administrator) Submit(request *zx303TaskAdministrator.SubmitRequest) (*
 
 	return &zx303TaskAdministrator.SubmitResponse{
 		ZX303Task: createResponse.ZX303Task,
+	}, nil
+}
+
+func (a *administrator) ValidateFailTaskRequest(request *zx303TaskAdministrator.FailTaskRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if request.ZX303TaskIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "zx303TaskIdentifier is nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+
+	return nil
+}
+
+func (a *administrator) FailTask(request *zx303TaskAdministrator.FailTaskRequest) (*zx303TaskAdministrator.FailTaskResponse, error) {
+	if err := a.ValidateFailTaskRequest(request); err != nil {
+		return nil, err
+	}
+
+	// retrieve the task
+	retrieveResponse, err := a.zx303TaskRecordHandler.Retrieve(&zx303TaskRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.ZX303TaskIdentifier,
+	})
+	if err != nil {
+		return nil, zx303TaskAdministratorException.ZX303TaskFail{Reasons: []string{"retrieval", err.Error()}}
+	}
+
+	// change task status to failed
+	retrieveResponse.ZX303Task.Status = zx303Task.Failed
+
+	// update task
+	if _, err := a.zx303TaskRecordHandler.Update(&zx303TaskRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: request.ZX303TaskIdentifier,
+		ZX303Task:  retrieveResponse.ZX303Task,
+	}); err != nil {
+		return nil, zx303TaskAdministratorException.ZX303TaskFail{Reasons: []string{"update", err.Error()}}
+	}
+
+	return &zx303TaskAdministrator.FailTaskResponse{
+		ZX303Task: retrieveResponse.ZX303Task,
 	}, nil
 }
