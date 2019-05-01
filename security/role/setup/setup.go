@@ -61,6 +61,8 @@ var initialRoles = func() []role.Role {
 		api.ZX303TaskRecordHandlerCollect,
 		api.ZX303TaskValidatorValidate,
 		api.ZX303TaskAdministratorSubmit,
+		api.ZX303TaskAdministratorFailTask,
+		api.ZX303TaskAdministratorTransitionTask,
 
 		// Reading
 		api.TK102ReadingAdministratorCreate,

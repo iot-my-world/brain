@@ -8,6 +8,7 @@ import (
 	zx303TaskAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator"
 	zx303TaskAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/exception"
 	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler"
+	zx303TaskStep "gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 	zx303TaskValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator"
 	zx303TaskSubmittedMessage "gitlab.com/iotTracker/messaging/message/zx303/task/submitted"
 	messagingProducer "gitlab.com/iotTracker/messaging/producer"
@@ -119,6 +120,15 @@ func (a *administrator) FailTask(request *zx303TaskAdministrator.FailTaskRequest
 	// change task status to failed
 	retrieveResponse.ZX303Task.Status = zx303Task.Failed
 
+	// change step status to failed if step idx provided
+	if request.FailedStepIdx >= 0 {
+		if request.FailedStepIdx > len(retrieveResponse.ZX303Task.Steps)-1 {
+			return nil, zx303TaskAdministratorException.ZX303TaskFail{Reasons: []string{"invalid step idx", string(request.FailedStepIdx)}}
+
+		}
+		retrieveResponse.ZX303Task.Steps[request.FailedStepIdx].Status = zx303TaskStep.Failed
+	}
+
 	// update task
 	if _, err := a.zx303TaskRecordHandler.Update(&zx303TaskRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
@@ -129,6 +139,63 @@ func (a *administrator) FailTask(request *zx303TaskAdministrator.FailTaskRequest
 	}
 
 	return &zx303TaskAdministrator.FailTaskResponse{
+		ZX303Task: retrieveResponse.ZX303Task,
+	}, nil
+}
+
+func (a *administrator) ValidateTransitionTaskRequest(request *zx303TaskAdministrator.TransitionTaskRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if request.ZX303TaskIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "zx303TaskIdentifier is nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) TransitionTask(request *zx303TaskAdministrator.TransitionTaskRequest) (*zx303TaskAdministrator.TransitionTaskResponse, error) {
+	if err := a.ValidateTransitionTaskRequest(request); err != nil {
+		return nil, err
+	}
+
+	// retrieve the task
+	retrieveResponse, err := a.zx303TaskRecordHandler.Retrieve(&zx303TaskRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.ZX303TaskIdentifier,
+	})
+	if err != nil {
+		return nil, zx303TaskAdministratorException.ZX303TaskTransition{Reasons: []string{"retrieval", err.Error()}}
+	}
+
+	if request.StepIdx > len(retrieveResponse.ZX303Task.Steps)-1 {
+		return nil, zx303TaskAdministratorException.ZX303TaskTransition{Reasons: []string{"invalid step idx", string(request.StepIdx)}}
+	}
+
+	// update the step status
+	retrieveResponse.ZX303Task.Steps[request.StepIdx].Status = request.NewStepStatus
+
+	// check if the task should transition to finished
+	if request.NewStepStatus == zx303TaskStep.Finished && request.StepIdx == len(retrieveResponse.ZX303Task.Steps)-1 {
+		retrieveResponse.ZX303Task.Status = zx303Task.Finished
+	}
+
+	// update the task
+	if _, err := a.zx303TaskRecordHandler.Update(&zx303TaskRecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: request.ZX303TaskIdentifier,
+		ZX303Task:  retrieveResponse.ZX303Task,
+	}); err != nil {
+		return nil, zx303TaskAdministratorException.ZX303TaskFail{Reasons: []string{"update", err.Error()}}
+	}
+
+	return &zx303TaskAdministrator.TransitionTaskResponse{
 		ZX303Task: retrieveResponse.ZX303Task,
 	}, nil
 }

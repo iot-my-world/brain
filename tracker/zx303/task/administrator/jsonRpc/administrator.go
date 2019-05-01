@@ -55,7 +55,7 @@ func (a *administrator) FailTask(request *zx303TaskAdministrator.FailTaskRequest
 	// perform request
 	failTaskResponse := zx303TaskAdministratorJsonRpcAdaptor.FailTaskResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"ZX303DeviceAuthenticator.Login",
+		"ZX303TaskAdministrator.FailTask",
 		zx303TaskAdministratorJsonRpcAdaptor.FailTaskRequest{
 			ZX303TaskIdentifier: *wrappedZX303TaskIdentifier,
 		},
@@ -66,5 +66,52 @@ func (a *administrator) FailTask(request *zx303TaskAdministrator.FailTaskRequest
 
 	return &zx303TaskAdministrator.FailTaskResponse{
 		ZX303Task: failTaskResponse.ZX303Task,
+	}, nil
+}
+
+func (a *administrator) ValidateTransitionTaskRequest(request *zx303TaskAdministrator.TransitionTaskRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.ZX303TaskIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	}
+
+	if !a.jsonRpcClient.LoggedIn() {
+		reasonsInvalid = append(reasonsInvalid, "json rpc client is not logged in")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) TransitionTask(request *zx303TaskAdministrator.TransitionTaskRequest) (*zx303TaskAdministrator.TransitionTaskResponse, error) {
+	if err := a.ValidateTransitionTaskRequest(request); err != nil {
+		return nil, err
+	}
+
+	// create wrapped identifier
+	wrappedZX303TaskIdentifier, err := wrappedIdentifier.Wrap(request.ZX303TaskIdentifier)
+	if err != nil {
+		return nil, brainException.Unexpected{Reasons: []string{"wrapping device identifier", err.Error()}}
+	}
+
+	// perform request
+	transitionTaskResponse := zx303TaskAdministratorJsonRpcAdaptor.TransitionTaskResponse{}
+	if err := a.jsonRpcClient.JsonRpcRequest(
+		"ZX303TaskAdministrator.TransitionTask",
+		zx303TaskAdministratorJsonRpcAdaptor.TransitionTaskRequest{
+			ZX303TaskIdentifier: *wrappedZX303TaskIdentifier,
+			StepIdx:             request.StepIdx,
+			NewStepStatus:       request.NewStepStatus,
+		},
+		&transitionTaskResponse,
+	); err != nil {
+		return nil, brainException.Unexpected{Reasons: []string{"fail task error", err.Error()}}
+	}
+
+	return &zx303TaskAdministrator.TransitionTaskResponse{
+		ZX303Task: transitionTaskResponse.ZX303Task,
 	}, nil
 }
