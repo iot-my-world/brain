@@ -4,10 +4,10 @@ import (
 	"strings"
 )
 
-type ZX303TaskCreation struct {
+type ZX303TaskSubmission struct {
 	Reasons []string
 }
 
-func (e ZX303TaskCreation) Error() string {
-	return "error creating zx303 task: " + strings.Join(e.Reasons, "; ")
+func (e ZX303TaskSubmission) Error() string {
+	return "error submitting zx303 task: " + strings.Join(e.Reasons, "; ")
 }

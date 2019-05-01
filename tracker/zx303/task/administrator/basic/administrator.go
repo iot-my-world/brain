@@ -8,20 +8,25 @@ import (
 	zx303TaskAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/exception"
 	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler"
 	zx303TaskValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator"
+	zx303TaskSubmittedMessage "gitlab.com/iotTracker/messaging/message/zx303/task/submitted"
+	messagingProducer "gitlab.com/iotTracker/messaging/producer"
 )
 
 type administrator struct {
 	zx303TaskValidator     zx303TaskValidator.Validator
 	zx303TaskRecordHandler *zx303TaskRecordHandler.RecordHandler
+	nerveBroadcastProducer messagingProducer.Producer
 }
 
 func New(
 	zx303TaskValidator zx303TaskValidator.Validator,
 	zx303TaskRecordHandler *zx303TaskRecordHandler.RecordHandler,
+	nerveBroadcastProducer messagingProducer.Producer,
 ) zx303TaskAdministrator.Administrator {
 	return &administrator{
 		zx303TaskValidator:     zx303TaskValidator,
 		zx303TaskRecordHandler: zx303TaskRecordHandler,
+		nerveBroadcastProducer: nerveBroadcastProducer,
 	}
 }
 
@@ -58,11 +63,19 @@ func (a *administrator) Submit(request *zx303TaskAdministrator.SubmitRequest) (*
 		return nil, err
 	}
 
+	// create task
 	createResponse, err := a.zx303TaskRecordHandler.Create(&zx303TaskRecordHandler.CreateRequest{
 		ZX303Task: request.ZX303Task,
 	})
 	if err != nil {
-		return nil, zx303TaskAdministratorException.ZX303TaskCreation{Reasons: []string{err.Error()}}
+		return nil, zx303TaskAdministratorException.ZX303TaskSubmission{Reasons: []string{"creation", err.Error()}}
+	}
+
+	// produce task generated event to nerveBroadcast topic
+	if err := a.nerveBroadcastProducer.Produce(zx303TaskSubmittedMessage.Message{
+		Task: createResponse.ZX303Task,
+	}); err != nil {
+		return nil, zx303TaskAdministratorException.ZX303TaskSubmission{Reasons: []string{"message production", err.Error()}}
 	}
 
 	return &zx303TaskAdministrator.SubmitResponse{

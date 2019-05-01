@@ -189,11 +189,11 @@ func main() {
 
 	// create and start nerveBroadcast producer
 	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
-	brainQueueProducer := asyncMessagingProducer.New(
+	nerveBroadcastProducer := asyncMessagingProducer.New(
 		kafkaBrokerNodes,
 		"nerveBroadcast",
 	)
-	if err := brainQueueProducer.Start(); err != nil {
+	if err := nerveBroadcastProducer.Start(); err != nil {
 		log.Fatal(err.Error())
 	}
 
@@ -412,6 +412,7 @@ func main() {
 	ZX303TaskAdministrator := zx303TaskBasicAdministrator.New(
 		ZX303TaskValidator,
 		ZX303TaskRecordHandler,
+		nerveBroadcastProducer,
 	)
 	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
 		ZX303DeviceRecordHandler,
