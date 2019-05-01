@@ -187,12 +187,12 @@ func main() {
 		*pathToEmailTemplateFolder,
 	)
 
+	// create and start nerveBroadcast producer
 	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
 	brainQueueProducer := asyncMessagingProducer.New(
 		kafkaBrokerNodes,
 		"nerveBroadcast",
 	)
-	log.Info("Starting nerveBroadcast producer")
 	if err := brainQueueProducer.Start(); err != nil {
 		log.Fatal(err.Error())
 	}
