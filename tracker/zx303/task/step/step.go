@@ -3,6 +3,7 @@ package step
 type Type string
 
 const SendResetCommand Type = "SendResetCommand"
+const WaitForReconnect Type = "WaitForReconnect"
 
 type Status string
 

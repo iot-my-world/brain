@@ -11,6 +11,7 @@ import (
 	zx303TaskStep "gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 	zx303TaskValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator"
 	zx303TaskSubmittedMessage "gitlab.com/iotTracker/messaging/message/zx303/task/submitted"
+	zx303TaskTransitionedMessage "gitlab.com/iotTracker/messaging/message/zx303/task/transitioned"
 	messagingProducer "gitlab.com/iotTracker/messaging/producer"
 )
 
@@ -73,7 +74,7 @@ func (a *administrator) Submit(request *zx303TaskAdministrator.SubmitRequest) (*
 		return nil, zx303TaskAdministratorException.ZX303TaskSubmission{Reasons: []string{"creation", err.Error()}}
 	}
 
-	// produce task generated event to nerveBroadcast topic
+	// produce task generated message to nerveBroadcast topic
 	if err := a.nerveBroadcastProducer.Produce(zx303TaskSubmittedMessage.Message{
 		Task: createResponse.ZX303Task,
 	}); err != nil {
@@ -187,6 +188,13 @@ func (a *administrator) TransitionTask(request *zx303TaskAdministrator.Transitio
 		// if the task status is not yet in executing update it
 		if retrieveResponse.ZX303Task.Status != zx303Task.Executing {
 			retrieveResponse.ZX303Task.Status = zx303Task.Executing
+		}
+
+		// produce task transitioned message to nerveBroadcast topic
+		if err := a.nerveBroadcastProducer.Produce(zx303TaskTransitionedMessage.Message{
+			Task: retrieveResponse.ZX303Task,
+		}); err != nil {
+			return nil, zx303TaskAdministratorException.ZX303TaskTransition{Reasons: []string{"message production", err.Error()}}
 		}
 	} else {
 		// this is the last step
