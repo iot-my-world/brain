@@ -181,9 +181,19 @@ func (a *administrator) TransitionTask(request *zx303TaskAdministrator.Transitio
 	// update the step status
 	retrieveResponse.ZX303Task.Steps[request.StepIdx].Status = request.NewStepStatus
 
-	// check if the task should transition to finished
-	if request.NewStepStatus == zx303TaskStep.Finished && request.StepIdx == len(retrieveResponse.ZX303Task.Steps)-1 {
-		retrieveResponse.ZX303Task.Status = zx303Task.Finished
+	// check how the task should transition
+	if request.StepIdx < len(retrieveResponse.ZX303Task.Steps)-1 {
+		// this is not the last step
+		// if the task status is not yet in executing update it
+		if retrieveResponse.ZX303Task.Status != zx303Task.Executing {
+			retrieveResponse.ZX303Task.Status = zx303Task.Executing
+		}
+	} else {
+		// this is the last step
+		// if the new step status is finished the task is finished
+		if request.NewStepStatus == zx303TaskStep.Finished {
+			retrieveResponse.ZX303Task.Status = zx303Task.Finished
+		}
 	}
 
 	// update the task
