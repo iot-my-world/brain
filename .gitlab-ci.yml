@@ -49,7 +49,7 @@ deploy_stage:
     - cd zx303
     - ls
     - go get
-    - cd ../build
+    - cd /go/src/gitlab.com/iotTracker/brain/build
     - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
     - scp ./brain gitlabci@brain.spotnav.net:/home/gitlabci
     # - ssh gitlabci@brain.spotnav.net "sudo /bin/systemctl stop brain.service"
