@@ -41,6 +41,13 @@ deploy_stage:
     - master
   script:
     - cd /go/src/gitlab.com/iotTracker/brain/start
+    - cd ..
+    - pwd
+    - ls -la
+    - cd tracker
+    - ls
+    - cd zx303
+    - ls
     - go get
     - cd ../build
     - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
