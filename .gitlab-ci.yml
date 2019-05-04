@@ -28,7 +28,7 @@ before_script:
  # navigate and clone messaging repo dependencies
  - cd /go/src/gitlab.com/iotTracker
  - git clone https://gitlab+deploy-token-61057:${MESSAGING_CI_JOB_TOKEN}@gitlab.com/iotTracker/messaging
-  - git clone https://gitlab+deploy-token-64807:${NERVE_CI_JOB_TOKEN}@gitlab.com/iotTracker/nerve
+ - git clone https://gitlab+deploy-token-64807:${NERVE_CI_JOB_TOKEN}@gitlab.com/iotTracker/nerve
 
  # create link between brain build directory and iot tracker directory so that
  # golang import paths work correctly
