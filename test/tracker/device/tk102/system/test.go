@@ -9,12 +9,11 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	"gitlab.com/iotTracker/brain/tracker/device/tk102"
-	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/tracker/tk102"
+	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
@@ -59,7 +58,6 @@ func (suite *System) TestSystemDeviceCreation() {
 		// create new device
 		newDevice := tk102.TK102{
 			Id:                "",
-			Type:              device.TK102,
 			ManufacturerId:    rowMap["ManufacturerId"],
 			SimCountryCode:    rowMap["SimCountryCode"],
 			SimNumber:         rowMap["SimNumber"],

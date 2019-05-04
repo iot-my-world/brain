@@ -8,13 +8,12 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
-	"gitlab.com/iotTracker/brain/tracker/device"
-	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
-	"gitlab.com/iotTracker/brain/tracker/reading"
-	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
+	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"math/rand"
 	"os"
@@ -109,7 +108,6 @@ func (suite *System) TestSystemReadingCreation() {
 			readingsToCreate = append(readingsToCreate, reading.Reading{
 				//Id:                "",
 				DeviceId:          id.Identifier{Id: retrieveTK102DeviceResponse.TK102.Id},
-				DeviceType:        device.TK102,
 				OwnerPartyType:    retrieveTK102DeviceResponse.TK102.OwnerPartyType,
 				OwnerId:           retrieveTK102DeviceResponse.TK102.OwnerId,
 				AssignedPartyType: retrieveTK102DeviceResponse.TK102.AssignedPartyType,
@@ -123,7 +121,7 @@ func (suite *System) TestSystemReadingCreation() {
 
 		// try and create the readings in bulk
 		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"ReadingAdministrator.CreateBulk",
+			"TK102ReadingAdministrator.CreateBulk",
 			readingAdministratorJsonRpcAdaptor.CreateBulkRequest{
 				Readings: readingsToCreate,
 			},

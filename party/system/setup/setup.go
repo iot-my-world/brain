@@ -10,8 +10,8 @@ import (
 	systemSetupException "gitlab.com/iotTracker/brain/party/system/setup/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
-	loginClaims "gitlab.com/iotTracker/brain/security/claims/login"
-	"gitlab.com/iotTracker/brain/user"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -24,7 +24,7 @@ var systemEntity = system.System{
 	AdminEmailAddress: "root@root.com",
 }
 
-var systemAdminUser = user.User{
+var systemAdminUser = humanUser.User{
 	Name:    "root",
 	Surname: "root",
 
@@ -59,7 +59,7 @@ func InitialSetup(
 	handler systemRecordHandler.RecordHandler,
 	registrar partyRegistrar.Registrar,
 	rootPasswordLocation string,
-	systemClaims *loginClaims.Login,
+	systemClaims *humanUserLoginClaims.Login,
 ) error {
 	// try and retrieve the root system entity
 	var systemEntityCreatedOrRetrieved system.System

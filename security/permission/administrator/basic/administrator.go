@@ -4,27 +4,33 @@ import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/name"
+	apiUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/api"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
 	permissionAdministratorException "gitlab.com/iotTracker/brain/security/permission/administrator/exception"
 	"gitlab.com/iotTracker/brain/security/permission/api"
 	"gitlab.com/iotTracker/brain/security/permission/view"
 	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	"gitlab.com/iotTracker/brain/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
 )
 
 type administrator struct {
-	userRecordHandler userRecordHandler.RecordHandler
-	roleRecordHandler roleRecordHandler.RecordHandler
+	userRecordHandler    userRecordHandler.RecordHandler
+	roleRecordHandler    roleRecordHandler.RecordHandler
+	apiUserRecordHandler *apiUserRecordHandler.RecordHandler
 }
 
 func New(
 	userRecordHandler userRecordHandler.RecordHandler,
 	roleRecordHandler roleRecordHandler.RecordHandler,
+	apiUserRecordHandler *apiUserRecordHandler.RecordHandler,
 ) permissionAdministrator.Administrator {
 	return &administrator{
-		userRecordHandler: userRecordHandler,
-		roleRecordHandler: roleRecordHandler,
+		userRecordHandler:    userRecordHandler,
+		roleRecordHandler:    roleRecordHandler,
+		apiUserRecordHandler: apiUserRecordHandler,
 	}
 }
 
@@ -34,7 +40,7 @@ func (a *administrator) ValidateUserHasPermissionRequest(request *permissionAdmi
 	if request.UserIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.UserIdentifier) {
+		if !humanUser.IsValidIdentifier(request.UserIdentifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
 		}
 	}
@@ -86,7 +92,7 @@ func (a *administrator) ValidateGetAllUsersAPIPermissionsRequest(request *permis
 	if request.UserIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.UserIdentifier) {
+		if !humanUser.IsValidIdentifier(request.UserIdentifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
 		}
 	}
@@ -103,19 +109,39 @@ func (a *administrator) GetAllUsersAPIPermissions(request *permissionAdministrat
 		return nil, err
 	}
 
-	// try and retrieve the user
-	userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
-		Claims:     request.Claims,
-		Identifier: request.UserIdentifier,
-	})
-	if err != nil {
-		return nil, err
+	// get all of the roles assigned to this user
+	var roles []string
+	switch request.Claims.(type) {
+	case humanUserLoginClaims.Login:
+		// try and retrieve the human user
+		userRetrieveResponse, err := a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: request.UserIdentifier,
+		})
+		if err != nil {
+			return nil, err
+		}
+		roles = userRetrieveResponse.User.Roles
+
+	case apiUserLoginClaims.Login:
+		// try and retrieve the api user
+		apiUserRetrieveResponse, err := a.apiUserRecordHandler.Retrieve(&apiUserRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: request.UserIdentifier,
+		})
+		if err != nil {
+			return nil, err
+		}
+		roles = apiUserRetrieveResponse.User.Roles
+
+	default:
+		return nil, permissionAdministratorException.GetAllPermissions{Reasons: []string{"invalid claims type", string(request.Claims.Type())}}
 	}
 
 	usersAPIPermissions := make([]api.Permission, 0)
 
 	// for every role that the user has been assigned
-	for _, roleName := range userRetrieveResponse.User.Roles {
+	for _, roleName := range roles {
 		// retrieve the role
 		roleRetrieveResponse, err := a.roleRecordHandler.Retrieve(&roleRecordHandler.RetrieveRequest{
 			Identifier: name.Identifier{Name: roleName},
@@ -136,7 +162,7 @@ func (a *administrator) ValidateGetAllUsersViewPermissionsRequest(request *permi
 	if request.UserIdentifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	} else {
-		if !user.IsValidIdentifier(request.UserIdentifier) {
+		if !humanUser.IsValidIdentifier(request.UserIdentifier) {
 			reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("identifier of type %s not supported for user", request.UserIdentifier.Type()))
 		}
 	}

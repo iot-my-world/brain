@@ -11,3 +11,4 @@ const Username Type = "Username"
 const Party Type = "Party"
 
 const DeviceTK102 Type = "DeviceTK102"
+const DeviceZX303 Type = "DeviceZX303"

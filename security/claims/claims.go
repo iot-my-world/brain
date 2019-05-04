@@ -7,17 +7,17 @@ import (
 
 type Type string
 
-const Login Type = "Login"
+const HumanUserLogin Type = "HumanUserLogin"
+const APIUserLogin Type = "APIUserLogin"
 const RegisterCompanyAdminUser Type = "RegisterCompanyAdminUser"
 const RegisterCompanyUser Type = "RegisterCompanyUser"
 const RegisterClientAdminUser Type = "RegisterClientAdminUser"
 const RegisterClientUser Type = "RegisterClientUser"
 const ResetPassword Type = "ResetPassword"
 
-const ValidTime = 90 * time.Minute
-
 type Claims interface {
 	Type() Type
 	Expired() bool
+	TimeToExpiry() time.Duration
 	PartyDetails() party.Details
 }

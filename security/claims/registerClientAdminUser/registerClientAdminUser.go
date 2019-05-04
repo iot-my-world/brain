@@ -5,18 +5,18 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/id"
 	"gitlab.com/iotTracker/brain/security/claims"
 	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 	"time"
 )
 
 type RegisterClientAdminUser struct {
-	IssueTime       int64         `json:"issueTime"`
-	ExpirationTime  int64         `json:"expirationTime"`
-	ParentPartyType party.Type    `json:"parentPartyType"`
-	ParentId        id.Identifier `json:"parentId"`
-	PartyType       party.Type    `json:"partyType"`
-	PartyId         id.Identifier `json:"partyId"`
-	User            user.User     `json:"user"`
+	IssueTime       int64          `json:"issueTime"`
+	ExpirationTime  int64          `json:"expirationTime"`
+	ParentPartyType party.Type     `json:"parentPartyType"`
+	ParentId        id.Identifier  `json:"parentId"`
+	PartyType       party.Type     `json:"partyType"`
+	PartyId         id.Identifier  `json:"partyId"`
+	User            humanUser.User `json:"user"`
 }
 
 func (r RegisterClientAdminUser) Type() claims.Type {
@@ -25,6 +25,10 @@ func (r RegisterClientAdminUser) Type() claims.Type {
 
 func (r RegisterClientAdminUser) Expired() bool {
 	return time.Now().UTC().After(time.Unix(r.ExpirationTime, 0).UTC())
+}
+
+func (r RegisterClientAdminUser) TimeToExpiry() time.Duration {
+	return time.Unix(r.ExpirationTime, 0).UTC().Sub(time.Now().UTC())
 }
 
 func (r RegisterClientAdminUser) PartyDetails() party.Details {

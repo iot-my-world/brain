@@ -2,13 +2,13 @@ package company
 
 import (
 	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 )
 
 type TestData struct {
 	Company   company.Company
-	AdminUser user.User
-	Users     []user.User
+	AdminUser humanUser.User
+	Users     []humanUser.User
 }
 
 var EntitiesAndAdminUsersToCreate = []TestData{
@@ -17,13 +17,13 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			Name:              "Monteagle Logistics Limited",
 			AdminEmailAddress: "monteagleAdmin@monteagle.com",
 		},
-		AdminUser: user.User{
+		AdminUser: humanUser.User{
 			Name:     "Murray",
 			Surname:  "Griffin",
 			Username: "monteagleAdmin",
 			Password: []byte("123"),
 		},
-		Users: []user.User{
+		Users: []humanUser.User{
 			{
 				Name:         "monteagleUser1",
 				Surname:      "test1",
@@ -48,13 +48,13 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			// ParentPartyType:
 			// ParentId:
 		},
-		AdminUser: user.User{
+		AdminUser: humanUser.User{
 			Name:     "Simon",
 			Surname:  "Rubin",
 			Username: "dhlAdmin",
 			Password: []byte("123"),
 		},
-		Users: []user.User{
+		Users: []humanUser.User{
 			{
 				Name:         "dhlUser1",
 				Surname:      "test1",
@@ -79,13 +79,13 @@ var EntitiesAndAdminUsersToCreate = []TestData{
 			// ParentPartyType:
 			// ParentId:
 		},
-		AdminUser: user.User{
+		AdminUser: humanUser.User{
 			Name:     "Bob",
 			Surname:  "Smith",
 			Username: "reinhardAdmin",
 			Password: []byte("123"),
 		},
-		Users: []user.User{
+		Users: []humanUser.User{
 			{
 				Name:         "reinhardUser1",
 				Surname:      "test1",

@@ -2,13 +2,13 @@ package data
 
 import (
 	"gitlab.com/iotTracker/brain/party/client"
-	"gitlab.com/iotTracker/brain/user"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
 )
 
 type TestData struct {
 	Client    client.Client
-	AdminUser user.User
-	Users     []user.User
+	AdminUser humanUser.User
+	Users     []humanUser.User
 }
 
 var EntitiesAndAdminUsersToCreate = map[string][]TestData{
@@ -18,13 +18,13 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Name:              "Pick 'n Pay",
 				AdminEmailAddress: "picknpayAdmin@picknpay.com",
 			},
-			AdminUser: user.User{
+			AdminUser: humanUser.User{
 				Name:     "Yoland",
 				Surname:  "Govender",
 				Username: "picknpayAdmin",
 				Password: []byte("123"),
 			},
-			Users: []user.User{
+			Users: []humanUser.User{
 				{
 					Name:         "picknpayUser1",
 					Surname:      "test1",
@@ -46,13 +46,13 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Name:              "Woolworths",
 				AdminEmailAddress: "woolworthsAdmin@woolworths.com",
 			},
-			AdminUser: user.User{
+			AdminUser: humanUser.User{
 				Name:     "Pauline",
 				Surname:  "Kruger",
 				Username: "woolworthsAdmin",
 				Password: []byte("123"),
 			},
-			Users: []user.User{
+			Users: []humanUser.User{
 				{
 					Name:         "woolworthsUser1",
 					Surname:      "test1",
@@ -76,13 +76,13 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Name:              "Makro",
 				AdminEmailAddress: "makroAdmin@makro.com",
 			},
-			AdminUser: user.User{
+			AdminUser: humanUser.User{
 				Name:     "Johan",
 				Surname:  "Smith",
 				Username: "makroAdmin",
 				Password: []byte("123"),
 			},
-			Users: []user.User{
+			Users: []humanUser.User{
 				{
 					Name:         "makroUser1",
 					Surname:      "test1",
@@ -104,13 +104,13 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Name:              "Fruit n Veg",
 				AdminEmailAddress: "fruitnvegAdmin@fruitnveg.com",
 			},
-			AdminUser: user.User{
+			AdminUser: humanUser.User{
 				Name:     "Vicky",
 				Surname:  "smith",
 				Username: "fruitnvegAdmin",
 				Password: []byte("123"),
 			},
-			Users: []user.User{
+			Users: []humanUser.User{
 				{
 					Name:         "fruitnvegUser1",
 					Surname:      "test1",
@@ -134,13 +134,13 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Name:              "Spar",
 				AdminEmailAddress: "sparAdmin@spar.com",
 			},
-			AdminUser: user.User{
+			AdminUser: humanUser.User{
 				Name:     "Sipho",
 				Surname:  "Shezi",
 				Username: "sparAdmin",
 				Password: []byte("123"),
 			},
-			Users: []user.User{
+			Users: []humanUser.User{
 				{
 					Name:         "sparUser1",
 					Surname:      "test1",
@@ -162,13 +162,13 @@ var EntitiesAndAdminUsersToCreate = map[string][]TestData{
 				Name:              "Game",
 				AdminEmailAddress: "gameAdmin@game.com",
 			},
-			AdminUser: user.User{
+			AdminUser: humanUser.User{
 				Name:     "Michael",
 				Surname:  "Black",
 				Username: "gameAdmin",
 				Password: []byte("123"),
 			},
-			Users: []user.User{
+			Users: []humanUser.User{
 				{
 					Name:         "gameUser1",
 					Surname:      "test1",

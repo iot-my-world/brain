@@ -2,7 +2,7 @@ package client
 
 import (
 	"encoding/json"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 )
 
@@ -14,6 +14,9 @@ type Client interface {
 	Claims() claims.Claims
 	SetJWT(jwt string) error
 	GetJWT() string
+	LoggedIn() bool
+	RefreshLogin() error
+	MaintainLogin() error
 }
 
 type Request struct {

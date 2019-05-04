@@ -7,6 +7,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
+	"gitlab.com/iotTracker/brain/search/identifier/device/zx303"
 	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
 	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
@@ -83,6 +84,13 @@ func (i *Wrapped) UnmarshalJSON(data []byte) error {
 
 	case identifier.DeviceTK102:
 		var unmarshalledId tk102.Identifier
+		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
+			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		i.Identifier = unmarshalledId
+
+	case identifier.DeviceZX303:
+		var unmarshalledId zx303.Identifier
 		if err := json.Unmarshal(i.Value, &unmarshalledId); err != nil {
 			return identifierException.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}

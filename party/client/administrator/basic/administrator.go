@@ -10,8 +10,8 @@ import (
 	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
 	clientValidator "gitlab.com/iotTracker/brain/party/client/validator"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/user"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
 )
 
 type administrator struct {
@@ -90,7 +90,7 @@ func (a *administrator) Create(request *clientAdministrator.CreateRequest) (*cli
 
 	// create minimal admin user for the client
 	if _, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		User: user.User{
+		User: humanUser.User{
 			EmailAddress:    clientCreateResponse.Client.AdminEmailAddress,
 			ParentPartyType: clientCreateResponse.Client.ParentPartyType,
 			ParentId:        clientCreateResponse.Client.ParentId,

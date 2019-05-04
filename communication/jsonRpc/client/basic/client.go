@@ -8,7 +8,8 @@ import (
 	"github.com/satori/go.uuid"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	brainException "gitlab.com/iotTracker/brain/exception"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/log"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/security/claims"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"gopkg.in/square/go-jose.v2"
@@ -16,12 +17,15 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type client struct {
-	url    string
-	jwt    string
-	claims claims.Claims
+	url          string
+	jwt          string
+	claims       claims.Claims
+	loggedIn     bool
+	loginRequest authJsonRpcAdaptor.LoginRequest
 }
 
 // Create New basic json rpc client
@@ -31,6 +35,10 @@ func New(
 	return &client{
 		url: url,
 	}
+}
+
+func (c *client) LoggedIn() bool {
+	return c.loggedIn
 }
 
 func (c *client) Post(request *jsonRpcClient.Request) (*jsonRpcClient.Response, error) {
@@ -83,7 +91,7 @@ func (c *client) Post(request *jsonRpcClient.Request) (*jsonRpcClient.Response, 
 	response := jsonRpcClient.Response{}
 	err = json.Unmarshal(postResponseBytes, &response)
 	if err != nil {
-		return nil, errors.New("error unmarshalling response bytes into json rpc response " + err.Error())
+		return nil, errors.New("error unmarshalling response bytes into json rpc response: " + err.Error())
 	}
 
 	if response.Error != "" {
@@ -124,6 +132,9 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 		return err
 	}
 
+	// save the login request for maintain/refresh login
+	c.loginRequest = loginRequest
+
 	// save the token
 	c.jwt = loginResponse.Jwt
 
@@ -146,6 +157,7 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 	}
 
 	c.claims = unwrappedClaims
+	c.loggedIn = true
 
 	return nil
 }
@@ -153,6 +165,7 @@ func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
 func (c *client) Logout() {
 	c.jwt = ""
 	c.claims = nil
+	c.loggedIn = false
 }
 
 func (c *client) Claims() claims.Claims {
@@ -188,4 +201,25 @@ func (c *client) SetJWT(jwt string) error {
 
 func (c *client) GetJWT() string {
 	return c.jwt
+}
+
+func (c *client) RefreshLogin() error {
+	if err := c.Login(c.loginRequest); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *client) MaintainLogin() error {
+	refreshTokenTimer := time.NewTimer(c.claims.TimeToExpiry() - 10*time.Second)
+	for {
+		select {
+		case <-refreshTokenTimer.C:
+			log.Info("refresh json rpc client login")
+			if err := c.RefreshLogin(); err != nil {
+				return err
+			}
+			refreshTokenTimer.Reset(c.claims.TimeToExpiry() - 1*time.Second)
+		}
+	}
 }

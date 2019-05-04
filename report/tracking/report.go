@@ -3,7 +3,7 @@ package tracking
 import (
 	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/reading"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
 )
 
 type Report interface {

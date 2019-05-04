@@ -20,6 +20,7 @@ var initialRoles = func() []role.Role {
 		ClientUser,
 		CompanyAdmin,
 		CompanyUser,
+		NerveAPIUser,
 	}
 
 	// Register additional root api permissions here
@@ -30,6 +31,11 @@ var initialRoles = func() []role.Role {
 		api.RoleRetrieve,
 		api.RoleUpdate,
 		api.RoleDelete,
+
+		// API User
+		api.APIUserRecordHandlerCollect,
+		api.APIUserAdministratorCreate,
+		api.APIUserValidatorValidate,
 
 		api.CompanyRecordHandlerRetrieve,
 
@@ -52,10 +58,15 @@ var initialRoles = func() []role.Role {
 		api.ZX303DeviceAdministratorCreate,
 		api.ZX303DeviceAdministratorChangeOwnershipAndAssignment,
 		api.ZX303DeviceAdministratorUpdateAllowedFields,
+		api.ZX303TaskRecordHandlerCollect,
+		api.ZX303TaskValidatorValidate,
+		api.ZX303TaskAdministratorSubmit,
+		api.ZX303TaskAdministratorFailTask,
+		api.ZX303TaskAdministratorTransitionTask,
 
 		// Reading
-		api.ReadingAdministratorCreate,
-		api.ReadingAdministratorCreateBulk,
+		api.TK102ReadingAdministratorCreate,
+		api.TK102ReadingAdministratorCreateBulk,
 
 		// Barcode Scanner
 		api.BarcodeScannerScan,
@@ -71,6 +82,9 @@ var initialRoles = func() []role.Role {
 		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+		view.APIUserConfiguration,
+		view.DeviceDiagnostics,
+		view.ZX303DeviceDiagnostics,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -97,6 +111,14 @@ var initialRoles = func() []role.Role {
 }()
 
 // Create Roles here
+var NerveAPIUser = role.Role{
+	Name: "nerveAPIUser",
+	APIPermissions: []api.Permission{
+		api.ZX303DeviceAuthenticatorLogin,
+	},
+	ViewPermissions: []view.Permission{},
+}
+
 var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
@@ -146,8 +168,6 @@ var CompanyAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
-		api.ReadingRecordHandlerCollect,
-
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
 		api.PartyAdministratorRetrieveParty,
@@ -170,8 +190,6 @@ var CompanyUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		api.ReadingRecordHandlerCollect,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
@@ -229,8 +247,6 @@ var ClientAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
-		api.ReadingRecordHandlerCollect,
-
 		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
@@ -255,8 +271,6 @@ var ClientUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		api.ReadingRecordHandlerCollect,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,

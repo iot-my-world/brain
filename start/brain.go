@@ -6,7 +6,6 @@ import (
 	gorillaJson "github.com/gorilla/rpc/json"
 	"gitlab.com/iotTracker/brain/cors"
 	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/apiAuth"
 	"gitlab.com/iotTracker/brain/security/encrypt"
 	"gitlab.com/iotTracker/brain/security/token"
 	"gopkg.in/mgo.v2"
@@ -16,20 +15,27 @@ import (
 	"runtime/debug"
 	"time"
 
-	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/auth/service/adaptor/jsonRpc"
-	authBasicService "gitlab.com/iotTracker/brain/security/auth/service/basic"
+	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
+	apiUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/api"
+	humanUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/human"
+
+	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/human"
+	humanUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/human"
+
+	apiUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/api"
+	apiUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/api"
 
 	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
 
 	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
 
-	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/administrator/adaptor/jsonRpc"
-	userBasicAdministrator "gitlab.com/iotTracker/brain/user/administrator/basic"
-	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/recordHandler/adaptor/jsonRpc"
-	userMongoRecordHandler "gitlab.com/iotTracker/brain/user/recordHandler/mongo"
-	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/validator/adaptor/jsonRpc"
-	userBasicValidator "gitlab.com/iotTracker/brain/user/validator/basic"
+	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/administrator/adaptor/jsonRpc"
+	userBasicAdministrator "gitlab.com/iotTracker/brain/user/human/administrator/basic"
+	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/recordHandler/adaptor/jsonRpc"
+	userMongoRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler/mongo"
+	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/validator/adaptor/jsonRpc"
+	userBasicValidator "gitlab.com/iotTracker/brain/user/human/validator/basic"
 
 	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
@@ -48,25 +54,53 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/administrator/adaptor/jsonRpc"
-	readingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/reading/administrator/basic"
-	readingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/adaptor/jsonRpc"
-	readingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/reading/recordHandler/mongo"
-	readingBasicValidator "gitlab.com/iotTracker/brain/tracker/reading/validator/basic"
+	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
+	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/administrator/basic"
+	tk102ReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
+	tk102ReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/basic"
+	tk102ReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
+	tk102ReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
+	tk102ReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator/basic"
+	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
+	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/mongo"
+	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/validator/adaptor/jsonRpc"
+	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/validator/basic"
 
-	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/adaptor/jsonRpc"
-	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/tk102/administrator/basic"
-	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/adaptor/jsonRpc"
-	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/tk102/recordHandler/mongo"
-	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/adaptor/jsonRpc"
-	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/tk102/validator/basic"
+	zx303GPSReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
+	zx303StatusReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/status"
+	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
+	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
+	zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
+	zx303DeviceBasicAuthenticator "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/basic"
+	zx303GPSReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/adaptor/jsonRpc"
+	zx303GPSReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/basic"
+	zx303GPSReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/adaptor/jsonRpc"
+	zx303GPSReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/mongo"
+	zx303GPSReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/validator/basic"
+	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/adaptor/jsonRpc"
+	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/mongo"
+	zx303TaskAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/adaptor/jsonRpc"
+	zx303TaskBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/basic"
+	zx303TaskRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler/adaptor/jsonRpc"
+	zx303TaskMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler/mongo"
+	zx303TaskValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/validator/adaptor/jsonRpc"
+	zx303TaskBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator/basic"
+	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/validator/adaptor/jsonRpc"
+	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/validator/basic"
 
-	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/adaptor/jsonRpc"
-	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/device/zx303/administrator/basic"
-	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/adaptor/jsonRpc"
-	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/device/zx303/recordHandler/mongo"
-	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/adaptor/jsonRpc"
-	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/device/zx303/validator/basic"
+	zx303StatusReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/administrator/adaptor/jsonRpc"
+	zx303StatusReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/administrator/basic"
+	zx303StatusReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/adaptor/jsonRpc"
+	zx303StatusReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/mongo"
+	zx303StatusReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/validator/basic"
+
+	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
+	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
+	apiUserBasicPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator/basic"
+	apiUserRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/recordHandler/adaptor/jsonRpc"
+	apiUserMongoRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler/mongo"
+	apiUserValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/validator/adaptor/jsonRpc"
+	apiUserBasicValidator "gitlab.com/iotTracker/brain/user/api/validator/basic"
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
@@ -87,15 +121,16 @@ import (
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
 	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
+	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
+	asyncMessagingProducer "gitlab.com/iotTracker/messaging/producer/sync"
 
 	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/security/claims/login"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"strings"
 )
 
-var serverPort = "9010"
-
-var mainAPIAuthorizer = apiAuth.APIAuthorizer{}
+var humanUserAPIServerPort = "9010"
+var apiUserAPIServerPort = "9011"
 
 func main() {
 	// get the command line args
@@ -152,8 +187,18 @@ func main() {
 		*pathToEmailTemplateFolder,
 	)
 
+	// create and start nerveBroadcast producer
+	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
+	nerveBroadcastProducer := asyncMessagingProducer.New(
+		kafkaBrokerNodes,
+		"nerveBroadcast",
+	)
+	if err := nerveBroadcastProducer.Start(); err != nil {
+		log.Fatal(err.Error())
+	}
+
 	// Create system claims for the services that root privileges
-	var systemClaims = login.Login{
+	var systemClaims = humanUserLoginClaims.Login{
 		//UserId          id.Identifier `json:"userId"`
 		//IssueTime       int64         `json:"issueTime"`
 		//ExpirationTime  int64         `json:"expirationTime"`
@@ -189,14 +234,8 @@ func main() {
 		SetPasswordEmailGenerator,
 	)
 
-	// Permission
-	PermissionBasicHandler := permissionBasicAdministrator.New(
-		UserRecordHandler,
-		RoleRecordHandler,
-	)
-
 	// Auth
-	AuthService := authBasicService.New(
+	HumanUserAuthorizationService := humanUserAuthorizationService.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
@@ -261,18 +300,6 @@ func main() {
 		&systemClaims,
 	)
 
-	// Reading
-	ReadingRecordHandler := readingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		readingCollection,
-	)
-	ReadingValidator := readingBasicValidator.New()
-	ReadingAdministrator := readingBasicAdministrator.New(
-		ReadingRecordHandler,
-		ReadingValidator,
-	)
-
 	// Party
 	PartyBasicAdministrator := partyBasicAdministrator.New(
 		ClientRecordHandler,
@@ -280,43 +307,121 @@ func main() {
 		SystemRecordHandler,
 	)
 
+	// API User
+	APIUserRecordHandler := apiUserMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		apiUserCollection,
+	)
+	APIUserValidator := apiUserBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	APIUserPasswordGenerator := apiUserBasicPasswordGenerator.New()
+	APIUserAdministrator := apiUserBasicAdministrator.New(
+		APIUserValidator,
+		APIUserRecordHandler,
+		APIUserPasswordGenerator,
+	)
+
+	APIUserAuthorizationService := apiUserAuthorizationService.New(
+		APIUserRecordHandler,
+		rsaPrivateKey,
+		&systemClaims,
+	)
+
+	// Permission
+	PermissionBasicHandler := permissionBasicAdministrator.New(
+		UserRecordHandler,
+		RoleRecordHandler,
+		APIUserRecordHandler,
+	)
+
 	// TK102 Device
 	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		deviceCollection,
+		tk102DeviceCollection,
+	)
+	TK102ReadingRecordHandler := tk102ReadingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		tk102ReadingCollection,
 	)
 	TK102DeviceValidator := tk102DeviceBasicValidator.New(
 		PartyBasicAdministrator,
 	)
+	TK102ReadingValidator := tk102ReadingBasicValidator.New()
 	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
 		TK102DeviceRecordHandler,
 		CompanyRecordHandler,
 		ClientRecordHandler,
 		PartyBasicAdministrator,
-		ReadingRecordHandler,
+		TK102ReadingRecordHandler,
 		TK102DeviceValidator,
 	)
+	tk102ReadingAdministrator := tk102ReadingBasicAdministrator.New(
+		TK102ReadingRecordHandler,
+		TK102ReadingValidator,
+	)
 
-	// Device
 	// ZX303 Device
 	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		deviceCollection,
+		zx303DeviceCollection,
+	)
+	ZX303GPSReadingRecordHandler := zx303GPSReadingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		zx303GPSReadingCollection,
+	)
+	ZX303StatusReadingRecordHandler := zx303StatusReadingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		zx303StatusReadingCollection,
+	)
+	ZX303TaskRecordHandler := zx303TaskMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		zx303TaskCollection,
 	)
 	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	ZX303GPSReadingValidator := zx303GPSReadingBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	ZX303StatusReadingValidator := zx303StatusReadingBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	ZX303TaskValidator := zx303TaskBasicValidator.New(
 		PartyBasicAdministrator,
 	)
 	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
 		ZX303DeviceValidator,
 		ZX303DeviceRecordHandler,
 	)
+	ZX303GPSReadingAdministrator := zx303GPSReadingBasicAdministrator.New(
+		ZX303GPSReadingValidator,
+		ZX303GPSReadingRecordHandler,
+	)
+	ZX303StatusReadingAdministrator := zx303StatusReadingBasicAdministrator.New(
+		ZX303StatusReadingValidator,
+		ZX303StatusReadingRecordHandler,
+	)
+	ZX303TaskAdministrator := zx303TaskBasicAdministrator.New(
+		ZX303TaskValidator,
+		ZX303TaskRecordHandler,
+		nerveBroadcastProducer,
+	)
+	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
+		ZX303DeviceRecordHandler,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
-		ReadingRecordHandler,
+		TK102ReadingRecordHandler,
 		TK102DeviceRecordHandler,
 	)
 
@@ -329,8 +434,14 @@ func main() {
 	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
 	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
 
+	// APIUser
+	APIUserRecordHandlerAdaptor := apiUserRecordHandlerJsonRpcAdaptor.New(APIUserRecordHandler)
+	APIUserValidatorAdaptor := apiUserValidatorJsonRpcAdaptor.New(APIUserValidator)
+	APIUserAdministratorAdaptor := apiUserAdministratorJsonRpcAdaptor.New(APIUserAdministrator)
+
 	// Auth
-	AuthServiceAdaptor := authServiceJsonRpcAdaptor.New(AuthService)
+	HumanUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(HumanUserAuthorizationService)
+	APIUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(APIUserAuthorizationService)
 
 	// Permission
 	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
@@ -356,15 +467,22 @@ func main() {
 	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
 	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
 	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
+	tk102ReadingRecordHandlerAdaptor := tk102ReadingRecordHandlerJsonRpcAdaptor.New(TK102ReadingRecordHandler)
+	tk102ReadingAdministratorAdaptor := tk102ReadingAdministratorJsonRpcAdaptor.New(tk102ReadingAdministrator)
 
 	// ZX303 Device
 	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
 	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
 	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
+	ZX303DeviceAuthenticatorAdaptor := zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor.New(ZX303DeviceAuthenticator)
+	ZX303GPSReadingRecordHandlerAdaptor := zx303GPSReadingRecordHandlerJsonRpcAdaptor.New(ZX303GPSReadingRecordHandler)
+	ZX303GPSReadingAdministratorAdaptor := zx303GPSReadingAdministratorJsonRpcAdaptor.New(ZX303GPSReadingAdministrator)
+	ZX303StatusReadingRecordHandlerAdaptor := zx303StatusReadingRecordHandlerJsonRpcAdaptor.New(ZX303StatusReadingRecordHandler)
+	ZX303StatusReadingAdministratorAdaptor := zx303StatusReadingAdministratorJsonRpcAdaptor.New(ZX303StatusReadingAdministrator)
 
-	// Reading
-	ReadingRecordHandlerAdaptor := readingRecordHandlerJsonRpcAdaptor.New(ReadingRecordHandler)
-	ReadingAdministratorAdaptor := readingAdministratorJsonRpcAdaptor.New(ReadingAdministrator)
+	ZX303TaskRecordHandlerAdaptor := zx303TaskRecordHandlerJsonRpcAdaptor.New(ZX303TaskRecordHandler)
+	ZX303TaskAdministratorAdaptor := zx303TaskAdministratorJsonRpcAdaptor.New(ZX303TaskAdministrator)
+	ZX303TaskValidatorAdaptor := zx303TaskValidatorJsonRpcAdaptor.New(ZX303TaskValidator)
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -372,134 +490,213 @@ func main() {
 	// Barcode Scanner
 	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
-	// Initialise the APIAuthorizer
-	mainAPIAuthorizer.JWTValidator = token.NewJWTValidator(&rsaPrivateKey.PublicKey)
-	mainAPIAuthorizer.PermissionHandler = PermissionBasicHandler
+	// Create secureHumanUserAPIServer
+	secureHumanUserAPIServer := rpc.NewServer()
+	secureHumanUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
-	// Create secureAPIServer
-	secureAPIServer := rpc.NewServer()
-	secureAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
-
-	// Register Service Provider Adaptors with secureAPIServer
+	// Register Service Provider Adaptors with secureHumanUserAPIServer
 	// User
-	if err := secureAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
 		log.Fatal("Unable to Register User Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
 		log.Fatal("Unable to Register User Administrator Service")
+	}
+	// API User
+	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, "APIUserRecordHandler"); err != nil {
+		log.Fatal("Unable to Register API User Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {
+		log.Fatal("Unable to Register API User Validator Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(APIUserAdministratorAdaptor, "APIUserAdministrator"); err != nil {
+		log.Fatal("Unable to Register API User Administrator Service")
 	}
 
 	// Auth
-	if err := secureAPIServer.RegisterService(AuthServiceAdaptor, "Auth"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserAuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
 
 	// Permission
-	if err := secureAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
 
 	// Company
-	if err := secureAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
 		log.Fatal("Unable to Register Company Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
 		log.Fatal("Unable to Register Company Administrator Service")
 	}
 
 	// Client
-	if err := secureAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
 		log.Fatal("Unable to Register Client Validator Service")
 	}
-	if err := secureAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
 		log.Fatal("Unable to Register Client Administrator Service")
 	}
 
 	// Party
-	if err := secureAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
-	if err := secureAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
 		log.Fatal("Unable to Register Party Administrator Service")
 	}
 
 	// System
-	if err := secureAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
 
 	// TK102 Device
-	if err := secureAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(TK102DeviceValidatorAdaptor, "TK102DeviceValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceValidatorAdaptor, "TK102DeviceValidator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Validator")
 	}
-	if err := secureAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register TK102 Device Administrator")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingRecordHandlerAdaptor, "TK102ReadingRecordHandler"); err != nil {
+		log.Fatal("Unable to Register TK102 Reading Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "TK102ReadingAdministrator"); err != nil {
+		log.Fatal("Unable to Register TK102 Reading Administrator Service")
 	}
 
 	// ZX303 Device
-	if err := secureAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Validator")
 	}
-	if err := secureAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Device Administrator")
 	}
-
-	// Reading
-	if err := secureAPIServer.RegisterService(ReadingRecordHandlerAdaptor, "ReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register Reading Record Handler Service")
+	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingRecordHandlerAdaptor, "ZX303GPSReadingRecordHandler"); err != nil {
+		log.Fatal("Unable to Register ZX303 GPS Reading Record Handler Service")
 	}
-	if err := secureAPIServer.RegisterService(ReadingAdministratorAdaptor, "ReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register Reading Administrator Service")
+	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingAdministratorAdaptor, "ZX303GPSReadingAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 GPS Reading Administrator Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(ZX303StatusReadingRecordHandlerAdaptor, "ZX303StatusReadingRecordHandler"); err != nil {
+		log.Fatal("Unable to Register ZX303 Status Reading Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(ZX303StatusReadingAdministratorAdaptor, "ZX303StatusReadingAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Status Reading Administrator Service")
+	}
+
+	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskRecordHandlerAdaptor, "ZX303TaskRecordHandler"); err != nil {
+		log.Fatal("Unable to Register ZX303 Task Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskValidatorAdaptor, "ZX303TaskValidator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Task Validator")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Task Administrator")
 	}
 
 	// Reports
-	if err := secureAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
 	}
 
 	// Barcode Scanner
-	if err := secureAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
 		log.Fatal("Unable to Register Barcode Scanner Service")
 	}
 
-	// Set up Router for secureAPIServer
-	secureAPIServerMux := mux.NewRouter()
-	secureAPIServerMux.Methods("OPTIONS").HandlerFunc(preFlightHandler)
-	secureAPIServerMux.Handle("/api", apiAuthApplier(secureAPIServer)).Methods("POST")
-	// Start secureAPIServer
-	log.Info("Starting secureAPIServer on port " + serverPort)
+	// Set up Secure Human User API Server i.e. the Portal API Server
+	HumanUserAPIAuthorizer := humanUserAPIAuthorizer.New(
+		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+		PermissionBasicHandler,
+	)
+	HumanUserHttpAPIAuthApplier := humanUserHttpAPIAuthApplier.New(
+		HumanUserAPIAuthorizer,
+	)
+	humanUserSecureAPIServerMux := mux.NewRouter()
+	humanUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(HumanUserHttpAPIAuthApplier.PreFlightHandler)
+	humanUserSecureAPIServerMux.Handle("/api", HumanUserHttpAPIAuthApplier.ApplyAuth(secureHumanUserAPIServer)).Methods("POST")
+	// Start secureHumanUserAPIServer
+	log.Info("Starting Human User secure API Server on port " + humanUserAPIServerPort)
 	go func() {
-		err := http.ListenAndServe(":"+serverPort, secureAPIServerMux)
-		log.Error("secureAPIServer stopped: ", err, "\n", string(debug.Stack()))
+		err := http.ListenAndServe(":"+humanUserAPIServerPort, humanUserSecureAPIServerMux)
+		log.Error("secureHumanUserAPIServer stopped: ", err, "\n", string(debug.Stack()))
+		os.Exit(1)
+	}()
+
+	// Create secureAPIUserAPIServer
+	secureAPIUserAPIServer := rpc.NewServer()
+	secureAPIUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
+
+	// Auth
+	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, "Auth"); err != nil {
+		log.Fatal("Unable to Register API User Authorization Service Adaptor")
+	}
+
+	// ZX303 Device
+	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAuthenticatorAdaptor, "ZX303DeviceAuthenticator"); err != nil {
+		log.Fatal("Unable to Register API User ZX303 Device Authenticator Service Adaptor")
+	}
+	if err := secureAPIUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
+		log.Fatal("Unable to Register API User ZX303 Device Administrator Service Adaptor")
+	}
+
+	// Set up Secure API User API Server
+	APIUserAPIAuthorizer := apiUserAPIAuthorizer.New(
+		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+		PermissionBasicHandler,
+	)
+	APIUserHttpAPIAuthApplier := apiUserHttpAPIAuthApplier.New(
+		APIUserAPIAuthorizer,
+	)
+	apiUserSecureAPIServerMux := mux.NewRouter()
+	apiUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(APIUserHttpAPIAuthApplier.PreFlightHandler)
+	apiUserSecureAPIServerMux.Handle("/api", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	// Start secureAPIUserAPIServer
+	log.Info("Starting API User Secure API Server on port " + apiUserAPIServerPort)
+	go func() {
+		err := http.ListenAndServe(":"+apiUserAPIServerPort, apiUserSecureAPIServerMux)
+		log.Error("apiUserSecureAPIServerMux stopped: ", err, "\n", string(debug.Stack()))
 		os.Exit(1)
 	}()
 
 	// set up kafka messaging
-	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
 	MessageConsumerGroup := messageConsumerGroup.New(
 		kafkaBrokerNodes,
 		[]string{"brainQueue"},
 		"brain",
+		[]messagingMessageHandler.Handler{
+			zx303GPSReadingMessageHandler.New(
+				&systemClaims,
+				ZX303GPSReadingAdministrator,
+			),
+			zx303StatusReadingMessageHandler.New(
+				&systemClaims,
+				ZX303StatusReadingAdministrator,
+			),
+		},
 	)
 	go func() {
-		err := MessageConsumerGroup.Start()
-		log.Error(err.Error())
-		os.Exit(1)
+		if err := MessageConsumerGroup.Start(); err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
 	}()
 
 	//Wait for interrupt signal
