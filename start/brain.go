@@ -149,9 +149,6 @@ func main() {
 	databaseName := "brain"
 	mongoCluster := strings.Split(*mongoNodes, ",")
 	log.Info(fmt.Sprintf("connecting to mongo @ node addresses: [%s]", strings.Join(mongoCluster, ", ")))
-	log.Info("this: ")
-	fmt.Println([]string{"10.130.109.75:27017"})
-	log.Info("vs this: ")
 	fmt.Println(mongoCluster)
 	dialInfo := mgo.DialInfo{
 		Addrs:     mongoCluster,
