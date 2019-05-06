@@ -171,7 +171,7 @@ func main() {
 	// spotnavza@gmail.com
 
 	// Get or Generate RSA Key Pair
-	rsaPrivateKey := encrypt.FetchPrivateKey("./")
+	rsaPrivateKey := encrypt.FetchPrivateKey("")
 
 	// Create Mailer
 	Mailer := gmailMailer.New(mailer.AuthInfo{
