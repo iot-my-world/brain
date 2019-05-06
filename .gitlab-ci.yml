@@ -46,5 +46,5 @@ deploy_stage:
     - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
     - scp ./brain gitlabci@brain01.spotnav.net:/home/gitlabci
     - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl stop brain.service"
-    - ssh gitlabci@brain01.spotnav.net "sudo /bin/mv /home/gitlabcli/brain /home/brain"
+    - ssh gitlabci@brain01.spotnav.net "sudo /bin/mv /home/gitlabcli/brain /home/brain/brain"
     - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl start brain.service"
