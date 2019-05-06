@@ -127,6 +127,7 @@ import (
 	"fmt"
 	"gitlab.com/iotTracker/brain/party"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
+	"path/filepath"
 	"strings"
 )
 
@@ -144,6 +145,12 @@ func main() {
 	kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
+
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal("fail to get dir:" + err.Error())
+	}
+	log.Info("brain working directory: " + dir)
 
 	// Connect to database
 	databaseName := "brain"
