@@ -124,10 +124,10 @@ import (
 	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
 	asyncMessagingProducer "gitlab.com/iotTracker/messaging/producer/sync"
 
+	"fmt"
 	"gitlab.com/iotTracker/brain/party"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"strings"
-	"fmt"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -150,7 +150,7 @@ func main() {
 	mongoCluster := strings.Split(*mongoNodes, ",")
 	log.Info(fmt.Sprintf("connecting to mongo @ node addresses: [%s]", strings.Join(mongoCluster, ", ")))
 	dialInfo := mgo.DialInfo{
-		Addrs:     mongoCluster,
+		Addrs:     []string{"10.130.109.75:27017"},
 		Username:  *mongoUser,
 		Password:  *mongoPassword,
 		Mechanism: "SCRAM-SHA-1",
