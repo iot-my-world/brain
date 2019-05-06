@@ -127,6 +127,7 @@ import (
 	"gitlab.com/iotTracker/brain/party"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
 	"strings"
+	"fmt"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -145,9 +146,9 @@ func main() {
 	flag.Parse()
 
 	// Connect to database
-	log.Info("connecting to mongo...")
 	databaseName := "brain"
 	mongoCluster := strings.Split(*mongoNodes, ",")
+	log.Info(fmt.Sprintf("connecting to mongo @ node addresses: [%s]", strings.Join(mongoCluster, ", ")))
 	dialInfo := mgo.DialInfo{
 		Addrs:     mongoCluster,
 		Username:  *mongoUser,
