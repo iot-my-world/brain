@@ -142,6 +142,7 @@ func main() {
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
 	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
 	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
+	keysFilePath := flag.String("keysFilePath", "", "path to pvt and pub keys")
 	kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
@@ -178,7 +179,7 @@ func main() {
 	// spotnavza@gmail.com
 
 	// Get or Generate RSA Key Pair
-	rsaPrivateKey := encrypt.FetchPrivateKey("")
+	rsaPrivateKey := encrypt.FetchPrivateKey(*keysFilePath)
 
 	// Create Mailer
 	Mailer := gmailMailer.New(mailer.AuthInfo{
