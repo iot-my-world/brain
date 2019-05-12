@@ -641,7 +641,7 @@ func main() {
 	)
 	humanUserSecureAPIServerMux := mux.NewRouter()
 	humanUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(HumanUserHttpAPIAuthApplier.PreFlightHandler)
-	humanUserSecureAPIServerMux.Handle("/api", HumanUserHttpAPIAuthApplier.ApplyAuth(secureHumanUserAPIServer)).Methods("POST")
+	humanUserSecureAPIServerMux.Handle("/api-1", HumanUserHttpAPIAuthApplier.ApplyAuth(secureHumanUserAPIServer)).Methods("POST")
 	// Start secureHumanUserAPIServer
 	log.Info("Starting Human User secure API Server on port " + humanUserAPIServerPort)
 	go func() {
@@ -677,7 +677,7 @@ func main() {
 	)
 	apiUserSecureAPIServerMux := mux.NewRouter()
 	apiUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(APIUserHttpAPIAuthApplier.PreFlightHandler)
-	apiUserSecureAPIServerMux.Handle("/api", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	apiUserSecureAPIServerMux.Handle("/api-2", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
 	// Start secureAPIUserAPIServer
 	log.Info("Starting API User Secure API Server on port " + apiUserAPIServerPort)
 	go func() {
