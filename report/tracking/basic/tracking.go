@@ -10,27 +10,26 @@ import (
 	textListCriterion "gitlab.com/iotTracker/brain/search/criterion/list/text"
 	"gitlab.com/iotTracker/brain/search/criterion/or"
 	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
-	readingRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler"
-	tk102DeviceRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler"
+	zx303GPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
+	zx303TrackerReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler"
+	zx303TrackerRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler"
 )
 
 type basicTrackingReport struct {
-	partyAdministrator       partyAdministrator.Administrator
-	readingRecordHandler     readingRecordHandler.RecordHandler
-	tk102DeviceRecordHandler tk102DeviceRecordHandler.RecordHandler
+	partyAdministrator               partyAdministrator.Administrator
+	zx303TrackerReadingRecordHandler *zx303TrackerReadingRecordHandler.RecordHandler
+	zx303TrackerRecordHandler        *zx303TrackerRecordHandler.RecordHandler
 }
 
-// New basic tracking report
 func New(
 	partyAdministrator partyAdministrator.Administrator,
-	readingRecordHandler readingRecordHandler.RecordHandler,
-	tk102DeviceRecordHandler tk102DeviceRecordHandler.RecordHandler,
+	zx303TrackerReadingRecordHandler *zx303TrackerReadingRecordHandler.RecordHandler,
+	zx303TrackerRecordHandler *zx303TrackerRecordHandler.RecordHandler,
 ) trackingReport.Report {
 	return &basicTrackingReport{
-		partyAdministrator:       partyAdministrator,
-		readingRecordHandler:     readingRecordHandler,
-		tk102DeviceRecordHandler: tk102DeviceRecordHandler,
+		partyAdministrator:               partyAdministrator,
+		zx303TrackerReadingRecordHandler: zx303TrackerReadingRecordHandler,
+		zx303TrackerRecordHandler:        zx303TrackerRecordHandler,
 	}
 }
 
@@ -63,7 +62,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trac
 	}
 
 	// records to return
-	liveReportReadings := make([]reading.Reading, 0)
+	zx303GPSLiveReportReadings := make([]zx303GPSReading.Reading, 0)
 
 	// query for collecting only latest reading
 	collectQuery := query.Query{
@@ -98,26 +97,26 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trac
 			},
 		}
 
-		// collect all the tk102 devices
-		tk102DeviceCollectResponse, err := btr.tk102DeviceRecordHandler.Collect(&tk102DeviceRecordHandler.CollectRequest{
+		// collect all the zx303 devices
+		zx303TrackerCollectResponse, err := btr.zx303TrackerRecordHandler.Collect(&zx303TrackerRecordHandler.CollectRequest{
 			Claims:   request.Claims,
 			Criteria: []criterion.Criterion{collectCriterion},
 			// Query: left blank to collect all. i.e. no limit
 		})
 		if err != nil {
-			return nil, trackingReportException.CollectingDevices{Reasons: []string{"tk102 devices", err.Error()}}
+			return nil, trackingReportException.CollectingDevices{Reasons: []string{"zx303 devices", err.Error()}}
 		}
 
 		// collect the last reading associated with each of these devices
-		for devIdx := range tk102DeviceCollectResponse.Records {
+		for devIdx := range zx303TrackerCollectResponse.Records {
 			// exact text criterion for this device
 			deviceIDExactTextCriterion := exactTextCriterion.Criterion{
 				Field: "deviceId.id",
-				Text:  tk102DeviceCollectResponse.Records[devIdx].Id,
+				Text:  zx303TrackerCollectResponse.Records[devIdx].Id,
 			}
 
 			// collect the latest reading for this device
-			readingCollectResponse, err := btr.readingRecordHandler.Collect(&readingRecordHandler.CollectRequest{
+			readingCollectResponse, err := btr.zx303TrackerReadingRecordHandler.Collect(&zx303TrackerReadingRecordHandler.CollectRequest{
 				Claims:   request.Claims,
 				Query:    collectQuery,
 				Criteria: []criterion.Criterion{deviceIDExactTextCriterion},
@@ -127,19 +126,19 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trac
 			}
 			// if any readings have been collected for this device
 			if len(readingCollectResponse.Records) > 0 {
-				if len(liveReportReadings) == 0 {
+				if len(zx303GPSLiveReportReadings) == 0 {
 					// if noting has been added to the live report readings yet, add it now
-					liveReportReadings = append(liveReportReadings, readingCollectResponse.Records[0])
+					zx303GPSLiveReportReadings = append(zx303GPSLiveReportReadings, readingCollectResponse.Records[0])
 				} else {
 					// otherwise check if the reading has not yet been added
-					for readingIdx := range liveReportReadings {
-						if liveReportReadings[readingIdx].Id == readingCollectResponse.Records[0].Id {
+					for readingIdx := range zx303GPSLiveReportReadings {
+						if zx303GPSLiveReportReadings[readingIdx].Id == readingCollectResponse.Records[0].Id {
 							// it has already been added, break
 							break
 						}
-						if readingIdx == len(liveReportReadings)-1 {
+						if readingIdx == len(zx303GPSLiveReportReadings)-1 {
 							// it has not been added, add it now
-							liveReportReadings = append(liveReportReadings, readingCollectResponse.Records[0])
+							zx303GPSLiveReportReadings = append(zx303GPSLiveReportReadings, readingCollectResponse.Records[0])
 						}
 					}
 				}
@@ -148,7 +147,7 @@ func (btr *basicTrackingReport) Live(request *trackingReport.LiveRequest) (*trac
 	}
 
 	return &trackingReport.LiveResponse{
-		Readings: liveReportReadings,
+		ZX303TrackerGPSReadings: zx303GPSLiveReportReadings,
 	}, nil
 }
 
@@ -168,6 +167,6 @@ func (btr *basicTrackingReport) Historical(request *trackingReport.HistoricalReq
 	}
 
 	return &trackingReport.HistoricalResponse{
-		Readings: make([]reading.Reading, 0),
+		//Readings: make([]reading.Reading, 0),
 	}, nil
 }

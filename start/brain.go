@@ -54,18 +54,6 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	tk102DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
-	tk102DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/administrator/basic"
-	tk102ReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
-	tk102ReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/basic"
-	tk102ReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/adaptor/jsonRpc"
-	tk102ReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/reading/recordHandler/mongo"
-	tk102ReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator/basic"
-	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
-	tk102DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/mongo"
-	tk102DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/validator/adaptor/jsonRpc"
-	tk102DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/tk102/validator/basic"
-
 	zx303GPSReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
 	zx303StatusReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/status"
 	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
@@ -346,34 +334,6 @@ func main() {
 		APIUserRecordHandler,
 	)
 
-	// TK102 Device
-	TK102DeviceRecordHandler := tk102DeviceMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		tk102DeviceCollection,
-	)
-	TK102ReadingRecordHandler := tk102ReadingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		tk102ReadingCollection,
-	)
-	TK102DeviceValidator := tk102DeviceBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	TK102ReadingValidator := tk102ReadingBasicValidator.New()
-	TK102DeviceAdministrator := tk102DeviceBasicAdministrator.New(
-		TK102DeviceRecordHandler,
-		CompanyRecordHandler,
-		ClientRecordHandler,
-		PartyBasicAdministrator,
-		TK102ReadingRecordHandler,
-		TK102DeviceValidator,
-	)
-	tk102ReadingAdministrator := tk102ReadingBasicAdministrator.New(
-		TK102ReadingRecordHandler,
-		TK102ReadingValidator,
-	)
-
 	// ZX303 Device
 	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
 		mainMongoSession,
@@ -431,8 +391,8 @@ func main() {
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
-		TK102ReadingRecordHandler,
-		TK102DeviceRecordHandler,
+		ZX303GPSReadingRecordHandler,
+		ZX303DeviceRecordHandler,
 	)
 
 	// Barcode Scanner
@@ -472,13 +432,6 @@ func main() {
 
 	// System
 	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
-
-	// TK102 Device
-	TK102DeviceRecordHandlerAdaptor := tk102DeviceRecordHandlerJsonRpcAdaptor.New(TK102DeviceRecordHandler)
-	TK102DeviceAdministratorAdaptor := tk102DeviceAdministratorJsonRpcAdaptor.New(TK102DeviceAdministrator)
-	TK102DeviceValidatorAdaptor := tk102DeviceValidatorJsonRpcAdaptor.New(TK102DeviceValidator)
-	tk102ReadingRecordHandlerAdaptor := tk102ReadingRecordHandlerJsonRpcAdaptor.New(TK102ReadingRecordHandler)
-	tk102ReadingAdministratorAdaptor := tk102ReadingAdministratorJsonRpcAdaptor.New(tk102ReadingAdministrator)
 
 	// ZX303 Device
 	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
@@ -569,23 +522,6 @@ func main() {
 	// System
 	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
-	}
-
-	// TK102 Device
-	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceRecordHandlerAdaptor, "TK102DeviceRecordHandler"); err != nil {
-		log.Fatal("Unable to Register TK102 Device Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceValidatorAdaptor, "TK102DeviceValidator"); err != nil {
-		log.Fatal("Unable to Register TK102 Device Validator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(TK102DeviceAdministratorAdaptor, "TK102DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register TK102 Device Administrator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingRecordHandlerAdaptor, "TK102ReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register TK102 Reading Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(tk102ReadingAdministratorAdaptor, "TK102ReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register TK102 Reading Administrator Service")
 	}
 
 	// ZX303 Device

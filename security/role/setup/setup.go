@@ -74,16 +74,15 @@ var initialRoles = func() []role.Role {
 
 	// The view permissions that root has
 	rootViewPermissions := []view.Permission{
-		view.Configuration,
-		view.PartyCompanyConfiguration,
-		view.PartyClientConfiguration,
-		view.PartyUserConfiguration,
-		view.DeviceConfiguration,
-		view.Dashboards,
+		view.PartyCompany,
+		view.PartyClient,
+		view.PartyUser,
+		view.PartyAPIUser,
+
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
-		view.APIUserConfiguration,
-		view.DeviceDiagnostics,
+
+		view.TrackerZX303,
 		view.ZX303DeviceDiagnostics,
 	}
 
@@ -173,14 +172,15 @@ var CompanyAdmin = role.Role{
 		api.PartyAdministratorRetrieveParty,
 	},
 	ViewPermissions: []view.Permission{
-		view.Configuration,
-		view.PartyClientConfiguration,
-		view.PartyUserConfiguration,
-		view.DeviceConfiguration,
-		view.Dashboards,
+		view.PartyProfileEditing,
+
+		view.PartyClient,
+		view.PartyUser,
+
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
-		view.PartyProfileEditing,
+
+		view.TrackerZX303,
 	},
 }
 var CompanyUser = role.Role{
@@ -201,7 +201,6 @@ var CompanyUser = role.Role{
 		api.UserAdministratorCheckPassword,
 	},
 	ViewPermissions: []view.Permission{
-		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
 	},
@@ -255,12 +254,12 @@ var ClientAdmin = role.Role{
 		api.PartyAdministratorRetrieveParty,
 	},
 	ViewPermissions: []view.Permission{
-		view.Configuration,
-		view.PartyUserConfiguration,
-		view.Dashboards,
+		view.PartyProfileEditing,
+
+		view.PartyUser,
+
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
-		view.PartyProfileEditing,
 	},
 }
 
@@ -282,7 +281,6 @@ var ClientUser = role.Role{
 		api.UserAdministratorCheckPassword,
 	},
 	ViewPermissions: []view.Permission{
-		view.Dashboards,
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
 	},
