@@ -392,6 +392,7 @@ func main() {
 	)
 	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New(
 		ZX303StatusReadingRecordHandler,
+		ZX303DeviceRecordHandler,
 	)
 
 	// Report

@@ -16,5 +16,5 @@ type BatteryReportRequest struct {
 }
 
 type BatteryReportResponse struct {
-	Report []zx303TrackerStatusReadingReport.Battery
+	Report zx303TrackerStatusReadingReport.Battery
 }

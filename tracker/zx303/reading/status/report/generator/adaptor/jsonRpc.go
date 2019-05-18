@@ -26,7 +26,7 @@ type BatteryReportRequest struct {
 }
 
 type BatteryReportResponse struct {
-	Report []zx303StatusReadingReport.Battery `json:"report"`
+	Report zx303StatusReadingReport.Battery `json:"report"`
 }
 
 func (a *Adaptor) BatteryReport(r *http.Request, request *BatteryReportRequest, response *BatteryReportResponse) error {
