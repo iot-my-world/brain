@@ -390,7 +390,9 @@ func main() {
 	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
 		ZX303DeviceRecordHandler,
 	)
-	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New()
+	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New(
+		ZX303StatusReadingRecordHandler,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(

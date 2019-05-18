@@ -4,14 +4,20 @@ import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/tracker/zx303"
+	zx303StatusReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
 	zx303StatusReadingReportGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator"
 )
 
 type generator struct {
+	zx303StatusReadingRecordHandler *zx303StatusReadingRecordHandler.RecordHandler
 }
 
-func New() zx303StatusReadingReportGenerator.Generator {
-	return &generator{}
+func New(
+	zx303StatusReadingRecordHandler *zx303StatusReadingRecordHandler.RecordHandler,
+) zx303StatusReadingReportGenerator.Generator {
+	return &generator{
+		zx303StatusReadingRecordHandler: zx303StatusReadingRecordHandler,
+	}
 }
 
 func (g *generator) ValidateBatteryReportRequest(request *zx303StatusReadingReportGenerator.BatteryReportRequest) error {
