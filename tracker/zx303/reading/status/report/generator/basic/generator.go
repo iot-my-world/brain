@@ -91,14 +91,14 @@ func (g *generator) BatteryReport(request *zx303StatusReadingReportGenerator.Bat
 	}
 
 	batteryReport := zx303StatusReadingReport.Battery{
-		Readings: make([]zx303StatusReadingReport.BatteryReading, 0),
+		Readings: make([][]int64, 0),
 	}
 
 	for _, reading := range readingCollectResponse.Records {
-		batteryReport.Readings = append(batteryReport.Readings, zx303StatusReadingReport.BatteryReading{
-			Percentage: reading.BatteryPercentage,
-			Timestamp:  reading.Timestamp,
-		})
+		batteryReport.Readings = append(
+			batteryReport.Readings,
+			zx303StatusReadingReport.NewReadingEntry(reading.Timestamp, reading.BatteryPercentage),
+		)
 	}
 
 	return &zx303StatusReadingReportGenerator.BatteryReportResponse{

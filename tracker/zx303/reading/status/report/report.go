@@ -1,10 +1,11 @@
 package report
 
 type Battery struct {
-	Readings []BatteryReading `json:"readings"`
+	Readings [][]int64 `json:"readings"`
 }
 
-type BatteryReading struct {
-	Percentage int64 `json:"batteryPercentage"`
-	Timestamp  int64 `json:"timestamp"`
+func NewReadingEntry(timestamp, percentage int64) []int64 {
+	return []int64{
+		timestamp, percentage,
+	}
 }
