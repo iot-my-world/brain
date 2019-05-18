@@ -3,7 +3,7 @@ package tracking
 import (
 	"gitlab.com/iotTracker/brain/search/identifier/party"
 	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	zx303TrackerGPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
 )
 
 type Report interface {
@@ -17,7 +17,7 @@ type LiveRequest struct {
 }
 
 type LiveResponse struct {
-	Readings []reading.Reading
+	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading
 }
 
 type HistoricalRequest struct {
@@ -25,5 +25,5 @@ type HistoricalRequest struct {
 }
 
 type HistoricalResponse struct {
-	Readings []reading.Reading
+	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading
 }

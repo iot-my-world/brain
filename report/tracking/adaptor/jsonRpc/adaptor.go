@@ -8,7 +8,7 @@ import (
 	"gitlab.com/iotTracker/brain/search/identifier/party"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	zx303TrackerGPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
 	"net/http"
 )
 
@@ -29,7 +29,7 @@ type LiveRequest struct {
 }
 
 type LiveResponse struct {
-	Readings []reading.Reading `json:"readings"`
+	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading `json:"zx303TrackerGPSReadings"`
 }
 
 func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResponse) error {
@@ -58,7 +58,7 @@ func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResp
 		return err
 	}
 
-	response.Readings = liveTrackingReportResponse.Readings
+	response.ZX303TrackerGPSReadings = liveTrackingReportResponse.ZX303TrackerGPSReadings
 
 	return nil
 }
@@ -69,7 +69,7 @@ type HistoricalRequest struct {
 }
 
 type HistoricalResponse struct {
-	Readings []reading.Reading `json:"readings"`
+	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading `json:"zx303TrackerGPSReadings"`
 }
 
 func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, response *HistoricalResponse) error {
@@ -106,7 +106,7 @@ func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, respon
 		return err
 	}
 
-	response.Readings = historicalTrackingReportResponse.Readings
+	response.ZX303TrackerGPSReadings = historicalTrackingReportResponse.ZX303TrackerGPSReadings
 
 	return nil
 }
