@@ -82,6 +82,9 @@ import (
 	zx303StatusReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/mongo"
 	zx303StatusReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/validator/basic"
 
+	zx303ReadingStatusReportGeneratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/adaptor"
+	zx303ReadingStatusReportBasicGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/basic"
+
 	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
 	apiUserBasicPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator/basic"
@@ -387,6 +390,7 @@ func main() {
 	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
 		ZX303DeviceRecordHandler,
 	)
+	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New()
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
@@ -446,6 +450,8 @@ func main() {
 	ZX303TaskRecordHandlerAdaptor := zx303TaskRecordHandlerJsonRpcAdaptor.New(ZX303TaskRecordHandler)
 	ZX303TaskAdministratorAdaptor := zx303TaskAdministratorJsonRpcAdaptor.New(ZX303TaskAdministrator)
 	ZX303TaskValidatorAdaptor := zx303TaskValidatorJsonRpcAdaptor.New(ZX303TaskValidator)
+
+	ZX303ReadingStatusReportGeneratorAdaptor := zx303ReadingStatusReportGeneratorJsonRpcAdaptor.New(ZX303ReadingStatusReportGenerator)
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -555,6 +561,9 @@ func main() {
 	}
 	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Task Administrator")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(ZX303ReadingStatusReportGeneratorAdaptor, "ZX303ReadingStatusReportGenerator"); err != nil {
+		log.Fatal("Unable to Register ZX303 Reading Status Report Generator")
 	}
 
 	// Reports
