@@ -2,18 +2,15 @@ package view
 
 type Permission string
 
-const Configuration Permission = "Configuration"
-const PartyCompanyConfiguration Permission = "PartyCompanyConfiguration"
-const PartyClientConfiguration Permission = "PartyClientConfiguration"
-const PartyUserConfiguration Permission = "PartyUserConfiguration"
-const DeviceConfiguration Permission = "DeviceConfiguration"
-const APIUserConfiguration Permission = "APIUserConfiguration"
-
 const PartyProfileEditing Permission = "PartyProfileEditing"
 
-const Dashboards Permission = "Dashboards"
+const PartyCompany Permission = "PartyCompany"
+const PartyClient Permission = "PartyClient"
+const PartyUser Permission = "PartyUser"
+const PartyAPIUser Permission = "PartyAPIUser"
+
 const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"
 
-const DeviceDiagnostics Permission = "DeviceDiagnostics"
+const TrackerZX303 Permission = "TrackerZX303"
 const ZX303DeviceDiagnostics Permission = "ZX303DeviceDiagnostics"
