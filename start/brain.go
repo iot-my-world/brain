@@ -562,7 +562,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Task Administrator")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303ReadingStatusReportGeneratorAdaptor, "ZX303ReadingStatusReportGenerator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ZX303ReadingStatusReportGeneratorAdaptor, "ZX303StatusReadingReportGenerator"); err != nil {
 		log.Fatal("Unable to Register ZX303 Reading Status Report Generator")
 	}
 

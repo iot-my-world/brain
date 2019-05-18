@@ -21,15 +21,15 @@ func New(
 	}
 }
 
-type BatteryRequest struct {
+type BatteryReportRequest struct {
 	ZX303TrackerIdentifier wrappedIdentifier.Wrapped `json:"zx303TrackerIdentifier"`
 }
 
-type BatteryResponse struct {
+type BatteryReportResponse struct {
 	Report []zx303StatusReadingReport.Battery `json:"report"`
 }
 
-func (a *Adaptor) Battery(r *http.Request, request *BatteryRequest, response *BatteryResponse) error {
+func (a *Adaptor) BatteryReport(r *http.Request, request *BatteryReportRequest, response *BatteryReportResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
