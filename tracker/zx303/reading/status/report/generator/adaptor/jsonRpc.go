@@ -4,6 +4,7 @@ import (
 	"gitlab.com/iotTracker/brain/log"
 	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	zx303StatusReadingReport "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report"
 	zx303StatusReadingReportGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator"
 	"net/http"
 )
@@ -25,7 +26,7 @@ type BatteryRequest struct {
 }
 
 type BatteryResponse struct {
-	Readings []zx303StatusReadingReportGenerator.BatteryReading `json:"readings"`
+	Report []zx303StatusReadingReport.Battery `json:"report"`
 }
 
 func (a *Adaptor) Battery(r *http.Request, request *BatteryRequest, response *BatteryResponse) error {
@@ -35,7 +36,7 @@ func (a *Adaptor) Battery(r *http.Request, request *BatteryRequest, response *Ba
 		return err
 	}
 
-	batteryStatusReportResponse, err := a.zx303StatusReadingReportGenerator.Battery(&zx303StatusReadingReportGenerator.BatteryRequest{
+	batteryStatusReportResponse, err := a.zx303StatusReadingReportGenerator.BatteryReport(&zx303StatusReadingReportGenerator.BatteryReportRequest{
 		Claims:                 claims,
 		ZX303TrackerIdentifier: request.ZX303TrackerIdentifier.Identifier,
 	})
@@ -43,7 +44,7 @@ func (a *Adaptor) Battery(r *http.Request, request *BatteryRequest, response *Ba
 		return err
 	}
 
-	response.Readings = batteryStatusReportResponse.Readings
+	response.Report = batteryStatusReportResponse.Report
 
 	return nil
 }

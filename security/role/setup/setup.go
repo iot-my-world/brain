@@ -164,6 +164,8 @@ var CompanyAdmin = role.Role{
 		api.ZX303DeviceRecordHandlerRetrieve,
 		api.ZX303DeviceRecordHandlerCollect,
 
+		api.ZX303StatusReadingReportGeneratorBatteryReport,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
@@ -194,6 +196,12 @@ var CompanyUser = role.Role{
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
 		api.PartyAdministratorRetrieveParty,
+
+		// ZX303 Device
+		api.ZX303DeviceRecordHandlerRetrieve,
+		api.ZX303DeviceRecordHandlerCollect,
+
+		api.ZX303StatusReadingReportGeneratorBatteryReport,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
@@ -243,6 +251,8 @@ var ClientAdmin = role.Role{
 		api.ZX303DeviceRecordHandlerRetrieve,
 		api.ZX303DeviceRecordHandlerCollect,
 
+		api.ZX303StatusReadingReportGeneratorBatteryReport,
+
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
@@ -270,6 +280,12 @@ var ClientUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
+
+		// ZX303 Device
+		api.ZX303DeviceRecordHandlerRetrieve,
+		api.ZX303DeviceRecordHandlerCollect,
+
+		api.ZX303StatusReadingReportGeneratorBatteryReport,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,

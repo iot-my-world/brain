@@ -14,7 +14,7 @@ func New() zx303StatusReadingReportGenerator.Generator {
 	return &generator{}
 }
 
-func (g *generator) ValidateBatteryRequest(request *zx303StatusReadingReportGenerator.BatteryRequest) error {
+func (g *generator) ValidateBatteryReportRequest(request *zx303StatusReadingReportGenerator.BatteryReportRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -33,12 +33,12 @@ func (g *generator) ValidateBatteryRequest(request *zx303StatusReadingReportGene
 	return nil
 }
 
-func (g *generator) Battery(request *zx303StatusReadingReportGenerator.BatteryRequest) (*zx303StatusReadingReportGenerator.BatteryResponse, error) {
-	if err := g.ValidateBatteryRequest(request); err != nil {
+func (g *generator) BatteryReport(request *zx303StatusReadingReportGenerator.BatteryReportRequest) (*zx303StatusReadingReportGenerator.BatteryReportResponse, error) {
+	if err := g.ValidateBatteryReportRequest(request); err != nil {
 		return nil, err
 	}
 
 	fmt.Println("running batter report!")
 
-	return &zx303StatusReadingReportGenerator.BatteryResponse{}, nil
+	return &zx303StatusReadingReportGenerator.BatteryReportResponse{}, nil
 }

@@ -3,22 +3,18 @@ package generator
 import (
 	"gitlab.com/iotTracker/brain/search/identifier"
 	"gitlab.com/iotTracker/brain/security/claims"
+	zx303TrackerStatusReadingReport "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report"
 )
 
 type Generator interface {
-	Battery(request *BatteryRequest) (*BatteryResponse, error)
+	BatteryReport(request *BatteryReportRequest) (*BatteryReportResponse, error)
 }
 
-type BatteryRequest struct {
+type BatteryReportRequest struct {
 	Claims                 claims.Claims
 	ZX303TrackerIdentifier identifier.Identifier
 }
 
-type BatteryResponse struct {
-	Readings []BatteryReading
-}
-
-type BatteryReading struct {
-	Percentage int64 `json:"batteryPercentage"`
-	Timestamp  int64 `json:"timestamp"`
+type BatteryReportResponse struct {
+	Report []zx303TrackerStatusReadingReport.Battery
 }
