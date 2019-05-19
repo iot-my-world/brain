@@ -13,6 +13,8 @@ type Generator interface {
 type BatteryReportRequest struct {
 	Claims                 claims.Claims
 	ZX303TrackerIdentifier identifier.Identifier
+	StartDate              int64
+	EndDate                int64
 }
 
 type BatteryReportResponse struct {

@@ -23,6 +23,8 @@ func New(
 
 type BatteryReportRequest struct {
 	ZX303TrackerIdentifier wrappedIdentifier.Wrapped `json:"zx303TrackerIdentifier"`
+	StartDate              int64                     `json:"startDate"`
+	EndDate                int64                     `json:"endDate"`
 }
 
 type BatteryReportResponse struct {
@@ -39,6 +41,8 @@ func (a *Adaptor) BatteryReport(r *http.Request, request *BatteryReportRequest, 
 	batteryStatusReportResponse, err := a.zx303StatusReadingReportGenerator.BatteryReport(&zx303StatusReadingReportGenerator.BatteryReportRequest{
 		Claims:                 claims,
 		ZX303TrackerIdentifier: request.ZX303TrackerIdentifier.Identifier,
+		StartDate:              request.StartDate,
+		EndDate:                request.EndDate,
 	})
 	if err != nil {
 		return err
