@@ -35,15 +35,29 @@ func (c Criterion) ToFilter() map[string]interface{} {
 		if c.StartDate.Inclusive {
 			filter = append(
 				filter,
-				bson.M{c.Field: bson.M{"$gte": c.StartDate.Date}},
+				bson.M{"$gte": c.StartDate.Date},
 			)
 		} else {
 			filter = append(
 				filter,
-				bson.M{c.Field: bson.M{"$gt": c.StartDate.Date}},
+				bson.M{"$gt": c.StartDate.Date},
 			)
 		}
 	}
 
-	return filter
+	if !c.EndDate.Ignore {
+		if c.EndDate.Inclusive {
+			filter = append(
+				filter,
+				bson.M{c.Field: bson.M{"$gte": c.EndDate.Date}},
+			)
+		} else {
+			filter = append(
+				filter,
+				bson.M{c.Field: bson.M{"$gt": c.EndDate.Date}},
+			)
+		}
+	}
+
+	return bson.M{c.Field: filter}
 }
