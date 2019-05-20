@@ -1,7 +1,6 @@
 package basic
 
 import (
-	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
@@ -70,24 +69,6 @@ func (g *generator) BatteryReport(request *zx303StatusReadingReportGenerator.Bat
 		return nil, err
 	}
 
-	dateCrit := dateRange.Criterion{
-		Field: "timeStamp",
-		StartDate: dateRange.RangeValue{
-			Date:      1526774400,
-			Inclusive: false,
-			Ignore:    true,
-		},
-		EndDate: dateRange.RangeValue{
-			Date:      1558137600,
-			Inclusive: true,
-			Ignore:    true,
-		},
-	}
-
-	filter := dateCrit.ToFilter()
-
-	fmt.Println(filter)
-
 	// collect all of the status readings for this device
 	readingCollectResponse, err := g.zx303StatusReadingRecordHandler.Collect(&zx303StatusReadingRecordHandler.CollectRequest{
 		Claims: request.Claims,
@@ -96,7 +77,19 @@ func (g *generator) BatteryReport(request *zx303StatusReadingReportGenerator.Bat
 				Field: "deviceId.id",
 				Text:  retrieveResponse.ZX303.Id,
 			},
-			dateCrit,
+			dateRange.Criterion{
+				Field: "timeStamp",
+				StartDate: dateRange.RangeValue{
+					Date:      request.StartDate,
+					Inclusive: true,
+					Ignore:    false,
+				},
+				EndDate: dateRange.RangeValue{
+					Date:      request.EndDate,
+					Inclusive: true,
+					Ignore:    false,
+				},
+			},
 		},
 		//Query:    query.Query{},
 	})
