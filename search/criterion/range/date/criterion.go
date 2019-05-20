@@ -29,35 +29,34 @@ func (c Criterion) Type() criterion.Type {
 
 func (c Criterion) ToFilter() map[string]interface{} {
 
-	filter := make([]bson.M, 0)
-
+	startDateOperator := "$gt"
 	if !c.StartDate.Ignore {
 		if c.StartDate.Inclusive {
-			filter = append(
-				filter,
-				bson.M{"$gte": c.StartDate.Date},
-			)
-		} else {
-			filter = append(
-				filter,
-				bson.M{"$gt": c.StartDate.Date},
-			)
+			startDateOperator = "$gte"
 		}
 	}
 
+	endDateOperator := "$lt"
 	if !c.EndDate.Ignore {
 		if c.EndDate.Inclusive {
-			filter = append(
-				filter,
-				bson.M{c.Field: bson.M{"$gte": c.EndDate.Date}},
-			)
-		} else {
-			filter = append(
-				filter,
-				bson.M{c.Field: bson.M{"$gt": c.EndDate.Date}},
-			)
+			endDateOperator = "$lte"
 		}
 	}
 
-	return bson.M{c.Field: filter}
+	if !c.StartDate.Ignore && c.EndDate.Ignore {
+		// only consider start date
+		return bson.M{c.Field: bson.M{startDateOperator: c.StartDate.Date}}
+	} else if c.StartDate.Ignore && !c.EndDate.Ignore {
+		// only consider end date
+		return bson.M{c.Field: bson.M{endDateOperator: c.EndDate.Date}}
+	} else if !(c.StartDate.Ignore || c.EndDate.Ignore) {
+		// consider both start and end dates
+		return bson.M{c.Field: bson.M{
+			startDateOperator: c.StartDate.Date,
+			endDateOperator:   c.EndDate.Date,
+		}}
+	}
+
+	// consider neither
+	return bson.M{c.Field: bson.M{}}
 }

@@ -1,10 +1,12 @@
 package basic
 
 import (
+	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/criterion"
 	exactText "gitlab.com/iotTracker/brain/search/criterion/exact/text"
+	dateRange "gitlab.com/iotTracker/brain/search/criterion/range/date"
 	"gitlab.com/iotTracker/brain/tracker/zx303"
 	zx303StatusReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
 	zx303StatusReadingReport "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report"
@@ -36,9 +38,9 @@ func (g *generator) ValidateBatteryReportRequest(request *zx303StatusReadingRepo
 	}
 
 	if request.ZX303TrackerIdentifier == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+		reasonsInvalid = append(reasonsInvalid, "ZX303TrackerIdentifier is nil")
 	} else if !zx303.IsValidIdentifier(request.ZX303TrackerIdentifier) {
-		reasonsInvalid = append(reasonsInvalid, "invalid identifier")
+		reasonsInvalid = append(reasonsInvalid, "invalid ZX303TrackerIdentifier")
 	}
 
 	if len(reasonsInvalid) > 0 {
@@ -68,6 +70,24 @@ func (g *generator) BatteryReport(request *zx303StatusReadingReportGenerator.Bat
 		return nil, err
 	}
 
+	dateCrit := dateRange.Criterion{
+		Field: "timeStamp",
+		StartDate: dateRange.RangeValue{
+			Date:      1526774400,
+			Inclusive: false,
+			Ignore:    true,
+		},
+		EndDate: dateRange.RangeValue{
+			Date:      1558137600,
+			Inclusive: true,
+			Ignore:    true,
+		},
+	}
+
+	filter := dateCrit.ToFilter()
+
+	fmt.Println(filter)
+
 	// collect all of the status readings for this device
 	readingCollectResponse, err := g.zx303StatusReadingRecordHandler.Collect(&zx303StatusReadingRecordHandler.CollectRequest{
 		Claims: request.Claims,
@@ -76,6 +96,7 @@ func (g *generator) BatteryReport(request *zx303StatusReadingReportGenerator.Bat
 				Field: "deviceId.id",
 				Text:  retrieveResponse.ZX303.Id,
 			},
+			dateCrit,
 		},
 		//Query:    query.Query{},
 	})
