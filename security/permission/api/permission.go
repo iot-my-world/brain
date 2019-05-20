@@ -96,6 +96,8 @@ const ZX303TaskAdministratorSubmit Permission = "ZX303TaskAdministrator.Submit"
 const ZX303TaskAdministratorFailTask Permission = "ZX303TaskAdministrator.FailTask"
 const ZX303TaskAdministratorTransitionTask Permission = "ZX303TaskAdministrator.TransitionTask"
 
+const ZX303StatusReadingReportGeneratorBatteryReport Permission = "ZX303StatusReadingReportGenerator.BatteryReport"
+
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"
 

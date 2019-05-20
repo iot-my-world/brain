@@ -1,4 +1,4 @@
-package dateRange
+package date
 
 import (
 	"github.com/go-errors/errors"
@@ -12,7 +12,7 @@ type Criterion struct {
 	List  []string `json:"list"`
 }
 
-type DateRange struct {
+type Date struct {
 	Date   int64 `json:"date"`
 	Ignore bool  `json:"ignore"`
 }
