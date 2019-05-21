@@ -28,6 +28,13 @@ func New(
 				},
 			},
 		},
+		zx303DeviceAction.UpdateAllowedFields: {
+			ReasonsInvalid: map[string][]reasonInvalid.Type{
+				"id": {
+					reasonInvalid.Blank,
+				},
+			},
+		},
 	}
 
 	return &validator{
@@ -91,6 +98,43 @@ func (v *validator) Validate(request *deviceValidator.ValidateRequest) (*deviceV
 			Help:  "cannot be blank",
 			Data:  (*zx303ToValidate).SimNumber,
 		})
+	}
+
+	// action specific checks
+	switch request.Action {
+	case zx303DeviceAction.Create:
+		if (*zx303ToValidate).LoggedIn == true {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "loggedIn",
+				Type:  reasonInvalid.Invalid,
+				Help:  "cannot be true on creation",
+				Data:  (*zx303ToValidate).LoggedIn,
+			})
+		}
+		if (*zx303ToValidate).LogInTimestamp != 0 {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "logInTimestamp",
+				Type:  reasonInvalid.Invalid,
+				Help:  "should be 0 on creation",
+				Data:  (*zx303ToValidate).LogInTimestamp,
+			})
+		}
+		if (*zx303ToValidate).LogOutTimestamp != 0 {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "logOutTimestamp",
+				Type:  reasonInvalid.Invalid,
+				Help:  "should be 0 on creation",
+				Data:  (*zx303ToValidate).LogOutTimestamp,
+			})
+		}
+		if (*zx303ToValidate).LastHeartbeatTimestamp != 0 {
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "lastHeartbeatTimestamp",
+				Type:  reasonInvalid.Invalid,
+				Help:  "should be 0 on creation",
+				Data:  (*zx303ToValidate).LastHeartbeatTimestamp,
+			})
+		}
 	}
 
 	// owner party type must be set, cannot be blank
