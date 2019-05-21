@@ -2,10 +2,18 @@ package exception
 
 import "strings"
 
-type Retrieval struct {
+type Login struct {
 	Reasons []string
 }
 
-func (e Retrieval) Error() string {
-	return "retrieval error: " + strings.Join(e.Reasons, "; ")
+func (e Login) Error() string {
+	return "login error: " + strings.Join(e.Reasons, "; ")
+}
+
+type Logout struct {
+	Reasons []string
+}
+
+func (e Logout) Error() string {
+	return "Logout error: " + strings.Join(e.Reasons, "; ")
 }

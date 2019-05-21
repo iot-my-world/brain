@@ -50,3 +50,27 @@ func (a *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginR
 
 	return nil
 }
+
+type LogoutRequest struct {
+	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
+}
+
+type LogoutResponse struct {
+}
+
+func (a *adaptor) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	if _, err := a.authenticator.Logout(&zx303DeviceAuthenticator.LogoutRequest{
+		Claims:     claims,
+		Identifier: request.WrappedIdentifier.Identifier,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -8,6 +8,7 @@ import (
 
 type Authenticator interface {
 	Login(request *LoginRequest) (*LoginResponse, error)
+	Logout(request *LogoutRequest) (*LogoutResponse, error)
 }
 
 type LoginRequest struct {
@@ -18,4 +19,12 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Result bool
 	ZX303  zx303.ZX303
+}
+
+type LogoutRequest struct {
+	Claims     claims.Claims
+	Identifier identifier.Identifier
+}
+
+type LogoutResponse struct {
 }
