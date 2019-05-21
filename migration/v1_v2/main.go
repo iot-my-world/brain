@@ -1,9 +1,10 @@
-package v1_v2
+package main
 
 import (
 	"flag"
 	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/migration"
+	v1v2zx303Migration "gitlab.com/iotTracker/brain/migration/v1_v2/zx303"
 )
 
 func main() {
@@ -26,4 +27,8 @@ func main() {
 	defer databaseSession.Close()
 	brainDb := databaseSession.DB(databaseName)
 
+	// run migrations
+	if err := v1v2zx303Migration.Migrate(brainDb); err != nil {
+		log.Fatal(err.Error())
+	}
 }

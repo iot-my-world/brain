@@ -9,7 +9,7 @@ import (
 
 const zx303DeviceCollection = "zx303Device"
 
-func migrate(database *mgo.Database) error {
+func Migrate(database *mgo.Database) error {
 
 	// get zx303 device collection
 	collection := database.C(zx303DeviceCollection)
