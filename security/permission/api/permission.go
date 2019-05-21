@@ -89,6 +89,7 @@ const ZX303DeviceAdministratorCreate Permission = "ZX303DeviceAdministrator.Crea
 const ZX303DeviceAdministratorUpdateAllowedFields Permission = "ZX303DeviceAdministrator.UpdateAllowedFields"
 
 const ZX303DeviceAuthenticatorLogin Permission = "ZX303DeviceAuthenticator.Login"
+const ZX303DeviceAuthenticatorLogout Permission = "ZX303DeviceAuthenticator.Logout"
 
 const ZX303TaskRecordHandlerCollect Permission = "ZX303TaskRecordHandler.Collect"
 const ZX303TaskValidatorValidate Permission = "ZX303TaskValidator.Validate"
