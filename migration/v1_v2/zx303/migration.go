@@ -33,14 +33,18 @@ func Migrate(database *mgo.Database) error {
 	for _, oldZX303 := range oldZX303s {
 		newZX303s = append(newZX303s,
 			v2zx303.ZX303{
-				Id:                oldZX303.Id,
-				IMEI:              oldZX303.IMEI,
-				SimCountryCode:    oldZX303.SimCountryCode,
-				SimNumber:         oldZX303.SimNumber,
-				OwnerPartyType:    oldZX303.OwnerPartyType,
-				OwnerId:           oldZX303.OwnerId,
-				AssignedPartyType: oldZX303.AssignedPartyType,
-				AssignedId:        oldZX303.AssignedId,
+				Id:                     oldZX303.Id,
+				IMEI:                   oldZX303.IMEI,
+				SimCountryCode:         oldZX303.SimCountryCode,
+				SimNumber:              oldZX303.SimNumber,
+				OwnerPartyType:         oldZX303.OwnerPartyType,
+				OwnerId:                oldZX303.OwnerId,
+				AssignedPartyType:      oldZX303.AssignedPartyType,
+				AssignedId:             oldZX303.AssignedId,
+				LoggedIn:               false,
+				LogInTimestamp:         0,
+				LogOutTimestamp:        0,
+				LastHeartbeatTimestamp: 0,
 			})
 	}
 	insertBulkOperation := collection.Bulk()
