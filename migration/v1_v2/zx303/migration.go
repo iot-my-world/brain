@@ -50,7 +50,7 @@ func Migrate(database *mgo.Database) error {
 	insertBulkOperation := collection.Bulk()
 	insertBulkOperation.Insert(newZX303s...)
 	if _, err := insertBulkOperation.Run(); err != nil {
-		return errors.New("error insterting bulk new zx303 devices: " + err.Error())
+		return errors.New("error inserting bulk new zx303 devices: " + err.Error())
 	}
 
 	return nil
