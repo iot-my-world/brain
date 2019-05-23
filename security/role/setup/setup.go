@@ -114,6 +114,8 @@ var NerveAPIUser = role.Role{
 	Name: "nerveAPIUser",
 	APIPermissions: []api.Permission{
 		api.ZX303DeviceAuthenticatorLogin,
+		api.ZX303DeviceAuthenticatorLogout,
+		api.ZX303DeviceAdministratorHeartbeat,
 	},
 	ViewPermissions: []view.Permission{},
 }

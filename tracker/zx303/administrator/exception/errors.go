@@ -43,3 +43,11 @@ type DeviceCreation struct {
 func (e DeviceCreation) Error() string {
 	return "error creating device: " + strings.Join(e.Reasons, "; ")
 }
+
+type Heartbeat struct {
+	Reasons []string
+}
+
+func (e Heartbeat) Error() string {
+	return "heartbeat error: " + strings.Join(e.Reasons, "; ")
+}

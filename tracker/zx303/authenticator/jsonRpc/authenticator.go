@@ -23,7 +23,7 @@ func New(
 func (a *authenticator) ValidateLoginRequest(request *zx303DeviceAuthenticator.LoginRequest) error {
 	reasonsInvalid := make([]string, 0)
 
-	if request.Identifier == nil {
+	if request.ZX303Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
 	}
 
@@ -38,9 +38,12 @@ func (a *authenticator) ValidateLoginRequest(request *zx303DeviceAuthenticator.L
 }
 
 func (a *authenticator) Login(request *zx303DeviceAuthenticator.LoginRequest) (*zx303DeviceAuthenticator.LoginResponse, error) {
+	if err := a.ValidateLoginRequest(request); err != nil {
+		return nil, err
+	}
 
 	// create wrapped identifier
-	wrappedDeviceIdentifier, err := wrappedIdentifier.Wrap(request.Identifier)
+	wrappedDeviceIdentifier, err := wrappedIdentifier.Wrap(request.ZX303Identifier)
 	if err != nil {
 		return nil, brainException.Unexpected{Reasons: []string{"wrapping device identifier", err.Error()}}
 	}
@@ -50,15 +53,58 @@ func (a *authenticator) Login(request *zx303DeviceAuthenticator.LoginRequest) (*
 	if err := a.jsonRpcClient.JsonRpcRequest(
 		"ZX303DeviceAuthenticator.Login",
 		zx303DeviceAuthenticatorJsonRpcAdaptor.LoginRequest{
-			WrappedIdentifier: *wrappedDeviceIdentifier,
+			WrappedZX303Identifier: *wrappedDeviceIdentifier,
 		},
 		&loginResponse,
 	); err != nil {
-		return nil, brainException.Unexpected{Reasons: []string{"log in error", err.Error()}}
+		return nil, err
 	}
 
 	return &zx303DeviceAuthenticator.LoginResponse{
 		Result: loginResponse.Result,
 		ZX303:  loginResponse.ZX303,
 	}, nil
+}
+
+func (a *authenticator) ValidateLogoutRequest(request *zx303DeviceAuthenticator.LogoutRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.ZX303Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	}
+
+	if !a.jsonRpcClient.LoggedIn() {
+		reasonsInvalid = append(reasonsInvalid, "json rpc client is not logged in")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *authenticator) Logout(request *zx303DeviceAuthenticator.LogoutRequest) (*zx303DeviceAuthenticator.LogoutResponse, error) {
+	if err := a.ValidateLogoutRequest(request); err != nil {
+		return nil, err
+	}
+
+	// create wrapped identifier
+	wrappedDeviceIdentifier, err := wrappedIdentifier.Wrap(request.ZX303Identifier)
+	if err != nil {
+		return nil, brainException.Unexpected{Reasons: []string{"wrapping device identifier", err.Error()}}
+	}
+
+	// login the device
+	loginResponse := zx303DeviceAuthenticatorJsonRpcAdaptor.LoginResponse{}
+	if err := a.jsonRpcClient.JsonRpcRequest(
+		"ZX303DeviceAuthenticator.Logout",
+		zx303DeviceAuthenticatorJsonRpcAdaptor.LoginRequest{
+			WrappedZX303Identifier: *wrappedDeviceIdentifier,
+		},
+		&loginResponse,
+	); err != nil {
+		return nil, err
+	}
+
+	return &zx303DeviceAuthenticator.LogoutResponse{}, nil
 }

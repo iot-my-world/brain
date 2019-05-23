@@ -1,4 +1,4 @@
-package zx303
+package v2
 
 import (
 	"gitlab.com/iotTracker/brain/party"
@@ -19,8 +19,4 @@ type ZX303 struct {
 	LogInTimestamp         int64 `json:"logInTimestamp" bson:"logInTimestamp"`
 	LogOutTimestamp        int64 `json:"logOutTimestamp" bson:"logOutTimestamp"`
 	LastHeartbeatTimestamp int64 `json:"lastHeartbeatTimestamp" bson:"lastHeartbeatTimestamp"`
-}
-
-func (z *ZX303) SetId(id string) {
-	z.Id = id
 }

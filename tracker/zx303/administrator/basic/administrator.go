@@ -3,12 +3,15 @@ package basic
 import (
 	"fmt"
 	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/tracker/zx303"
 	zx303DeviceAction "gitlab.com/iotTracker/brain/tracker/zx303/action"
 	zx303DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator"
 	zx303DeviceAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/administrator/exception"
 	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler"
 	zx303DeviceValidator "gitlab.com/iotTracker/brain/tracker/zx303/validator"
+	"time"
 )
 
 type administrator struct {
@@ -136,4 +139,54 @@ func (a *administrator) UpdateAllowedFields(request *zx303DeviceAdministrator.Up
 	return &zx303DeviceAdministrator.UpdateAllowedFieldsResponse{
 		ZX303: deviceRetrieveResponse.ZX303,
 	}, nil
+}
+
+func (a *administrator) ValidateHeartbeatRequest(request *zx303DeviceAdministrator.HeartbeatRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if request.ZX303Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "ZX303Identifier is nil")
+	} else if !zx303.IsValidIdentifier(request.ZX303Identifier) {
+		reasonsInvalid = append(reasonsInvalid, "ZX303Identifier not valid")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Heartbeat(request *zx303DeviceAdministrator.HeartbeatRequest) (*zx303DeviceAdministrator.HeartbeatResponse, error) {
+	if err := a.ValidateHeartbeatRequest(request); err != nil {
+		return nil, err
+	}
+
+	// try and retrieve the device
+	retrieveResponse, err := a.zx303RecordHandler.Retrieve(&zx303RecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.ZX303Identifier,
+	})
+	if err != nil {
+		err = zx303DeviceAdministratorException.Heartbeat{Reasons: []string{"device retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// update the device heartbeat
+	retrieveResponse.ZX303.LastHeartbeatTimestamp = time.Now().UTC().Unix()
+	if _, err := a.zx303RecordHandler.Update(&zx303RecordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: request.ZX303Identifier,
+		ZX303:      retrieveResponse.ZX303,
+	}); err != nil {
+		err = zx303DeviceAdministratorException.Heartbeat{Reasons: []string{"device update", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &zx303DeviceAdministrator.HeartbeatResponse{}, nil
 }
