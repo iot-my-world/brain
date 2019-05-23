@@ -30,9 +30,9 @@ func (a *authenticator) ValidateLoginRequest(request *zx303DeviceAuthenticator.L
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	}
-	if request.Identifier == nil {
+	if request.ZX303Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
-	} else if !zx303.IsValidIdentifier(request.Identifier) {
+	} else if !zx303.IsValidIdentifier(request.ZX303Identifier) {
 		reasonsInvalid = append(reasonsInvalid, "identifier is not valid")
 	}
 
@@ -50,7 +50,7 @@ func (a *authenticator) Login(request *zx303DeviceAuthenticator.LoginRequest) (*
 	// try and retrieve the device
 	retrieveResponse, err := a.zx303RecordHandler.Retrieve(&zx303RecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
-		Identifier: request.Identifier,
+		Identifier: request.ZX303Identifier,
 	})
 	if err != nil {
 		switch err.(type) {
@@ -94,9 +94,9 @@ func (a *authenticator) ValidateLogoutRequest(request *zx303DeviceAuthenticator.
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	}
-	if request.Identifier == nil {
+	if request.ZX303Identifier == nil {
 		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
-	} else if !zx303.IsValidIdentifier(request.Identifier) {
+	} else if !zx303.IsValidIdentifier(request.ZX303Identifier) {
 		reasonsInvalid = append(reasonsInvalid, "identifier is not valid")
 	}
 
@@ -114,7 +114,7 @@ func (a *authenticator) Logout(request *zx303DeviceAuthenticator.LogoutRequest) 
 	// try and retrieve the device
 	retrieveResponse, err := a.zx303RecordHandler.Retrieve(&zx303RecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
-		Identifier: request.Identifier,
+		Identifier: request.ZX303Identifier,
 	})
 	if err != nil {
 		err = zx303DeviceAuthenticatorException.Logout{Reasons: []string{"device retrieval", err.Error()}}

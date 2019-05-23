@@ -12,8 +12,8 @@ type Authenticator interface {
 }
 
 type LoginRequest struct {
-	Claims     claims.Claims
-	Identifier identifier.Identifier
+	Claims          claims.Claims
+	ZX303Identifier identifier.Identifier
 }
 
 type LoginResponse struct {
@@ -22,8 +22,8 @@ type LoginResponse struct {
 }
 
 type LogoutRequest struct {
-	Claims     claims.Claims
-	Identifier identifier.Identifier
+	Claims          claims.Claims
+	ZX303Identifier identifier.Identifier
 }
 
 type LogoutResponse struct {

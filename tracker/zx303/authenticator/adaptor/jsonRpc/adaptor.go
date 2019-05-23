@@ -22,7 +22,7 @@ func New(
 }
 
 type LoginRequest struct {
-	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
+	WrappedZX303Identifier wrappedIdentifier.Wrapped `json:"zx303Identifier"`
 }
 
 type LoginResponse struct {
@@ -38,8 +38,8 @@ func (a *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginR
 	}
 
 	loginResponse, err := a.authenticator.Login(&zx303DeviceAuthenticator.LoginRequest{
-		Claims:     claims,
-		Identifier: request.WrappedIdentifier.Identifier,
+		Claims:          claims,
+		ZX303Identifier: request.WrappedZX303Identifier.Identifier,
 	})
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (a *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginR
 }
 
 type LogoutRequest struct {
-	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
+	WrappedZX303Identifier wrappedIdentifier.Wrapped `json:"zx303Identifier"`
 }
 
 type LogoutResponse struct {
@@ -66,8 +66,8 @@ func (a *adaptor) Logout(r *http.Request, request *LogoutRequest, response *Logo
 	}
 
 	if _, err := a.authenticator.Logout(&zx303DeviceAuthenticator.LogoutRequest{
-		Claims:     claims,
-		Identifier: request.WrappedIdentifier.Identifier,
+		Claims:          claims,
+		ZX303Identifier: request.WrappedZX303Identifier.Identifier,
 	}); err != nil {
 		return err
 	}
