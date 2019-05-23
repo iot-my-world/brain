@@ -68,5 +68,5 @@ func (a *administrator) Heartbeat(request *zx303DeviceAdministrator.HeartbeatReq
 		return nil, err
 	}
 
-	return nil, brainException.NotImplemented{}
+	return nil, nil
 }
