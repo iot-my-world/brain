@@ -600,16 +600,7 @@ func main() {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
 	}
 
-	// ZX303 Device
-	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register API User ZX303 Device Administrator Service Adaptor")
-	}
-	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAuthenticatorAdaptor, "ZX303DeviceAuthenticator"); err != nil {
-		log.Fatal("Unable to Register API User ZX303 Device Authenticator Service Adaptor")
-	}
-	if err := secureAPIUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
-		log.Fatal("Unable to Register API User ZX303 Device Administrator Service Adaptor")
-	}
+	// Sigfox Test
 
 	// Set up Secure API User API Server
 	APIUserAPIAuthorizer := apiUserAPIAuthorizer.New(
@@ -621,7 +612,8 @@ func main() {
 	)
 	apiUserSecureAPIServerMux := mux.NewRouter()
 	apiUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(APIUserHttpAPIAuthApplier.PreFlightHandler)
-	apiUserSecureAPIServerMux.Handle("/api-2", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	//apiUserSecureAPIServerMux.Handle("/api-2", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	apiUserSecureAPIServerMux.Handle("/api-2", secureAPIUserAPIServer).Methods("POST")
 	// Start secureAPIUserAPIServer
 	log.Info("Starting API User Secure API Server on port " + apiUserAPIServerPort)
 	go func() {
