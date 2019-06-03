@@ -54,8 +54,6 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	zx303GPSReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/gps"
-	zx303StatusReadingMessageHandler "gitlab.com/iotTracker/brain/messaging/message/handler/zx303/reading/status"
 	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
 	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
 	zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
@@ -111,10 +109,6 @@ import (
 	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
 	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
 
-	messageConsumerGroup "gitlab.com/iotTracker/messaging/consumer/group"
-	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
-	asyncMessagingProducer "gitlab.com/iotTracker/messaging/producer/sync"
-
 	"fmt"
 	"gitlab.com/iotTracker/brain/party"
 	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
@@ -134,7 +128,7 @@ func main() {
 	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
 	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
 	keysFilePath := flag.String("keysFilePath", "", "path to pvt and pub keys")
-	kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
+	//kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
 
@@ -188,14 +182,14 @@ func main() {
 	)
 
 	// create and start nerveBroadcast producer
-	kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
-	nerveBroadcastProducer := asyncMessagingProducer.New(
-		kafkaBrokerNodes,
-		"nerveBroadcast",
-	)
-	if err := nerveBroadcastProducer.Start(); err != nil {
-		log.Fatal(err.Error())
-	}
+	//kafkaBrokerNodes := strings.Split(*kafkaBrokers, ",")
+	//nerveBroadcastProducer := asyncMessagingProducer.New(
+	//	kafkaBrokerNodes,
+	//	"nerveBroadcast",
+	//)
+	//if err := nerveBroadcastProducer.Start(); err != nil {
+	//	log.Fatal(err.Error())
+	//}
 
 	// Create system claims for the services that root privileges
 	var systemClaims = humanUserLoginClaims.Login{
@@ -384,7 +378,7 @@ func main() {
 	ZX303TaskAdministrator := zx303TaskBasicAdministrator.New(
 		ZX303TaskValidator,
 		ZX303TaskRecordHandler,
-		nerveBroadcastProducer,
+		//nerveBroadcastProducer,
 	)
 	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
 		ZX303DeviceRecordHandler,
@@ -636,28 +630,28 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// set up kafka messaging
-	MessageConsumerGroup := messageConsumerGroup.New(
-		kafkaBrokerNodes,
-		[]string{"brainQueue"},
-		"brain",
-		[]messagingMessageHandler.Handler{
-			zx303GPSReadingMessageHandler.New(
-				&systemClaims,
-				ZX303GPSReadingAdministrator,
-			),
-			zx303StatusReadingMessageHandler.New(
-				&systemClaims,
-				ZX303StatusReadingAdministrator,
-			),
-		},
-	)
-	go func() {
-		if err := MessageConsumerGroup.Start(); err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
-	}()
+	//// set up kafka messaging
+	//MessageConsumerGroup := messageConsumerGroup.New(
+	//	kafkaBrokerNodes,
+	//	[]string{"brainQueue"},
+	//	"brain",
+	//	[]messagingMessageHandler.Handler{
+	//		zx303GPSReadingMessageHandler.New(
+	//			&systemClaims,
+	//			ZX303GPSReadingAdministrator,
+	//		),
+	//		zx303StatusReadingMessageHandler.New(
+	//			&systemClaims,
+	//			ZX303StatusReadingAdministrator,
+	//		),
+	//	},
+	//)
+	//go func() {
+	//	if err := MessageConsumerGroup.Start(); err != nil {
+	//		log.Error(err.Error())
+	//		os.Exit(1)
+	//	}
+	//}()
 
 	//Wait for interrupt signal
 	systemSignalsChannel := make(chan os.Signal, 1)

@@ -10,26 +10,23 @@ import (
 	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler"
 	zx303TaskStep "gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 	zx303TaskValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator"
-	zx303TaskSubmittedMessage "gitlab.com/iotTracker/messaging/message/zx303/task/submitted"
-	zx303TaskTransitionedMessage "gitlab.com/iotTracker/messaging/message/zx303/task/transitioned"
-	messagingProducer "gitlab.com/iotTracker/messaging/producer"
 )
 
 type administrator struct {
 	zx303TaskValidator     zx303TaskValidator.Validator
 	zx303TaskRecordHandler *zx303TaskRecordHandler.RecordHandler
-	nerveBroadcastProducer messagingProducer.Producer
+	//nerveBroadcastProducer messagingProducer.Producer
 }
 
 func New(
 	zx303TaskValidator zx303TaskValidator.Validator,
 	zx303TaskRecordHandler *zx303TaskRecordHandler.RecordHandler,
-	nerveBroadcastProducer messagingProducer.Producer,
+	//nerveBroadcastProducer messagingProducer.Producer,
 ) zx303TaskAdministrator.Administrator {
 	return &administrator{
 		zx303TaskValidator:     zx303TaskValidator,
 		zx303TaskRecordHandler: zx303TaskRecordHandler,
-		nerveBroadcastProducer: nerveBroadcastProducer,
+		//nerveBroadcastProducer: nerveBroadcastProducer,
 	}
 }
 
@@ -46,10 +43,11 @@ func (a *administrator) ValidateSubmitRequest(request *zx303TaskAdministrator.Su
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating zx303 task: "+err.Error())
-		}
-		if len(zx303DeviceValidateResponse.ReasonsInvalid) > 0 {
-			for _, reason := range zx303DeviceValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("zx303 task invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(zx303DeviceValidateResponse.ReasonsInvalid) > 0 {
+				for _, reason := range zx303DeviceValidateResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("zx303 task invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -75,11 +73,11 @@ func (a *administrator) Submit(request *zx303TaskAdministrator.SubmitRequest) (*
 	}
 
 	// produce task generated message to nerveBroadcast topic
-	if err := a.nerveBroadcastProducer.Produce(zx303TaskSubmittedMessage.Message{
-		Task: createResponse.ZX303Task,
-	}); err != nil {
-		return nil, zx303TaskAdministratorException.ZX303TaskSubmission{Reasons: []string{"message production", err.Error()}}
-	}
+	//if err := a.nerveBroadcastProducer.Produce(zx303TaskSubmittedMessage.Message{
+	//	Task: createResponse.ZX303Task,
+	//}); err != nil {
+	//	return nil, zx303TaskAdministratorException.ZX303TaskSubmission{Reasons: []string{"message production", err.Error()}}
+	//}
 
 	return &zx303TaskAdministrator.SubmitResponse{
 		ZX303Task: createResponse.ZX303Task,
@@ -190,12 +188,12 @@ func (a *administrator) TransitionTask(request *zx303TaskAdministrator.Transitio
 			retrieveResponse.ZX303Task.Status = zx303Task.Executing
 		}
 
-		// produce task transitioned message to nerveBroadcast topic
-		if err := a.nerveBroadcastProducer.Produce(zx303TaskTransitionedMessage.Message{
-			Task: retrieveResponse.ZX303Task,
-		}); err != nil {
-			return nil, zx303TaskAdministratorException.ZX303TaskTransition{Reasons: []string{"message production", err.Error()}}
-		}
+		//// produce task transitioned message to nerveBroadcast topic
+		//if err := a.nerveBroadcastProducer.Produce(zx303TaskTransitionedMessage.Message{
+		//	Task: retrieveResponse.ZX303Task,
+		//}); err != nil {
+		//	return nil, zx303TaskAdministratorException.ZX303TaskTransition{Reasons: []string{"message production", err.Error()}}
+		//}
 	} else {
 		// this is the last step
 		// if the new step status is finished the task is finished
