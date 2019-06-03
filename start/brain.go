@@ -56,8 +56,6 @@ import (
 
 	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
 	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
-	zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
-	zx303DeviceBasicAuthenticator "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/basic"
 	zx303GPSReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/adaptor/jsonRpc"
 	zx303GPSReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/basic"
 	zx303GPSReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/adaptor/jsonRpc"
@@ -93,6 +91,8 @@ import (
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
+
+	sigbugMessageHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sigbug/message/handler/adaptor/jsonRpc"
 
 	"flag"
 	"gitlab.com/iotTracker/brain/communication/email/mailer"
@@ -380,9 +380,6 @@ func main() {
 		ZX303TaskRecordHandler,
 		//nerveBroadcastProducer,
 	)
-	ZX303DeviceAuthenticator := zx303DeviceBasicAuthenticator.New(
-		ZX303DeviceRecordHandler,
-	)
 	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New(
 		ZX303StatusReadingRecordHandler,
 		ZX303DeviceRecordHandler,
@@ -437,7 +434,6 @@ func main() {
 	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
 	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
 	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
-	ZX303DeviceAuthenticatorAdaptor := zx303DeviceAuthenticatorAdaptorJsonRpcAdaptor.New(ZX303DeviceAuthenticator)
 	ZX303GPSReadingRecordHandlerAdaptor := zx303GPSReadingRecordHandlerJsonRpcAdaptor.New(ZX303GPSReadingRecordHandler)
 	ZX303GPSReadingAdministratorAdaptor := zx303GPSReadingAdministratorJsonRpcAdaptor.New(ZX303GPSReadingAdministrator)
 	ZX303StatusReadingRecordHandlerAdaptor := zx303StatusReadingRecordHandlerJsonRpcAdaptor.New(ZX303StatusReadingRecordHandler)
@@ -448,6 +444,9 @@ func main() {
 	ZX303TaskValidatorAdaptor := zx303TaskValidatorJsonRpcAdaptor.New(ZX303TaskValidator)
 
 	ZX303ReadingStatusReportGeneratorAdaptor := zx303ReadingStatusReportGeneratorJsonRpcAdaptor.New(ZX303ReadingStatusReportGenerator)
+
+	// Sigbug
+	sigbugMessageHandlerAdaptor := sigbugMessageHandlerJsonRpcAdaptor.New()
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -600,16 +599,11 @@ func main() {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
 	}
 
-	// ZX303 Device
-	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register API User ZX303 Device Administrator Service Adaptor")
+	if err := secureAPIUserAPIServer.RegisterService(sigbugMessageHandlerAdaptor, "Sigbug"); err != nil {
+		log.Fatal("Unable to Sigbug Service Adaptor")
 	}
-	if err := secureAPIUserAPIServer.RegisterService(ZX303DeviceAuthenticatorAdaptor, "ZX303DeviceAuthenticator"); err != nil {
-		log.Fatal("Unable to Register API User ZX303 Device Authenticator Service Adaptor")
-	}
-	if err := secureAPIUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
-		log.Fatal("Unable to Register API User ZX303 Device Administrator Service Adaptor")
-	}
+
+	// Sigfox Test
 
 	// Set up Secure API User API Server
 	APIUserAPIAuthorizer := apiUserAPIAuthorizer.New(
@@ -621,7 +615,8 @@ func main() {
 	)
 	apiUserSecureAPIServerMux := mux.NewRouter()
 	apiUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(APIUserHttpAPIAuthApplier.PreFlightHandler)
-	apiUserSecureAPIServerMux.Handle("/api-2", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	//apiUserSecureAPIServerMux.Handle("/api-2", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
+	apiUserSecureAPIServerMux.Handle("/api-2", secureAPIUserAPIServer).Methods("POST")
 	// Start secureAPIUserAPIServer
 	log.Info("Starting API User Secure API Server on port " + apiUserAPIServerPort)
 	go func() {
