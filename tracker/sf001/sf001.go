@@ -6,8 +6,8 @@ import (
 )
 
 type SF001 struct {
-	Id       string `json:"string" bson:"string"`
-	DeviceId string `json:"string" bson:"string"`
+	Id       string `json:"id" bson:"id"`
+	DeviceId string `json:"deviceId" bson:"deviceId"`
 
 	OwnerPartyType    party.Type    `json:"ownerPartyType" bson:"ownerPartyType"`
 	OwnerId           id.Identifier `json:"ownerId" bson:"ownerId"`

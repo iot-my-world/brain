@@ -23,8 +23,8 @@ func New(
 				Unique: true,
 			},
 			{
-				Key:    []string{"imei"},
-				Unique: true, // Prevent two documents from having the same index key
+				Key:    []string{"deviceId"},
+				Unique: true,
 			},
 		},
 		sf001.IsValidIdentifier,
