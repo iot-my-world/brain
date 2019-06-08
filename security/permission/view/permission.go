@@ -11,3 +11,5 @@ const PartyAPIUser Permission = "PartyAPIUser"
 
 const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"
+
+const TrackerSF001 Permission = "TrackerSF001"

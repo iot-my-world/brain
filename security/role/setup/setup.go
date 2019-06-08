@@ -65,6 +65,8 @@ var initialRoles = func() []role.Role {
 
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -146,6 +148,8 @@ var CompanyAdmin = role.Role{
 
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
 	},
 }
 var CompanyUser = role.Role{
@@ -171,6 +175,8 @@ var CompanyUser = role.Role{
 	ViewPermissions: []view.Permission{
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
 	},
 }
 
@@ -223,6 +229,8 @@ var ClientAdmin = role.Role{
 
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
 	},
 }
 var ClientUser = role.Role{
@@ -248,6 +256,8 @@ var ClientUser = role.Role{
 	ViewPermissions: []view.Permission{
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
 	},
 }
 
