@@ -178,7 +178,8 @@ func main() {
 		//PartyId         id.Identifier `json:"partyId"`
 	}
 
-	// Create Service Providers
+	// ________________________________ Create Service Providers ________________________________
+
 	RoleRecordHandler := roleMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
