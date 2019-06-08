@@ -97,7 +97,7 @@ var apiUserAPIServerPort = "9011"
 
 func main() {
 	// get the command line args
-	mongoNodes := flag.String("mongoNodes", "localhost:27017", "the nodes in the db cluster")
+	mongoNodes := flag.String("mongoNodes", "localhost:27016", "the nodes in the db cluster")
 	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")

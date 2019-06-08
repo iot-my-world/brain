@@ -65,43 +65,11 @@ const PartyAdministratorRetrieveParty Permission = "PartyAdministrator.RetrieveP
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 
-// TK102 Tracking Device
-const TK102DeviceRecordHandlerRetrieve Permission = "TK102DeviceRecordHandler.Retrieve"
-const TK102DeviceRecordHandlerCollect Permission = "TK102DeviceRecordHandler.Collect"
-
-const TK102DeviceValidatorValidate Permission = "TK102DeviceValidator.Validate"
-
-const TK102DeviceAdministratorChangeOwnershipAndAssignment Permission = "TK102DeviceAdministrator.ChangeOwnershipAndAssignment"
-const TK102DeviceAdministratorCreate Permission = "TK102DeviceAdministrator.Create"
-
-const TK102ReadingRecordHandlerCollect Permission = "TK102ReadingRecordHandler.Collect"
-const TK102ReadingAdministratorCreate Permission = "TK102ReadingAdministrator.Create"
-const TK102ReadingAdministratorCreateBulk Permission = "TK102ReadingAdministrator.CreateBulk"
-
-// ZX303 Tracking Device
-const ZX303DeviceRecordHandlerRetrieve Permission = "ZX303DeviceRecordHandler.Retrieve"
-const ZX303DeviceRecordHandlerCollect Permission = "ZX303DeviceRecordHandler.Collect"
-
-const ZX303DeviceValidatorValidate Permission = "ZX303DeviceValidator.Validate"
-
-const ZX303DeviceAdministratorChangeOwnershipAndAssignment Permission = "ZX303DeviceAdministrator.ChangeOwnershipAndAssignment"
-const ZX303DeviceAdministratorCreate Permission = "ZX303DeviceAdministrator.Create"
-const ZX303DeviceAdministratorUpdateAllowedFields Permission = "ZX303DeviceAdministrator.UpdateAllowedFields"
-const ZX303DeviceAdministratorHeartbeat Permission = "ZX303DeviceAdministrator.Heartbeat"
-
-const ZX303DeviceAuthenticatorLogin Permission = "ZX303DeviceAuthenticator.Login"
-const ZX303DeviceAuthenticatorLogout Permission = "ZX303DeviceAuthenticator.Logout"
-
-const ZX303TaskRecordHandlerCollect Permission = "ZX303TaskRecordHandler.Collect"
-const ZX303TaskValidatorValidate Permission = "ZX303TaskValidator.Validate"
-const ZX303TaskAdministratorSubmit Permission = "ZX303TaskAdministrator.Submit"
-const ZX303TaskAdministratorFailTask Permission = "ZX303TaskAdministrator.FailTask"
-const ZX303TaskAdministratorTransitionTask Permission = "ZX303TaskAdministrator.TransitionTask"
-
-const ZX303StatusReadingReportGeneratorBatteryReport Permission = "ZX303StatusReadingReportGenerator.BatteryReport"
-
 const TrackingReportLive Permission = "TrackingReport.Live"
 const TrackingReportHistorical Permission = "TrackingReport.Historical"
 
 // Barcode Scanner
 const BarcodeScannerScan Permission = "BarcodeScanner.Scan"
+
+// SF001 Tracker
+const SF001TrackerRecordHandlerCollect Permission = "SF001TrackerRecordHandler.Collect"

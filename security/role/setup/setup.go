@@ -20,7 +20,6 @@ var initialRoles = func() []role.Role {
 		ClientUser,
 		CompanyAdmin,
 		CompanyUser,
-		NerveAPIUser,
 	}
 
 	// Register additional root api permissions here
@@ -48,28 +47,10 @@ var initialRoles = func() []role.Role {
 		api.PartyRegistrarInviteCompanyAdminUser,
 		api.PartyRegistrarRegisterCompanyAdminUser,
 
-		// TK102 Device
-		api.TK102DeviceValidatorValidate,
-		api.TK102DeviceAdministratorCreate,
-		api.TK102DeviceAdministratorChangeOwnershipAndAssignment,
-
-		// ZX303 Device
-		api.ZX303DeviceValidatorValidate,
-		api.ZX303DeviceAdministratorCreate,
-		api.ZX303DeviceAdministratorChangeOwnershipAndAssignment,
-		api.ZX303DeviceAdministratorUpdateAllowedFields,
-		api.ZX303TaskRecordHandlerCollect,
-		api.ZX303TaskValidatorValidate,
-		api.ZX303TaskAdministratorSubmit,
-		api.ZX303TaskAdministratorFailTask,
-		api.ZX303TaskAdministratorTransitionTask,
-
-		// Reading
-		api.TK102ReadingAdministratorCreate,
-		api.TK102ReadingAdministratorCreateBulk,
-
 		// Barcode Scanner
 		api.BarcodeScannerScan,
+
+		// SF001 Tracker
 	}
 
 	// The view permissions that root has
@@ -81,9 +62,6 @@ var initialRoles = func() []role.Role {
 
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
-
-		view.TrackerZX303,
-		view.ZX303DeviceDiagnostics,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -108,17 +86,6 @@ var initialRoles = func() []role.Role {
 	}
 	return append([]role.Role{root}, allRoles...)
 }()
-
-// Create Roles here
-var NerveAPIUser = role.Role{
-	Name: "nerveAPIUser",
-	APIPermissions: []api.Permission{
-		api.ZX303DeviceAuthenticatorLogin,
-		api.ZX303DeviceAuthenticatorLogout,
-		api.ZX303DeviceAdministratorHeartbeat,
-	},
-	ViewPermissions: []view.Permission{},
-}
 
 var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
@@ -158,22 +125,15 @@ var CompanyAdmin = role.Role{
 		api.PartyRegistrarInviteClientAdminUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
-		// TK102 Device
-		api.TK102DeviceRecordHandlerRetrieve,
-		api.TK102DeviceRecordHandlerCollect,
-
-		// ZX303 Device
-		api.ZX303DeviceRecordHandlerRetrieve,
-		api.ZX303DeviceRecordHandlerCollect,
-
-		api.ZX303StatusReadingReportGeneratorBatteryReport,
-
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
 		api.PartyAdministratorRetrieveParty,
+
+		// SF001 Tracker
+		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.PartyProfileEditing,
@@ -183,8 +143,6 @@ var CompanyAdmin = role.Role{
 
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
-
-		view.TrackerZX303,
 	},
 }
 var CompanyUser = role.Role{
@@ -199,16 +157,13 @@ var CompanyUser = role.Role{
 		api.PartyAdministratorGetMyParty,
 		api.PartyAdministratorRetrieveParty,
 
-		// ZX303 Device
-		api.ZX303DeviceRecordHandlerRetrieve,
-		api.ZX303DeviceRecordHandlerCollect,
-
-		api.ZX303StatusReadingReportGeneratorBatteryReport,
-
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
 		api.UserAdministratorUpdatePassword,
 		api.UserAdministratorCheckPassword,
+
+		// SF001 Tracker
+		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.LiveTrackingDashboard,
@@ -245,16 +200,6 @@ var ClientAdmin = role.Role{
 
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
-		// ZX102 Device
-		api.TK102DeviceRecordHandlerRetrieve,
-		api.TK102DeviceRecordHandlerCollect,
-
-		// ZX303 Device
-		api.ZX303DeviceRecordHandlerRetrieve,
-		api.ZX303DeviceRecordHandlerCollect,
-
-		api.ZX303StatusReadingReportGeneratorBatteryReport,
-
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
@@ -264,6 +209,9 @@ var ClientAdmin = role.Role{
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
 		api.PartyAdministratorRetrieveParty,
+
+		// SF001 Tracker
+		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.PartyProfileEditing,
@@ -274,7 +222,6 @@ var ClientAdmin = role.Role{
 		view.HistoricalTrackingDashboard,
 	},
 }
-
 var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
@@ -282,12 +229,6 @@ var ClientUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		// ZX303 Device
-		api.ZX303DeviceRecordHandlerRetrieve,
-		api.ZX303DeviceRecordHandlerCollect,
-
-		api.ZX303StatusReadingReportGeneratorBatteryReport,
 
 		// Party Administrator
 		api.PartyAdministratorGetMyParty,
@@ -297,6 +238,9 @@ var ClientUser = role.Role{
 		api.UserAdministratorUpdateAllowedFields,
 		api.UserAdministratorUpdatePassword,
 		api.UserAdministratorCheckPassword,
+
+		// SF001 Tracker
+		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.LiveTrackingDashboard,

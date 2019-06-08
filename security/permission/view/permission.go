@@ -11,6 +11,3 @@ const PartyAPIUser Permission = "PartyAPIUser"
 
 const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"
-
-const TrackerZX303 Permission = "TrackerZX303"
-const ZX303DeviceDiagnostics Permission = "ZX303DeviceDiagnostics"
