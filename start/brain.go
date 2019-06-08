@@ -58,6 +58,8 @@ import (
 
 	sf001RecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler/adaptor/jsonRpc"
 	sf001TrackerMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler/mongo"
+	sf001ValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/validator/adaptor/jsonRpc"
+	sf001TrackerBasicValidator "gitlab.com/iotTracker/brain/tracker/sf001/validator/basic"
 
 	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
@@ -313,6 +315,9 @@ func main() {
 		databaseName,
 		databaseCollection.SF001Tracker,
 	)
+	SF001TrackerBasicValidator := sf001TrackerBasicValidator.New(
+		PartyBasicAdministrator,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
@@ -366,6 +371,7 @@ func main() {
 
 	// SF001 Tracker
 	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
+	SF001TrackerValidatorJsonRpcAdaptor := sf001ValidatorJsonRpcAdaptor.New(SF001TrackerBasicValidator)
 
 	// ________________________________ Register Service Provider Adaptors with secureHumanUserAPIServer ________________________________
 	// Create secureHumanUserAPIServer
@@ -451,6 +457,9 @@ func main() {
 	// SF001 Tracker
 	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerRecordHandlerJsonRpcAdaptor, "SF001TrackerRecordHandler"); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker RecordHandler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, "SF001TrackerValidator"); err != nil {
+		log.Fatal("Unable to Register SF001 Tracker Validator Service")
 	}
 
 	// Set up Secure Human User API Server i.e. the Portal API Server

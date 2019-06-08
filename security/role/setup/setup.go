@@ -51,6 +51,7 @@ var initialRoles = func() []role.Role {
 		api.BarcodeScannerScan,
 
 		// SF001 Tracker
+		api.SF001TrackerValidatorValidate,
 	}
 
 	// The view permissions that root has
