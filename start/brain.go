@@ -56,6 +56,8 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
+	sf001AdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/administrator/adaptor/jsonRpc"
+	sf001TrackerBasicAdministrator "gitlab.com/iotTracker/brain/tracker/sf001/administrator/basic"
 	sf001RecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler/adaptor/jsonRpc"
 	sf001TrackerMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler/mongo"
 	sf001ValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/validator/adaptor/jsonRpc"
@@ -318,6 +320,10 @@ func main() {
 	SF001TrackerBasicValidator := sf001TrackerBasicValidator.New(
 		PartyBasicAdministrator,
 	)
+	SF001TrackerBasicAdministrator := sf001TrackerBasicAdministrator.New(
+		SF001TrackerBasicValidator,
+		SF001TrackerMongoRecordHandler,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
@@ -372,6 +378,7 @@ func main() {
 	// SF001 Tracker
 	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
 	SF001TrackerValidatorJsonRpcAdaptor := sf001ValidatorJsonRpcAdaptor.New(SF001TrackerBasicValidator)
+	SF001TrackerAdministratorJsonRpcAdaptor := sf001AdministratorJsonRpcAdaptor.New(SF001TrackerBasicAdministrator)
 
 	// ________________________________ Register Service Provider Adaptors with secureHumanUserAPIServer ________________________________
 	// Create secureHumanUserAPIServer
@@ -460,6 +467,9 @@ func main() {
 	}
 	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, "SF001TrackerValidator"); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker Validator Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, "SF001TrackerAdministrator"); err != nil {
+		log.Fatal("Unable to Register SF001 Tracker Administrator Service")
 	}
 
 	// Set up Secure Human User API Server i.e. the Portal API Server

@@ -74,3 +74,5 @@ const BarcodeScannerScan Permission = "BarcodeScanner.Scan"
 // SF001 Tracker
 const SF001TrackerRecordHandlerCollect Permission = "SF001TrackerRecordHandler.Collect"
 const SF001TrackerValidatorValidate Permission = "SF001TrackerValidator.Validate"
+const SF001TrackerAdministratorCreate Permission = "SF001TrackerAdministrator.Create"
+const SF001TrackerAdministratorUpdateAllowedFields Permission = "SF001TrackerAdministrator.UpdateAllowedFields"

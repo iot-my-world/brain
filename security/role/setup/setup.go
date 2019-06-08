@@ -52,6 +52,8 @@ var initialRoles = func() []role.Role {
 
 		// SF001 Tracker
 		api.SF001TrackerValidatorValidate,
+		api.SF001TrackerAdministratorCreate,
+		api.SF001TrackerAdministratorUpdateAllowedFields,
 	}
 
 	// The view permissions that root has
