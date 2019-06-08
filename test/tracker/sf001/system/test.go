@@ -13,6 +13,7 @@ import (
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
 	"gitlab.com/iotTracker/brain/tracker/sf001"
+	sf001TrackerAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/administrator/adaptor/jsonRpc"
 	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
@@ -36,7 +37,7 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestSystemDeviceCreation() {
-	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/tracker/device/tk102/data/deviceData.xlsx"
+	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/tracker/sf001/data/sf001TrackerTestData.xlsx"
 
 	var sheetHeaderRowMap = map[string]int{
 		"SF001Tracker": 1,
@@ -126,16 +127,16 @@ func (suite *System) TestSystemDeviceCreation() {
 			newSF001Tracker.AssignedId = unwrappedAssignedParty.Details().PartyId
 		}
 
-		//// create the device
-		//createDeviceResponse := tk102DeviceAdministratorJsonAdaptor.CreateResponse{}
-		//if err := suite.jsonRpcClient.JsonRpcRequest(
-		//	"TK102DeviceAdministrator.Create",
-		//	tk102DeviceAdministratorJsonAdaptor.CreateRequest{
-		//		TK102: newDevice,
-		//	},
-		//	&createDeviceResponse,
-		//); err != nil {
-		//	suite.FailNow("create device failed", err.Error())
-		//}
+		// create the device
+		createSF001TrackerResponse := sf001TrackerAdministratorJsonAdaptor.CreateResponse{}
+		if err := suite.jsonRpcClient.JsonRpcRequest(
+			"SF001TrackerAdministrator.Create",
+			sf001TrackerAdministratorJsonAdaptor.CreateRequest{
+				SF001: newSF001Tracker,
+			},
+			&createSF001TrackerResponse,
+		); err != nil {
+			suite.FailNow("create sf001 tracker failed", err.Error())
+		}
 	}
 }
