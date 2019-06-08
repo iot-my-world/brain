@@ -15,6 +15,8 @@ import (
 	"runtime/debug"
 	"time"
 
+	databaseCollection "gitlab.com/iotTracker/brain/database/collection"
+
 	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	apiUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/api"
 	humanUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/human"
@@ -54,32 +56,8 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
 
-	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
-	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
-	zx303GPSReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/adaptor/jsonRpc"
-	zx303GPSReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/basic"
-	zx303GPSReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/adaptor/jsonRpc"
-	zx303GPSReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/mongo"
-	zx303GPSReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/validator/basic"
-	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/adaptor/jsonRpc"
-	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/mongo"
-	zx303TaskAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/adaptor/jsonRpc"
-	zx303TaskBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/basic"
-	zx303TaskRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler/adaptor/jsonRpc"
-	zx303TaskMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler/mongo"
-	zx303TaskValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/validator/adaptor/jsonRpc"
-	zx303TaskBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator/basic"
-	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/validator/adaptor/jsonRpc"
-	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/validator/basic"
-
-	zx303StatusReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/administrator/adaptor/jsonRpc"
-	zx303StatusReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/administrator/basic"
-	zx303StatusReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/adaptor/jsonRpc"
-	zx303StatusReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/mongo"
-	zx303StatusReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/validator/basic"
-
-	zx303ReadingStatusReportGeneratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/adaptor"
-	zx303ReadingStatusReportBasicGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/basic"
+	sf001RecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler/adaptor/jsonRpc"
+	sf001TrackerMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler/mongo"
 
 	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
@@ -91,8 +69,6 @@ import (
 
 	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
-
-	sigbugMessageHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sigbug/message/handler/adaptor/jsonRpc"
 
 	"flag"
 	"gitlab.com/iotTracker/brain/communication/email/mailer"
@@ -206,13 +182,13 @@ func main() {
 	RoleRecordHandler := roleMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		roleCollection,
+		databaseCollection.Role,
 	)
 	// User
 	UserRecordHandler := userMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		userCollection,
+		databaseCollection.User,
 	)
 	UserValidator := userBasicValidator.New(
 		UserRecordHandler,
@@ -239,7 +215,7 @@ func main() {
 	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		companyCollection,
+		databaseCollection.Company,
 	)
 
 	CompanyValidator := companyBasicValidator.New(
@@ -257,7 +233,7 @@ func main() {
 	ClientRecordHandler := clientMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		clientCollection,
+		databaseCollection.Client,
 	)
 	ClientValidator := clientBasicValidator.New(
 		ClientRecordHandler,
@@ -288,7 +264,7 @@ func main() {
 	SystemRecordHandler := systemMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		systemCollection,
+		databaseCollection.System,
 		*rootPasswordFileLocation,
 		PartyBasicRegistrar,
 		&systemClaims,
@@ -305,7 +281,7 @@ func main() {
 	APIUserRecordHandler := apiUserMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		apiUserCollection,
+		databaseCollection.APIUser,
 	)
 	APIUserValidator := apiUserBasicValidator.New(
 		PartyBasicAdministrator,
@@ -330,72 +306,23 @@ func main() {
 		APIUserRecordHandler,
 	)
 
-	// ZX303 Device
-	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
+	// SF001 Device
+	SF001TrackerMongoRecordHandler := sf001TrackerMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		zx303DeviceCollection,
-	)
-	ZX303GPSReadingRecordHandler := zx303GPSReadingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		zx303GPSReadingCollection,
-	)
-	ZX303StatusReadingRecordHandler := zx303StatusReadingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		zx303StatusReadingCollection,
-	)
-	ZX303TaskRecordHandler := zx303TaskMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		zx303TaskCollection,
-	)
-	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303GPSReadingValidator := zx303GPSReadingBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303StatusReadingValidator := zx303StatusReadingBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303TaskValidator := zx303TaskBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
-		ZX303DeviceValidator,
-		ZX303DeviceRecordHandler,
-	)
-	ZX303GPSReadingAdministrator := zx303GPSReadingBasicAdministrator.New(
-		ZX303GPSReadingValidator,
-		ZX303GPSReadingRecordHandler,
-	)
-	ZX303StatusReadingAdministrator := zx303StatusReadingBasicAdministrator.New(
-		ZX303StatusReadingValidator,
-		ZX303StatusReadingRecordHandler,
-	)
-	ZX303TaskAdministrator := zx303TaskBasicAdministrator.New(
-		ZX303TaskValidator,
-		ZX303TaskRecordHandler,
-		//nerveBroadcastProducer,
-	)
-	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New(
-		ZX303StatusReadingRecordHandler,
-		ZX303DeviceRecordHandler,
+		databaseCollection.SF001Tracker,
 	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
-		ZX303GPSReadingRecordHandler,
-		ZX303DeviceRecordHandler,
 	)
 
 	// Barcode Scanner
 	BarcodeScanner := barcodeScanner.New()
 
-	// Create Service Provider Adaptors
+	// ________________________________ Create Service Provider Adaptors ________________________________
+
 	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
@@ -430,35 +357,20 @@ func main() {
 	// System
 	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
 
-	// ZX303 Device
-	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
-	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
-	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
-	ZX303GPSReadingRecordHandlerAdaptor := zx303GPSReadingRecordHandlerJsonRpcAdaptor.New(ZX303GPSReadingRecordHandler)
-	ZX303GPSReadingAdministratorAdaptor := zx303GPSReadingAdministratorJsonRpcAdaptor.New(ZX303GPSReadingAdministrator)
-	ZX303StatusReadingRecordHandlerAdaptor := zx303StatusReadingRecordHandlerJsonRpcAdaptor.New(ZX303StatusReadingRecordHandler)
-	ZX303StatusReadingAdministratorAdaptor := zx303StatusReadingAdministratorJsonRpcAdaptor.New(ZX303StatusReadingAdministrator)
-
-	ZX303TaskRecordHandlerAdaptor := zx303TaskRecordHandlerJsonRpcAdaptor.New(ZX303TaskRecordHandler)
-	ZX303TaskAdministratorAdaptor := zx303TaskAdministratorJsonRpcAdaptor.New(ZX303TaskAdministrator)
-	ZX303TaskValidatorAdaptor := zx303TaskValidatorJsonRpcAdaptor.New(ZX303TaskValidator)
-
-	ZX303ReadingStatusReportGeneratorAdaptor := zx303ReadingStatusReportGeneratorJsonRpcAdaptor.New(ZX303ReadingStatusReportGenerator)
-
-	// Sigbug
-	sigbugMessageHandlerAdaptor := sigbugMessageHandlerJsonRpcAdaptor.New()
-
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
 
 	// Barcode Scanner
 	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
+	// SF001 Tracker
+	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
+
+	// ________________________________ Register Service Provider Adaptors with secureHumanUserAPIServer ________________________________
 	// Create secureHumanUserAPIServer
 	secureHumanUserAPIServer := rpc.NewServer()
 	secureHumanUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
-	// Register Service Provider Adaptors with secureHumanUserAPIServer
 	// User
 	if err := secureHumanUserAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
@@ -525,42 +437,6 @@ func main() {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
 
-	// ZX303 Device
-	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Validator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Administrator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingRecordHandlerAdaptor, "ZX303GPSReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 GPS Reading Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingAdministratorAdaptor, "ZX303GPSReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 GPS Reading Administrator Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303StatusReadingRecordHandlerAdaptor, "ZX303StatusReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 Status Reading Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303StatusReadingAdministratorAdaptor, "ZX303StatusReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Status Reading Administrator Service")
-	}
-
-	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskRecordHandlerAdaptor, "ZX303TaskRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 Task Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskValidatorAdaptor, "ZX303TaskValidator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Task Validator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Task Administrator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303ReadingStatusReportGeneratorAdaptor, "ZX303StatusReadingReportGenerator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Reading Status Report Generator")
-	}
-
 	// Reports
 	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
@@ -569,6 +445,11 @@ func main() {
 	// Barcode Scanner
 	if err := secureHumanUserAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
 		log.Fatal("Unable to Register Barcode Scanner Service")
+	}
+
+	// SF001 Tracker
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerRecordHandlerJsonRpcAdaptor, "SF001TrackerRecordHandler"); err != nil {
+		log.Fatal("Unable to Register SF001 Tracker RecordHandler Service")
 	}
 
 	// Set up Secure Human User API Server i.e. the Portal API Server
@@ -597,10 +478,6 @@ func main() {
 	// Auth
 	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
-	}
-
-	if err := secureAPIUserAPIServer.RegisterService(sigbugMessageHandlerAdaptor, "Sigbug"); err != nil {
-		log.Fatal("Unable to Sigbug Service Adaptor")
 	}
 
 	// Sigfox Test
