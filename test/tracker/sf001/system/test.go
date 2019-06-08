@@ -1,12 +1,14 @@
 package system
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/suite"
 	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
 	"gitlab.com/iotTracker/brain/party"
+	partyAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
 	"gitlab.com/iotTracker/brain/search/identifier/id"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "gitlab.com/iotTracker/brain/test/data"
 	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
@@ -52,6 +54,7 @@ func (suite *System) TestSystemDeviceCreation() {
 
 	// create all of the sf001 trackers
 	for _, rowMap := range sheetSliceMap {
+		// new tracker to create
 		newSF001Tracker := sf001.SF001{
 			Id:                   "",
 			DeviceId:             rowMap["DeviceId"],
@@ -61,6 +64,78 @@ func (suite *System) TestSystemDeviceCreation() {
 			AssignedId:           id.Identifier{},
 			LastMessageTimestamp: 0,
 		}
-		fmt.Println("make!", newSF001Tracker)
+
+		// create identifier to retrieve the owner party
+		ownerPartyIdentifier, err := wrappedIdentifier.Wrap(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Owner Admin Email"]})
+		if err != nil {
+			suite.FailNow("error wrapping party Identifier", err.Error())
+		}
+
+		// try and retrieve the owner party
+		retrieveOwnerPartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
+		if err := suite.jsonRpcClient.JsonRpcRequest(
+			"PartyAdministrator.RetrieveParty",
+			partyAdministratorJsonAdaptor.RetrievePartyRequest{
+				PartyType:         newSF001Tracker.OwnerPartyType,
+				WrappedIdentifier: *ownerPartyIdentifier,
+			},
+			&retrieveOwnerPartyResponse,
+		); err != nil {
+			suite.FailNow("retrieve owner party failed", err.Error())
+		}
+
+		// unwrap the owner party from the response
+		unwrappedOwnerParty, err := retrieveOwnerPartyResponse.Party.UnWrap()
+		if err != nil {
+			suite.FailNow("error unwrapping owner party", err.Error())
+		}
+
+		// populate the owner details
+		newSF001Tracker.OwnerPartyType = unwrappedOwnerParty.Details().PartyType
+		newSF001Tracker.OwnerId = unwrappedOwnerParty.Details().PartyId
+
+		// if there are assigned party details then retrieve the assigned party and populate for the device
+		if newSF001Tracker.AssignedPartyType != "" {
+			// create identifier to retrieve the assigned party
+			assignedPartyIdentifier, err := wrappedIdentifier.Wrap(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Assigned Admin Email"]})
+			if err != nil {
+				suite.FailNow("error wrapping assigned party Identifier", err.Error())
+			}
+
+			// try and retrieve the assigned party
+			retrieveAssignedPartyResponse := partyAdministratorJsonAdaptor.RetrievePartyResponse{}
+			if err := suite.jsonRpcClient.JsonRpcRequest(
+				"PartyAdministrator.RetrieveParty",
+				partyAdministratorJsonAdaptor.RetrievePartyRequest{
+					PartyType:         newSF001Tracker.AssignedPartyType,
+					WrappedIdentifier: *assignedPartyIdentifier,
+				},
+				&retrieveAssignedPartyResponse,
+			); err != nil {
+				suite.FailNow("retrieve assigned party failed", err.Error())
+			}
+
+			// unwrap the assigned party from the response
+			unwrappedAssignedParty, err := retrieveAssignedPartyResponse.Party.UnWrap()
+			if err != nil {
+				suite.FailNow("error unwrapping assigned party", err.Error())
+			}
+
+			// populate the assigned details
+			newSF001Tracker.AssignedPartyType = unwrappedAssignedParty.Details().PartyType
+			newSF001Tracker.AssignedId = unwrappedAssignedParty.Details().PartyId
+		}
+
+		//// create the device
+		//createDeviceResponse := tk102DeviceAdministratorJsonAdaptor.CreateResponse{}
+		//if err := suite.jsonRpcClient.JsonRpcRequest(
+		//	"TK102DeviceAdministrator.Create",
+		//	tk102DeviceAdministratorJsonAdaptor.CreateRequest{
+		//		TK102: newDevice,
+		//	},
+		//	&createDeviceResponse,
+		//); err != nil {
+		//	suite.FailNow("create device failed", err.Error())
+		//}
 	}
 }
