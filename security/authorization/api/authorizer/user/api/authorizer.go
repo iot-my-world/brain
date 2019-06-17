@@ -1,14 +1,14 @@
 package api
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
-	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
-	apiAuthException "github.com/iot-my-world/brain/security/authorization/api/authorizer/exception"
-	apiUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/api"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
-	"github.com/iot-my-world/brain/security/permission/api"
-	"github.com/iot-my-world/brain/security/token"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer"
+	apiAuthException "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/exception"
+	apiUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/api"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/token"
 )
 
 type authorizer struct {

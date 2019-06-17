@@ -1,9 +1,9 @@
 package jsonRpc
 
 import (
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	brainException "github.com/iot-my-world/brain/exception"
-	apiUserAdministrator "github.com/iot-my-world/brain/user/api/administrator"
+	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	apiUserAdministrator "gitlab.com/iotTracker/brain/user/api/administrator"
 )
 
 type administrator struct {

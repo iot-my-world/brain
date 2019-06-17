@@ -1,9 +1,9 @@
 package company
 
 import (
-	clientTest "github.com/iot-my-world/brain/test/company/client"
-	userTest "github.com/iot-my-world/brain/test/company/user"
 	"github.com/stretchr/testify/suite"
+	clientTest "gitlab.com/iotTracker/brain/test/company/client"
+	userTest "gitlab.com/iotTracker/brain/test/company/user"
 	"testing"
 )
 

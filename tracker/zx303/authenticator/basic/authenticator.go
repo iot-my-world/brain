@@ -1,14 +1,14 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	"github.com/iot-my-world/brain/tracker/zx303"
-	zx303DeviceAuthenticator "github.com/iot-my-world/brain/tracker/zx303/authenticator"
-	zx303DeviceAuthenticatorException "github.com/iot-my-world/brain/tracker/zx303/authenticator/exception"
-	zx303RecordHandler "github.com/iot-my-world/brain/tracker/zx303/recordHandler"
-	zx303RecordHandlerException "github.com/iot-my-world/brain/tracker/zx303/recordHandler/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/tracker/zx303"
+	zx303DeviceAuthenticator "gitlab.com/iotTracker/brain/tracker/zx303/authenticator"
+	zx303DeviceAuthenticatorException "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/exception"
+	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler"
+	zx303RecordHandlerException "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/exception"
 	"time"
 )
 

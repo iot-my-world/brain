@@ -1,11 +1,11 @@
 package jsonRpc
 
 import (
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	brainException "github.com/iot-my-world/brain/exception"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	sf001DeviceAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator"
-	sf001DeviceAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
+	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	sf001DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/sf001/administrator"
+	sf001DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/administrator/adaptor/jsonRpc"
 )
 
 type administrator struct {

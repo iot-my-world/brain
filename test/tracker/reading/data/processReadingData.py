@@ -61,7 +61,7 @@ stringPattern = r'"(.*?)"'
 
 if __name__ == '__main__':
     # get reading file paths
-    os.chdir('/Users/bernardbussy/go/src/github.com/iot-my-world/brain/test/tracker/reading/data')
+    os.chdir('/Users/bernardbussy/go/src/gitlab.com/iotTracker/brain/test/tracker/reading/data')
     readingFilePaths = ['./raw/' + readingFile for readingFile in os.listdir('./raw') if readingFile.endswith('.rdat')]
     # open and set up workbook to save readings in
     outputWorkbook = Workbook()

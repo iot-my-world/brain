@@ -2,14 +2,14 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	zx303Task "github.com/iot-my-world/brain/tracker/zx303/task"
-	zx303TaskAction "github.com/iot-my-world/brain/tracker/zx303/task/action"
-	zx303TaskAdministrator "github.com/iot-my-world/brain/tracker/zx303/task/administrator"
-	zx303TaskAdministratorException "github.com/iot-my-world/brain/tracker/zx303/task/administrator/exception"
-	zx303TaskRecordHandler "github.com/iot-my-world/brain/tracker/zx303/task/recordHandler"
-	zx303TaskStep "github.com/iot-my-world/brain/tracker/zx303/task/step"
-	zx303TaskValidator "github.com/iot-my-world/brain/tracker/zx303/task/validator"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
+	zx303TaskAction "gitlab.com/iotTracker/brain/tracker/zx303/task/action"
+	zx303TaskAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator"
+	zx303TaskAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/exception"
+	zx303TaskRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler"
+	zx303TaskStep "gitlab.com/iotTracker/brain/tracker/zx303/task/step"
+	zx303TaskValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator"
 )
 
 type administrator struct {

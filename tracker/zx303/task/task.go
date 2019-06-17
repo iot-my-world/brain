@@ -1,10 +1,10 @@
 package task
 
 import (
-	"github.com/iot-my-world/brain/search/identifier"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	taskException "github.com/iot-my-world/brain/tracker/zx303/task/exception"
-	"github.com/iot-my-world/brain/tracker/zx303/task/step"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	taskException "gitlab.com/iotTracker/brain/tracker/zx303/task/exception"
+	"gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 )
 
 type Type string

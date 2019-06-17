@@ -1,15 +1,15 @@
 package setup
 
 import (
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	"github.com/iot-my-world/brain/search/identifier/name"
-	"github.com/iot-my-world/brain/security/permission/api"
-	"github.com/iot-my-world/brain/security/permission/view"
-	"github.com/iot-my-world/brain/security/role"
-	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
-	roleRecordHandlerException "github.com/iot-my-world/brain/security/role/recordHandler/exception"
-	roleSetupException "github.com/iot-my-world/brain/security/role/setup/exception"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/search/identifier/name"
+	"gitlab.com/iotTracker/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/view"
+	"gitlab.com/iotTracker/brain/security/role"
+	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
+	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
+	roleSetupException "gitlab.com/iotTracker/brain/security/role/setup/exception"
 )
 
 var initialRoles = func() []role.Role {

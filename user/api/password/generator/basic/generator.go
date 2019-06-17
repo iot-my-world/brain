@@ -3,8 +3,8 @@ package basic
 import (
 	"crypto/rand"
 	"encoding/base64"
-	apiUserPasswordGenerator "github.com/iot-my-world/brain/user/api/password/generator"
 	"github.com/satori/go.uuid"
+	apiUserPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator"
 )
 
 type generator struct {

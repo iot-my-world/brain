@@ -1,7 +1,7 @@
 package date
 
 import (
-	"github.com/iot-my-world/brain/search/criterion"
+	"gitlab.com/iotTracker/brain/search/criterion"
 	"gopkg.in/mgo.v2/bson"
 )
 

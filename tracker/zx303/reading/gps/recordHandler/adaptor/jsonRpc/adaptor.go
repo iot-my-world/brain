@@ -1,14 +1,14 @@
 package jsonRpc
 
 import (
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/search/criterion"
-	wrappedCriterion "github.com/iot-my-world/brain/search/criterion/wrapped"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	"github.com/iot-my-world/brain/search/query"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	zx303GPSReading "github.com/iot-my-world/brain/tracker/zx303/reading/gps"
-	zx303GPSReadingRecordHandler "github.com/iot-my-world/brain/tracker/zx303/reading/gps/recordHandler"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	"gitlab.com/iotTracker/brain/search/query"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	zx303GPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
+	zx303GPSReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler"
 	"net/http"
 )
 

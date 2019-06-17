@@ -1,7 +1,7 @@
 package basic
 
 import (
-	readingValidator "github.com/iot-my-world/brain/tracker/tk102/reading/validator"
+	readingValidator "gitlab.com/iotTracker/brain/tracker/tk102/reading/validator"
 )
 
 type validator struct {

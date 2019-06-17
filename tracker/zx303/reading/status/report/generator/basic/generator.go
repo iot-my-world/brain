@@ -1,17 +1,17 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/search/criterion"
-	exactText "github.com/iot-my-world/brain/search/criterion/exact/text"
-	dateRange "github.com/iot-my-world/brain/search/criterion/range/date"
-	"github.com/iot-my-world/brain/tracker/zx303"
-	zx303StatusReadingRecordHandler "github.com/iot-my-world/brain/tracker/zx303/reading/status/recordHandler"
-	zx303StatusReadingReport "github.com/iot-my-world/brain/tracker/zx303/reading/status/report"
-	zx303StatusReadingReportGenerator "github.com/iot-my-world/brain/tracker/zx303/reading/status/report/generator"
-	zx303StatusReadingReportGeneratorException "github.com/iot-my-world/brain/tracker/zx303/reading/status/report/generator/exception"
-	zx303RecordHandler "github.com/iot-my-world/brain/tracker/zx303/recordHandler"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	exactText "gitlab.com/iotTracker/brain/search/criterion/exact/text"
+	dateRange "gitlab.com/iotTracker/brain/search/criterion/range/date"
+	"gitlab.com/iotTracker/brain/tracker/zx303"
+	zx303StatusReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
+	zx303StatusReadingReport "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report"
+	zx303StatusReadingReportGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator"
+	zx303StatusReadingReportGeneratorException "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/exception"
+	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler"
 )
 
 type generator struct {

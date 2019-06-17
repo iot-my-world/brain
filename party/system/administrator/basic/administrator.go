@@ -1,11 +1,11 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
-	systemAdministrator "github.com/iot-my-world/brain/party/system/administrator"
-	systemAdministratorException "github.com/iot-my-world/brain/party/system/administrator/exception"
-	systemRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	systemAdministrator "gitlab.com/iotTracker/brain/party/system/administrator"
+	systemAdministratorException "gitlab.com/iotTracker/brain/party/system/administrator/exception"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 type administrator struct {

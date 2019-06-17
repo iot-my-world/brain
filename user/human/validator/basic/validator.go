@@ -1,17 +1,17 @@
 package basic
 
 import (
-	"github.com/iot-my-world/brain/action"
-	brainException "github.com/iot-my-world/brain/exception"
-	partyRegistrarAction "github.com/iot-my-world/brain/party/registrar/action"
-	"github.com/iot-my-world/brain/search/identifier/emailAddress"
-	"github.com/iot-my-world/brain/search/identifier/username"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
-	userAction "github.com/iot-my-world/brain/user/human/action"
-	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
-	userRecordHandlerException "github.com/iot-my-world/brain/user/human/recordHandler/exception"
-	userValidator "github.com/iot-my-world/brain/user/human/validator"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/action"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	partyRegistrarAction "gitlab.com/iotTracker/brain/party/registrar/action"
+	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/username"
+	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
+	userAction "gitlab.com/iotTracker/brain/user/human/action"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
+	userValidator "gitlab.com/iotTracker/brain/user/human/validator"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type validator struct {

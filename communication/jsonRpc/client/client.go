@@ -2,8 +2,8 @@ package client
 
 import (
 	"encoding/json"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	"github.com/iot-my-world/brain/security/claims"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/security/claims"
 )
 
 type Client interface {

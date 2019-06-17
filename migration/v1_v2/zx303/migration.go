@@ -2,8 +2,8 @@ package zx303
 
 import (
 	"errors"
-	v1zx303 "github.com/iot-my-world/brain/migration/v1_v2/zx303/v1"
-	v2zx303 "github.com/iot-my-world/brain/migration/v1_v2/zx303/v2"
+	v1zx303 "gitlab.com/iotTracker/brain/migration/v1_v2/zx303/v1"
+	v2zx303 "gitlab.com/iotTracker/brain/migration/v1_v2/zx303/v2"
 	"gopkg.in/mgo.v2"
 )
 

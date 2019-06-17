@@ -1,6 +1,6 @@
 package party
 
-import "github.com/iot-my-world/brain/search/identifier/id"
+import "gitlab.com/iotTracker/brain/search/identifier/id"
 
 type Details struct {
 	Detail

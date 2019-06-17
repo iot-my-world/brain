@@ -1,12 +1,12 @@
 package tk102
 
 import (
-	"github.com/iot-my-world/brain/action"
-	"github.com/iot-my-world/brain/log"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	"github.com/iot-my-world/brain/tracker/tk102"
-	tk102DeviceValidator "github.com/iot-my-world/brain/tracker/tk102/validator"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/action"
+	"gitlab.com/iotTracker/brain/log"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	"gitlab.com/iotTracker/brain/tracker/tk102"
+	tk102DeviceValidator "gitlab.com/iotTracker/brain/tracker/tk102/validator"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 

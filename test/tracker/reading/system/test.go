@@ -2,19 +2,19 @@ package system
 
 import (
 	"fmt"
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
-	"github.com/iot-my-world/brain/search/identifier/device/tk102"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	testData "github.com/iot-my-world/brain/test/data"
-	systemTestData "github.com/iot-my-world/brain/test/system/data"
-	"github.com/iot-my-world/brain/tracker/tk102/reading"
-	readingAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
-	tk102DeviceRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
-	"github.com/iot-my-world/brain/workbook"
 	"github.com/stretchr/testify/suite"
+	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
+	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
+	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
+	testData "gitlab.com/iotTracker/brain/test/data"
+	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	readingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
+	tk102DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/workbook"
 	"math/rand"
 	"os"
 	"strconv"
@@ -41,7 +41,7 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestSystemReadingCreation() {
-	pathToDeviceDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/device/tk102/data/deviceData.xlsx"
+	pathToDeviceDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/tracker/device/tk102/data/deviceData.xlsx"
 	deviceDataWorkBook, err := workbook.New(pathToDeviceDataWorkbook, map[string]int{
 		"TK102Devices": 1,
 	})
@@ -49,7 +49,7 @@ func (suite *System) TestSystemReadingCreation() {
 		suite.FailNow("failed to create device data workbook", err.Error())
 	}
 
-	pathToReadingDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/reading/data/data.xlsx"
+	pathToReadingDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/tracker/reading/data/data.xlsx"
 	readingDataWorkBook, err := workbook.New(pathToReadingDataWorkbook, map[string]int{})
 	if err != nil {
 		suite.FailNow("failed to create device data workbook", err.Error())

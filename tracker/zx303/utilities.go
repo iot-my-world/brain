@@ -1,7 +1,7 @@
 package zx303
 
 import (
-	"github.com/iot-my-world/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier"
 )
 
 func IsValidIdentifier(id identifier.Identifier) bool {

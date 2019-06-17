@@ -1,9 +1,9 @@
 package validator
 
 import (
-	"github.com/iot-my-world/brain/action"
-	"github.com/iot-my-world/brain/tracker/tk102/reading"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/action"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 )
 
 type Validator interface {

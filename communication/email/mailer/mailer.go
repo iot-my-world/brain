@@ -1,6 +1,6 @@
 package mailer
 
-import "github.com/iot-my-world/brain/communication/email"
+import "gitlab.com/iotTracker/brain/communication/email"
 
 type AuthInfo struct {
 	Identity string

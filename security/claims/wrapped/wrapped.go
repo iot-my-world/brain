@@ -2,16 +2,16 @@ package wrapped
 
 import (
 	"encoding/json"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/security/claims"
-	apiUserLogin "github.com/iot-my-world/brain/security/claims/login/user/api"
-	humanUserLogin "github.com/iot-my-world/brain/security/claims/login/user/human"
-	"github.com/iot-my-world/brain/security/claims/registerClientAdminUser"
-	"github.com/iot-my-world/brain/security/claims/registerClientUser"
-	"github.com/iot-my-world/brain/security/claims/registerCompanyAdminUser"
-	"github.com/iot-my-world/brain/security/claims/registerCompanyUser"
-	"github.com/iot-my-world/brain/security/claims/resetPassword"
-	wrappedClaimsException "github.com/iot-my-world/brain/security/claims/wrapped/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/security/claims"
+	apiUserLogin "gitlab.com/iotTracker/brain/security/claims/login/user/api"
+	humanUserLogin "gitlab.com/iotTracker/brain/security/claims/login/user/human"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
+	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
+	"gitlab.com/iotTracker/brain/security/claims/resetPassword"
+	wrappedClaimsException "gitlab.com/iotTracker/brain/security/claims/wrapped/exception"
 	"net/http"
 )
 

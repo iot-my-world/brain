@@ -2,7 +2,7 @@ package emailAddress
 
 import (
 	"errors"
-	"github.com/iot-my-world/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/search/identifier"
 	"gopkg.in/mgo.v2/bson"
 )
 

@@ -1,20 +1,20 @@
 package system
 
 import (
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
-	"github.com/iot-my-world/brain/party"
-	partyAdministratorJsonAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
-	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	testData "github.com/iot-my-world/brain/test/data"
-	systemTestData "github.com/iot-my-world/brain/test/system/data"
-	"github.com/iot-my-world/brain/tracker/sf001"
-	sf001TrackerAdministratorJsonAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
-	"github.com/iot-my-world/brain/workbook"
 	"github.com/stretchr/testify/suite"
+	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
+	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
+	"gitlab.com/iotTracker/brain/party"
+	partyAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
+	testData "gitlab.com/iotTracker/brain/test/data"
+	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
+	"gitlab.com/iotTracker/brain/tracker/sf001"
+	sf001TrackerAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/sf001/administrator/adaptor/jsonRpc"
+	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
 
@@ -37,7 +37,7 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestSystemDeviceCreation() {
-	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/sf001/data/sf001TrackerTestData.xlsx"
+	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/tracker/sf001/data/sf001TrackerTestData.xlsx"
 
 	var sheetHeaderRowMap = map[string]int{
 		"SF001Tracker": 1,

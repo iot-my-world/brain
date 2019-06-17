@@ -1,12 +1,12 @@
 package apiUser
 
 import (
-	"github.com/iot-my-world/brain/action"
-	"github.com/iot-my-world/brain/log"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	apiUser "github.com/iot-my-world/brain/user/api"
-	apiUserDeviceValidator "github.com/iot-my-world/brain/user/api/validator"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/action"
+	"gitlab.com/iotTracker/brain/log"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
+	apiUserDeviceValidator "gitlab.com/iotTracker/brain/user/api/validator"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 

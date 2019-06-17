@@ -1,10 +1,10 @@
 package mongo
 
 import (
-	brainMongoRecordHandler "github.com/iot-my-world/brain/recordHandler/mongo"
-	"github.com/iot-my-world/brain/security/claims"
-	zx303StatusReading "github.com/iot-my-world/brain/tracker/zx303/reading/status"
-	zx303StatusReadingRecordHandler "github.com/iot-my-world/brain/tracker/zx303/reading/status/recordHandler"
+	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
+	"gitlab.com/iotTracker/brain/security/claims"
+	zx303StatusReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/status"
+	zx303StatusReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler"
 	"gopkg.in/mgo.v2"
 )
 

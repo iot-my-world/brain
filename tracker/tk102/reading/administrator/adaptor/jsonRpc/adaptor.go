@@ -1,8 +1,8 @@
 package jsonRpc
 
 import (
-	"github.com/iot-my-world/brain/tracker/tk102/reading"
-	readingAdministrator "github.com/iot-my-world/brain/tracker/tk102/reading/administrator"
+	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	readingAdministrator "gitlab.com/iotTracker/brain/tracker/tk102/reading/administrator"
 	"net/http"
 )
 

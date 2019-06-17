@@ -1,8 +1,8 @@
 package sf001
 
 import (
-	systemTest "github.com/iot-my-world/brain/test/tracker/sf001/system"
 	"github.com/stretchr/testify/suite"
+	systemTest "gitlab.com/iotTracker/brain/test/tracker/sf001/system"
 	"testing"
 )
 

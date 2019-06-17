@@ -1,10 +1,10 @@
 package administrator
 
 import (
-	"github.com/iot-my-world/brain/search/identifier"
-	"github.com/iot-my-world/brain/security/claims"
-	zx303Task "github.com/iot-my-world/brain/tracker/zx303/task"
-	"github.com/iot-my-world/brain/tracker/zx303/task/step"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/claims"
+	zx303Task "gitlab.com/iotTracker/brain/tracker/zx303/task"
+	"gitlab.com/iotTracker/brain/tracker/zx303/task/step"
 )
 
 type Administrator interface {

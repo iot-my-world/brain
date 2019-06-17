@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/iot-my-world/brain/party"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"gitlab.com/iotTracker/brain/party"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
 )
 
 // Client is the model for the client entities in the system

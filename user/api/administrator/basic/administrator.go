@@ -2,15 +2,15 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	apiUserAction "github.com/iot-my-world/brain/user/api/action"
-	apiUserAdministrator "github.com/iot-my-world/brain/user/api/administrator"
-	apiUserAdministratorException "github.com/iot-my-world/brain/user/api/administrator/exception"
-	apiUserPasswordGenerator "github.com/iot-my-world/brain/user/api/password/generator"
-	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
-	apiUserValidator "github.com/iot-my-world/brain/user/api/validator"
 	"github.com/satori/go.uuid"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/search/identifier/id"
+	apiUserAction "gitlab.com/iotTracker/brain/user/api/action"
+	apiUserAdministrator "gitlab.com/iotTracker/brain/user/api/administrator"
+	apiUserAdministratorException "gitlab.com/iotTracker/brain/user/api/administrator/exception"
+	apiUserPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator"
+	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
+	apiUserValidator "gitlab.com/iotTracker/brain/user/api/validator"
 	"golang.org/x/crypto/bcrypt"
 )
 

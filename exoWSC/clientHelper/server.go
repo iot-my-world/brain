@@ -2,8 +2,8 @@ package clientHelper
 
 import (
 	"github.com/gorilla/websocket"
-	"github.com/iot-my-world/brain/exoWSC"
-	"github.com/iot-my-world/brain/log"
+	"gitlab.com/iotTracker/brain/exoWSC"
+	"gitlab.com/iotTracker/brain/log"
 	"net/http"
 )
 

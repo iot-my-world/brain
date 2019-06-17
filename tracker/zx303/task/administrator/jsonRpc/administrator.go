@@ -1,11 +1,11 @@
 package jsonRpc
 
 import (
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	brainException "github.com/iot-my-world/brain/exception"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	zx303TaskAdministrator "github.com/iot-my-world/brain/tracker/zx303/task/administrator"
-	zx303TaskAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/zx303/task/administrator/adaptor/jsonRpc"
+	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	zx303TaskAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator"
+	zx303TaskAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/adaptor/jsonRpc"
 )
 
 type administrator struct {

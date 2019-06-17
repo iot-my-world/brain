@@ -2,13 +2,13 @@ package wrapped
 
 import (
 	"encoding/json"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/search/criterion"
-	exactText "github.com/iot-my-world/brain/search/criterion/exact/text"
-	criterionException "github.com/iot-my-world/brain/search/criterion/exception"
-	listText "github.com/iot-my-world/brain/search/criterion/list/text"
-	"github.com/iot-my-world/brain/search/criterion/or"
-	"github.com/iot-my-world/brain/search/criterion/text"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	exactText "gitlab.com/iotTracker/brain/search/criterion/exact/text"
+	criterionException "gitlab.com/iotTracker/brain/search/criterion/exception"
+	listText "gitlab.com/iotTracker/brain/search/criterion/list/text"
+	"gitlab.com/iotTracker/brain/search/criterion/or"
+	"gitlab.com/iotTracker/brain/search/criterion/text"
 )
 
 type Wrapped struct {

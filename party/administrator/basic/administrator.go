@@ -2,16 +2,16 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/party"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
-	partyAdministratorException "github.com/iot-my-world/brain/party/administrator/exception"
-	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
-	clientRecordHandlerException "github.com/iot-my-world/brain/party/client/recordHandler/exception"
-	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
-	companyRecordHandlerException "github.com/iot-my-world/brain/party/company/recordHandler/exception"
-	systemRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler"
-	systemRecordHandlerException "github.com/iot-my-world/brain/party/system/recordHandler/exception"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/party"
+	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
+	partyAdministratorException "gitlab.com/iotTracker/brain/party/administrator/exception"
+	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
+	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
+	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
+	systemRecordHandlerException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
 )
 
 type administrator struct {

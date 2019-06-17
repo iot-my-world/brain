@@ -2,13 +2,13 @@ package mongo
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/search/criterion"
-	humanUser "github.com/iot-my-world/brain/user/human"
-	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
-	userRecordHandlerException "github.com/iot-my-world/brain/user/human/recordHandler/exception"
 	"github.com/satori/go.uuid"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	humanUser "gitlab.com/iotTracker/brain/user/human"
+	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
 	"gopkg.in/mgo.v2"
 )
 

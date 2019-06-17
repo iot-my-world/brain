@@ -2,12 +2,12 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	zx303GPSReadingAction "github.com/iot-my-world/brain/tracker/zx303/reading/gps/action"
-	zx303GPSReadingAdministrator "github.com/iot-my-world/brain/tracker/zx303/reading/gps/administrator"
-	zx303GPSReadingAdministratorException "github.com/iot-my-world/brain/tracker/zx303/reading/gps/administrator/exception"
-	zx303GPSReadingRecordHandler "github.com/iot-my-world/brain/tracker/zx303/reading/gps/recordHandler"
-	zx303GPSReadingValidator "github.com/iot-my-world/brain/tracker/zx303/reading/gps/validator"
+	brainException "gitlab.com/iotTracker/brain/exception"
+	zx303GPSReadingAction "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/action"
+	zx303GPSReadingAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator"
+	zx303GPSReadingAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/exception"
+	zx303GPSReadingRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler"
+	zx303GPSReadingValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/validator"
 )
 
 type administrator struct {

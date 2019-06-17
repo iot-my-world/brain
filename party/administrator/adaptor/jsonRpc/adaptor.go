@@ -1,12 +1,12 @@
 package jsonRpc
 
 import (
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/party"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
-	wrappedParty "github.com/iot-my-world/brain/party/wrapped"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party"
+	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
+	wrappedParty "gitlab.com/iotTracker/brain/party/wrapped"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"net/http"
 )
 

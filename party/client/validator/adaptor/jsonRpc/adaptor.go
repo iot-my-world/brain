@@ -1,12 +1,12 @@
 package client
 
 import (
-	"github.com/iot-my-world/brain/action"
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/party/client"
-	clientValidator "github.com/iot-my-world/brain/party/client/validator"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"gitlab.com/iotTracker/brain/action"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party/client"
+	clientValidator "gitlab.com/iotTracker/brain/party/client/validator"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"net/http"
 )
 

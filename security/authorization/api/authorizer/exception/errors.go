@@ -2,7 +2,7 @@ package exception
 
 import (
 	"fmt"
-	"github.com/iot-my-world/brain/security/permission/api"
+	"gitlab.com/iotTracker/brain/security/permission/api"
 )
 
 type NotAuthorised struct {

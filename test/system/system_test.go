@@ -1,8 +1,8 @@
 package system
 
 import (
-	companyTest "github.com/iot-my-world/brain/test/system/company"
 	"github.com/stretchr/testify/suite"
+	companyTest "gitlab.com/iotTracker/brain/test/system/company"
 	"testing"
 )
 

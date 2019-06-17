@@ -1,7 +1,7 @@
 package jsonRpc
 
 import (
-	"github.com/iot-my-world/brain/log"
+	"gitlab.com/iotTracker/brain/log"
 	"net/http"
 )
 

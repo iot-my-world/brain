@@ -1,8 +1,8 @@
 package recordHandler
 
 import (
-	"github.com/iot-my-world/brain/search/identifier"
-	"github.com/iot-my-world/brain/security/role"
+	"gitlab.com/iotTracker/brain/search/identifier"
+	"gitlab.com/iotTracker/brain/security/role"
 )
 
 type RecordHandler interface {

@@ -1,9 +1,9 @@
 package tracking
 
 import (
-	"github.com/iot-my-world/brain/search/identifier/party"
-	"github.com/iot-my-world/brain/security/claims"
-	zx303TrackerGPSReading "github.com/iot-my-world/brain/tracker/zx303/reading/gps"
+	"gitlab.com/iotTracker/brain/search/identifier/party"
+	"gitlab.com/iotTracker/brain/security/claims"
+	zx303TrackerGPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
 )
 
 type Report interface {

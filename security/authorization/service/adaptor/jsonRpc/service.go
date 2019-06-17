@@ -2,7 +2,7 @@ package auth
 
 import (
 	"fmt"
-	authService "github.com/iot-my-world/brain/security/authorization/service"
+	authService "gitlab.com/iotTracker/brain/security/authorization/service"
 	"net/http"
 )
 

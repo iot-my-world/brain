@@ -1,8 +1,8 @@
 package administrator
 
 import (
-	"github.com/iot-my-world/brain/security/claims"
-	apiUser "github.com/iot-my-world/brain/user/api"
+	"gitlab.com/iotTracker/brain/security/claims"
+	apiUser "gitlab.com/iotTracker/brain/user/api"
 )
 
 type Administrator interface {

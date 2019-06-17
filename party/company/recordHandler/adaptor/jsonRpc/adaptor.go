@@ -1,14 +1,14 @@
 package company
 
 import (
-	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/party/company"
-	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
-	"github.com/iot-my-world/brain/search/criterion"
-	wrappedCriterion "github.com/iot-my-world/brain/search/criterion/wrapped"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
-	"github.com/iot-my-world/brain/search/query"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	"gitlab.com/iotTracker/brain/log"
+	"gitlab.com/iotTracker/brain/party/company"
+	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
+	"gitlab.com/iotTracker/brain/search/criterion"
+	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
+	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
+	"gitlab.com/iotTracker/brain/search/query"
+	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
 	"net/http"
 )
 
