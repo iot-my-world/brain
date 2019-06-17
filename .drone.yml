@@ -1,0 +1,12 @@
+kind: pipeline
+name: default
+
+workspace:
+  base: /go
+  path: src/github.com/iot-my-world/brain/start
+
+steps:
+- name: build
+  image: golang
+  commands:
+  - ln -ls
