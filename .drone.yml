@@ -3,7 +3,7 @@ name: default
 
 workspace:
   base: /go
-  path: src/github.com/iot-my-world/brain/start
+  path: src/github.com/iot-my-world/brain
 
 steps:
   - name: build
