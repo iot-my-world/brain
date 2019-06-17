@@ -36,4 +36,8 @@ steps:
       - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
 
-      - ls
+      # get dependencies
+      - cd start
+      - go get
+      - cd ../build
+      - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
