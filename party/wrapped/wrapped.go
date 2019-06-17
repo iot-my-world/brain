@@ -2,11 +2,11 @@ package wrapped
 
 import (
 	"encoding/json"
-	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/party/client"
-	"gitlab.com/iotTracker/brain/party/company"
-	"gitlab.com/iotTracker/brain/party/system"
-	wrappedPartyException "gitlab.com/iotTracker/brain/party/wrapped/exception"
+	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/party/client"
+	"github.com/iot-my-world/brain/party/company"
+	"github.com/iot-my-world/brain/party/system"
+	wrappedPartyException "github.com/iot-my-world/brain/party/wrapped/exception"
 )
 
 type Wrapped struct {

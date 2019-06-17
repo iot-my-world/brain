@@ -1,12 +1,12 @@
 package jsonRpc
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/log"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/tracker/sf001"
-	sf001DeviceValidator "gitlab.com/iotTracker/brain/tracker/sf001/validator"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	"github.com/iot-my-world/brain/log"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	"github.com/iot-my-world/brain/tracker/sf001"
+	sf001DeviceValidator "github.com/iot-my-world/brain/tracker/sf001/validator"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 	"net/http"
 )
 

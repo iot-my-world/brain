@@ -1,11 +1,11 @@
 package recordHandler
 
 import (
-	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/tracker/tk102/reading"
+	"github.com/iot-my-world/brain/search/criterion"
+	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/query"
+	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/tracker/tk102/reading"
 )
 
 type RecordHandler interface {

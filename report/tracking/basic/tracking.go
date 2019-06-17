@@ -1,10 +1,10 @@
 package basic
 
 import (
-	brainException "gitlab.com/iotTracker/brain/exception"
-	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
-	trackingReport "gitlab.com/iotTracker/brain/report/tracking"
-	zx303GPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
+	brainException "github.com/iot-my-world/brain/exception"
+	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
+	trackingReport "github.com/iot-my-world/brain/report/tracking"
+	zx303GPSReading "github.com/iot-my-world/brain/tracker/zx303/reading/gps"
 )
 
 type basicTrackingReport struct {

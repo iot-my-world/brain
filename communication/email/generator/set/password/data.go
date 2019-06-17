@@ -1,8 +1,8 @@
 package password
 
 import (
-	"gitlab.com/iotTracker/brain/communication/email"
-	humanUser "gitlab.com/iotTracker/brain/user/human"
+	"github.com/iot-my-world/brain/communication/email"
+	humanUser "github.com/iot-my-world/brain/user/human"
 	"net/mail"
 )
 

@@ -1,8 +1,8 @@
 package client
 
 import (
+	userTest "github.com/iot-my-world/brain/test/client/user"
 	"github.com/stretchr/testify/suite"
-	userTest "gitlab.com/iotTracker/brain/test/client/user"
 	"testing"
 )
 

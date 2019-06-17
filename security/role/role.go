@@ -1,8 +1,8 @@
 package role
 
 import (
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/security/permission/view"
+	"github.com/iot-my-world/brain/security/permission/api"
+	"github.com/iot-my-world/brain/security/permission/view"
 )
 
 type Role struct {

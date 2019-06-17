@@ -2,13 +2,13 @@ package jsonRpc
 
 import (
 	"errors"
-	"gitlab.com/iotTracker/brain/log"
-	trackingReport "gitlab.com/iotTracker/brain/report/tracking"
-	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/search/identifier/party"
-	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	zx303TrackerGPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
+	"github.com/iot-my-world/brain/log"
+	trackingReport "github.com/iot-my-world/brain/report/tracking"
+	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/identifier/party"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	zx303TrackerGPSReading "github.com/iot-my-world/brain/tracker/zx303/reading/gps"
 	"net/http"
 )
 

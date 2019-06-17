@@ -1,8 +1,8 @@
 package reading
 
 import (
+	sf001TrackerSystemTest "github.com/iot-my-world/brain/test/tracker/sf001/system"
 	"github.com/stretchr/testify/suite"
-	sf001TrackerSystemTest "gitlab.com/iotTracker/brain/test/tracker/sf001/system"
 	"testing"
 )
 

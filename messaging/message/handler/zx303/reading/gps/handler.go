@@ -1,13 +1,13 @@
 package gps
 
 import (
-	brainException "gitlab.com/iotTracker/brain/exception"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
-	zx303GPSReadingAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator"
-	messagingException "gitlab.com/iotTracker/messaging/exception"
-	messagingMessage "gitlab.com/iotTracker/messaging/message"
-	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"
-	zx303GPSReadingMessage "gitlab.com/iotTracker/messaging/message/zx303/reading/gps"
+	brainException "github.com/iot-my-world/brain/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	zx303GPSReadingAdministrator "github.com/iot-my-world/brain/tracker/zx303/reading/gps/administrator"
+	messagingException "github.com/iot-my-world/messaging/exception"
+	messagingMessage "github.com/iot-my-world/messaging/message"
+	messagingMessageHandler "github.com/iot-my-world/messaging/message/handler"
+	zx303GPSReadingMessage "github.com/iot-my-world/messaging/message/zx303/reading/gps"
 )
 
 type handler struct {

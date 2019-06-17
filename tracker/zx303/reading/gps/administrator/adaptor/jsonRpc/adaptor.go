@@ -1,10 +1,10 @@
 package jsonRpc
 
 import (
-	"gitlab.com/iotTracker/brain/log"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	zx303GPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
-	zx303GPSReadingAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator"
+	"github.com/iot-my-world/brain/log"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	zx303GPSReading "github.com/iot-my-world/brain/tracker/zx303/reading/gps"
+	zx303GPSReadingAdministrator "github.com/iot-my-world/brain/tracker/zx303/reading/gps/administrator"
 	"net/http"
 )
 

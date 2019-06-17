@@ -1,7 +1,7 @@
 package claims
 
 import (
-	"gitlab.com/iotTracker/brain/party"
+	"github.com/iot-my-world/brain/party"
 	"time"
 )
 

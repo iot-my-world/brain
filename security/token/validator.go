@@ -3,8 +3,8 @@ package token
 import (
 	"crypto/rsa"
 	"encoding/json"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	tokenException "gitlab.com/iotTracker/brain/security/token/exception"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	tokenException "github.com/iot-my-world/brain/security/token/exception"
 	"gopkg.in/square/go-jose.v2"
 )
 

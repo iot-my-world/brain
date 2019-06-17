@@ -1,11 +1,11 @@
 package jsonRpc
 
 import (
-	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	zx303DeviceAuthenticator "gitlab.com/iotTracker/brain/tracker/zx303/authenticator"
-	zx303DeviceAuthenticatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
+	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
+	brainException "github.com/iot-my-world/brain/exception"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	zx303DeviceAuthenticator "github.com/iot-my-world/brain/tracker/zx303/authenticator"
+	zx303DeviceAuthenticatorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/zx303/authenticator/adaptor/jsonRpc"
 )
 
 type authenticator struct {

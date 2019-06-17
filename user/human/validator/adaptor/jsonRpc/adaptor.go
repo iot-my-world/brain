@@ -1,12 +1,12 @@
 package user
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/log"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	humanUser "gitlab.com/iotTracker/brain/user/human"
-	userValidator "gitlab.com/iotTracker/brain/user/human/validator"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	"github.com/iot-my-world/brain/log"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	humanUser "github.com/iot-my-world/brain/user/human"
+	userValidator "github.com/iot-my-world/brain/user/human/validator"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 	"net/http"
 )
 

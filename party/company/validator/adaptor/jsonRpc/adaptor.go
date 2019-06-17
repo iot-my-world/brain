@@ -1,12 +1,12 @@
 package company
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/company"
-	companyValidator "gitlab.com/iotTracker/brain/party/company/validator"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/party/company"
+	companyValidator "github.com/iot-my-world/brain/party/company/validator"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 	"net/http"
 )
 

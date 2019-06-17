@@ -23,16 +23,16 @@ before_script:
 
  # - apt-get update
  # create directories and gopath for golang
- - mkdir -p /go/src/gitlab.com/iotTracker
+ - mkdir -p /go/src/github.com/iot-my-world
  
  # navigate and clone messaging repo dependencies
- - cd /go/src/gitlab.com/iotTracker
- - git clone https://gitlab+deploy-token-61057:${MESSAGING_CI_JOB_TOKEN}@gitlab.com/iotTracker/messaging
- - git clone https://gitlab+deploy-token-64807:${NERVE_CI_JOB_TOKEN}@gitlab.com/iotTracker/nerve
+ - cd /go/src/github.com/iot-my-world
+ - git clone https://gitlab+deploy-token-61057:${MESSAGING_CI_JOB_TOKEN}@github.com/iot-my-world/messaging
+ - git clone https://gitlab+deploy-token-64807:${NERVE_CI_JOB_TOKEN}@github.com/iot-my-world/nerve
 
  # create link between brain build directory and iot tracker directory so that
  # golang import paths work correctly
- - ln -s /builds/iotTracker/brain /go/src/gitlab.com/iotTracker
+ - ln -s /builds/iotTracker/brain /go/src/github.com/iot-my-world
 
 deploy_stage:
   stage: deploy
@@ -40,10 +40,10 @@ deploy_stage:
   only:
     - master
   script:
-    - cd /go/src/gitlab.com/iotTracker/brain/start
+    - cd /go/src/github.com/iot-my-world/brain/start
     - go get
-    - cd /go/src/gitlab.com/iotTracker/brain/build
-    - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
+    - cd /go/src/github.com/iot-my-world/brain/build
+    - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
     - scp ./brain gitlabci@brain01.spotnav.net:/home/gitlabci
     - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl stop brain.service"
     - ssh gitlabci@brain01.spotnav.net "sudo /bin/mv /home/gitlabci/brain /home/brain"

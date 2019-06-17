@@ -3,9 +3,9 @@ package token
 import (
 	"crypto/rsa"
 	"encoding/json"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/claims"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/security/claims"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"gopkg.in/square/go-jose.v2"
 )
 

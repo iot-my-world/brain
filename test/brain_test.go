@@ -1,12 +1,12 @@
 package main
 
 import (
+	clientUserTest "github.com/iot-my-world/brain/test/client/user"
+	companyClientTest "github.com/iot-my-world/brain/test/company/client"
+	companyUserTest "github.com/iot-my-world/brain/test/company/user"
+	systemCompanyTest "github.com/iot-my-world/brain/test/system/company"
+	sf001TrackerSystemTest "github.com/iot-my-world/brain/test/tracker/sf001/system"
 	"github.com/stretchr/testify/suite"
-	clientUserTest "gitlab.com/iotTracker/brain/test/client/user"
-	companyClientTest "gitlab.com/iotTracker/brain/test/company/client"
-	companyUserTest "gitlab.com/iotTracker/brain/test/company/user"
-	systemCompanyTest "gitlab.com/iotTracker/brain/test/system/company"
-	sf001TrackerSystemTest "gitlab.com/iotTracker/brain/test/tracker/sf001/system"
 	"testing"
 )
 

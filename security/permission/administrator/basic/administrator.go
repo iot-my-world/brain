@@ -2,18 +2,18 @@ package basic
 
 import (
 	"fmt"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	apiUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/api"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
-	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
-	permissionAdministratorException "gitlab.com/iotTracker/brain/security/permission/administrator/exception"
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/security/permission/view"
-	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
-	humanUser "gitlab.com/iotTracker/brain/user/human"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/search/identifier/name"
+	apiUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/api"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
+	permissionAdministratorException "github.com/iot-my-world/brain/security/permission/administrator/exception"
+	"github.com/iot-my-world/brain/security/permission/api"
+	"github.com/iot-my-world/brain/security/permission/view"
+	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
+	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
+	humanUser "github.com/iot-my-world/brain/user/human"
+	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
 
 type administrator struct {

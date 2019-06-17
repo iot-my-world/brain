@@ -1,8 +1,8 @@
 package data
 
 import (
-	"gitlab.com/iotTracker/brain/party/client"
-	humanUser "gitlab.com/iotTracker/brain/user/human"
+	"github.com/iot-my-world/brain/party/client"
+	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
 type TestData struct {

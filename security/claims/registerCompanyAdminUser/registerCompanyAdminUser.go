@@ -1,11 +1,11 @@
 package registerCompanyAdminUser
 
 import (
-	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/security/claims"
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	humanUser "gitlab.com/iotTracker/brain/user/human"
+	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/security/permission/api"
+	humanUser "github.com/iot-my-world/brain/user/human"
 	"time"
 )
 

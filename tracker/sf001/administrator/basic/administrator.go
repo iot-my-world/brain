@@ -2,13 +2,13 @@ package basic
 
 import (
 	"fmt"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	sf001DeviceAction "gitlab.com/iotTracker/brain/tracker/sf001/action"
-	sf001DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/sf001/administrator"
-	sf001DeviceAdministratorException "gitlab.com/iotTracker/brain/tracker/sf001/administrator/exception"
-	sf001RecordHandler "gitlab.com/iotTracker/brain/tracker/sf001/recordHandler"
-	sf001DeviceValidator "gitlab.com/iotTracker/brain/tracker/sf001/validator"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/search/identifier/id"
+	sf001DeviceAction "github.com/iot-my-world/brain/tracker/sf001/action"
+	sf001DeviceAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator"
+	sf001DeviceAdministratorException "github.com/iot-my-world/brain/tracker/sf001/administrator/exception"
+	sf001RecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
+	sf001DeviceValidator "github.com/iot-my-world/brain/tracker/sf001/validator"
 )
 
 type administrator struct {

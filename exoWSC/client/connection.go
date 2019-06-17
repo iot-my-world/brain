@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"gitlab.com/iotTracker/brain/exoWSC"
+	"github.com/iot-my-world/brain/exoWSC"
 	"net/url"
 	"time"
 )

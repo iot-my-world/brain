@@ -1,10 +1,10 @@
 package validator
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/security/claims"
-	zx303StatusReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/status"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	"github.com/iot-my-world/brain/security/claims"
+	zx303StatusReading "github.com/iot-my-world/brain/tracker/zx303/reading/status"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type Validator interface {
