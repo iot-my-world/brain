@@ -2,7 +2,7 @@ package username
 
 import (
 	"errors"
-	"gitlab.com/iotTracker/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/identifier"
 	"gopkg.in/mgo.v2/bson"
 )
 

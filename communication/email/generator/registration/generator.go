@@ -3,11 +3,11 @@ package registration
 import (
 	"bytes"
 	"fmt"
-	"gitlab.com/iotTracker/brain/communication/email"
-	emailGenerator "gitlab.com/iotTracker/brain/communication/email/generator"
-	emailGeneratorException "gitlab.com/iotTracker/brain/communication/email/generator/exception"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/log"
+	"github.com/iot-my-world/brain/communication/email"
+	emailGenerator "github.com/iot-my-world/brain/communication/email/generator"
+	emailGeneratorException "github.com/iot-my-world/brain/communication/email/generator/exception"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"html/template"
 )
 

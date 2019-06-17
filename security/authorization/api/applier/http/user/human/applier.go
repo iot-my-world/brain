@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"gitlab.com/iotTracker/brain/log"
-	httpAPIAuthorisationApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http"
-	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer"
+	"github.com/iot-my-world/brain/log"
+	httpAPIAuthorisationApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http"
+	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
 	"io/ioutil"
 	"net/http"
 )

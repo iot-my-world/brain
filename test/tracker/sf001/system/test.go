@@ -1,20 +1,20 @@
 package system
 
 import (
+	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
+	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
+	"github.com/iot-my-world/brain/party"
+	partyAdministratorJsonAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
+	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
+	"github.com/iot-my-world/brain/search/identifier/id"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
+	testData "github.com/iot-my-world/brain/test/data"
+	systemTestData "github.com/iot-my-world/brain/test/system/data"
+	"github.com/iot-my-world/brain/tracker/sf001"
+	sf001TrackerAdministratorJsonAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
+	"github.com/iot-my-world/brain/workbook"
 	"github.com/stretchr/testify/suite"
-	jsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client"
-	basicJsonRpcClient "gitlab.com/iotTracker/brain/communication/jsonRpc/client/basic"
-	"gitlab.com/iotTracker/brain/party"
-	partyAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
-	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	authJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
-	testData "gitlab.com/iotTracker/brain/test/data"
-	systemTestData "gitlab.com/iotTracker/brain/test/system/data"
-	"gitlab.com/iotTracker/brain/tracker/tk102"
-	tk102DeviceAdministratorJsonAdaptor "gitlab.com/iotTracker/brain/tracker/tk102/administrator/adaptor/jsonRpc"
-	"gitlab.com/iotTracker/brain/workbook"
 	"os"
 )
 
@@ -32,39 +32,38 @@ func (suite *System) SetupTest() {
 		UsernameOrEmailAddress: systemTestData.User.Username,
 		Password:               string(systemTestData.User.Password),
 	}); err != nil {
-		suite.Fail("log in error", err.Error())
+		suite.FailNow("log in error", err.Error())
 	}
 }
 
 func (suite *System) TestSystemDeviceCreation() {
-	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/gitlab.com/iotTracker/brain/test/tracker/device/tk102/data/deviceData.xlsx"
+	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/sf001/data/sf001TrackerTestData.xlsx"
 
 	var sheetHeaderRowMap = map[string]int{
-		"TK102Devices": 1,
+		"SF001Tracker": 1,
 	}
-	deviceDataWorkBook, err := workbook.New(pathToDataWorkbook, sheetHeaderRowMap)
+	sf001TrackerWorkBook, err := workbook.New(pathToDataWorkbook, sheetHeaderRowMap)
 	if err != nil {
-		suite.FailNow("failed to create device data workbook", err.Error())
+		suite.FailNow("failed to create sf001 tracker workbook", err.Error())
 	}
 
 	// convert sheet to slice of maps
-	sheetSliceMap, err := deviceDataWorkBook.SheetAsSliceMap("TK102Devices")
+	sheetSliceMap, err := sf001TrackerWorkBook.SheetAsSliceMap("SF001Tracker")
 	if err != nil {
 		suite.FailNow("failed to get sheet slice map", err.Error())
 	}
 
-	// create all of the devices
+	// create all of the sf001 trackers
 	for _, rowMap := range sheetSliceMap {
-		// create new device
-		newDevice := tk102.TK102{
-			Id:                "",
-			ManufacturerId:    rowMap["ManufacturerId"],
-			SimCountryCode:    rowMap["SimCountryCode"],
-			SimNumber:         rowMap["SimNumber"],
-			OwnerPartyType:    party.Type(rowMap["OwnerPartyType"]),
-			OwnerId:           id.Identifier{},
-			AssignedPartyType: party.Type(rowMap["AssignedPartyType"]),
-			AssignedId:        id.Identifier{},
+		// new tracker to create
+		newSF001Tracker := sf001.SF001{
+			Id:                   "",
+			DeviceId:             rowMap["DeviceId"],
+			OwnerPartyType:       party.Type(rowMap["OwnerPartyType"]),
+			OwnerId:              id.Identifier{},
+			AssignedPartyType:    party.Type(rowMap["AssignedPartyType"]),
+			AssignedId:           id.Identifier{},
+			LastMessageTimestamp: 0,
 		}
 
 		// create identifier to retrieve the owner party
@@ -78,7 +77,7 @@ func (suite *System) TestSystemDeviceCreation() {
 		if err := suite.jsonRpcClient.JsonRpcRequest(
 			"PartyAdministrator.RetrieveParty",
 			partyAdministratorJsonAdaptor.RetrievePartyRequest{
-				PartyType:         newDevice.OwnerPartyType,
+				PartyType:         newSF001Tracker.OwnerPartyType,
 				WrappedIdentifier: *ownerPartyIdentifier,
 			},
 			&retrieveOwnerPartyResponse,
@@ -93,11 +92,11 @@ func (suite *System) TestSystemDeviceCreation() {
 		}
 
 		// populate the owner details
-		newDevice.OwnerPartyType = unwrappedOwnerParty.Details().PartyType
-		newDevice.OwnerId = unwrappedOwnerParty.Details().PartyId
+		newSF001Tracker.OwnerPartyType = unwrappedOwnerParty.Details().PartyType
+		newSF001Tracker.OwnerId = unwrappedOwnerParty.Details().PartyId
 
 		// if there are assigned party details then retrieve the assigned party and populate for the device
-		if newDevice.AssignedPartyType != "" {
+		if newSF001Tracker.AssignedPartyType != "" {
 			// create identifier to retrieve the assigned party
 			assignedPartyIdentifier, err := wrappedIdentifier.Wrap(adminEmailAddress.Identifier{AdminEmailAddress: rowMap["Assigned Admin Email"]})
 			if err != nil {
@@ -109,7 +108,7 @@ func (suite *System) TestSystemDeviceCreation() {
 			if err := suite.jsonRpcClient.JsonRpcRequest(
 				"PartyAdministrator.RetrieveParty",
 				partyAdministratorJsonAdaptor.RetrievePartyRequest{
-					PartyType:         newDevice.AssignedPartyType,
+					PartyType:         newSF001Tracker.AssignedPartyType,
 					WrappedIdentifier: *assignedPartyIdentifier,
 				},
 				&retrieveAssignedPartyResponse,
@@ -124,20 +123,20 @@ func (suite *System) TestSystemDeviceCreation() {
 			}
 
 			// populate the assigned details
-			newDevice.AssignedPartyType = unwrappedAssignedParty.Details().PartyType
-			newDevice.AssignedId = unwrappedAssignedParty.Details().PartyId
+			newSF001Tracker.AssignedPartyType = unwrappedAssignedParty.Details().PartyType
+			newSF001Tracker.AssignedId = unwrappedAssignedParty.Details().PartyId
 		}
 
 		// create the device
-		createDeviceResponse := tk102DeviceAdministratorJsonAdaptor.CreateResponse{}
+		createSF001TrackerResponse := sf001TrackerAdministratorJsonAdaptor.CreateResponse{}
 		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"TK102DeviceAdministrator.Create",
-			tk102DeviceAdministratorJsonAdaptor.CreateRequest{
-				TK102: newDevice,
+			"SF001TrackerAdministrator.Create",
+			sf001TrackerAdministratorJsonAdaptor.CreateRequest{
+				SF001: newSF001Tracker,
 			},
-			&createDeviceResponse,
+			&createSF001TrackerResponse,
 		); err != nil {
-			suite.FailNow("create device failed", err.Error())
+			suite.FailNow("create sf001 tracker failed", err.Error())
 		}
 	}
 }

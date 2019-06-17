@@ -1,7 +1,7 @@
 package action
 
 import (
-	"gitlab.com/iotTracker/brain/action"
+	"github.com/iot-my-world/brain/action"
 )
 
 const InviteCompanyAdminUser action.Action = "InviteCompanyAdminUser"

@@ -1,8 +1,8 @@
 package company
 
 import (
-	"gitlab.com/iotTracker/brain/party"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/search/identifier/id"
 )
 
 type Company struct {

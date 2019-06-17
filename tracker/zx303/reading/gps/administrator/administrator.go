@@ -1,8 +1,8 @@
 package administrator
 
 import (
-	"gitlab.com/iotTracker/brain/security/claims"
-	zx303GPSReading "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps"
+	"github.com/iot-my-world/brain/security/claims"
+	zx303GPSReading "github.com/iot-my-world/brain/tracker/zx303/reading/gps"
 )
 
 type Administrator interface {

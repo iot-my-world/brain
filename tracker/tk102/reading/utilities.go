@@ -1,7 +1,7 @@
 package reading
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/identifier"
 )
 
 // IsValidIdentifier determines if a given identifier is valid for a reading entity

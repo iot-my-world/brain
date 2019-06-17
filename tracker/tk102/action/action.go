@@ -1,5 +1,5 @@
 package action
 
-import "gitlab.com/iotTracker/brain/action"
+import "github.com/iot-my-world/brain/action"
 
 const Create action.Action = "Create"

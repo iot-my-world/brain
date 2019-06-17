@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/security/claims"
-	zx303TrackerStatusReadingReport "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report"
+	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/security/claims"
+	zx303TrackerStatusReadingReport "github.com/iot-my-world/brain/tracker/zx303/reading/status/report"
 )
 
 type Generator interface {

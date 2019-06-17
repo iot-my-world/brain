@@ -4,10 +4,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc"
 	gorillaJson "github.com/gorilla/rpc/json"
-	"gitlab.com/iotTracker/brain/cors"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/encrypt"
-	"gitlab.com/iotTracker/brain/security/token"
+	"github.com/iot-my-world/brain/cors"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/security/encrypt"
+	"github.com/iot-my-world/brain/security/token"
 	"gopkg.in/mgo.v2"
 	"net/http"
 	"os"
@@ -15,103 +15,83 @@ import (
 	"runtime/debug"
 	"time"
 
-	authServiceJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/authorization/service/adaptor/jsonRpc"
-	apiUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/api"
-	humanUserAuthorizationService "gitlab.com/iotTracker/brain/security/authorization/service/user/human"
+	databaseCollection "github.com/iot-my-world/brain/database/collection"
 
-	humanUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/human"
-	humanUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/human"
+	authServiceJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
+	apiUserAuthorizationService "github.com/iot-my-world/brain/security/authorization/service/user/api"
+	humanUserAuthorizationService "github.com/iot-my-world/brain/security/authorization/service/user/human"
 
-	apiUserHttpAPIAuthApplier "gitlab.com/iotTracker/brain/security/authorization/api/applier/http/user/api"
-	apiUserAPIAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/user/api"
+	humanUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/human"
+	humanUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/human"
 
-	permissionAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/security/permission/administrator/adaptor/jsonRpc"
-	permissionBasicAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator/basic"
+	apiUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/api"
+	apiUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/api"
 
-	roleMongoRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler/mongo"
+	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/security/permission/administrator/adaptor/jsonRpc"
+	permissionBasicAdministrator "github.com/iot-my-world/brain/security/permission/administrator/basic"
 
-	userAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/administrator/adaptor/jsonRpc"
-	userBasicAdministrator "gitlab.com/iotTracker/brain/user/human/administrator/basic"
-	userRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/recordHandler/adaptor/jsonRpc"
-	userMongoRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler/mongo"
-	userValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/human/validator/adaptor/jsonRpc"
-	userBasicValidator "gitlab.com/iotTracker/brain/user/human/validator/basic"
+	roleMongoRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler/mongo"
 
-	companyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/administrator/adaptor/jsonRpc"
-	companyBasicAdministrator "gitlab.com/iotTracker/brain/party/company/administrator/basic"
-	companyRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/recordHandler/adaptor/jsonRpc"
-	companyMongoRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler/mongo"
-	companyValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/company/validator/adaptor/jsonRpc"
-	companyBasicValidator "gitlab.com/iotTracker/brain/party/company/validator/basic"
+	userAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/administrator/adaptor/jsonRpc"
+	userBasicAdministrator "github.com/iot-my-world/brain/user/human/administrator/basic"
+	userRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/recordHandler/adaptor/jsonRpc"
+	userMongoRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/mongo"
+	userValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
+	userBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
 
-	clientAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/administrator/adaptor/jsonRpc"
-	clientBasicAdministrator "gitlab.com/iotTracker/brain/party/client/administrator/basic"
-	clientRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/recordHandler/adaptor/jsonRpc"
-	clientMongoRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler/mongo"
-	clientValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/client/validator/adaptor/jsonRpc"
-	clientBasicValidator "gitlab.com/iotTracker/brain/party/client/validator/basic"
+	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
+	companyBasicAdministrator "github.com/iot-my-world/brain/party/company/administrator/basic"
+	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
+	companyMongoRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler/mongo"
+	companyValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/validator/adaptor/jsonRpc"
+	companyBasicValidator "github.com/iot-my-world/brain/party/company/validator/basic"
 
-	systemRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/system/recordHandler/adaptor/jsonRpc"
-	systemMongoRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler/mongo"
+	clientAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/administrator/adaptor/jsonRpc"
+	clientBasicAdministrator "github.com/iot-my-world/brain/party/client/administrator/basic"
+	clientRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/recordHandler/adaptor/jsonRpc"
+	clientMongoRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler/mongo"
+	clientValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/validator/adaptor/jsonRpc"
+	clientBasicValidator "github.com/iot-my-world/brain/party/client/validator/basic"
 
-	zx303DeviceAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/administrator/adaptor/jsonRpc"
-	zx303DeviceBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator/basic"
-	zx303GPSReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/adaptor/jsonRpc"
-	zx303GPSReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator/basic"
-	zx303GPSReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/adaptor/jsonRpc"
-	zx303GPSReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/recordHandler/mongo"
-	zx303GPSReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/validator/basic"
-	zx303DeviceRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/adaptor/jsonRpc"
-	zx303DeviceMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler/mongo"
-	zx303TaskAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/adaptor/jsonRpc"
-	zx303TaskBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/task/administrator/basic"
-	zx303TaskRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler/adaptor/jsonRpc"
-	zx303TaskMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/task/recordHandler/mongo"
-	zx303TaskValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/task/validator/adaptor/jsonRpc"
-	zx303TaskBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/task/validator/basic"
-	zx303DeviceValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/validator/adaptor/jsonRpc"
-	zx303DeviceBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/validator/basic"
+	systemRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/system/recordHandler/adaptor/jsonRpc"
+	systemMongoRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler/mongo"
 
-	zx303StatusReadingAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/administrator/adaptor/jsonRpc"
-	zx303StatusReadingBasicAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/administrator/basic"
-	zx303StatusReadingRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/adaptor/jsonRpc"
-	zx303StatusReadingMongoRecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/recordHandler/mongo"
-	zx303StatusReadingBasicValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/validator/basic"
+	sf001AdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
+	sf001TrackerBasicAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator/basic"
+	sf001RecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/recordHandler/adaptor/jsonRpc"
+	sf001TrackerMongoRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler/mongo"
+	sf001ValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/validator/adaptor/jsonRpc"
+	sf001TrackerBasicValidator "github.com/iot-my-world/brain/tracker/sf001/validator/basic"
 
-	zx303ReadingStatusReportGeneratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/adaptor"
-	zx303ReadingStatusReportBasicGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator/basic"
+	apiUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/administrator/adaptor/jsonRpc"
+	apiUserBasicAdministrator "github.com/iot-my-world/brain/user/api/administrator/basic"
+	apiUserBasicPasswordGenerator "github.com/iot-my-world/brain/user/api/password/generator/basic"
+	apiUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/recordHandler/adaptor/jsonRpc"
+	apiUserMongoRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler/mongo"
+	apiUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/validator/adaptor/jsonRpc"
+	apiUserBasicValidator "github.com/iot-my-world/brain/user/api/validator/basic"
 
-	apiUserAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/administrator/adaptor/jsonRpc"
-	apiUserBasicAdministrator "gitlab.com/iotTracker/brain/user/api/administrator/basic"
-	apiUserBasicPasswordGenerator "gitlab.com/iotTracker/brain/user/api/password/generator/basic"
-	apiUserRecordHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/recordHandler/adaptor/jsonRpc"
-	apiUserMongoRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler/mongo"
-	apiUserValidatorJsonRpcAdaptor "gitlab.com/iotTracker/brain/user/api/validator/adaptor/jsonRpc"
-	apiUserBasicValidator "gitlab.com/iotTracker/brain/user/api/validator/basic"
-
-	trackingReportJsonRpcAdaptor "gitlab.com/iotTracker/brain/report/tracking/adaptor/jsonRpc"
-	trackingBasicReport "gitlab.com/iotTracker/brain/report/tracking/basic"
-
-	sigbugMessageHandlerJsonRpcAdaptor "gitlab.com/iotTracker/brain/tracker/sigbug/message/handler/adaptor/jsonRpc"
+	trackingReportJsonRpcAdaptor "github.com/iot-my-world/brain/report/tracking/adaptor/jsonRpc"
+	trackingBasicReport "github.com/iot-my-world/brain/report/tracking/basic"
 
 	"flag"
-	"gitlab.com/iotTracker/brain/communication/email/mailer"
-	gmailMailer "gitlab.com/iotTracker/brain/communication/email/mailer/gmail"
-	partyBasicRegistrarJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/registrar/adaptor/jsonRpc"
-	partyBasicRegistrar "gitlab.com/iotTracker/brain/party/registrar/basic"
+	"github.com/iot-my-world/brain/communication/email/mailer"
+	gmailMailer "github.com/iot-my-world/brain/communication/email/mailer/gmail"
+	partyBasicRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
+	partyBasicRegistrar "github.com/iot-my-world/brain/party/registrar/basic"
 
-	registrationEmailGenerator "gitlab.com/iotTracker/brain/communication/email/generator/registration"
-	setPasswordEmailGenerator "gitlab.com/iotTracker/brain/communication/email/generator/set/password"
+	registrationEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/registration"
+	setPasswordEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/set/password"
 
-	partyAdministratorJsonRpcAdaptor "gitlab.com/iotTracker/brain/party/administrator/adaptor/jsonRpc"
-	partyBasicAdministrator "gitlab.com/iotTracker/brain/party/administrator/basic"
+	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
+	partyBasicAdministrator "github.com/iot-my-world/brain/party/administrator/basic"
 
-	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
-	barcodeScannerJsonRpcAdaptor "gitlab.com/iotTracker/brain/barcode/scanner/adaptor/jsonRpc"
+	barcodeScanner "github.com/iot-my-world/brain/barcode/scanner"
+	barcodeScannerJsonRpcAdaptor "github.com/iot-my-world/brain/barcode/scanner/adaptor/jsonRpc"
 
 	"fmt"
-	"gitlab.com/iotTracker/brain/party"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
+	"github.com/iot-my-world/brain/party"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	"path/filepath"
 	"strings"
 )
@@ -121,7 +101,7 @@ var apiUserAPIServerPort = "9011"
 
 func main() {
 	// get the command line args
-	mongoNodes := flag.String("mongoNodes", "localhost:27017", "the nodes in the db cluster")
+	mongoNodes := flag.String("mongoNodes", "localhost:27016", "the nodes in the db cluster")
 	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
@@ -202,17 +182,18 @@ func main() {
 		//PartyId         id.Identifier `json:"partyId"`
 	}
 
-	// Create Service Providers
+	// ________________________________ Create Service Providers ________________________________
+
 	RoleRecordHandler := roleMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		roleCollection,
+		databaseCollection.Role,
 	)
 	// User
 	UserRecordHandler := userMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		userCollection,
+		databaseCollection.User,
 	)
 	UserValidator := userBasicValidator.New(
 		UserRecordHandler,
@@ -239,7 +220,7 @@ func main() {
 	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		companyCollection,
+		databaseCollection.Company,
 	)
 
 	CompanyValidator := companyBasicValidator.New(
@@ -257,7 +238,7 @@ func main() {
 	ClientRecordHandler := clientMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		clientCollection,
+		databaseCollection.Client,
 	)
 	ClientValidator := clientBasicValidator.New(
 		ClientRecordHandler,
@@ -288,7 +269,7 @@ func main() {
 	SystemRecordHandler := systemMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		systemCollection,
+		databaseCollection.System,
 		*rootPasswordFileLocation,
 		PartyBasicRegistrar,
 		&systemClaims,
@@ -305,7 +286,7 @@ func main() {
 	APIUserRecordHandler := apiUserMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		apiUserCollection,
+		databaseCollection.APIUser,
 	)
 	APIUserValidator := apiUserBasicValidator.New(
 		PartyBasicAdministrator,
@@ -330,72 +311,30 @@ func main() {
 		APIUserRecordHandler,
 	)
 
-	// ZX303 Device
-	ZX303DeviceRecordHandler := zx303DeviceMongoRecordHandler.New(
+	// SF001 Device
+	SF001TrackerMongoRecordHandler := sf001TrackerMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
-		zx303DeviceCollection,
+		databaseCollection.SF001Tracker,
 	)
-	ZX303GPSReadingRecordHandler := zx303GPSReadingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		zx303GPSReadingCollection,
-	)
-	ZX303StatusReadingRecordHandler := zx303StatusReadingMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		zx303StatusReadingCollection,
-	)
-	ZX303TaskRecordHandler := zx303TaskMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		zx303TaskCollection,
-	)
-	ZX303DeviceValidator := zx303DeviceBasicValidator.New(
+	SF001TrackerBasicValidator := sf001TrackerBasicValidator.New(
 		PartyBasicAdministrator,
 	)
-	ZX303GPSReadingValidator := zx303GPSReadingBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303StatusReadingValidator := zx303StatusReadingBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303TaskValidator := zx303TaskBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	ZX303DeviceAdministrator := zx303DeviceBasicAdministrator.New(
-		ZX303DeviceValidator,
-		ZX303DeviceRecordHandler,
-	)
-	ZX303GPSReadingAdministrator := zx303GPSReadingBasicAdministrator.New(
-		ZX303GPSReadingValidator,
-		ZX303GPSReadingRecordHandler,
-	)
-	ZX303StatusReadingAdministrator := zx303StatusReadingBasicAdministrator.New(
-		ZX303StatusReadingValidator,
-		ZX303StatusReadingRecordHandler,
-	)
-	ZX303TaskAdministrator := zx303TaskBasicAdministrator.New(
-		ZX303TaskValidator,
-		ZX303TaskRecordHandler,
-		//nerveBroadcastProducer,
-	)
-	ZX303ReadingStatusReportGenerator := zx303ReadingStatusReportBasicGenerator.New(
-		ZX303StatusReadingRecordHandler,
-		ZX303DeviceRecordHandler,
+	SF001TrackerBasicAdministrator := sf001TrackerBasicAdministrator.New(
+		SF001TrackerBasicValidator,
+		SF001TrackerMongoRecordHandler,
 	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
-		ZX303GPSReadingRecordHandler,
-		ZX303DeviceRecordHandler,
 	)
 
 	// Barcode Scanner
 	BarcodeScanner := barcodeScanner.New()
 
-	// Create Service Provider Adaptors
+	// ________________________________ Create Service Provider Adaptors ________________________________
+
 	// User
 	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
 	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
@@ -430,35 +369,22 @@ func main() {
 	// System
 	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
 
-	// ZX303 Device
-	ZX303DeviceRecordHandlerAdaptor := zx303DeviceRecordHandlerJsonRpcAdaptor.New(ZX303DeviceRecordHandler)
-	ZX303DeviceAdministratorAdaptor := zx303DeviceAdministratorJsonRpcAdaptor.New(ZX303DeviceAdministrator)
-	ZX303DeviceValidatorAdaptor := zx303DeviceValidatorJsonRpcAdaptor.New(ZX303DeviceValidator)
-	ZX303GPSReadingRecordHandlerAdaptor := zx303GPSReadingRecordHandlerJsonRpcAdaptor.New(ZX303GPSReadingRecordHandler)
-	ZX303GPSReadingAdministratorAdaptor := zx303GPSReadingAdministratorJsonRpcAdaptor.New(ZX303GPSReadingAdministrator)
-	ZX303StatusReadingRecordHandlerAdaptor := zx303StatusReadingRecordHandlerJsonRpcAdaptor.New(ZX303StatusReadingRecordHandler)
-	ZX303StatusReadingAdministratorAdaptor := zx303StatusReadingAdministratorJsonRpcAdaptor.New(ZX303StatusReadingAdministrator)
-
-	ZX303TaskRecordHandlerAdaptor := zx303TaskRecordHandlerJsonRpcAdaptor.New(ZX303TaskRecordHandler)
-	ZX303TaskAdministratorAdaptor := zx303TaskAdministratorJsonRpcAdaptor.New(ZX303TaskAdministrator)
-	ZX303TaskValidatorAdaptor := zx303TaskValidatorJsonRpcAdaptor.New(ZX303TaskValidator)
-
-	ZX303ReadingStatusReportGeneratorAdaptor := zx303ReadingStatusReportGeneratorJsonRpcAdaptor.New(ZX303ReadingStatusReportGenerator)
-
-	// Sigbug
-	sigbugMessageHandlerAdaptor := sigbugMessageHandlerJsonRpcAdaptor.New()
-
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
 
 	// Barcode Scanner
 	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
+	// SF001 Tracker
+	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
+	SF001TrackerValidatorJsonRpcAdaptor := sf001ValidatorJsonRpcAdaptor.New(SF001TrackerBasicValidator)
+	SF001TrackerAdministratorJsonRpcAdaptor := sf001AdministratorJsonRpcAdaptor.New(SF001TrackerBasicAdministrator)
+
+	// ________________________________ Register Service Provider Adaptors with secureHumanUserAPIServer ________________________________
 	// Create secureHumanUserAPIServer
 	secureHumanUserAPIServer := rpc.NewServer()
 	secureHumanUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
-	// Register Service Provider Adaptors with secureHumanUserAPIServer
 	// User
 	if err := secureHumanUserAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
@@ -525,42 +451,6 @@ func main() {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
 
-	// ZX303 Device
-	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceRecordHandlerAdaptor, "ZX303DeviceRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceValidatorAdaptor, "ZX303DeviceValidator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Validator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303DeviceAdministratorAdaptor, "ZX303DeviceAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Device Administrator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingRecordHandlerAdaptor, "ZX303GPSReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 GPS Reading Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303GPSReadingAdministratorAdaptor, "ZX303GPSReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 GPS Reading Administrator Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303StatusReadingRecordHandlerAdaptor, "ZX303StatusReadingRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 Status Reading Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303StatusReadingAdministratorAdaptor, "ZX303StatusReadingAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Status Reading Administrator Service")
-	}
-
-	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskRecordHandlerAdaptor, "ZX303TaskRecordHandler"); err != nil {
-		log.Fatal("Unable to Register ZX303 Task Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskValidatorAdaptor, "ZX303TaskValidator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Task Validator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303TaskAdministratorAdaptor, "ZX303TaskAdministrator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Task Administrator")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ZX303ReadingStatusReportGeneratorAdaptor, "ZX303StatusReadingReportGenerator"); err != nil {
-		log.Fatal("Unable to Register ZX303 Reading Status Report Generator")
-	}
-
 	// Reports
 	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
@@ -569,6 +459,17 @@ func main() {
 	// Barcode Scanner
 	if err := secureHumanUserAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
 		log.Fatal("Unable to Register Barcode Scanner Service")
+	}
+
+	// SF001 Tracker
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerRecordHandlerJsonRpcAdaptor, "SF001TrackerRecordHandler"); err != nil {
+		log.Fatal("Unable to Register SF001 Tracker RecordHandler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, "SF001TrackerValidator"); err != nil {
+		log.Fatal("Unable to Register SF001 Tracker Validator Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, "SF001TrackerAdministrator"); err != nil {
+		log.Fatal("Unable to Register SF001 Tracker Administrator Service")
 	}
 
 	// Set up Secure Human User API Server i.e. the Portal API Server
@@ -597,10 +498,6 @@ func main() {
 	// Auth
 	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, "Auth"); err != nil {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
-	}
-
-	if err := secureAPIUserAPIServer.RegisterService(sigbugMessageHandlerAdaptor, "Sigbug"); err != nil {
-		log.Fatal("Unable to Sigbug Service Adaptor")
 	}
 
 	// Sigfox Test

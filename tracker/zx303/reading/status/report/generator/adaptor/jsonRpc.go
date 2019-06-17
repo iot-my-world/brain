@@ -1,11 +1,11 @@
 package adaptor
 
 import (
-	"gitlab.com/iotTracker/brain/log"
-	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	zx303StatusReadingReport "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report"
-	zx303StatusReadingReportGenerator "gitlab.com/iotTracker/brain/tracker/zx303/reading/status/report/generator"
+	"github.com/iot-my-world/brain/log"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	zx303StatusReadingReport "github.com/iot-my-world/brain/tracker/zx303/reading/status/report"
+	zx303StatusReadingReportGenerator "github.com/iot-my-world/brain/tracker/zx303/reading/status/report/generator"
 	"net/http"
 )
 

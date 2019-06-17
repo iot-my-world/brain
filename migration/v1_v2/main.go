@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/migration"
-	v1v2zx303Migration "gitlab.com/iotTracker/brain/migration/v1_v2/zx303"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/migration"
+	v1v2zx303Migration "github.com/iot-my-world/brain/migration/v1_v2/zx303"
 )
 
 func main() {

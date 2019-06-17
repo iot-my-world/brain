@@ -1,19 +1,19 @@
 package human
 
 import (
-	brainException "gitlab.com/iotTracker/brain/exception"
-	apiAuthorizer "gitlab.com/iotTracker/brain/security/authorization/api/authorizer"
-	apiAuthException "gitlab.com/iotTracker/brain/security/authorization/api/authorizer/exception"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientAdminUser"
-	"gitlab.com/iotTracker/brain/security/claims/registerClientUser"
-	"gitlab.com/iotTracker/brain/security/claims/registerCompanyAdminUser"
-	"gitlab.com/iotTracker/brain/security/claims/registerCompanyUser"
-	"gitlab.com/iotTracker/brain/security/claims/resetPassword"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
-	permissionAdministrator "gitlab.com/iotTracker/brain/security/permission/administrator"
-	"gitlab.com/iotTracker/brain/security/permission/api"
-	"gitlab.com/iotTracker/brain/security/token"
+	brainException "github.com/iot-my-world/brain/exception"
+	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
+	apiAuthException "github.com/iot-my-world/brain/security/authorization/api/authorizer/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	"github.com/iot-my-world/brain/security/claims/registerClientAdminUser"
+	"github.com/iot-my-world/brain/security/claims/registerClientUser"
+	"github.com/iot-my-world/brain/security/claims/registerCompanyAdminUser"
+	"github.com/iot-my-world/brain/security/claims/registerCompanyUser"
+	"github.com/iot-my-world/brain/security/claims/resetPassword"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
+	"github.com/iot-my-world/brain/security/permission/api"
+	"github.com/iot-my-world/brain/security/token"
 )
 
 type authorizer struct {

@@ -1,8 +1,8 @@
 package jsonRpc
 
 import (
-	"gitlab.com/iotTracker/brain/barcode"
-	barcodeScanner "gitlab.com/iotTracker/brain/barcode/scanner"
+	"github.com/iot-my-world/brain/barcode"
+	barcodeScanner "github.com/iot-my-world/brain/barcode/scanner"
 	"net/http"
 )
 

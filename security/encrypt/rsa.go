@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/go-errors/errors"
-	"gitlab.com/iotTracker/brain/log"
+	"github.com/iot-my-world/brain/log"
 	"io/ioutil"
 	"os"
 )

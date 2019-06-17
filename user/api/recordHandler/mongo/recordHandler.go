@@ -1,9 +1,9 @@
 package mongo
 
 import (
-	brainMongoRecordHandler "gitlab.com/iotTracker/brain/recordHandler/mongo"
-	apiUser "gitlab.com/iotTracker/brain/user/api"
-	apiUserRecordHandler "gitlab.com/iotTracker/brain/user/api/recordHandler"
+	brainMongoRecordHandler "github.com/iot-my-world/brain/recordHandler/mongo"
+	apiUser "github.com/iot-my-world/brain/user/api"
+	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
 	"gopkg.in/mgo.v2"
 )
 

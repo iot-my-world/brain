@@ -2,13 +2,13 @@ package mongo
 
 import (
 	"fmt"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/security/role"
+	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
+	roleRecordHandlerException "github.com/iot-my-world/brain/security/role/recordHandler/exception"
+	roleSetup "github.com/iot-my-world/brain/security/role/setup"
 	"github.com/satori/go.uuid"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/security/role"
-	roleRecordHandler "gitlab.com/iotTracker/brain/security/role/recordHandler"
-	roleRecordHandlerException "gitlab.com/iotTracker/brain/security/role/recordHandler/exception"
-	roleSetup "gitlab.com/iotTracker/brain/security/role/setup"
 	"gopkg.in/mgo.v2"
 )
 
