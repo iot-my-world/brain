@@ -10,3 +10,6 @@ steps:
   image: golang
   commands:
   - ls
+  when:
+    branch:
+    - master  
