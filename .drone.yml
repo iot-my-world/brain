@@ -37,6 +37,8 @@ steps:
       - chmod 644 ~/.ssh/known_hosts
 
       # get dependencies
+      - echo $GOPATH
+      - echo $GOROOT
       - pwd
       - cd start
       - ls -la
