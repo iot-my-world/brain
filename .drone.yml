@@ -37,7 +37,9 @@ steps:
       - chmod 644 ~/.ssh/known_hosts
 
       # get dependencies
+      - pwd
       - cd start
+      - ls -la
       - go get
       - cd ../build
       - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
