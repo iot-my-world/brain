@@ -1,8 +1,5 @@
 kind: pipeline
 name: default
-when:
-  branch:
-    - master
 
 workspace:
   base: /go
@@ -13,3 +10,6 @@ steps:
   image: golang
   commands:
   - ls
+  when:
+    branch:
+    - master
