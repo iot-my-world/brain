@@ -40,10 +40,10 @@ deploy_stage:
   only:
     - master
   script:
-    - cd /go/src/gitlab.com/iotTracker/brain/start
+    - cd /go/src/github.com/iot-my-world/brain/start
     - go get
-    - cd /go/src/gitlab.com/iotTracker/brain/build
-    - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/gitlab.com/iotTracker/brain/start
+    - cd /go/src/github.com/iot-my-world/brain/build
+    - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
     - scp ./brain gitlabci@brain01.spotnav.net:/home/gitlabci
     - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl stop brain.service"
     - ssh gitlabci@brain01.spotnav.net "sudo /bin/mv /home/gitlabci/brain /home/brain"

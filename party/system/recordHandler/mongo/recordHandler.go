@@ -2,17 +2,17 @@ package mongo
 
 import (
 	"fmt"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
+	"github.com/iot-my-world/brain/party/system"
+	systemRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler"
+	systemException "github.com/iot-my-world/brain/party/system/recordHandler/exception"
+	systemSetup "github.com/iot-my-world/brain/party/system/setup"
+	"github.com/iot-my-world/brain/search/criterion"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 	"github.com/satori/go.uuid"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/log"
-	partyRegistrar "gitlab.com/iotTracker/brain/party/registrar"
-	"gitlab.com/iotTracker/brain/party/system"
-	systemRecordHandler "gitlab.com/iotTracker/brain/party/system/recordHandler"
-	systemException "gitlab.com/iotTracker/brain/party/system/recordHandler/exception"
-	systemSetup "gitlab.com/iotTracker/brain/party/system/setup"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
 	"gopkg.in/mgo.v2"
 )
 

@@ -2,15 +2,15 @@ package basic
 
 import (
 	"fmt"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/tracker/zx303"
-	zx303DeviceAction "gitlab.com/iotTracker/brain/tracker/zx303/action"
-	zx303DeviceAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/administrator"
-	zx303DeviceAdministratorException "gitlab.com/iotTracker/brain/tracker/zx303/administrator/exception"
-	zx303RecordHandler "gitlab.com/iotTracker/brain/tracker/zx303/recordHandler"
-	zx303DeviceValidator "gitlab.com/iotTracker/brain/tracker/zx303/validator"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/tracker/zx303"
+	zx303DeviceAction "github.com/iot-my-world/brain/tracker/zx303/action"
+	zx303DeviceAdministrator "github.com/iot-my-world/brain/tracker/zx303/administrator"
+	zx303DeviceAdministratorException "github.com/iot-my-world/brain/tracker/zx303/administrator/exception"
+	zx303RecordHandler "github.com/iot-my-world/brain/tracker/zx303/recordHandler"
+	zx303DeviceValidator "github.com/iot-my-world/brain/tracker/zx303/validator"
 	"time"
 )
 

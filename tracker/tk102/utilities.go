@@ -1,7 +1,7 @@
 package tk102
 
 import (
-	"gitlab.com/iotTracker/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/identifier"
 )
 
 func IsValidIdentifier(id identifier.Identifier) bool {

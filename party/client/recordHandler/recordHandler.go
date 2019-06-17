@@ -1,15 +1,15 @@
 package recordHandler
 
 import (
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/client"
-	clientRecordHandlerException "gitlab.com/iotTracker/brain/party/client/recordHandler/exception"
-	brainRecordHandler "gitlab.com/iotTracker/brain/recordHandler"
-	brainRecordHandlerException "gitlab.com/iotTracker/brain/recordHandler/exception"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/search/query"
-	"gitlab.com/iotTracker/brain/security/claims"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/party/client"
+	clientRecordHandlerException "github.com/iot-my-world/brain/party/client/recordHandler/exception"
+	brainRecordHandler "github.com/iot-my-world/brain/recordHandler"
+	brainRecordHandlerException "github.com/iot-my-world/brain/recordHandler/exception"
+	"github.com/iot-my-world/brain/search/criterion"
+	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/query"
+	"github.com/iot-my-world/brain/security/claims"
 )
 
 type RecordHandler struct {

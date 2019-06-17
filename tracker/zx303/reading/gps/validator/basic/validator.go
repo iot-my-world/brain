@@ -1,12 +1,12 @@
 package validator
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	partyAdministrator "gitlab.com/iotTracker/brain/party/administrator"
-	zx303GPSReadingAction "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/action"
-	zx303GPSReadingValidator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/validator"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	brainException "github.com/iot-my-world/brain/exception"
+	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
+	zx303GPSReadingAction "github.com/iot-my-world/brain/tracker/zx303/reading/gps/action"
+	zx303GPSReadingValidator "github.com/iot-my-world/brain/tracker/zx303/reading/gps/validator"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type validator struct {

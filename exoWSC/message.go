@@ -1,6 +1,6 @@
 package exoWSC
 
-import "gitlab.com/iotTracker/brain/exoWSC/message"
+import "github.com/iot-my-world/brain/exoWSC/message"
 
 type Message struct {
 	Type        message.ExoWSMsgType `json:"type"`

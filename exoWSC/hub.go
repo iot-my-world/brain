@@ -3,8 +3,8 @@ package exoWSC
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.com/iotTracker/brain/exoWSC/message"
-	"gitlab.com/iotTracker/brain/log"
+	"github.com/iot-my-world/brain/exoWSC/message"
+	"github.com/iot-my-world/brain/log"
 )
 
 type Hub struct {

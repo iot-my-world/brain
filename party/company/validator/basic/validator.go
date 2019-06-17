@@ -1,18 +1,18 @@
 package basic
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	companyAction "gitlab.com/iotTracker/brain/party/company/action"
-	companyRecordHandler "gitlab.com/iotTracker/brain/party/company/recordHandler"
-	companyRecordHandlerException "gitlab.com/iotTracker/brain/party/company/recordHandler/exception"
-	companyValidator "gitlab.com/iotTracker/brain/party/company/validator"
-	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
-	userRecordHandler "gitlab.com/iotTracker/brain/user/human/recordHandler"
-	userRecordHandlerException "gitlab.com/iotTracker/brain/user/human/recordHandler/exception"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	brainException "github.com/iot-my-world/brain/exception"
+	companyAction "github.com/iot-my-world/brain/party/company/action"
+	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
+	companyRecordHandlerException "github.com/iot-my-world/brain/party/company/recordHandler/exception"
+	companyValidator "github.com/iot-my-world/brain/party/company/validator"
+	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
+	"github.com/iot-my-world/brain/search/identifier/emailAddress"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
+	userRecordHandlerException "github.com/iot-my-world/brain/user/human/recordHandler/exception"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type validator struct {

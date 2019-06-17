@@ -2,7 +2,7 @@ package or
 
 import (
 	"github.com/go-errors/errors"
-	"gitlab.com/iotTracker/brain/search/criterion"
+	"github.com/iot-my-world/brain/search/criterion"
 	"gopkg.in/mgo.v2/bson"
 	"strings"
 )

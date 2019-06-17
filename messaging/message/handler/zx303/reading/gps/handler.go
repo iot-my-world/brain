@@ -1,9 +1,9 @@
 package gps
 
 import (
-	brainException "gitlab.com/iotTracker/brain/exception"
-	humanUserLoginClaims "gitlab.com/iotTracker/brain/security/claims/login/user/human"
-	zx303GPSReadingAdministrator "gitlab.com/iotTracker/brain/tracker/zx303/reading/gps/administrator"
+	brainException "github.com/iot-my-world/brain/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	zx303GPSReadingAdministrator "github.com/iot-my-world/brain/tracker/zx303/reading/gps/administrator"
 	messagingException "gitlab.com/iotTracker/messaging/exception"
 	messagingMessage "gitlab.com/iotTracker/messaging/message"
 	messagingMessageHandler "gitlab.com/iotTracker/messaging/message/handler"

@@ -1,10 +1,10 @@
 package validator
 
 import (
-	"gitlab.com/iotTracker/brain/action"
-	"gitlab.com/iotTracker/brain/security/claims"
-	humanUser "gitlab.com/iotTracker/brain/user/human"
-	"gitlab.com/iotTracker/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/action"
+	"github.com/iot-my-world/brain/security/claims"
+	humanUser "github.com/iot-my-world/brain/user/human"
+	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type Validator interface {

@@ -1,6 +1,6 @@
 package scanner
 
-import "gitlab.com/iotTracker/brain/barcode"
+import "github.com/iot-my-world/brain/barcode"
 
 type Scanner struct {
 }

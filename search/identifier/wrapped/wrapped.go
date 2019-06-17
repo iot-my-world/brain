@@ -3,17 +3,17 @@ package wrapped
 import (
 	"encoding/json"
 	"errors"
-	brainException "gitlab.com/iotTracker/brain/exception"
-	"gitlab.com/iotTracker/brain/search/identifier"
-	"gitlab.com/iotTracker/brain/search/identifier/adminEmailAddress"
-	"gitlab.com/iotTracker/brain/search/identifier/device/tk102"
-	"gitlab.com/iotTracker/brain/search/identifier/device/zx303"
-	"gitlab.com/iotTracker/brain/search/identifier/emailAddress"
-	identifierException "gitlab.com/iotTracker/brain/search/identifier/exception"
-	"gitlab.com/iotTracker/brain/search/identifier/id"
-	"gitlab.com/iotTracker/brain/search/identifier/name"
-	"gitlab.com/iotTracker/brain/search/identifier/party"
-	"gitlab.com/iotTracker/brain/search/identifier/username"
+	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
+	"github.com/iot-my-world/brain/search/identifier/device/tk102"
+	"github.com/iot-my-world/brain/search/identifier/device/zx303"
+	"github.com/iot-my-world/brain/search/identifier/emailAddress"
+	identifierException "github.com/iot-my-world/brain/search/identifier/exception"
+	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/search/identifier/name"
+	"github.com/iot-my-world/brain/search/identifier/party"
+	"github.com/iot-my-world/brain/search/identifier/username"
 )
 
 type Wrapped struct {

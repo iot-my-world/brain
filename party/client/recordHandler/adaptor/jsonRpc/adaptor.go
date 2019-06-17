@@ -1,14 +1,14 @@
 package client
 
 import (
-	"gitlab.com/iotTracker/brain/log"
-	"gitlab.com/iotTracker/brain/party/client"
-	clientRecordHandler "gitlab.com/iotTracker/brain/party/client/recordHandler"
-	"gitlab.com/iotTracker/brain/search/criterion"
-	wrappedCriterion "gitlab.com/iotTracker/brain/search/criterion/wrapped"
-	wrappedIdentifier "gitlab.com/iotTracker/brain/search/identifier/wrapped"
-	"gitlab.com/iotTracker/brain/search/query"
-	wrappedClaims "gitlab.com/iotTracker/brain/security/claims/wrapped"
+	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/party/client"
+	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
+	"github.com/iot-my-world/brain/search/criterion"
+	wrappedCriterion "github.com/iot-my-world/brain/search/criterion/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	"github.com/iot-my-world/brain/search/query"
+	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 
