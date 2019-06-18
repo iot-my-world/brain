@@ -6,6 +6,11 @@ workspace:
   path: src/github.com/iot-my-world/brain
 
 steps:
+  - name: test
+    image: golang
+    commands:
+      - pwd
+    
   - name: build
     image: golang
     #  when:
