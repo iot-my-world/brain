@@ -6,16 +6,31 @@ workspace:
   path: src/github.com/iot-my-world/brain
 
 steps:
-  - name: test
+  - name: build
+    when:
+      branch:
+        - master
     image: golang
     commands:
+      - cd start
+      - go get
+      - cd ../build
+      - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
+
+  - name: test
+    when:
+      branch:
+        - master
+    image: centos
+    commands:
       - pwd
-    
-  - name: build
-    image: golang
-    #  when:
-    #    branch:
-    #    - master
+      - ls
+      -
+  - name: deploy
+    when:
+      branch:
+        - master
+    image: centos
     environment:
       SSH_PRIVATE_KEY:
         from_secret: ssh_pvt_key
@@ -29,7 +44,7 @@ steps:
       - eval $(ssh-agent -s)
 
         # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
-        # We're using tr to fix line endings which makes ed25519 keys work
+      # We're using tr to fix line endings which makes ed25519 keys work
       # without extra base64 encoding
       - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
 
@@ -41,12 +56,3 @@ steps:
       - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
 
-      # get dependencies
-      - echo $GOPATH
-      - echo $GOROOT
-      - pwd
-      - cd start
-      - ls -la
-      - go get
-      - cd ../build
-      - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
