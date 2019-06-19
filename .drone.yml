@@ -5,6 +5,10 @@ workspace:
   base: /go
   path: src/github.com/iot-my-world/brain
 
+services:
+  - name: db
+    image: mongo
+
 steps:
   - name: build
     image: golang
@@ -17,9 +21,7 @@ steps:
   - name: test
     image: centos
     commands:
-      - pwd
-      - cd build
-      - ls
+      - ping db
 
   - name: deploy
     image: centos
