@@ -30,7 +30,8 @@ steps:
         from_secret: ssh_known_hosts
     commands:
       # Install ssh-agent if not already installed this is required by Docker
-      - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+      - 'which || yum -y install which'
+      - 'which ssh-agent || yum -y install openssh-client'
 
       # Run ssh-agent (inside the build environment)
       - eval $(ssh-agent -s)
