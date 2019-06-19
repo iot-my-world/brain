@@ -45,7 +45,7 @@ steps:
       # Run ssh-agent (inside the build environment)
       - eval $(ssh-agent -s)
 
-        # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+      # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
       # We're using tr to fix line endings which makes ed25519 keys work
       # without extra base64 encoding
       - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
@@ -57,6 +57,13 @@ steps:
       # update known hosts
       - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
+
+      # copy built and tested binary to server
+      - cd build
+      - scp ./brain gitlabci@brain01.spotnav.net:/home/gitlabci
+      - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl stop brain.service"
+      - ssh gitlabci@brain01.spotnav.net "sudo /bin/mv /home/gitlabci/brain /home/brain"
+      - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl start brain.service"
 
 trigger:
   branch:
