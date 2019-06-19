@@ -1,5 +1,4 @@
 kind: pipeline
-name: default
 
 workspace:
   base: /go
@@ -7,9 +6,6 @@ workspace:
 
 steps:
   - name: build
-    when:
-      branch:
-        - master
     image: golang
     commands:
       - cd start
@@ -18,18 +14,12 @@ steps:
       - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
 
   - name: test
-    when:
-      branch:
-        - master
     image: centos
     commands:
       - pwd
       - ls
       -
   - name: deploy
-    when:
-      branch:
-        - master
     image: centos
     environment:
       SSH_PRIVATE_KEY:
@@ -56,3 +46,8 @@ steps:
       - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
 
+trigger:
+  branch:
+    - master
+  event:
+    - push
