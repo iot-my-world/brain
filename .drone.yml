@@ -21,7 +21,8 @@ steps:
   - name: test
     image: centos
     commands:
-      - ping db
+      - cd ../build
+      - ./brain -mongoNodes=db:27016
 
   - name: deploy
     image: centos
