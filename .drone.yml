@@ -24,7 +24,7 @@ steps:
     image: centos
     commands:
       - cd build
-      - ./brain -mongoNodes=db:27017
+      - ./brain -mongoNodes=db:27017 -pathToEmailTemplateFolder=../communication/email/template
 
   - name: deploy
     image: centos
