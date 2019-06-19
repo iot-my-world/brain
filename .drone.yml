@@ -23,6 +23,7 @@ steps:
   - name: test
     image: golang
     commands:
+      - ping www.google.com
       - cd build
       - ./brain -mongoNodes=db:27017 -pathToEmailTemplateFolder=../communication/email/template &
       - cd ../test
