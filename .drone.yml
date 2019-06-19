@@ -18,7 +18,7 @@ steps:
     image: centos
     commands:
       - pwd
-      - cd /go
+      - cd build
       - ls
 
   - name: deploy
