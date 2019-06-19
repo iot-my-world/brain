@@ -21,12 +21,13 @@ steps:
       - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
 
   - name: test
-    image: centos
+    image: golang
     commands:
       - cd build
       - ./brain -mongoNodes=db:27017 -pathToEmailTemplateFolder=../communication/email/template &
       - cd ../test
       - go get -t
+      - go test
 
   - name: deploy
     image: centos
