@@ -35,7 +35,7 @@ steps:
     environment:
       SSH_PRIVATE_KEY:
         from_secret: ssh_pvt_key
-      $SSH_KNOWN_HOSTS:
+      SSH_KNOWN_HOSTS:
         from_secret: ssh_known_hosts
     commands:
       # Install ssh-agent if not already installed this is required by Docker
