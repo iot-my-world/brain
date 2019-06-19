@@ -31,7 +31,7 @@ steps:
     commands:
       # Install ssh-agent if not already installed this is required by Docker
       - 'which || yum -y install which'
-      - 'which ssh-agent || yum -y install openssh-client'
+      - 'which ssh-agent || yum -y install openssh openssh-clients '
 
       # Run ssh-agent (inside the build environment)
       - eval $(ssh-agent -s)
