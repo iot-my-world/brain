@@ -8,6 +8,8 @@ workspace:
 services:
   - name: db
     image: mongo
+    ports:
+      - 27017
 
 steps:
   - name: build
@@ -22,7 +24,7 @@ steps:
     image: centos
     commands:
       - cd build
-      - ./brain -mongoNodes=db:27015
+      - ./brain -mongoNodes=db:27017
 
   - name: deploy
     image: centos
