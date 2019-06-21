@@ -60,10 +60,10 @@ steps:
 
       # copy built and tested binary to server
       - cd build
-      - scp ./brain gitlabci@brain01.spotnav.net:/home/gitlabci
-      - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl stop brain.service"
-      - ssh gitlabci@brain01.spotnav.net "sudo /bin/mv /home/gitlabci/brain /home/brain"
-      - ssh gitlabci@brain01.spotnav.net "sudo /bin/systemctl start brain.service"
+      - scp ./brain ciMan@brain01.iotmyworld.com:/home/ciMan
+      - ssh ciMan@brain01.iotmyworld.com "sudo /bin/systemctl stop brain.service"
+      - ssh ciMan@brain01.iotmyworld.com "sudo /bin/mv /home/ciMan/brain /home/brain"
+      - ssh ciMan@brain01.iotmyworld.com "sudo /bin/systemctl start brain.service"
 
 trigger:
   branch:
