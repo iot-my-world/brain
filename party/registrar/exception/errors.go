@@ -53,3 +53,19 @@ type EmailGeneration struct {
 func (e EmailGeneration) Error() string {
 	return "email generation error: " + strings.Join(e.Reasons, "; ")
 }
+
+type RegisterSystemAdminUser struct {
+	Reasons []string
+}
+
+func (e RegisterSystemAdminUser) Error() string {
+	return "error registering system admin user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteCompanyAdminUser struct {
+	Reasons []string
+}
+
+func (e InviteCompanyAdminUser) Error() string {
+	return "error inviting company admin user: " + strings.Join(e.Reasons, "; ")
+}

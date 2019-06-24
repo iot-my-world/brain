@@ -7,6 +7,7 @@ import (
 	registrationEmail "github.com/iot-my-world/brain/communication/email/generator/registration"
 	"github.com/iot-my-world/brain/communication/email/mailer"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
@@ -85,7 +86,9 @@ func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSyst
 	case userRecordHandlerException.NotFound:
 		// this is fine, we will be creating the user now
 	default:
-		return nil, brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		err = partyRegistrarException.RegisterSystemAdminUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// create the user
@@ -93,6 +96,8 @@ func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSyst
 		User: request.User,
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterSystemAdminUser{Reasons: []string{"user creation", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -102,6 +107,8 @@ func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSyst
 		NewPassword: string(request.User.Password),
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterSystemAdminUser{Reasons: []string{"setting password", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -137,7 +144,9 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		Identifier: request.CompanyIdentifier,
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
+		err = partyRegistrarException.InviteCompanyAdminUser{Reasons: []string{"company retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Retrieve the minimal company admin user which was created on company creation
@@ -148,12 +157,16 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		},
 	})
 	if err != nil {
-		return nil, brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		err = partyRegistrarException.InviteCompanyAdminUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// if the user is already registered, return an error
 	if userRetrieveResponse.User.Registered {
-		return nil, partyRegistrarException.AlreadyRegistered{}
+		err = partyRegistrarException.AlreadyRegistered{}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Generate the registration token for the company admin user to register
@@ -168,7 +181,9 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerCompanyAdminUserClaims)
 	if err != nil {
-		return nil, partyRegistrarException.TokenGeneration{Reasons: []string{"inviteCompanyAdminUser", err.Error()}}
+		err = partyRegistrarException.InviteCompanyAdminUser{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	urlToken := fmt.Sprintf("%s/register?&t=%s", r.mailRedirectBaseUrl, registrationToken)
@@ -182,12 +197,16 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+		err = partyRegistrarException.InviteCompanyAdminUser{Reasons: []string{"email generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
+		err = partyRegistrarException.InviteCompanyAdminUser{Reasons: []string{"email sending", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
