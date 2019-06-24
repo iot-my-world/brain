@@ -143,9 +143,11 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		}
 
 		// create a new json rpc client to register the user with
-		registerJsonRpcClient := basicJsonRpcClient.New(testData.BrainURL)
-		if err := registerJsonRpcClient.SetJWT(jwt); err != nil {
-			suite.FailNow("failed to set jwt in registration client", err.Error())
+		// store login token
+		logInToken := suite.jsonRpcClient.GetJWT()
+		// change token to registration token
+		if err := suite.jsonRpcClient.SetJWT(jwt); err != nil {
+			suite.FailNow("failed to set json rpc client jwt for registration", err.Error())
 		}
 
 		// register the company admin user
@@ -155,6 +157,11 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		if err != nil {
 			suite.FailNow("error registering company admin user", err.Error())
 			return
+		}
+
+		// set token back to logInToken
+		if err := suite.jsonRpcClient.SetJWT(logInToken); err != nil {
+			suite.FailNow("failed to set json rpc client jwt back to logInToken", err.Error())
 		}
 
 		// update the company admin user entity
