@@ -304,6 +304,7 @@ func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegist
 
 func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCompanyAdminUserRequest) (*partyRegistrar.RegisterCompanyAdminUserResponse, error) {
 	if err := r.ValidateRegisterCompanyAdminUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -359,6 +360,7 @@ func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.Inv
 
 func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserRequest) (*partyRegistrar.InviteCompanyUserResponse, error) {
 	if err := r.ValidateInviteCompanyUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -514,6 +516,7 @@ func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.R
 
 func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyUserRequest) (*partyRegistrar.RegisterCompanyUserResponse, error) {
 	if err := r.ValidateRegisterCompanyUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -570,6 +573,7 @@ func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar
 
 func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAdminUserRequest) (*partyRegistrar.InviteClientAdminUserResponse, error) {
 	if err := r.ValidateInviteClientAdminUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -741,6 +745,7 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistr
 
 func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClientAdminUserRequest) (*partyRegistrar.RegisterClientAdminUserResponse, error) {
 	if err := r.ValidateRegisterClientAdminUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -796,6 +801,7 @@ func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.Invi
 
 func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserRequest) (*partyRegistrar.InviteClientUserResponse, error) {
 	if err := r.ValidateInviteClientUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -951,6 +957,7 @@ func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.Re
 
 func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUserRequest) (*partyRegistrar.RegisterClientUserResponse, error) {
 	if err := r.ValidateRegisterClientUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -1021,6 +1028,7 @@ func (r *registrar) ValidateInviteUserRequest(request *partyRegistrar.InviteUser
 
 func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*partyRegistrar.InviteUserResponse, error) {
 	if err := r.ValidateInviteUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -1120,6 +1128,7 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 
 func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegisteredRequest) (*partyRegistrar.AreAdminsRegisteredResponse, error) {
 	if err := r.ValidateAreAdminsRegisteredRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
