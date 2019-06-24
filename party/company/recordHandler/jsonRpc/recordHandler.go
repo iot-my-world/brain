@@ -10,19 +10,19 @@ import (
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 )
 
-type RecordHandler struct {
+type recordHandler struct {
 	jsonRpcClient jsonRpcClient.Client
 }
 
 func New(
 	jsonRpcClient jsonRpcClient.Client,
-) *RecordHandler {
-	return &RecordHandler{
+) companyRecordHandler.RecordHandler {
+	return &recordHandler{
 		jsonRpcClient: jsonRpcClient,
 	}
 }
 
-func (r *RecordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Criteria == nil {
@@ -41,7 +41,7 @@ func (r *RecordHandler) ValidateCollectRequest(request *companyRecordHandler.Col
 	return nil
 }
 
-func (r *RecordHandler) Collect(request *companyRecordHandler.CollectRequest) (*companyRecordHandler.CollectResponse, error) {
+func (r *recordHandler) Collect(request *companyRecordHandler.CollectRequest) (*companyRecordHandler.CollectResponse, error) {
 	if err := r.ValidateCollectRequest(request); err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (r *RecordHandler) Collect(request *companyRecordHandler.CollectRequest) (*
 	}, nil
 }
 
-func (r *RecordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -87,7 +87,7 @@ func (r *RecordHandler) ValidateRetrieveRequest(request *companyRecordHandler.Re
 	return nil
 }
 
-func (r *RecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) (*companyRecordHandler.RetrieveResponse, error) {
+func (r *recordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) (*companyRecordHandler.RetrieveResponse, error) {
 	if err := r.ValidateRetrieveRequest(request); err != nil {
 		return nil, err
 	}
@@ -114,14 +114,14 @@ func (r *RecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) 
 	}, nil
 }
 
-func (r *RecordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
+func (r *recordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *RecordHandler) Update(request *companyRecordHandler.UpdateRequest) (*companyRecordHandler.UpdateResponse, error) {
+func (r *recordHandler) Update(request *companyRecordHandler.UpdateRequest) (*companyRecordHandler.UpdateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *RecordHandler) Delete(request *companyRecordHandler.DeleteRequest) (*companyRecordHandler.DeleteResponse, error) {
+func (r *recordHandler) Delete(request *companyRecordHandler.DeleteRequest) (*companyRecordHandler.DeleteResponse, error) {
 	return nil, brainException.NotImplemented{}
 }

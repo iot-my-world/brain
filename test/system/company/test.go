@@ -5,12 +5,15 @@ import (
 	"fmt"
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
+	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
-	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
+	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	companyRecordHandlerJsonRpc "github.com/iot-my-world/brain/party/company/recordHandler/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
+	"github.com/iot-my-world/brain/search/criterion"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	"github.com/iot-my-world/brain/search/query"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/claims/registerCompanyAdminUser"
@@ -27,7 +30,8 @@ import (
 type Company struct {
 	suite.Suite
 	jsonRpcClient        jsonRpcClient.Client
-	companyRecordHandler *companyRecordHandlerJsonRpc.RecordHandler
+	companyRecordHandler companyRecordHandler.RecordHandler
+	companyAdministrator companyAdministrator.Administrator
 }
 
 func (suite *Company) SetupTest() {
@@ -48,11 +52,11 @@ func (suite *Company) SetupTest() {
 
 func (suite *Company) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
-	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
-	if err := suite.jsonRpcClient.JsonRpcRequest(
-		"CompanyRecordHandler.Collect",
-		companyRecordHandlerJsonRpcAdaptor.CollectRequest{},
-		&companyCollectResponse); err != nil {
+	companyCollectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+		Criteria: make([]criterion.Criterion, 0),
+		Query:    query.Query{},
+	})
+	if err != nil {
 		suite.Failf("collect companies failed", err.Error())
 	}
 	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
