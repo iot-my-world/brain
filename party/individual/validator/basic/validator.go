@@ -3,20 +3,16 @@ package validator
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	individualIndividualAction "github.com/iot-my-world/brain/party/individual/action"
 	individualValidator "github.com/iot-my-world/brain/party/individual/validator"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type validator struct {
-	partyAdministrator   partyAdministrator.Administrator
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
-func New(
-	partyAdministrator partyAdministrator.Administrator,
-) individualValidator.Validator {
+func New() individualValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
 		individualIndividualAction.Create: {
@@ -29,7 +25,6 @@ func New(
 	}
 
 	return &validator{
-		partyAdministrator:   partyAdministrator,
 		actionIgnoredReasons: actionIgnoredReasons,
 	}
 }

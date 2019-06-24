@@ -39,6 +39,13 @@ import (
 	userValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
 	userBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
 
+	individualAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/individual/administrator/adaptor/jsonRpc"
+	individualBasicAdministrator "github.com/iot-my-world/brain/party/individual/administrator/basic"
+	individualRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/individual/recordHandler/adaptor/jsonRpc"
+	individualMongoRecordHandler "github.com/iot-my-world/brain/party/individual/recordHandler/mongo"
+	individualValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/individual/validator/adaptor/jsonRpc"
+	individualBasicValidator "github.com/iot-my-world/brain/party/individual/validator/basic"
+
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "github.com/iot-my-world/brain/party/company/administrator/basic"
 	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
@@ -216,6 +223,18 @@ func main() {
 		&systemClaims,
 	)
 
+	// Individual
+	IndividualRecordHandler := individualMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.Individual,
+	)
+	IndividualValidator := individualBasicValidator.New()
+	IndividualBasicAdministrator := individualBasicAdministrator.New(
+		IndividualValidator,
+		IndividualRecordHandler,
+	)
+
 	// Company
 	CompanyRecordHandler := companyMongoRecordHandler.New(
 		mainMongoSession,
@@ -352,6 +371,11 @@ func main() {
 	// Permission
 	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
 
+	// Individual
+	IndividualRecordHandlerAdaptor := individualRecordHandlerJsonRpcAdaptor.New(IndividualRecordHandler)
+	IndividualValidatorAdaptor := individualValidatorJsonRpcAdaptor.New(IndividualValidator)
+	IndividualAdministratorAdaptor := individualAdministratorJsonRpcAdaptor.New(IndividualBasicAdministrator)
+
 	// Company
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	CompanyValidatorAdaptor := companyValidatorJsonRpcAdaptor.New(CompanyValidator)
@@ -414,6 +438,17 @@ func main() {
 	// Permission
 	if err := secureHumanUserAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
+	}
+
+	// Individual
+	if err := secureHumanUserAPIServer.RegisterService(IndividualRecordHandlerAdaptor, "IndividualRecordHandler"); err != nil {
+		log.Fatal("Unable to Register Individual Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(IndividualValidatorAdaptor, "IndividualValidator"); err != nil {
+		log.Fatal("Unable to Register Individual Validator Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(IndividualAdministratorAdaptor, "IndividualAdministrator"); err != nil {
+		log.Fatal("Unable to Register Individual Administrator Service")
 	}
 
 	// Company
