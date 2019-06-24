@@ -6,9 +6,9 @@ import (
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
 	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
-	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
+	companyJsonRpcAdministrator "github.com/iot-my-world/brain/party/company/administrator/jsonRpc"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
-	companyRecordHandlerJsonRpc "github.com/iot-my-world/brain/party/company/recordHandler/jsonRpc"
+	companyJsonRpcRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/search/criterion"
 	"github.com/iot-my-world/brain/search/identifier/id"
@@ -47,7 +47,8 @@ func (suite *Company) SetupTest() {
 	}
 
 	// set up service provider clients that use jsonRpcClient
-	suite.companyRecordHandler = companyRecordHandlerJsonRpc.New(suite.jsonRpcClient)
+	suite.companyRecordHandler = companyJsonRpcRecordHandler.New(suite.jsonRpcClient)
+	suite.companyAdministrator = companyJsonRpcAdministrator.New(suite.jsonRpcClient)
 }
 
 func (suite *Company) TestSystemCreateCompanies() {
@@ -71,14 +72,10 @@ func (suite *Company) TestSystemCreateCompanies() {
 		(*companyEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
 
 		// create the company
-		companyCreateResponse := companyAdministratorJsonRpcAdaptor.CreateResponse{}
-		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"CompanyAdministrator.Create",
-			companyAdministratorJsonRpcAdaptor.CreateRequest{
-				Company: *companyEntity,
-			},
-			&companyCreateResponse,
-		); err != nil {
+		companyCreateResponse, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
+			Company: *companyEntity,
+		})
+		if err != nil {
 			suite.FailNow("create company failed", err.Error())
 		}
 
