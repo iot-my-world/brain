@@ -20,6 +20,21 @@ type OrWrapped struct {
 	Criteria []Wrapped `json:"criteria"`
 }
 
+func Wrap(criterion criterion.Criterion) (*Wrapped, error) {
+	value, err := json.Marshal(criterion)
+	if err != nil {
+		return nil, criterionException.Wrapping{Reasons: []string{
+			"json marshalling",
+			err.Error(),
+		}}
+	}
+
+	return &Wrapped{
+		Type:  criterion.Type(),
+		Value: value,
+	}, nil
+}
+
 func (cw Wrapped) UnWrap() (criterion.Criterion, error) {
 	var result criterion.Criterion = nil
 	switch cw.Type {
