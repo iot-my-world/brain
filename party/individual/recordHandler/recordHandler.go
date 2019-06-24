@@ -3,7 +3,7 @@ package recordHandler
 import (
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/party/individual"
-	sf001RecordHandlerException "github.com/iot-my-world/brain/party/individual/recordHandler/exception"
+	individualRecordHandlerException "github.com/iot-my-world/brain/party/individual/recordHandler/exception"
 	brainRecordHandler "github.com/iot-my-world/brain/recordHandler"
 	brainRecordHandlerException "github.com/iot-my-world/brain/recordHandler/exception"
 	"github.com/iot-my-world/brain/search/criterion"
@@ -17,11 +17,11 @@ type RecordHandler struct {
 }
 
 func New(
-	brainSF001RecordHandler brainRecordHandler.RecordHandler,
+	brainIndividualRecordHandler brainRecordHandler.RecordHandler,
 ) *RecordHandler {
 
 	return &RecordHandler{
-		recordHandler: brainSF001RecordHandler,
+		recordHandler: brainIndividualRecordHandler,
 	}
 }
 
@@ -52,15 +52,15 @@ func (r *RecordHandler) Create(request *CreateRequest) (*CreateResponse, error) 
 	if err := r.recordHandler.Create(&brainRecordHandler.CreateRequest{
 		Entity: &request.Individual,
 	}, &createResponse); err != nil {
-		return nil, sf001RecordHandlerException.Create{Reasons: []string{err.Error()}}
+		return nil, individualRecordHandlerException.Create{Reasons: []string{err.Error()}}
 	}
-	createdDevice, ok := createResponse.Entity.(*individual.Individual)
+	createdIndividual, ok := createResponse.Entity.(*individual.Individual)
 	if !ok {
-		return nil, sf001RecordHandlerException.Create{Reasons: []string{"could not cast created entity to individual"}}
+		return nil, individualRecordHandlerException.Create{Reasons: []string{"could not cast created entity to individual"}}
 	}
 
 	return &CreateResponse{
-		Individual: *createdDevice,
+		Individual: *createdIndividual,
 	}, nil
 }
 
@@ -74,9 +74,9 @@ type RetrieveResponse struct {
 }
 
 func (r *RecordHandler) Retrieve(request *RetrieveRequest) (*RetrieveResponse, error) {
-	retrievedSF001 := individual.Individual{}
+	retrievedIndividual := individual.Individual{}
 	retrieveResponse := brainRecordHandler.RetrieveResponse{
-		Entity: &retrievedSF001,
+		Entity: &retrievedIndividual,
 	}
 	if err := r.recordHandler.Retrieve(&brainRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
@@ -84,14 +84,14 @@ func (r *RecordHandler) Retrieve(request *RetrieveRequest) (*RetrieveResponse, e
 	}, &retrieveResponse); err != nil {
 		switch err.(type) {
 		case brainRecordHandlerException.NotFound:
-			return nil, sf001RecordHandlerException.NotFound{}
+			return nil, individualRecordHandlerException.NotFound{}
 		default:
 			return nil, err
 		}
 	}
 
 	return &RetrieveResponse{
-		Individual: retrievedSF001,
+		Individual: retrievedIndividual,
 	}, nil
 }
 
@@ -110,7 +110,7 @@ func (r *RecordHandler) Update(request *UpdateRequest) (*UpdateResponse, error) 
 		Identifier: request.Identifier,
 		Entity:     &request.Individual,
 	}, &updateResponse); err != nil {
-		return nil, sf001RecordHandlerException.Update{Reasons: []string{err.Error()}}
+		return nil, individualRecordHandlerException.Update{Reasons: []string{err.Error()}}
 	}
 
 	return &UpdateResponse{}, nil
@@ -130,7 +130,7 @@ func (r *RecordHandler) Delete(request *DeleteRequest) (*DeleteResponse, error) 
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 	}, &deleteResponse); err != nil {
-		return nil, sf001RecordHandlerException.Delete{Reasons: []string{err.Error()}}
+		return nil, individualRecordHandlerException.Delete{Reasons: []string{err.Error()}}
 	}
 
 	return &DeleteResponse{}, nil
@@ -148,9 +148,9 @@ type CollectResponse struct {
 }
 
 func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, error) {
-	var collectedSF001 []individual.Individual
+	var collectedIndividual []individual.Individual
 	collectResponse := brainRecordHandler.CollectResponse{
-		Records: &collectedSF001,
+		Records: &collectedIndividual,
 	}
 	err := r.recordHandler.Collect(&brainRecordHandler.CollectRequest{
 		Claims:   request.Claims,
@@ -158,15 +158,15 @@ func (r *RecordHandler) Collect(request *CollectRequest) (*CollectResponse, erro
 		Query:    request.Query,
 	}, &collectResponse)
 	if err != nil {
-		return nil, sf001RecordHandlerException.Collect{Reasons: []string{err.Error()}}
+		return nil, individualRecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
-	if collectedSF001 == nil {
-		collectedSF001 = make([]individual.Individual, 0)
+	if collectedIndividual == nil {
+		collectedIndividual = make([]individual.Individual, 0)
 	}
 
 	return &CollectResponse{
-		Records: collectedSF001,
+		Records: collectedIndividual,
 		Total:   collectResponse.Total,
 	}, nil
 }

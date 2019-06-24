@@ -4,19 +4,19 @@ import (
 	"github.com/iot-my-world/brain/action"
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party/individual"
-	sf001DeviceValidator "github.com/iot-my-world/brain/party/individual/validator"
+	individualIndividualValidator "github.com/iot-my-world/brain/party/individual/validator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"
 	"net/http"
 )
 
 type adaptor struct {
-	sf001DeviceValidator sf001DeviceValidator.Validator
+	individualIndividualValidator individualIndividualValidator.Validator
 }
 
-func New(sf001DeviceValidator sf001DeviceValidator.Validator) *adaptor {
+func New(individualIndividualValidator individualIndividualValidator.Validator) *adaptor {
 	return &adaptor{
-		sf001DeviceValidator: sf001DeviceValidator,
+		individualIndividualValidator: individualIndividualValidator,
 	}
 }
 
@@ -36,7 +36,7 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	validateSF001DeviceResponse, err := s.sf001DeviceValidator.Validate(&sf001DeviceValidator.ValidateRequest{
+	validateIndividualIndividualResponse, err := s.individualIndividualValidator.Validate(&individualIndividualValidator.ValidateRequest{
 		Claims:     claims,
 		Individual: request.Individual,
 		Action:     request.Action,
@@ -45,7 +45,7 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	response.ReasonsInvalid = validateSF001DeviceResponse.ReasonsInvalid
+	response.ReasonsInvalid = validateIndividualIndividualResponse.ReasonsInvalid
 
 	return nil
 }

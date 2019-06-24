@@ -3,7 +3,7 @@ package jsonRpc
 import (
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party/individual"
-	sf001RecordHandler "github.com/iot-my-world/brain/party/individual/recordHandler"
+	individualRecordHandler "github.com/iot-my-world/brain/party/individual/recordHandler"
 	"github.com/iot-my-world/brain/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/search/criterion/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
@@ -13,10 +13,10 @@ import (
 )
 
 type adaptor struct {
-	RecordHandler *sf001RecordHandler.RecordHandler
+	RecordHandler *individualRecordHandler.RecordHandler
 }
 
-func New(recordHandler *sf001RecordHandler.RecordHandler) *adaptor {
+func New(recordHandler *individualRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -37,8 +37,8 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveSF001Response, err := s.RecordHandler.Retrieve(
-		&sf001RecordHandler.RetrieveRequest{
+	retrieveIndividualResponse, err := s.RecordHandler.Retrieve(
+		&individualRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
 		})
@@ -46,7 +46,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	response.Individual = retrieveSF001Response.Individual
+	response.Individual = retrieveIndividualResponse.Individual
 
 	return nil
 }
@@ -77,7 +77,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectSF001Response, err := s.RecordHandler.Collect(&sf001RecordHandler.CollectRequest{
+	collectIndividualResponse, err := s.RecordHandler.Collect(&individualRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
@@ -86,7 +86,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		return err
 	}
 
-	response.Records = collectSF001Response.Records
-	response.Total = collectSF001Response.Total
+	response.Records = collectIndividualResponse.Records
+	response.Total = collectIndividualResponse.Total
 	return nil
 }

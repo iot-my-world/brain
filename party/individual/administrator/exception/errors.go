@@ -4,12 +4,12 @@ import (
 	"strings"
 )
 
-type DeviceRetrieval struct {
+type IndividualRetrieval struct {
 	Reasons []string
 }
 
-func (e DeviceRetrieval) Error() string {
-	return "error retrieving device: " + strings.Join(e.Reasons, "; ")
+func (e IndividualRetrieval) Error() string {
+	return "error retrieving individual: " + strings.Join(e.Reasons, "; ")
 }
 
 type ReadingCollection struct {
@@ -20,12 +20,12 @@ func (e ReadingCollection) Error() string {
 	return "error collecting readings : " + strings.Join(e.Reasons, "; ")
 }
 
-type DeviceUpdate struct {
+type IndividualUpdate struct {
 	Reasons []string
 }
 
-func (e DeviceUpdate) Error() string {
-	return "error updating device: " + strings.Join(e.Reasons, "; ")
+func (e IndividualUpdate) Error() string {
+	return "error updating individual: " + strings.Join(e.Reasons, "; ")
 }
 
 type ReadingUpdate struct {
@@ -36,12 +36,12 @@ func (e ReadingUpdate) Error() string {
 	return "error updating reading: " + strings.Join(e.Reasons, "; ")
 }
 
-type DeviceCreation struct {
+type IndividualCreation struct {
 	Reasons []string
 }
 
-func (e DeviceCreation) Error() string {
-	return "error creating device: " + strings.Join(e.Reasons, "; ")
+func (e IndividualCreation) Error() string {
+	return "error creating individual: " + strings.Join(e.Reasons, "; ")
 }
 
 type Heartbeat struct {

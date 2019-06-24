@@ -3,16 +3,16 @@ package jsonRpc
 import (
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party/individual"
-	sf001DeviceAdministrator "github.com/iot-my-world/brain/party/individual/administrator"
+	individualIndividualAdministrator "github.com/iot-my-world/brain/party/individual/administrator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 
 type adaptor struct {
-	administrator sf001DeviceAdministrator.Administrator
+	administrator individualIndividualAdministrator.Administrator
 }
 
-func New(administrator sf001DeviceAdministrator.Administrator) *adaptor {
+func New(administrator individualIndividualAdministrator.Administrator) *adaptor {
 	return &adaptor{
 		administrator: administrator,
 	}
@@ -33,7 +33,7 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 		return err
 	}
 
-	createResponse, err := a.administrator.Create(&sf001DeviceAdministrator.CreateRequest{
+	createResponse, err := a.administrator.Create(&individualIndividualAdministrator.CreateRequest{
 		Claims:     claims,
 		Individual: request.Individual,
 	})
@@ -61,7 +61,7 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 		return err
 	}
 
-	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&sf001DeviceAdministrator.UpdateAllowedFieldsRequest{
+	updateAllowedFieldsResponse, err := a.administrator.UpdateAllowedFields(&individualIndividualAdministrator.UpdateAllowedFieldsRequest{
 		Claims:     claims,
 		Individual: request.Individual,
 	})
