@@ -59,7 +59,7 @@ func (r *recordHandler) Collect(request *companyRecordHandler.CollectRequest) (*
 
 	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		"CompanyRecordHandler.Collect",
+		companyRecordHandler.CollectService,
 		companyRecordHandlerJsonRpcAdaptor.CollectRequest{
 			Criteria: criteria,
 			Query:    request.Query,
@@ -101,7 +101,7 @@ func (r *recordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) 
 
 	companyRetrieveResponse := companyRecordHandlerJsonRpcAdaptor.RetrieveResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		"CompanyRecordHandler.Retrieve",
+		companyRecordHandler.RetrieveService,
 		companyRecordHandlerJsonRpcAdaptor.RetrieveRequest{
 			WrappedIdentifier: *id,
 		},

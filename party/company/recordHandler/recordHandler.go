@@ -6,7 +6,6 @@ import (
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/search/query"
 	"github.com/iot-my-world/brain/security/claims"
-	"github.com/iot-my-world/brain/service"
 )
 
 type RecordHandler interface {
@@ -17,12 +16,12 @@ type RecordHandler interface {
 	Collect(request *CollectRequest) (*CollectResponse, error)
 }
 
-const ServiceProvider service.Provider = "Company-RecordHandler"
-const Create = service.Service(ServiceProvider + ".Create")
-const Retrieve = service.Service(ServiceProvider + ".Retrieve")
-const Update = service.Service(ServiceProvider + ".Update")
-const Delete = service.Service(ServiceProvider + ".Delete")
-const Collect = service.Service(ServiceProvider + ".Collect")
+const ServiceProvider = "Company-RecordHandler"
+const CreateService = ServiceProvider + ".Create"
+const RetrieveService = ServiceProvider + ".Retrieve"
+const UpdateService = ServiceProvider + ".Update"
+const DeleteService = ServiceProvider + ".Delete"
+const CollectService = ServiceProvider + ".Collect"
 
 type CreateRequest struct {
 	Company company.Company

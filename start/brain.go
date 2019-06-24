@@ -48,6 +48,7 @@ import (
 
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "github.com/iot-my-world/brain/party/company/administrator/basic"
+	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler/mongo"
 	companyValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/validator/adaptor/jsonRpc"
@@ -452,7 +453,7 @@ func main() {
 	}
 
 	// Company
-	if err := secureHumanUserAPIServer.RegisterService(CompanyRecordHandlerAdaptor, "CompanyRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyRecordHandlerAdaptor, companyRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
 	if err := secureHumanUserAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
