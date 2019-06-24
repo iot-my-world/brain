@@ -491,18 +491,17 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 			Claims:     *a.systemClaims,
 			Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 		})
-		switch err.(type) {
-		case nil:
-			// do nothing, this means that the user could be retrieved
-		case humanUserRecordHandlerException.NotFound:
-			return nil, nil
-		default:
-			// some other retrieval error
-			return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		if err != nil {
+			err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"user retrieval", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
 		}
+
 	default:
 		// some other retrieval error
-		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// User record retrieved successfully
@@ -517,7 +516,9 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 		PartyId:         retrieveUserResponse.User.PartyId,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.TokenGeneration{Reasons: []string{"forgot password", err.Error()}}
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
 
@@ -528,12 +529,16 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 		},
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.EmailGeneration{Reasons: []string{"set password", err.Error()}}
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"generating email", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	if _, err := a.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"sending email", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 

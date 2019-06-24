@@ -97,3 +97,11 @@ type UpdatePassword struct {
 func (e UpdatePassword) Error() string {
 	return "error updating password: " + strings.Join(e.Reasons, "; ")
 }
+
+type ForgotPassword struct {
+	Reasons []string
+}
+
+func (e ForgotPassword) Error() string {
+	return "error processing forgotten password: " + strings.Join(e.Reasons, "; ")
+}
