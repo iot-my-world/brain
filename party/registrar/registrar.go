@@ -48,9 +48,7 @@ type RegisterCompanyAdminUserRequest struct {
 	User   humanUser.User
 }
 
-type RegisterCompanyAdminUserResponse struct {
-	User humanUser.User
-}
+type RegisterCompanyAdminUserResponse struct{}
 
 type InviteCompanyUserRequest struct {
 	Claims         claims.Claims
@@ -66,9 +64,7 @@ type RegisterCompanyUserRequest struct {
 	User   humanUser.User
 }
 
-type RegisterCompanyUserResponse struct {
-	User humanUser.User
-}
+type RegisterCompanyUserResponse struct{}
 
 type InviteClientAdminUserRequest struct {
 	Claims           claims.Claims
@@ -85,7 +81,6 @@ type RegisterClientAdminUserRequest struct {
 }
 
 type RegisterClientAdminUserResponse struct {
-	User humanUser.User
 }
 
 type InviteClientUserRequest struct {
@@ -103,7 +98,6 @@ type RegisterClientUserRequest struct {
 }
 
 type RegisterClientUserResponse struct {
-	User humanUser.User
 }
 
 type InviteUserRequest struct {

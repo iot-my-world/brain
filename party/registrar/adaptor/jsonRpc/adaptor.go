@@ -53,9 +53,7 @@ type RegisterCompanyAdminUserRequest struct {
 	User humanUser.User `json:"user"`
 }
 
-type RegisterCompanyAdminUserResponse struct {
-	User humanUser.User `json:"user"`
-}
+type RegisterCompanyAdminUserResponse struct{}
 
 func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
@@ -64,15 +62,12 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 		return err
 	}
 
-	registerCompanyAdminUserResponse, err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
+	if _, err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
-
-	response.User = registerCompanyAdminUserResponse.User
 
 	return nil
 }
@@ -81,9 +76,7 @@ type RegisterCompanyUserRequest struct {
 	User humanUser.User `json:"user"`
 }
 
-type RegisterCompanyUserResponse struct {
-	User humanUser.User `json:"user"`
-}
+type RegisterCompanyUserResponse struct{}
 
 func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
@@ -92,15 +85,12 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 		return err
 	}
 
-	registerCompanyUserResponse, err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
+	if _, err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
 		Claims: claims,
 		User:   request.User,
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
-
-	response.User = registerCompanyUserResponse.User
 
 	return nil
 }
@@ -136,9 +126,7 @@ type RegisterClientAdminUserRequest struct {
 	User humanUser.User `json:"user"`
 }
 
-type RegisterClientAdminUserResponse struct {
-	User humanUser.User `json:"user"`
-}
+type RegisterClientAdminUserResponse struct{}
 
 func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
@@ -147,15 +135,12 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 		return err
 	}
 
-	registerClientAdminUserResponse, err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
+	if _, err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
-
-	response.User = registerClientAdminUserResponse.User
 
 	return nil
 }
@@ -164,9 +149,7 @@ type RegisterClientUserRequest struct {
 	User humanUser.User `json:"user"`
 }
 
-type RegisterClientUserResponse struct {
-	User humanUser.User `json:"user"`
-}
+type RegisterClientUserResponse struct{}
 
 func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUserRequest, response *RegisterClientUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
@@ -175,15 +158,12 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 		return err
 	}
 
-	registerClientUserResponse, err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
+	if _, err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
 		Claims: claims,
 		User:   request.User,
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
-
-	response.User = registerClientUserResponse.User
 
 	return nil
 }

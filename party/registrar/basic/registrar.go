@@ -327,18 +327,17 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
+	if _, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
-	})
-	if err != nil {
+	}); err != nil {
 		err = partyRegistrarException.RegisterCompanyAdminUser{Reasons: []string{"user password change", err.Error()}}
 		log.Error(err.Error())
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterCompanyAdminUserResponse{User: userChangePasswordResponse.User}, nil
+	return &partyRegistrar.RegisterCompanyAdminUserResponse{}, nil
 }
 
 func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.InviteCompanyUserRequest) error {
@@ -539,18 +538,17 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
+	if _, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
-	})
-	if err != nil {
+	}); err != nil {
 		err = partyRegistrarException.RegisterCompanyUser{Reasons: []string{"setting user password", err.Error()}}
 		log.Error(err.Error())
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterCompanyUserResponse{User: userChangePasswordResponse.User}, nil
+	return &partyRegistrar.RegisterCompanyUserResponse{}, nil
 }
 
 func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
@@ -768,18 +766,17 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
+	if _, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
-	})
-	if err != nil {
+	}); err != nil {
 		err = partyRegistrarException.RegisterClientAdminUser{Reasons: []string{"user password setting", err.Error()}}
 		log.Error(err.Error())
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterClientAdminUserResponse{User: userChangePasswordResponse.User}, nil
+	return &partyRegistrar.RegisterClientAdminUserResponse{}, nil
 }
 
 func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
@@ -982,18 +979,17 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 	}
 
 	// change the users password
-	userChangePasswordResponse, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
+	if _, err := r.userAdministrator.SetPassword(&userAdministrator.SetPasswordRequest{
 		Claims:      request.Claims,
 		Identifier:  id.Identifier{Id: request.User.Id},
 		NewPassword: string(request.User.Password),
-	})
-	if err != nil {
+	}); err != nil {
 		err = partyRegistrarException.RegisterClientUser{Reasons: []string{"user password setting", err.Error()}}
 		log.Error(err.Error())
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterClientUserResponse{User: userChangePasswordResponse.User}, nil
+	return &partyRegistrar.RegisterClientUserResponse{}, nil
 }
 
 func (r *registrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {

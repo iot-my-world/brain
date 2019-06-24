@@ -275,18 +275,15 @@ func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordR
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
 
-	updateUserResponse, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
+	if _, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 		User:       retrieveUserResponse.User,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
 	}
 
-	return &humanUserAdministrator.SetPasswordResponse{
-		User: updateUserResponse.User,
-	}, nil
+	return &humanUserAdministrator.SetPasswordResponse{}, nil
 }
 
 func (a *administrator) ValidateUpdatePasswordRequest(request *humanUserAdministrator.UpdatePasswordRequest) error {

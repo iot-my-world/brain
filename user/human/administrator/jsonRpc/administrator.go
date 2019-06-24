@@ -31,6 +31,7 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *humanUserAdm
 
 func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.UpdateAllowedFieldsRequest) (*humanUserAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -62,6 +63,7 @@ func (a *administrator) ValidateGetMyUserRequest(request *humanUserAdministrator
 
 func (a *administrator) GetMyUser(request *humanUserAdministrator.GetMyUserRequest) (*humanUserAdministrator.GetMyUserResponse, error) {
 	if err := a.ValidateGetMyUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -90,6 +92,7 @@ func (a *administrator) ValidateCreateRequest(request *humanUserAdministrator.Cr
 
 func (a *administrator) Create(request *humanUserAdministrator.CreateRequest) (*humanUserAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -121,6 +124,7 @@ func (a *administrator) ValidateSetPasswordRequest(request *humanUserAdministrat
 
 func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordRequest) (*humanUserAdministrator.SetPasswordResponse, error) {
 	if err := a.ValidateSetPasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -148,6 +152,7 @@ func (a *administrator) ValidateUpdatePasswordRequest(request *humanUserAdminist
 
 func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePasswordRequest) (*humanUserAdministrator.UpdatePasswordResponse, error) {
 	if err := a.ValidateUpdatePasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -180,6 +185,7 @@ func (a *administrator) ValidateCheckPasswordRequest(request *humanUserAdministr
 
 func (a *administrator) CheckPassword(request *humanUserAdministrator.CheckPasswordRequest) (*humanUserAdministrator.CheckPasswordResponse, error) {
 	if err := a.ValidateCheckPasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -211,6 +217,7 @@ func (a *administrator) ValidateForgotPasswordRequest(request *humanUserAdminist
 
 func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPasswordRequest) (*humanUserAdministrator.ForgotPasswordResponse, error) {
 	if err := a.ValidateForgotPasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 

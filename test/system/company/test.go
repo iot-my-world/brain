@@ -142,7 +142,6 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
 		}
 
-		// create a new json rpc client to register the user with
 		// store login token
 		logInToken := suite.jsonRpcClient.GetJWT()
 		// change token to registration token
