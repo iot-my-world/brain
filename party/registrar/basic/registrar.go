@@ -1195,10 +1195,12 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	} else {
 		// confirm that for every admin email a user was returned
 		if len(companyAdminUserCollectResponse.Records) != len(companyAdminEmails) {
-			return nil, brainException.Unexpected{Reasons: []string{
+			err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{
 				"no company admin users found different from number of admin emails found",
 				fmt.Sprintf("%d vs %d", len(companyAdminUserCollectResponse.Records), len(companyAdminEmails)),
 			}}
+			log.Error(err.Error())
+			return nil, err
 		}
 	}
 	// update result for the company admin users retrieved
@@ -1247,7 +1249,9 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToCollectParties{Reasons: []string{"clientAdminUsers", err.Error()}}
+		err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{"collecting client admin users"}}
+		log.Error(err.Error())
+		return nil, err
 	} else {
 		// confirm that for every admin email user was returned
 		if len(clientAdminUserCollectResponse.Records) != len(clientAdminEmails) {
