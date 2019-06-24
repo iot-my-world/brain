@@ -213,9 +213,11 @@ func (a *administrator) ValidateCreateRequest(request *humanUserAdministrator.Cr
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
 		} else {
 			if len(validationResponse.ReasonsInvalid) > 0 {
+				invalidReason := "user invalid: "
 				for _, reason := range validationResponse.ReasonsInvalid {
-					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("user invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+					invalidReason += fmt.Sprintf(" %s - %s - %s,", reason.Field, reason.Type, reason.Help)
 				}
+				reasonsInvalid = append(reasonsInvalid, invalidReason)
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	userAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/administrator/adaptor/jsonRpc"
 )
@@ -37,7 +38,7 @@ func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.Upda
 
 	updateAllowedFieldsResponse := userAdministratorJsonRpcAdaptor.UpdateAllowedFieldsResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.Create",
+		"UserAdministrator.UpdateAllowedFields",
 		userAdministratorJsonRpcAdaptor.UpdateAllowedFieldsRequest{
 			User: request.User,
 		},
@@ -99,7 +100,9 @@ func (a *administrator) Create(request *humanUserAdministrator.CreateRequest) (*
 	createResponse := userAdministratorJsonRpcAdaptor.CreateResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
 		"UserAdministrator.Create",
-		userAdministratorJsonRpcAdaptor.CreateRequest{},
+		userAdministratorJsonRpcAdaptor.CreateRequest{
+			User: request.User,
+		},
 		&createResponse,
 	); err != nil {
 		log.Error(err.Error())
@@ -128,10 +131,19 @@ func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordR
 		return nil, err
 	}
 
+	id, err := wrappedIdentifier.Wrap(request.Identifier)
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
 	setPasswordResponse := userAdministratorJsonRpcAdaptor.SetPasswordResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
 		"UserAdministrator.SetPassword",
-		userAdministratorJsonRpcAdaptor.SetPasswordRequest{},
+		userAdministratorJsonRpcAdaptor.SetPasswordRequest{
+			WrappedIdentifier: *id,
+			NewPassword:       request.NewPassword,
+		},
 		&setPasswordResponse,
 	); err != nil {
 		log.Error(err.Error())

@@ -47,6 +47,7 @@ func (suite *User) TestInviteAndRegisterUsers() {
 			Password:               string(companyTestDataEntity.AdminUser.Password),
 		}); err != nil {
 			suite.FailNow(fmt.Sprintf("failed to log in as %s", companyTestDataEntity.AdminUser.Username), err.Error())
+			return
 		}
 
 		// for each user assigned to this company
