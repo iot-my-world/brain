@@ -320,6 +320,8 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 		Identifier: id.Identifier{Id: request.User.Id},
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterCompanyAdminUser{Reasons: []string{"user update", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -330,6 +332,8 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 		NewPassword: string(request.User.Password),
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterCompanyAdminUser{Reasons: []string{"user password change", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -364,12 +368,16 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		Identifier: request.UserIdentifier,
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
+		err = partyRegistrarException.InviteCompanyUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// if the user is already registered, return an error
 	if userRetrieveResponse.User.Registered {
-		return nil, partyRegistrarException.AlreadyRegistered{}
+		err = partyRegistrarException.AlreadyRegistered{}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Generate the registration token for the company user to register
@@ -384,7 +392,9 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerCompanyUserClaims)
 	if err != nil {
-		return nil, partyRegistrarException.TokenGeneration{Reasons: []string{"inviteCompanyUser", err.Error()}}
+		err = partyRegistrarException.InviteCompanyUser{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -397,12 +407,16 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+		err = partyRegistrarException.InviteCompanyUser{Reasons: []string{"email generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
+		err = partyRegistrarException.InviteCompanyUser{Reasons: []string{"email sending", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -516,6 +530,8 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		Identifier: id.Identifier{Id: request.User.Id},
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterCompanyUser{Reasons: []string{"user update", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -526,6 +542,8 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		NewPassword: string(request.User.Password),
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterCompanyUser{Reasons: []string{"setting user password", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -561,7 +579,9 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		Identifier: request.ClientIdentifier,
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"client", err.Error()}}
+		err = partyRegistrarException.InviteClientAdminUser{Reasons: []string{"client party retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// retrieve the minimal client admin user
@@ -573,12 +593,16 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		},
 	})
 	if err != nil {
-		return nil, brainException.Unexpected{Reasons: []string{"user retrieval", err.Error()}}
+		err = partyRegistrarException.InviteClientAdminUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// if the user is already registered, return an error
 	if userRetrieveResponse.User.Registered {
-		return nil, partyRegistrarException.AlreadyRegistered{}
+		err = partyRegistrarException.AlreadyRegistered{}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Generate the registration token for the client admin user to register
@@ -593,7 +617,9 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerClientAdminUserClaims)
 	if err != nil {
-		return nil, partyRegistrarException.TokenGeneration{Reasons: []string{"inviteClientAdminUser", err.Error()}}
+		err = partyRegistrarException.InviteClientAdminUser{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	//http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -608,12 +634,16 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+		err = partyRegistrarException.InviteClientAdminUser{Reasons: []string{"email generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
+		err = partyRegistrarException.InviteClientAdminUser{Reasons: []string{"email sending", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -727,6 +757,8 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 		Identifier: id.Identifier{Id: request.User.Id},
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterClientAdminUser{Reasons: []string{"user update", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -737,6 +769,8 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 		NewPassword: string(request.User.Password),
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterClientAdminUser{Reasons: []string{"user password setting", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -771,12 +805,16 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 		Identifier: request.UserIdentifier,
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
+		err = partyRegistrarException.InviteClientUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// if the user is already registered, return an error
 	if userRetrieveResponse.User.Registered {
-		return nil, partyRegistrarException.AlreadyRegistered{}
+		err = partyRegistrarException.AlreadyRegistered{}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Generate the registration token for the client user to register
@@ -791,7 +829,9 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 	}
 	registrationToken, err := r.jwtGenerator.GenerateToken(registerClientUserClaims)
 	if err != nil {
-		return nil, partyRegistrarException.TokenGeneration{Reasons: []string{"inviteClientUser", err.Error()}}
+		err = partyRegistrarException.InviteClientUser{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// e.g. //http://localhost:3000/register?&t=eyJhbGciOiJQUzUxMiIsImtpZCI6IiJ9.eyJ0eXBlIjoiUmVnaXN0cmF0aW9uIiwiZXhwIjoxNTUwMDM0NjYxLCJpYXQiOjE1NDk5NDgyNjIsImNvbnRleHQiOnsibmFtZSI6IkJvYidzIE93biBNYW4iLCJwYXJ0eUNvZGUiOiJCT0IiLCJwYXJ0eVR5cGUiOiJJTkRJVklEVUFMIn19.CrqxhOs_NSk1buXQyEykyCsPtNQCoWWFkxQ_HphgjSc2idchlov8SdlpdjYxtqaRv7zpDrPwKHaeR4inbcf0Xat1vasqXEPqgE5WzSWtt-GbXi5iUEc-pg79yx0zQ8riIeSkho84BRZbh252ePuOXBK1Yqa4MG9O2xblDOsfQgDVa-9Ha6XZvxHbNOFYKchiKfsclaZ_osQn9Ll6p8GAw9wqCStWp_kRSJM81RUc8rFIfxNgBwqoab_r6QhFHLT9jm90eU3RrVkGv_bB4hRcwhwE_0ksRL9lXRCIKs5ctuZkcYtPvhdKMRCaXPlV-Bm6sgx4qpS-nzmOmc0bNCrOZlP0JUAHdKSBHmw9mSw5QRLkVTPgAuAm9qOj5PjU95DiFLY1q9X0pyRL2uG7xiE8F-Q_g_5q0vXLZkvgwcEpc604ZGgMsH3Sw5mCl0aKsF6c7eiKjTCBkSv46hDqED4cP4KBrxhEgNN_oKrYPqjElZ0xrFe7P3fAyt1jh3SqgaYoZQB4ORJ76CByLhTRAtTmX2SnVQJhMwgtZu9kPXtpKTfdyAUZcd4eUmfLpJ1VXCzvFlIXQW9rN1TgsE2eMqSbmOtgwHQqQD52M-CW8w7CLBfWG7-GQ68GUA42IErMVKlL9mp22LbOkzvpiFEOx5V0cXyVzndPDKNPZ278gwablyU
@@ -804,12 +844,16 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.EmailGeneration{Reasons: []string{"invite company admin user", err.Error()}}
+		err = partyRegistrarException.InviteClientUser{Reasons: []string{"email generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
+		err = partyRegistrarException.InviteClientUser{Reasons: []string{"email sending", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
