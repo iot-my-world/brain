@@ -337,7 +337,7 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterCompanyAdminUserResponse{}, nil
+	return &partyRegistrar.RegisterCompanyAdminUserResponse{User: request.User}, nil
 }
 
 func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.InviteCompanyUserRequest) error {
@@ -548,7 +548,7 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterCompanyUserResponse{}, nil
+	return &partyRegistrar.RegisterCompanyUserResponse{User: request.User}, nil
 }
 
 func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
@@ -776,7 +776,7 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterClientAdminUserResponse{}, nil
+	return &partyRegistrar.RegisterClientAdminUserResponse{User: request.User}, nil
 }
 
 func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
@@ -989,7 +989,7 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterClientUserResponse{}, nil
+	return &partyRegistrar.RegisterClientUserResponse{User: request.User}, nil
 }
 
 func (r *registrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {
