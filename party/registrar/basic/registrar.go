@@ -969,6 +969,8 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 		Identifier: id.Identifier{Id: request.User.Id},
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterClientUser{Reasons: []string{"user update", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -979,6 +981,8 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 		NewPassword: string(request.User.Password),
 	})
 	if err != nil {
+		err = partyRegistrarException.RegisterClientUser{Reasons: []string{"user password setting", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -1026,7 +1030,9 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 		Identifier: request.UserIdentifier,
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"user retrieval", err.Error()}}
+		err = partyRegistrarException.InviteUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	response := partyRegistrar.InviteUserResponse{}
@@ -1040,7 +1046,9 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 			Identifier: userRetrieveResponse.User.PartyId,
 		})
 		if err != nil {
-			return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
+			err = partyRegistrarException.InviteUser{Reasons: []string{"company entity retrieval", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
 		}
 		if userRetrieveResponse.User.EmailAddress == companyRetrieveResponse.Company.AdminEmailAddress {
 			inviteCompanyAdminUserResponse, err := r.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
@@ -1048,6 +1056,8 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 				CompanyIdentifier: userRetrieveResponse.User.PartyId,
 			})
 			if err != nil {
+				err = partyRegistrarException.InviteUser{Reasons: []string{"invite company admin user", err.Error()}}
+				log.Error(err.Error())
 				return nil, err
 			}
 			response.URLToken = inviteCompanyAdminUserResponse.URLToken
@@ -1057,6 +1067,8 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 				UserIdentifier: id.Identifier{Id: userRetrieveResponse.User.Id},
 			})
 			if err != nil {
+				err = partyRegistrarException.InviteUser{Reasons: []string{"invite company user", err.Error()}}
+				log.Error(err.Error())
 				return nil, err
 			}
 			response.URLToken = inviteCompanyUserResponse.URLToken
@@ -1069,7 +1081,9 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 			Identifier: userRetrieveResponse.User.PartyId,
 		})
 		if err != nil {
-			return nil, partyRegistrarException.UnableToRetrieveParty{Reasons: []string{"company", err.Error()}}
+			err = partyRegistrarException.InviteUser{Reasons: []string{"retrieving client entity", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
 		}
 		if userRetrieveResponse.User.EmailAddress == clientRetrieveResponse.Client.AdminEmailAddress {
 			inviteClientAdminUserResponse, err := r.InviteClientAdminUser(&partyRegistrar.InviteClientAdminUserRequest{
@@ -1077,6 +1091,8 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 				ClientIdentifier: userRetrieveResponse.User.PartyId,
 			})
 			if err != nil {
+				err = partyRegistrarException.InviteUser{Reasons: []string{"inviting client admin user", err.Error()}}
+				log.Error(err.Error())
 				return nil, err
 			}
 			response.URLToken = inviteClientAdminUserResponse.URLToken
@@ -1086,14 +1102,17 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 				UserIdentifier: id.Identifier{Id: userRetrieveResponse.User.Id},
 			})
 			if err != nil {
+				err = partyRegistrarException.InviteUser{Reasons: []string{"inviting client user", err.Error()}}
+				log.Error(err.Error())
 				return nil, err
 			}
 			response.URLToken = inviteClientUserResponse.URLToken
 		}
 
 	default:
-		return nil, partyRegistrarException.PartyTypeInvalid{Reasons: []string{string(userRetrieveResponse.User.PartyType)}}
-
+		err = partyRegistrarException.InviteUser{Reasons: []string{"invalid party type", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	return &response, nil
@@ -1123,7 +1142,9 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		case party.Client:
 			clientIds = append(clientIds, partyIdentifier.PartyIdIdentifier.Id)
 		default:
-			return nil, partyRegistrarException.PartyTypeInvalid{Reasons: []string{"areAdminsRegistered", string(partyIdentifier.PartyType)}}
+			err := partyRegistrarException.AreAdminsRegistered{Reasons: []string{"invalid party type", string(partyIdentifier.PartyType)}}
+			log.Error(err.Error())
+			return nil, err
 		}
 	}
 
@@ -1138,14 +1159,18 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToCollectParties{Reasons: []string{"company", err.Error()}}
+		err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{"collecting company parties"}}
+		log.Error(err.Error())
+		return nil, err
 	} else {
 		// confirm that for every id received a company was returned
 		if len(companyCollectResponse.Records) != len(companyIds) {
-			return nil, brainException.Unexpected{Reasons: []string{
-				"no company records returned different to number of ids given",
+			err := partyRegistrarException.AreAdminsRegistered{Reasons: []string{
+				"no company records collected different to number of ids given",
 				fmt.Sprintf("%d vs %d", len(companyCollectResponse.Records), len(companyIds)),
 			}}
+			log.Error(err.Error())
+			return nil, err
 		}
 	}
 	// compose list of admin email addresses
@@ -1164,7 +1189,9 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToCollectParties{Reasons: []string{"companyAdminUsers", err.Error()}}
+		err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{"collecting company admin users"}}
+		log.Error(err.Error())
+		return nil, err
 	} else {
 		// confirm that for every admin email a user was returned
 		if len(companyAdminUserCollectResponse.Records) != len(companyAdminEmails) {
@@ -1191,14 +1218,18 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		},
 	})
 	if err != nil {
-		return nil, partyRegistrarException.UnableToCollectParties{Reasons: []string{"client", err.Error()}}
+		err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{"collecting client party entities"}}
+		log.Error(err.Error())
+		return nil, err
 	} else {
 		// confirm that for every id received a client was returned
 		if len(clientCollectResponse.Records) != len(clientIds) {
-			return nil, brainException.Unexpected{Reasons: []string{
+			err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{
 				"no client records returned different to number of ids given",
 				fmt.Sprintf("%d vs %d", len(clientCollectResponse.Records), len(clientIds)),
 			}}
+			log.Error(err.Error())
+			return nil, err
 		}
 	}
 	// compose list of admin email addresses
@@ -1220,10 +1251,12 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 	} else {
 		// confirm that for every admin email user was returned
 		if len(clientAdminUserCollectResponse.Records) != len(clientAdminEmails) {
-			return nil, brainException.Unexpected{Reasons: []string{
+			err = partyRegistrarException.AreAdminsRegistered{Reasons: []string{
 				"no client admin users found different from number of admin emails found",
 				fmt.Sprintf("%d vs %d", len(clientAdminUserCollectResponse.Records), len(clientAdminEmails)),
 			}}
+			log.Error(err.Error())
+			return nil, err
 		}
 	}
 	// update result for the client admin users retrieved

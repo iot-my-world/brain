@@ -117,3 +117,27 @@ type InviteClientUser struct {
 func (e InviteClientUser) Error() string {
 	return "error inviting client user: " + strings.Join(e.Reasons, "; ")
 }
+
+type RegisterClientUser struct {
+	Reasons []string
+}
+
+func (e RegisterClientUser) Error() string {
+	return "error registering client user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteUser struct {
+	Reasons []string
+}
+
+func (e InviteUser) Error() string {
+	return "error inviting user: " + strings.Join(e.Reasons, "; ")
+}
+
+type AreAdminsRegistered struct {
+	Reasons []string
+}
+
+func (e AreAdminsRegistered) Error() string {
+	return "are admins registered error: " + strings.Join(e.Reasons, "; ")
+}
