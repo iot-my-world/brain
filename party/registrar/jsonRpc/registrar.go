@@ -3,7 +3,10 @@ package jsonRpc
 import (
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
+	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 )
 
 type registrar struct {
@@ -41,7 +44,27 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: urlToken}, nil
+	// create identifier for the company entity
+	companyIdentifier, err := wrappedIdentifier.Wrap(request.CompanyIdentifier)
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// invite the admin user
+	inviteCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserResponse{}
+	if err := r.jsonRpcClient.JsonRpcRequest(
+		"PartyRegistrar.InviteCompanyAdminUser",
+		partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
+			WrappedCompanyIdentifier: *companyIdentifier,
+		},
+		&inviteCompanyAdminUserResponse,
+	); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: inviteCompanyAdminUserResponse.URLToken}, nil
 }
 
 func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
@@ -58,7 +81,19 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterCompanyAdminUserResponse{User: userChangePasswordResponse.User}, nil
+	registerCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserResponse{}
+	if err := r.jsonRpcClient.JsonRpcRequest(
+		"PartyRegistrar.RegisterCompanyAdminUser",
+		partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
+			User: request.User,
+		},
+		&registerCompanyAdminUserResponse,
+	); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &partyRegistrar.RegisterCompanyAdminUserResponse{User: registerCompanyAdminUserResponse.User}, nil
 }
 
 func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.InviteCompanyUserRequest) error {
@@ -80,7 +115,8 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteCompanyUserResponse{URLToken: urlToken}, nil
+	//return &partyRegistrar.InviteCompanyUserResponse{URLToken: urlToken}, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.RegisterCompanyUserRequest) error {
@@ -97,7 +133,8 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterCompanyUserResponse{User: userChangePasswordResponse.User}, nil
+	//return &partyRegistrar.RegisterCompanyUserResponse{User: userChangePasswordResponse.User}, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
@@ -119,7 +156,8 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteClientAdminUserResponse{URLToken: urlToken}, nil
+	//return &partyRegistrar.InviteClientAdminUserResponse{URLToken: urlToken}, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
@@ -136,7 +174,8 @@ func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClie
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterClientAdminUserResponse{User: userChangePasswordResponse.User}, nil
+	//return &partyRegistrar.RegisterClientAdminUserResponse{User: userChangePasswordResponse.User}, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
@@ -157,7 +196,8 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteClientUserResponse{URLToken: urlToken}, nil
+	//return &partyRegistrar.InviteClientUserResponse{URLToken: urlToken}, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.RegisterClientUserRequest) error {
@@ -174,7 +214,8 @@ func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUse
 		return nil, err
 	}
 
-	return &partyRegistrar.RegisterClientUserResponse{User: userChangePasswordResponse.User}, nil
+	//return &partyRegistrar.RegisterClientUserResponse{User: userChangePasswordResponse.User}, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateInviteUserRequest(request *partyRegistrar.InviteUserRequest) error {
@@ -195,7 +236,8 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 		return nil, err
 	}
 
-	return &response, nil
+	//return &response, nil
+	return nil, brainException.NotImplemented{}
 }
 
 func (r *registrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {
@@ -212,5 +254,6 @@ func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegiste
 		return nil, err
 	}
 
-	return &response, nil
+	//return &response, nil
+	return nil, brainException.NotImplemented{}
 }

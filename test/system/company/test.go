@@ -9,10 +9,10 @@ import (
 	companyJsonRpcAdministrator "github.com/iot-my-world/brain/party/company/administrator/jsonRpc"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	companyJsonRpcRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler/jsonRpc"
-	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
+	partyJsonRpcRegistrar "github.com/iot-my-world/brain/party/registrar/jsonRpc"
 	"github.com/iot-my-world/brain/search/criterion"
 	"github.com/iot-my-world/brain/search/identifier/id"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	"github.com/iot-my-world/brain/search/query"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/security/claims"
@@ -32,6 +32,7 @@ type Company struct {
 	jsonRpcClient        jsonRpcClient.Client
 	companyRecordHandler companyRecordHandler.RecordHandler
 	companyAdministrator companyAdministrator.Administrator
+	partyRegistrar       partyRegistrar.Registrar
 }
 
 func (suite *Company) SetupTest() {
@@ -49,6 +50,7 @@ func (suite *Company) SetupTest() {
 	// set up service provider clients that use jsonRpcClient
 	suite.companyRecordHandler = companyJsonRpcRecordHandler.New(suite.jsonRpcClient)
 	suite.companyAdministrator = companyJsonRpcAdministrator.New(suite.jsonRpcClient)
+	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 }
 
 func (suite *Company) TestSystemCreateCompanies() {
@@ -91,22 +93,13 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		companyEntity := &(companyTestData.EntitiesAndAdminUsersToCreate[idx].Company)
 		companyAdminUserEntity := &companyTestData.EntitiesAndAdminUsersToCreate[idx].AdminUser
 
-		// create identifier for the company entity
-		companyIdentifier, err := wrappedIdentifier.Wrap(id.Identifier{Id: companyEntity.Id})
-		if err != nil {
-			suite.FailNow("error wrapping companyIdentifier", err.Error())
-		}
-
 		// invite the admin user
-		inviteCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserResponse{}
-		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"PartyRegistrar.InviteCompanyAdminUser",
-			partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
-				WrappedCompanyIdentifier: *companyIdentifier,
-			},
-			&inviteCompanyAdminUserResponse,
-		); err != nil {
+		inviteCompanyAdminUserResponse, err := suite.partyRegistrar.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
+			CompanyIdentifier: id.Identifier{Id: companyEntity.Id},
+		})
+		if err != nil {
 			suite.FailNow("invite company admin user failed", err.Error())
+			return
 		}
 
 		// parse the urlToken into a jsonWebToken object
@@ -156,15 +149,12 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		}
 
 		// register the company admin user
-		registerCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserResponse{}
-		if err := registerJsonRpcClient.JsonRpcRequest(
-			"PartyRegistrar.RegisterCompanyAdminUser",
-			partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
-				User: *companyAdminUserEntity,
-			},
-			&registerCompanyAdminUserResponse,
-		); err != nil {
+		registerCompanyAdminUserResponse, err := suite.partyRegistrar.RegisterCompanyAdminUser(&partyRegistrar.RegisterCompanyAdminUserRequest{
+			User: *companyAdminUserEntity,
+		})
+		if err != nil {
 			suite.FailNow("error registering company admin user", err.Error())
+			return
 		}
 
 		// update the company admin user entity
