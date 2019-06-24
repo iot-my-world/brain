@@ -59,6 +59,7 @@ func (suite *Company) TestSystemCreateCompanies() {
 	})
 	if err != nil {
 		suite.Failf("collect companies failed", err.Error())
+		return
 	}
 	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
 		suite.FailNow("company collection not empty")
@@ -77,6 +78,7 @@ func (suite *Company) TestSystemCreateCompanies() {
 		})
 		if err != nil {
 			suite.FailNow("create company failed", err.Error())
+			return
 		}
 
 		// update the company
