@@ -113,3 +113,15 @@ func (r *RecordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) 
 		Company: companyRetrieveResponse.Company,
 	}, nil
 }
+
+func (r *RecordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
+	return nil, brainException.NotImplemented{}
+}
+
+func (r *RecordHandler) Update(request *companyRecordHandler.UpdateRequest) (*companyRecordHandler.UpdateResponse, error) {
+	return nil, brainException.NotImplemented{}
+}
+
+func (r *RecordHandler) Delete(request *companyRecordHandler.DeleteRequest) (*companyRecordHandler.DeleteResponse, error) {
+	return nil, brainException.NotImplemented{}
+}

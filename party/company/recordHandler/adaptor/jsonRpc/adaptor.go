@@ -13,10 +13,10 @@ import (
 )
 
 type adaptor struct {
-	RecordHandler *companyRecordHandler.RecordHandler
+	RecordHandler companyRecordHandler.RecordHandler
 }
 
-func New(recordHandler *companyRecordHandler.RecordHandler) *adaptor {
+func New(recordHandler companyRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}

@@ -7,6 +7,7 @@ import (
 	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
 	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
+	companyRecordHandlerJsonRpc "github.com/iot-my-world/brain/party/company/recordHandler/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
@@ -25,7 +26,8 @@ import (
 
 type Company struct {
 	suite.Suite
-	jsonRpcClient jsonRpcClient.Client
+	jsonRpcClient        jsonRpcClient.Client
+	companyRecordHandler *companyRecordHandlerJsonRpc.RecordHandler
 }
 
 func (suite *Company) SetupTest() {
@@ -39,6 +41,9 @@ func (suite *Company) SetupTest() {
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
+
+	// set up service provider clients that use jsonRpcClient
+	suite.companyRecordHandler = companyRecordHandlerJsonRpc.New(suite.jsonRpcClient)
 }
 
 func (suite *Company) TestSystemCreateCompanies() {
