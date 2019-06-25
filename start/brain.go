@@ -54,6 +54,7 @@ import (
 	companyValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "github.com/iot-my-world/brain/party/company/validator/basic"
 
+	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
 	clientAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/administrator/adaptor/jsonRpc"
 	clientBasicAdministrator "github.com/iot-my-world/brain/party/client/administrator/basic"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
@@ -472,7 +473,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
 		log.Fatal("Unable to Register Client Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, clientAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Administrator Service")
 	}
 

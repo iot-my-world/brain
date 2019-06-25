@@ -3,6 +3,7 @@ package setup
 import (
 	"github.com/iot-my-world/brain/log"
 	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
+	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -15,11 +16,18 @@ import (
 
 var initialRoles = func() []role.Role {
 
-	// Create Roles
+	// Add Permissions to Roles
+	// Party Administrator
 	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, partyAdministrator.CompanyAdminUserPermissions...)
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, partyAdministrator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, partyAdministrator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, partyAdministrator.ClientUserPermissions...)
+
+	// Client Administrator
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, clientAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientAdministrator.ClientUserPermissions...)
 
 	// Register roles here
 	allRoles := []role.Role{
@@ -129,9 +137,6 @@ var CompanyAdmin = role.Role{
 
 		api.ClientValidatorValidate,
 
-		api.ClientAdministratorCreate,
-		api.ClientAdministratorUpdateAllowedFields,
-
 		// Party
 		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarInviteClientAdminUser,
@@ -202,8 +207,6 @@ var ClientAdmin = role.Role{
 
 		// client
 		api.ClientRecordHandlerCollect,
-
-		api.ClientAdministratorUpdateAllowedFields,
 
 		api.ClientValidatorValidate,
 

@@ -47,9 +47,6 @@ const ClientRecordHandlerCollect Permission = "ClientRecordHandler.Collect"
 
 const ClientValidatorValidate Permission = "ClientValidator.Validate"
 
-const ClientAdministratorUpdateAllowedFields Permission = "ClientAdministrator.UpdateAllowedFields"
-const ClientAdministratorCreate Permission = "ClientAdministrator.Create"
-
 // Party
 const PartyRegistrarInviteCompanyAdminUser Permission = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser Permission = "PartyRegistrar.RegisterCompanyAdminUser"
