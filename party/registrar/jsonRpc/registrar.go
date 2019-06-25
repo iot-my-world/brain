@@ -236,8 +236,27 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 		return nil, err
 	}
 
-	//return &response, nil
-	return nil, brainException.NotImplemented{}
+	id, err := wrappedIdentifier.Wrap(request.UserIdentifier)
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	inviteUserResponse := partyRegistrarJsonRpcAdaptor.InviteUserResponse{}
+	if err := r.jsonRpcClient.JsonRpcRequest(
+		"PartyRegistrar.InviteCompanyAdminUser",
+		partyRegistrarJsonRpcAdaptor.InviteUserRequest{
+			WrappedUserIdentifier: *id,
+		},
+		&inviteUserResponse,
+	); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &partyRegistrar.InviteUserResponse{
+		URLToken: inviteUserResponse.URLToken,
+	}, nil
 }
 
 func (r *registrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {
