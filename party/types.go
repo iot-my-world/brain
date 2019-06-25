@@ -5,6 +5,7 @@ type Type string
 const System Type = "System"
 const Client Type = "Client"
 const Company Type = "Company"
+const Individual Type = "Individual"
 
 func IsValidType(partyType Type) bool {
 	allValidTypes := []Type{

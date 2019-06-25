@@ -33,8 +33,8 @@ const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.UpdateAllowedFields"
 
 // Company
-const CompanyRecordHandlerRetrieve Permission = "CompanyRecordHandler.Retrieve"
-const CompanyRecordHandlerCollect Permission = "CompanyRecordHandler.Collect"
+const CompanyRecordHandlerRetrieve Permission = "Company-RecordHandler.Retrieve"
+const CompanyRecordHandlerCollect Permission = "Company-RecordHandler.Collect"
 
 const CompanyValidatorValidate Permission = "CompanyValidator.Validate"
 

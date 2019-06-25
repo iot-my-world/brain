@@ -5,11 +5,15 @@ import (
 	"fmt"
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
-	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
-	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
-	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
+	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
+	companyJsonRpcAdministrator "github.com/iot-my-world/brain/party/company/administrator/jsonRpc"
+	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
+	companyJsonRpcRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler/jsonRpc"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
+	partyJsonRpcRegistrar "github.com/iot-my-world/brain/party/registrar/jsonRpc"
+	"github.com/iot-my-world/brain/search/criterion"
 	"github.com/iot-my-world/brain/search/identifier/id"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	"github.com/iot-my-world/brain/search/query"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/claims/registerCompanyAdminUser"
@@ -25,7 +29,10 @@ import (
 
 type Company struct {
 	suite.Suite
-	jsonRpcClient jsonRpcClient.Client
+	jsonRpcClient        jsonRpcClient.Client
+	companyRecordHandler companyRecordHandler.RecordHandler
+	companyAdministrator companyAdministrator.Administrator
+	partyRegistrar       partyRegistrar.Registrar
 }
 
 func (suite *Company) SetupTest() {
@@ -39,16 +46,22 @@ func (suite *Company) SetupTest() {
 	}); err != nil {
 		suite.Fail("log in error", err.Error())
 	}
+
+	// set up service provider clients that use jsonRpcClient
+	suite.companyRecordHandler = companyJsonRpcRecordHandler.New(suite.jsonRpcClient)
+	suite.companyAdministrator = companyJsonRpcAdministrator.New(suite.jsonRpcClient)
+	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 }
 
 func (suite *Company) TestSystemCreateCompanies() {
 	// confirm that there are no companies in database, should be starting clean
-	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
-	if err := suite.jsonRpcClient.JsonRpcRequest(
-		"CompanyRecordHandler.Collect",
-		companyRecordHandlerJsonRpcAdaptor.CollectRequest{},
-		&companyCollectResponse); err != nil {
+	companyCollectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+		Criteria: make([]criterion.Criterion, 0),
+		Query:    query.Query{},
+	})
+	if err != nil {
 		suite.Failf("collect companies failed", err.Error())
+		return
 	}
 	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
 		suite.FailNow("company collection not empty")
@@ -62,15 +75,12 @@ func (suite *Company) TestSystemCreateCompanies() {
 		(*companyEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
 
 		// create the company
-		companyCreateResponse := companyAdministratorJsonRpcAdaptor.CreateResponse{}
-		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"CompanyAdministrator.Create",
-			companyAdministratorJsonRpcAdaptor.CreateRequest{
-				Company: *companyEntity,
-			},
-			&companyCreateResponse,
-		); err != nil {
+		companyCreateResponse, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
+			Company: *companyEntity,
+		})
+		if err != nil {
 			suite.FailNow("create company failed", err.Error())
+			return
 		}
 
 		// update the company
@@ -83,22 +93,13 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 		companyEntity := &(companyTestData.EntitiesAndAdminUsersToCreate[idx].Company)
 		companyAdminUserEntity := &companyTestData.EntitiesAndAdminUsersToCreate[idx].AdminUser
 
-		// create identifier for the company entity
-		companyIdentifier, err := wrappedIdentifier.Wrap(id.Identifier{Id: companyEntity.Id})
-		if err != nil {
-			suite.FailNow("error wrapping companyIdentifier", err.Error())
-		}
-
 		// invite the admin user
-		inviteCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserResponse{}
-		if err := suite.jsonRpcClient.JsonRpcRequest(
-			"PartyRegistrar.InviteCompanyAdminUser",
-			partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
-				WrappedCompanyIdentifier: *companyIdentifier,
-			},
-			&inviteCompanyAdminUserResponse,
-		); err != nil {
+		inviteCompanyAdminUserResponse, err := suite.partyRegistrar.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
+			CompanyIdentifier: id.Identifier{Id: companyEntity.Id},
+		})
+		if err != nil {
 			suite.FailNow("invite company admin user failed", err.Error())
+			return
 		}
 
 		// parse the urlToken into a jsonWebToken object
@@ -141,22 +142,25 @@ func (suite *Company) TestSystemInviteAndRegisterCompanyAdminUsers() {
 			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
 		}
 
-		// create a new json rpc client to register the user with
-		registerJsonRpcClient := basicJsonRpcClient.New(testData.BrainURL)
-		if err := registerJsonRpcClient.SetJWT(jwt); err != nil {
-			suite.FailNow("failed to set jwt in registration client", err.Error())
+		// store login token
+		logInToken := suite.jsonRpcClient.GetJWT()
+		// change token to registration token
+		if err := suite.jsonRpcClient.SetJWT(jwt); err != nil {
+			suite.FailNow("failed to set json rpc client jwt for registration", err.Error())
 		}
 
 		// register the company admin user
-		registerCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserResponse{}
-		if err := registerJsonRpcClient.JsonRpcRequest(
-			"PartyRegistrar.RegisterCompanyAdminUser",
-			partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
-				User: *companyAdminUserEntity,
-			},
-			&registerCompanyAdminUserResponse,
-		); err != nil {
+		registerCompanyAdminUserResponse, err := suite.partyRegistrar.RegisterCompanyAdminUser(&partyRegistrar.RegisterCompanyAdminUserRequest{
+			User: *companyAdminUserEntity,
+		})
+		if err != nil {
 			suite.FailNow("error registering company admin user", err.Error())
+			return
+		}
+
+		// set token back to logInToken
+		if err := suite.jsonRpcClient.SetJWT(logInToken); err != nil {
+			suite.FailNow("failed to set json rpc client jwt back to logInToken", err.Error())
 		}
 
 		// update the company admin user entity

@@ -49,7 +49,6 @@ type SetPasswordRequest struct {
 }
 
 type SetPasswordResponse struct {
-	User humanUser.User
 }
 
 type CheckPasswordRequest struct {

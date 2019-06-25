@@ -1,9 +1,9 @@
-package company
+package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/party/company"
-	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
+	"github.com/iot-my-world/brain/party/individual"
+	individualRecordHandler "github.com/iot-my-world/brain/party/individual/recordHandler"
 	"github.com/iot-my-world/brain/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/search/criterion/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
@@ -13,10 +13,10 @@ import (
 )
 
 type adaptor struct {
-	RecordHandler companyRecordHandler.RecordHandler
+	RecordHandler *individualRecordHandler.RecordHandler
 }
 
-func New(recordHandler companyRecordHandler.RecordHandler) *adaptor {
+func New(recordHandler *individualRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -27,7 +27,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Company company.Company `json:"company"`
+	Individual individual.Individual `json:"individual"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -37,8 +37,8 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveCompanyResponse, err := s.RecordHandler.Retrieve(
-		&companyRecordHandler.RetrieveRequest{
+	retrieveIndividualResponse, err := s.RecordHandler.Retrieve(
+		&individualRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
 		})
@@ -46,7 +46,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	response.Company = retrieveCompanyResponse.Company
+	response.Individual = retrieveIndividualResponse.Individual
 
 	return nil
 }
@@ -57,8 +57,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []company.Company `json:"records"`
-	Total   int               `json:"total"`
+	Records []individual.Individual `json:"records"`
+	Total   int                     `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
@@ -77,16 +77,16 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectCompanyResponse, err := s.RecordHandler.Collect(&companyRecordHandler.CollectRequest{
+	collectIndividualResponse, err := s.RecordHandler.Collect(&individualRecordHandler.CollectRequest{
+		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
-		Claims:   claims,
 	})
 	if err != nil {
 		return err
 	}
 
-	response.Records = collectCompanyResponse.Records
-	response.Total = collectCompanyResponse.Total
+	response.Records = collectIndividualResponse.Records
+	response.Total = collectIndividualResponse.Total
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	setPasswordEmail "github.com/iot-my-world/brain/communication/email/generator/set/password"
 	"github.com/iot-my-world/brain/communication/email/mailer"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	"github.com/iot-my-world/brain/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
@@ -75,10 +76,11 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *humanUserAdm
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("user invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				for _, reason := range validationResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("user invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -91,6 +93,7 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *humanUserAdm
 
 func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.UpdateAllowedFieldsRequest) (*humanUserAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -100,7 +103,9 @@ func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.Upda
 		Identifier: id.Identifier{Id: request.User.Id},
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		err = humanUserAdministratorException.UpdateAllowedFields{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// update allowed fields on the user
@@ -124,7 +129,9 @@ func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.Upda
 		User:       userRetrieveResponse.User,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
+		err = humanUserAdministratorException.UpdateAllowedFields{Reasons: []string{"updating", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	return &humanUserAdministrator.UpdateAllowedFieldsResponse{
@@ -143,13 +150,16 @@ func (a *administrator) ValidateGetMyUserRequest(request *humanUserAdministrator
 
 func (a *administrator) GetMyUser(request *humanUserAdministrator.GetMyUserRequest) (*humanUserAdministrator.GetMyUserResponse, error) {
 	if err := a.ValidateGetMyUserRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
 	// infer the login claims type
 	loginClaims, ok := request.Claims.(humanUserLoginClaims.Login)
 	if !ok {
-		return nil, humanUserAdministratorException.InvalidClaims{Reasons: []string{"cannot assert login claims type"}}
+		err := humanUserAdministratorException.GetMyUser{Reasons: []string{"cannot assert login claims type"}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// retrieve user
@@ -158,8 +168,11 @@ func (a *administrator) GetMyUser(request *humanUserAdministrator.GetMyUserReque
 		Identifier: loginClaims.UserId,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{"user retrieval", err.Error()}}
+		err = humanUserAdministratorException.GetMyUser{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
+
 	return &humanUserAdministrator.GetMyUserResponse{User: userRetrieveResponse.User}, nil
 }
 
@@ -198,10 +211,13 @@ func (a *administrator) ValidateCreateRequest(request *humanUserAdministrator.Cr
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating user: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("user invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				invalidReason := "user invalid: "
+				for _, reason := range validationResponse.ReasonsInvalid {
+					invalidReason += fmt.Sprintf(" %s - %s - %s,", reason.Field, reason.Type, reason.Help)
+				}
+				reasonsInvalid = append(reasonsInvalid, invalidReason)
 			}
 		}
 	}
@@ -215,6 +231,7 @@ func (a *administrator) ValidateCreateRequest(request *humanUserAdministrator.Cr
 
 func (a *administrator) Create(request *humanUserAdministrator.CreateRequest) (*humanUserAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -223,7 +240,9 @@ func (a *administrator) Create(request *humanUserAdministrator.CreateRequest) (*
 		User: request.User,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.UserCreation{Reasons: []string{"user creation", err.Error()}}
+		err = humanUserAdministratorException.Create{Reasons: []string{"user creation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	return &humanUserAdministrator.CreateResponse{User: createResponse.User}, nil
@@ -254,6 +273,7 @@ func (a *administrator) ValidateSetPasswordRequest(request *humanUserAdministrat
 
 func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordRequest) (*humanUserAdministrator.SetPasswordResponse, error) {
 	if err := a.ValidateSetPasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -263,30 +283,33 @@ func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordR
 		Identifier: request.Identifier,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"retrieving record", err.Error()}}
+		err = humanUserAdministratorException.SetPassword{Reasons: []string{"retrieving record", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"hashing password", err.Error()}}
+		err = humanUserAdministratorException.SetPassword{Reasons: []string{"hashing password", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// update user
 	retrieveUserResponse.User.Password = pwdHash
 
-	updateUserResponse, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
+	if _, err := a.humanUserRecordHandler.Update(&humanUserRecordHandler.UpdateRequest{
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 		User:       retrieveUserResponse.User,
-	})
-	if err != nil {
-		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+	}); err != nil {
+		err = humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
-	return &humanUserAdministrator.SetPasswordResponse{
-		User: updateUserResponse.User,
-	}, nil
+	return &humanUserAdministrator.SetPasswordResponse{}, nil
 }
 
 func (a *administrator) ValidateUpdatePasswordRequest(request *humanUserAdministrator.UpdatePasswordRequest) error {
@@ -317,13 +340,16 @@ func (a *administrator) ValidateUpdatePasswordRequest(request *humanUserAdminist
 
 func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePasswordRequest) (*humanUserAdministrator.UpdatePasswordResponse, error) {
 	if err := a.ValidateUpdatePasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
 	// user identifier taken from claims as you can only update your own password
 	loginClaims, ok := request.Claims.(humanUserLoginClaims.Login)
 	if !ok {
-		return nil, brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
+		err := brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Retrieve User
@@ -332,19 +358,25 @@ func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePas
 		Identifier: loginClaims.UserId,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.UpdatePassword{Reasons: []string{"retrieving user record", err.Error()}}
+		err = humanUserAdministratorException.UpdatePassword{Reasons: []string{"retrieving user record", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	//User record retrieved successfully, check given old password
 	if err := bcrypt.CompareHashAndPassword(retrieveUserResponse.User.Password, []byte(request.ExistingPassword)); err != nil {
 		//Password Incorrect
-		return nil, humanUserAdministratorException.UpdatePassword{Reasons: []string{"given existing password incorrect"}}
+		err = humanUserAdministratorException.UpdatePassword{Reasons: []string{"given existing password incorrect"}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Hash the new Password
 	pwdHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, humanUserAdministratorException.UpdatePassword{Reasons: []string{"hashing password", err.Error()}}
+		err = humanUserAdministratorException.UpdatePassword{Reasons: []string{"hashing password", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// update user
@@ -356,7 +388,9 @@ func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePas
 		User:       retrieveUserResponse.User,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+		err = humanUserAdministratorException.SetPassword{Reasons: []string{"update user", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	return &humanUserAdministrator.UpdatePasswordResponse{
@@ -388,13 +422,16 @@ func (a *administrator) ValidateCheckPasswordRequest(request *humanUserAdministr
 
 func (a *administrator) CheckPassword(request *humanUserAdministrator.CheckPasswordRequest) (*humanUserAdministrator.CheckPasswordResponse, error) {
 	if err := a.ValidateCheckPasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
 	// user identifier taken from claims as you can only update your own password
 	loginClaims, ok := request.Claims.(humanUserLoginClaims.Login)
 	if !ok {
-		return nil, brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
+		err := brainException.Unexpected{Reasons: []string{"inferring claims to type login claims"}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// Retrieve User
@@ -403,7 +440,9 @@ func (a *administrator) CheckPassword(request *humanUserAdministrator.CheckPassw
 		Identifier: loginClaims.UserId,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.CheckPassword{Reasons: []string{"retrieving user record", err.Error()}}
+		err = humanUserAdministratorException.CheckPassword{Reasons: []string{"retrieving user record", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	result := true
@@ -433,6 +472,7 @@ func (a *administrator) ValidateForgotPasswordRequest(request *humanUserAdminist
 
 func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPasswordRequest) (*humanUserAdministrator.ForgotPasswordResponse, error) {
 	if err := a.ValidateForgotPasswordRequest(request); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 	var retrieveUserResponse *humanUserRecordHandler.RetrieveResponse
@@ -453,18 +493,17 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 			Claims:     *a.systemClaims,
 			Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 		})
-		switch err.(type) {
-		case nil:
-			// do nothing, this means that the user could be retrieved
-		case humanUserRecordHandlerException.NotFound:
-			return nil, nil
-		default:
-			// some other retrieval error
-			return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		if err != nil {
+			err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"user retrieval", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
 		}
+
 	default:
 		// some other retrieval error
-		return nil, humanUserAdministratorException.UserRetrieval{Reasons: []string{err.Error()}}
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"user retrieval", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	// User record retrieved successfully
@@ -479,7 +518,9 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 		PartyId:         retrieveUserResponse.User.PartyId,
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.TokenGeneration{Reasons: []string{"forgot password", err.Error()}}
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 	urlToken := fmt.Sprintf("%s/resetPassword?&t=%s", a.mailRedirectBaseUrl, forgotPasswordToken)
 
@@ -490,12 +531,16 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 		},
 	})
 	if err != nil {
-		return nil, humanUserAdministratorException.EmailGeneration{Reasons: []string{"set password", err.Error()}}
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"generating email", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	if _, err := a.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
+		err = humanUserAdministratorException.ForgotPassword{Reasons: []string{"sending email", err.Error()}}
+		log.Error(err.Error())
 		return nil, err
 	}
 

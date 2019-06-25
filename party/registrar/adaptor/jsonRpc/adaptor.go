@@ -34,7 +34,7 @@ type InviteCompanyAdminUserResponse struct {
 func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompanyAdminUserRequest, response *InviteCompanyAdminUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
@@ -60,20 +60,19 @@ type RegisterCompanyAdminUserResponse struct {
 func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCompanyAdminUserRequest, response *RegisterCompanyAdminUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
-	registerCompanyAdminUserResponse, err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
+	registerUserResponse, err := a.registrar.RegisterCompanyAdminUser(&registrar.RegisterCompanyAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
 	if err != nil {
-		log.Warn(err.Error())
 		return err
 	}
 
-	response.User = registerCompanyAdminUserResponse.User
+	response.User = registerUserResponse.User
 
 	return nil
 }
@@ -89,20 +88,19 @@ type RegisterCompanyUserResponse struct {
 func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyUserRequest, response *RegisterCompanyUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
-	registerCompanyUserResponse, err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
+	registerResponse, err := a.registrar.RegisterCompanyUser(&registrar.RegisterCompanyUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
 	if err != nil {
-		log.Warn(err.Error())
 		return err
 	}
 
-	response.User = registerCompanyUserResponse.User
+	response.User = registerResponse.User
 
 	return nil
 }
@@ -119,7 +117,7 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
@@ -145,20 +143,19 @@ type RegisterClientAdminUserResponse struct {
 func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClientAdminUserRequest, response *RegisterClientAdminUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
-	registerClientAdminUserResponse, err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
+	registerResponse, err := a.registrar.RegisterClientAdminUser(&registrar.RegisterClientAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
 	if err != nil {
-		log.Warn(err.Error())
 		return err
 	}
 
-	response.User = registerClientAdminUserResponse.User
+	response.User = registerResponse.User
 
 	return nil
 }
@@ -174,20 +171,19 @@ type RegisterClientUserResponse struct {
 func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUserRequest, response *RegisterClientUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
-	registerClientUserResponse, err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
+	registerResponse, err := a.registrar.RegisterClientUser(&registrar.RegisterClientUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
 	if err != nil {
-		log.Warn(err.Error())
 		return err
 	}
 
-	response.User = registerClientUserResponse.User
+	response.User = registerResponse.User
 
 	return nil
 }
@@ -203,7 +199,7 @@ type AreAdminsRegisteredResponse struct {
 func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegisteredRequest, response *AreAdminsRegisteredResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
@@ -222,7 +218,6 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 		PartyIdentifiers: partyIdentifiers,
 	})
 	if err != nil {
-		log.Warn(err.Error())
 		return err
 	}
 
@@ -242,7 +237,7 @@ type InviteUserResponse struct {
 func (a *adaptor) InviteUser(r *http.Request, request *InviteUserRequest, response *InviteUserResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
-		log.Warn(err.Error())
+		log.Error(err.Error())
 		return err
 	}
 
@@ -251,7 +246,6 @@ func (a *adaptor) InviteUser(r *http.Request, request *InviteUserRequest, respon
 		UserIdentifier: request.WrappedUserIdentifier.Identifier,
 	})
 	if err != nil {
-		log.Warn(err.Error())
 		return err
 	}
 

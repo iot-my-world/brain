@@ -53,3 +53,91 @@ type EmailGeneration struct {
 func (e EmailGeneration) Error() string {
 	return "email generation error: " + strings.Join(e.Reasons, "; ")
 }
+
+type RegisterSystemAdminUser struct {
+	Reasons []string
+}
+
+func (e RegisterSystemAdminUser) Error() string {
+	return "error registering system admin user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteCompanyAdminUser struct {
+	Reasons []string
+}
+
+func (e InviteCompanyAdminUser) Error() string {
+	return "error inviting company admin user: " + strings.Join(e.Reasons, "; ")
+}
+
+type RegisterCompanyAdminUser struct {
+	Reasons []string
+}
+
+func (e RegisterCompanyAdminUser) Error() string {
+	return "error registering company admin user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteCompanyUser struct {
+	Reasons []string
+}
+
+func (e InviteCompanyUser) Error() string {
+	return "error inviting company user: " + strings.Join(e.Reasons, "; ")
+}
+
+type RegisterCompanyUser struct {
+	Reasons []string
+}
+
+func (e RegisterCompanyUser) Error() string {
+	return "error registering company user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteClientAdminUser struct {
+	Reasons []string
+}
+
+func (e InviteClientAdminUser) Error() string {
+	return "error inviting client admin user: " + strings.Join(e.Reasons, "; ")
+}
+
+type RegisterClientAdminUser struct {
+	Reasons []string
+}
+
+func (e RegisterClientAdminUser) Error() string {
+	return "error registering client admin user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteClientUser struct {
+	Reasons []string
+}
+
+func (e InviteClientUser) Error() string {
+	return "error inviting client user: " + strings.Join(e.Reasons, "; ")
+}
+
+type RegisterClientUser struct {
+	Reasons []string
+}
+
+func (e RegisterClientUser) Error() string {
+	return "error registering client user: " + strings.Join(e.Reasons, "; ")
+}
+
+type InviteUser struct {
+	Reasons []string
+}
+
+func (e InviteUser) Error() string {
+	return "error inviting user: " + strings.Join(e.Reasons, "; ")
+}
+
+type AreAdminsRegistered struct {
+	Reasons []string
+}
+
+func (e AreAdminsRegistered) Error() string {
+	return "are admins registered error: " + strings.Join(e.Reasons, "; ")
+}
