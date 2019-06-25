@@ -23,7 +23,7 @@ type validator struct {
 }
 
 func New(
-	clientRecordHandler *clientRecordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	systemClaims *humanUserLogin.Login,
 ) clientValidator.Validator {
@@ -40,7 +40,7 @@ func New(
 
 	return &validator{
 		actionIgnoredReasons: actionIgnoredReasons,
-		clientRecordHandler:  *clientRecordHandler,
+		clientRecordHandler:  clientRecordHandler,
 		userRecordHandler:    userRecordHandler,
 		systemClaims:         systemClaims,
 	}

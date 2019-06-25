@@ -6,6 +6,7 @@ import (
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/search/query"
 	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/security/permission/api"
 )
 
 type RecordHandler interface {
@@ -22,6 +23,14 @@ const RetrieveService = ServiceProvider + ".Retrieve"
 const UpdateService = ServiceProvider + ".Update"
 const DeleteService = ServiceProvider + ".Delete"
 const CollectService = ServiceProvider + ".Collect"
+
+var CompanyAdminUserPermissions = make([]api.Permission, 0)
+
+var CompanyUserPermissions = make([]api.Permission, 0)
+
+var ClientAdminUserPermissions = make([]api.Permission, 0)
+
+var ClientUserPermissions = make([]api.Permission, 0)
 
 type CreateRequest struct {
 	Company company.Company

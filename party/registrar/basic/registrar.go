@@ -38,7 +38,7 @@ type registrar struct {
 	userRecordHandler          userRecordHandler.RecordHandler
 	userValidator              userValidator.Validator
 	userAdministrator          userAdministrator.Administrator
-	clientRecordHandler        *clientRecordHandler.RecordHandler
+	clientRecordHandler        clientRecordHandler.RecordHandler
 	mailer                     mailer.Mailer
 	jwtGenerator               token.JWTGenerator
 	mailRedirectBaseUrl        string
@@ -51,7 +51,7 @@ func New(
 	userRecordHandler userRecordHandler.RecordHandler,
 	userValidator userValidator.Validator,
 	userAdministrator userAdministrator.Administrator,
-	clientRecordHandler *clientRecordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 	mailer mailer.Mailer,
 	rsaPrivateKey *rsa.PrivateKey,
 	mailRedirectBaseUrl string,

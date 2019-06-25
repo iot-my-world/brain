@@ -2,6 +2,7 @@ package setup
 
 import (
 	"github.com/iot-my-world/brain/log"
+	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -13,6 +14,12 @@ import (
 )
 
 var initialRoles = func() []role.Role {
+
+	// Create Roles
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, partyAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, partyAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, partyAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, partyAdministrator.ClientUserPermissions...)
 
 	// Register roles here
 	allRoles := []role.Role{
@@ -133,10 +140,6 @@ var CompanyAdmin = role.Role{
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
 
-		// Party Administrator
-		api.PartyAdministratorGetMyParty,
-		api.PartyAdministratorRetrieveParty,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -152,6 +155,7 @@ var CompanyAdmin = role.Role{
 		view.TrackerSF001,
 	},
 }
+
 var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
@@ -159,10 +163,6 @@ var CompanyUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		// Party Administrator
-		api.PartyAdministratorGetMyParty,
-		api.PartyAdministratorRetrieveParty,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
@@ -215,10 +215,6 @@ var ClientAdmin = role.Role{
 		api.PartyRegistrarInviteUser,
 		api.PartyRegistrarAreAdminsRegistered,
 
-		// Party Administrator
-		api.PartyAdministratorGetMyParty,
-		api.PartyAdministratorRetrieveParty,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -240,10 +236,6 @@ var ClientUser = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		// Party Administrator
-		api.PartyAdministratorGetMyParty,
-		api.PartyAdministratorRetrieveParty,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,

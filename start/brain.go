@@ -56,6 +56,7 @@ import (
 
 	clientAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/administrator/adaptor/jsonRpc"
 	clientBasicAdministrator "github.com/iot-my-world/brain/party/client/administrator/basic"
+	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler/mongo"
 	clientValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/validator/adaptor/jsonRpc"
@@ -91,6 +92,7 @@ import (
 	registrationEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/registration"
 	setPasswordEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/set/password"
 
+	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
 	partyBasicAdministrator "github.com/iot-my-world/brain/party/administrator/basic"
 
@@ -464,7 +466,7 @@ func main() {
 	}
 
 	// Client
-	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, clientRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
 	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
@@ -478,7 +480,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, partyAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Party Administrator Service")
 	}
 
