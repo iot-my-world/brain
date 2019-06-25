@@ -9,8 +9,8 @@ import (
 	"github.com/iot-my-world/brain/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	testData "github.com/iot-my-world/brain/test/data"
-	systemTestData "github.com/iot-my-world/brain/test/system/data"
+	testData "github.com/iot-my-world/brain/testing/data"
+	systemTestData "github.com/iot-my-world/brain/testing/system/data"
 	"github.com/iot-my-world/brain/tracker/sf001"
 	sf001TrackerAdministratorJsonAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/workbook"
@@ -37,7 +37,7 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestSystemDeviceCreation() {
-	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/sf001/data/sf001TrackerTestData.xlsx"
+	pathToDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/testing/tracker/sf001/data/sf001TrackerTestData.xlsx"
 
 	var sheetHeaderRowMap = map[string]int{
 		"SF001Tracker": 1,

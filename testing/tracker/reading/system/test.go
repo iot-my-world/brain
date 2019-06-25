@@ -8,8 +8,8 @@ import (
 	"github.com/iot-my-world/brain/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	testData "github.com/iot-my-world/brain/test/data"
-	systemTestData "github.com/iot-my-world/brain/test/system/data"
+	testData "github.com/iot-my-world/brain/testing/data"
+	systemTestData "github.com/iot-my-world/brain/testing/system/data"
 	"github.com/iot-my-world/brain/tracker/tk102/reading"
 	readingAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/tk102/reading/administrator/adaptor/jsonRpc"
 	tk102DeviceRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/tk102/recordHandler/adaptor/jsonRpc"
@@ -41,7 +41,7 @@ func (suite *System) SetupTest() {
 }
 
 func (suite *System) TestSystemReadingCreation() {
-	pathToDeviceDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/device/tk102/data/deviceData.xlsx"
+	pathToDeviceDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/testing/tracker/device/tk102/data/deviceData.xlsx"
 	deviceDataWorkBook, err := workbook.New(pathToDeviceDataWorkbook, map[string]int{
 		"TK102Devices": 1,
 	})
@@ -49,7 +49,7 @@ func (suite *System) TestSystemReadingCreation() {
 		suite.FailNow("failed to create device data workbook", err.Error())
 	}
 
-	pathToReadingDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/test/tracker/reading/data/data.xlsx"
+	pathToReadingDataWorkbook := os.Getenv("GOPATH") + "/src/github.com/iot-my-world/brain/testing/tracker/reading/data/data.xlsx"
 	readingDataWorkBook, err := workbook.New(pathToReadingDataWorkbook, map[string]int{})
 	if err != nil {
 		suite.FailNow("failed to create device data workbook", err.Error())

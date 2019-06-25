@@ -1,7 +1,7 @@
 package reading
 
 import (
-	readingSystemTest "github.com/iot-my-world/brain/test/tracker/reading/system"
+	readingSystemTest "github.com/iot-my-world/brain/testing/tracker/reading/system"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
