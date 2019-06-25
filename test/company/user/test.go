@@ -37,7 +37,7 @@ func (suite *User) SetupTest() {
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 }
 
-func (suite *User) TestComanyInviteAndRegisterUsers() {
+func (suite *User) TestCompanyInviteAndRegisterUsers() {
 	// for each test company entity
 	for companyIdx := range companyTestData.EntitiesAndAdminUsersToCreate {
 		companyTestDataEntity := &companyTestData.EntitiesAndAdminUsersToCreate[companyIdx]

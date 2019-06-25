@@ -244,7 +244,7 @@ func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*part
 
 	inviteUserResponse := partyRegistrarJsonRpcAdaptor.InviteUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		"PartyRegistrar.InviteCompanyAdminUser",
+		"PartyRegistrar.InviteUser",
 		partyRegistrarJsonRpcAdaptor.InviteUserRequest{
 			WrappedUserIdentifier: *id,
 		},
