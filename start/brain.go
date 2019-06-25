@@ -60,6 +60,7 @@ import (
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler/mongo"
+	clientValidator "github.com/iot-my-world/brain/party/client/validator"
 	clientValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/validator/adaptor/jsonRpc"
 	clientBasicValidator "github.com/iot-my-world/brain/party/client/validator/basic"
 
@@ -470,7 +471,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, clientRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, clientValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Validator Service")
 	}
 	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, clientAdministrator.ServiceProvider); err != nil {

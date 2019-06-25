@@ -4,6 +4,8 @@ import (
 	"github.com/iot-my-world/brain/log"
 	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
+	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
+	clientValidator "github.com/iot-my-world/brain/party/client/validator"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -28,6 +30,16 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientAdministrator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientAdministrator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientAdministrator.ClientUserPermissions...)
+	// Client RecordHandler
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, clientRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientRecordHandler.ClientUserPermissions...)
+	// Client Validator
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, clientValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientValidator.ClientUserPermissions...)
 
 	// Register roles here
 	allRoles := []role.Role{
@@ -132,10 +144,6 @@ var CompanyAdmin = role.Role{
 		api.CompanyValidatorValidate,
 
 		// Client
-		api.ClientRecordHandlerRetrieve,
-		api.ClientRecordHandlerCollect,
-
-		api.ClientValidatorValidate,
 
 		// Party
 		api.PartyRegistrarInviteUser,
@@ -206,9 +214,6 @@ var ClientAdmin = role.Role{
 		api.CompanyRecordHandlerCollect,
 
 		// client
-		api.ClientRecordHandlerCollect,
-
-		api.ClientValidatorValidate,
 
 		api.PermissionHandlerGetAllUsersViewPermissions,
 

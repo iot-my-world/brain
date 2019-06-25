@@ -25,36 +25,17 @@ const DeleteService = ServiceProvider + ".Delete"
 const CollectService = ServiceProvider + ".Collect"
 
 var CompanyAdminUserPermissions = []api.Permission{
-	CreateService,
 	RetrieveService,
-	UpdateService,
-	DeleteService,
 	CollectService,
 }
 
-var CompanyUserPermissions = []api.Permission{
-	CreateService,
-	RetrieveService,
-	UpdateService,
-	DeleteService,
-	CollectService,
-}
+var CompanyUserPermissions = make([]api.Permission, 0)
 
 var ClientAdminUserPermissions = []api.Permission{
-	CreateService,
-	RetrieveService,
-	UpdateService,
-	DeleteService,
 	CollectService,
 }
 
-var ClientUserPermissions = []api.Permission{
-	CreateService,
-	RetrieveService,
-	UpdateService,
-	DeleteService,
-	CollectService,
-}
+var ClientUserPermissions = make([]api.Permission, 0)
 
 type CreateRequest struct {
 	Client client.Client
