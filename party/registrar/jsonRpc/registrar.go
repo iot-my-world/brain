@@ -133,8 +133,21 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 		return nil, err
 	}
 
-	//return &partyRegistrar.RegisterCompanyUserResponse{User: userChangePasswordResponse.User}, nil
-	return nil, brainException.NotImplemented{}
+	registerCompanyUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyUserResponse{}
+	if err := r.jsonRpcClient.JsonRpcRequest(
+		"PartyRegistrar.RegisterCompanyUser",
+		partyRegistrarJsonRpcAdaptor.RegisterCompanyUserRequest{
+			User: request.User,
+		},
+		&registerCompanyUserResponse,
+	); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &partyRegistrar.RegisterCompanyUserResponse{
+		User: registerCompanyUserResponse.User,
+	}, nil
 }
 
 func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
