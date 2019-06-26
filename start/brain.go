@@ -38,6 +38,7 @@ import (
 	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 	humanUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/recordHandler/adaptor/jsonRpc"
 	humanUserMongoRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/mongo"
+	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 	humanUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
 	humanUserBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
 
@@ -425,7 +426,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(HumanUserRecordHandlerAdaptor, humanUserRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(HumanUserValidatorAdaptor, "UserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserValidatorAdaptor, humanUserValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Validator Service")
 	}
 	if err := secureHumanUserAPIServer.RegisterService(HumanUserAdministratorAdaptor, humanUserAdministrator.ServiceProvider); err != nil {

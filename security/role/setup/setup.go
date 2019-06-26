@@ -23,6 +23,7 @@ import (
 	roleSetupException "github.com/iot-my-world/brain/security/role/setup/exception"
 	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
+	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 )
 
 var initialRoles = func() []role.Role {
@@ -50,6 +51,12 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, humanUserAdministrator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, humanUserAdministrator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, humanUserAdministrator.ClientUserPermissions...)
+	// Human User Validator
+	rootAPIPermissions = append(rootAPIPermissions, humanUserValidator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, humanUserValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, humanUserValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, humanUserValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, humanUserValidator.ClientUserPermissions...)
 
 	// Party Administrator
 	rootAPIPermissions = append(rootAPIPermissions, partyAdministrator.SystemUserPermissions...)
@@ -194,8 +201,6 @@ var CompanyAdmin = role.Role{
 
 		// user
 
-		api.UserValidatorValidate,
-
 		// Company
 
 		// Client
@@ -238,8 +243,6 @@ var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
 		// user
-
-		api.UserValidatorValidate,
 
 		// system
 		api.SystemRecordHandlerCollect,

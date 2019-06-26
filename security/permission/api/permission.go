@@ -4,8 +4,6 @@ type Permission string
 
 // User
 
-const UserValidatorValidate Permission = "UserValidator.Validate"
-
 // API User
 
 const APIUserAdministratorCreate Permission = "APIUserAdministrator.Create"
