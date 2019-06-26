@@ -30,11 +30,62 @@ import (
 	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 )
 
+var CompanyAdmin = role.Role{
+	Name:           "companyAdmin",
+	APIPermissions: make([]api.Permission, 0),
+	ViewPermissions: []view.Permission{
+		view.PartyProfileEditing,
+
+		view.PartyClient,
+		view.PartyUser,
+
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
+	},
+}
+
+var CompanyUser = role.Role{
+	Name:           "companyUser",
+	APIPermissions: make([]api.Permission, 0),
+	ViewPermissions: []view.Permission{
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
+	},
+}
+
+var ClientAdmin = role.Role{
+	Name:           "clientAdmin",
+	APIPermissions: make([]api.Permission, 0),
+	ViewPermissions: []view.Permission{
+		view.PartyProfileEditing,
+
+		view.PartyUser,
+
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
+	},
+}
+
+var ClientUser = role.Role{
+	Name:           "clientUser",
+	APIPermissions: make([]api.Permission, 0),
+	ViewPermissions: []view.Permission{
+		view.LiveTrackingDashboard,
+		view.HistoricalTrackingDashboard,
+
+		view.TrackerSF001,
+	},
+}
+
 var initialRoles = func() []role.Role {
 
 	rootAPIPermissions := make([]api.Permission, 0)
-
-	// Add Permissions to Roles
 
 	// System RecordHandler
 	rootAPIPermissions = append(rootAPIPermissions, systemRecordHandler.SystemUserPermissions...)
@@ -168,16 +219,6 @@ var initialRoles = func() []role.Role {
 		CompanyUser,
 	}
 
-	// Register additional root api permissions here
-	// i.e. these are permissions that ONLY root has
-	rootAPIPermissions = []api.Permission{
-		// Role
-
-		// API User
-
-		api.SystemAdministratorUpdateAllowedFields,
-	}
-
 	// The view permissions that root has
 	rootViewPermissions := []view.Permission{
 		view.PartyCompany,
@@ -211,82 +252,9 @@ var initialRoles = func() []role.Role {
 		APIPermissions:  rootAPIPermissions,
 		ViewPermissions: rootViewPermissions,
 	}
+
 	return append([]role.Role{root}, allRoles...)
 }()
-
-var CompanyAdmin = role.Role{
-	Name:           "companyAdmin",
-	APIPermissions: []api.Permission{
-		// user
-
-		// Company
-
-		// Client
-
-		// Party
-
-		// SF001 Tracker
-	},
-	ViewPermissions: []view.Permission{
-		view.PartyProfileEditing,
-
-		view.PartyClient,
-		view.PartyUser,
-
-		view.LiveTrackingDashboard,
-		view.HistoricalTrackingDashboard,
-
-		view.TrackerSF001,
-	},
-}
-
-var CompanyUser = role.Role{
-	Name:           "companyUser",
-	APIPermissions: []api.Permission{
-		// SF001 Tracker
-	},
-	ViewPermissions: []view.Permission{
-		view.LiveTrackingDashboard,
-		view.HistoricalTrackingDashboard,
-
-		view.TrackerSF001,
-	},
-}
-
-var ClientAdmin = role.Role{
-	Name:           "clientAdmin",
-	APIPermissions: []api.Permission{
-		// user
-
-		// system
-
-		// company
-
-		// client
-
-		// SF001 Tracker
-	},
-	ViewPermissions: []view.Permission{
-		view.PartyProfileEditing,
-
-		view.PartyUser,
-
-		view.LiveTrackingDashboard,
-		view.HistoricalTrackingDashboard,
-
-		view.TrackerSF001,
-	},
-}
-var ClientUser = role.Role{
-	Name:           "clientUser",
-	APIPermissions: []api.Permission{},
-	ViewPermissions: []view.Permission{
-		view.LiveTrackingDashboard,
-		view.HistoricalTrackingDashboard,
-
-		view.TrackerSF001,
-	},
-}
 
 func InitialSetup(handler roleRecordHandler.RecordHandler) error {
 	for _, roleToCreate := range initialRoles {

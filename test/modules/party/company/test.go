@@ -83,6 +83,7 @@ func (suite *test) TestCreateCompanies() {
 	}
 	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
 		suite.FailNow("company collection not empty")
+		return
 	}
 
 	for idx := range *suite.testData {
