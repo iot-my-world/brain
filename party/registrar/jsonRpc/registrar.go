@@ -54,7 +54,7 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 	// invite the admin user
 	inviteCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		"PartyRegistrar.InviteCompanyAdminUser",
+		partyRegistrar.InviteCompanyAdminUserService,
 		partyRegistrarJsonRpcAdaptor.InviteCompanyAdminUserRequest{
 			WrappedCompanyIdentifier: *companyIdentifier,
 		},
@@ -83,7 +83,7 @@ func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCom
 
 	registerCompanyAdminUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		"PartyRegistrar.RegisterCompanyAdminUser",
+		partyRegistrar.RegisterCompanyAdminUserService,
 		partyRegistrarJsonRpcAdaptor.RegisterCompanyAdminUserRequest{
 			User: request.User,
 		},
@@ -115,7 +115,6 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		return nil, err
 	}
 
-	//return &partyRegistrar.InviteCompanyUserResponse{URLToken: urlToken}, nil
 	return nil, brainException.NotImplemented{}
 }
 
@@ -135,7 +134,7 @@ func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyU
 
 	registerCompanyUserResponse := partyRegistrarJsonRpcAdaptor.RegisterCompanyUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		"PartyRegistrar.RegisterCompanyUser",
+		partyRegistrar.RegisterCompanyUserService,
 		partyRegistrarJsonRpcAdaptor.RegisterCompanyUserRequest{
 			User: request.User,
 		},
@@ -169,8 +168,28 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		return nil, err
 	}
 
-	//return &partyRegistrar.InviteClientAdminUserResponse{URLToken: urlToken}, nil
-	return nil, brainException.NotImplemented{}
+	// create identifier for the client entity
+	clientIdentifier, err := wrappedIdentifier.Wrap(request.ClientIdentifier)
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	inviteClientAdminUserResponse := partyRegistrarJsonRpcAdaptor.InviteClientAdminUserResponse{}
+	if err := r.jsonRpcClient.JsonRpcRequest(
+		partyRegistrar.InviteClientAdminUserService,
+		partyRegistrarJsonRpcAdaptor.InviteClientAdminUserRequest{
+			WrappedClientIdentifier: *clientIdentifier,
+		},
+		&inviteClientAdminUserResponse,
+	); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &partyRegistrar.InviteClientAdminUserResponse{
+		URLToken: inviteClientAdminUserResponse.URLToken,
+	}, nil
 }
 
 func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
