@@ -108,9 +108,6 @@ import (
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
 	partyBasicAdministrator "github.com/iot-my-world/brain/party/administrator/basic"
 
-	barcodeScanner "github.com/iot-my-world/brain/barcode/scanner"
-	barcodeScannerJsonRpcAdaptor "github.com/iot-my-world/brain/barcode/scanner/adaptor/jsonRpc"
-
 	"fmt"
 	"github.com/iot-my-world/brain/party"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
@@ -364,9 +361,6 @@ func main() {
 		PartyBasicAdministrator,
 	)
 
-	// Barcode Scanner
-	BarcodeScanner := barcodeScanner.New()
-
 	// ________________________________ Create Service Provider Adaptors ________________________________
 
 	// User
@@ -410,9 +404,6 @@ func main() {
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
-
-	// Barcode Scanner
-	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
 
 	// SF001 Tracker
 	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
@@ -504,11 +495,6 @@ func main() {
 	// Reports
 	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, trackingReport.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
-	}
-
-	// Barcode Scanner
-	if err := secureHumanUserAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
-		log.Fatal("Unable to Register Barcode Scanner Service")
 	}
 
 	// SF001 Tracker

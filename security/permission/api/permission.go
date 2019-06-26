@@ -17,9 +17,6 @@ const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.U
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 
-// Barcode Scanner
-const BarcodeScannerScan Permission = "BarcodeScanner.Scan"
-
 // SF001 Tracker
 const SF001TrackerRecordHandlerCollect Permission = "SF001TrackerRecordHandler.Collect"
 const SF001TrackerValidatorValidate Permission = "SF001TrackerValidator.Validate"
