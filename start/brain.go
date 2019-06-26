@@ -70,6 +70,7 @@ import (
 	clientValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/validator/adaptor/jsonRpc"
 	clientBasicValidator "github.com/iot-my-world/brain/party/client/validator/basic"
 
+	systemRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler"
 	systemRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler/mongo"
 
@@ -489,7 +490,7 @@ func main() {
 	}
 
 	// System
-	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, systemRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
 

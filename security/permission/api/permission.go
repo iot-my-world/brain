@@ -7,7 +7,6 @@ type Permission string
 // API User
 
 // System
-const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 
 const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.UpdateAllowedFields"
 

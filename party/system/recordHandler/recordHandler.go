@@ -7,6 +7,7 @@ import (
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/search/query"
 	"github.com/iot-my-world/brain/security/claims"
+	apiPermission "github.com/iot-my-world/brain/security/permission/api"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
@@ -24,6 +25,27 @@ const Retrieve api.Method = "Retrieve"
 const Update api.Method = "Update"
 const Delete api.Method = "Delete"
 const Validate api.Method = "Validate"
+
+const ServiceProvider = "System-RecordHandler"
+const CreateService = ServiceProvider + ".Create"
+const RetrieveService = ServiceProvider + ".Retrieve"
+const UpdateService = ServiceProvider + ".Update"
+const DeleteService = ServiceProvider + ".Delete"
+const CollectService = ServiceProvider + ".Collect"
+
+var SystemUserPermissions = make([]apiPermission.Permission, 0)
+
+var CompanyAdminUserPermissions = []apiPermission.Permission{
+	CollectService,
+}
+
+var CompanyUserPermissions = make([]apiPermission.Permission, 0)
+
+var ClientAdminUserPermissions = []apiPermission.Permission{
+	CollectService,
+}
+
+var ClientUserPermissions = make([]apiPermission.Permission, 0)
 
 type CollectRequest struct {
 	Claims   claims.Claims

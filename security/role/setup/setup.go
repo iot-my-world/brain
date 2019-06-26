@@ -13,6 +13,7 @@ import (
 	individualRecordHandler "github.com/iot-my-world/brain/party/individual/recordHandler"
 	individualValidator "github.com/iot-my-world/brain/party/individual/validator"
 	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
+	systemRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
@@ -32,6 +33,13 @@ var initialRoles = func() []role.Role {
 	rootAPIPermissions := make([]api.Permission, 0)
 
 	// Add Permissions to Roles
+
+	// System RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, systemRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, systemRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, systemRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, systemRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, systemRecordHandler.ClientUserPermissions...)
 
 	// Role RecordHandler
 	rootAPIPermissions = append(rootAPIPermissions, roleRecordHandler.SystemUserPermissions...)
@@ -199,8 +207,6 @@ var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
 
-		api.SystemRecordHandlerCollect,
-
 		// user
 
 		// Company
@@ -245,7 +251,6 @@ var ClientAdmin = role.Role{
 		// user
 
 		// system
-		api.SystemRecordHandlerCollect,
 
 		// company
 
@@ -268,7 +273,6 @@ var ClientAdmin = role.Role{
 var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
-		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
