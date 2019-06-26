@@ -2,11 +2,6 @@ package api
 
 type Permission string
 
-const RoleCreate Permission = "Role.Create"
-const RoleRetrieve Permission = "Role.Retrieve"
-const RoleUpdate Permission = "Role.Update"
-const RoleDelete Permission = "Role.Delete"
-
 // User
 const UserRecordHandlerRetrieve Permission = "UserRecordHandler.Retrieve"
 const UserRecordHandlerCollect Permission = "UserRecordHandler.Collect"

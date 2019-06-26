@@ -29,6 +29,13 @@ var initialRoles = func() []role.Role {
 
 	// Add Permissions to Roles
 
+	// Role RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, roleRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, roleRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, roleRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, roleRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, roleRecordHandler.ClientUserPermissions...)
+
 	// Party Administrator
 	rootAPIPermissions = append(rootAPIPermissions, partyAdministrator.SystemUserPermissions...)
 	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, partyAdministrator.CompanyAdminUserPermissions...)
@@ -111,10 +118,6 @@ var initialRoles = func() []role.Role {
 	// i.e. these are permissions that ONLY root has
 	rootAPIPermissions = []api.Permission{
 		// Role
-		api.RoleCreate,
-		api.RoleRetrieve,
-		api.RoleUpdate,
-		api.RoleDelete,
 
 		// API User
 		api.APIUserRecordHandlerCollect,
