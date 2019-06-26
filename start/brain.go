@@ -79,6 +79,7 @@ import (
 	apiUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "github.com/iot-my-world/brain/user/api/administrator/basic"
 	apiUserBasicPasswordGenerator "github.com/iot-my-world/brain/user/api/password/generator/basic"
+	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
 	apiUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/recordHandler/adaptor/jsonRpc"
 	apiUserMongoRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler/mongo"
 	apiUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/validator/adaptor/jsonRpc"
@@ -429,7 +430,7 @@ func main() {
 		log.Fatal("Unable to Register User Administrator Service")
 	}
 	// API User
-	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, "APIUserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, apiUserRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Record Handler Service")
 	}
 	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {

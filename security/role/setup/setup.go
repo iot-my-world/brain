@@ -120,7 +120,6 @@ var initialRoles = func() []role.Role {
 		// Role
 
 		// API User
-		api.APIUserRecordHandlerCollect,
 		api.APIUserAdministratorCreate,
 		api.APIUserValidatorValidate,
 

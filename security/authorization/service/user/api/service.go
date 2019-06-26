@@ -3,7 +3,6 @@ package human
 import (
 	"crypto/rsa"
 	"errors"
-	"fmt"
 	"github.com/iot-my-world/brain/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/username"
@@ -18,13 +17,13 @@ import (
 )
 
 type service struct {
-	apiUserRecordHandler *apiUserRecordHandler.RecordHandler
+	apiUserRecordHandler apiUserRecordHandler.RecordHandler
 	jwtGenerator         token.JWTGenerator
 	systemClaims         *humanUserLoginClaims.Login
 }
 
 func New(
-	apiUserRecordHandler *apiUserRecordHandler.RecordHandler,
+	apiUserRecordHandler apiUserRecordHandler.RecordHandler,
 	rsaPrivateKey *rsa.PrivateKey,
 	systemClaims *humanUserLoginClaims.Login,
 ) *service {
@@ -36,7 +35,6 @@ func New(
 }
 
 func (s *service) Logout(request *authService.LogoutRequest) (*authService.LogoutResponse, error) {
-	fmt.Println("Logout Service running.")
 	return &authService.LogoutResponse{}, nil
 }
 

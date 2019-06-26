@@ -4,6 +4,7 @@ import (
 	brainMongoRecordHandler "github.com/iot-my-world/brain/recordHandler/mongo"
 	apiUser "github.com/iot-my-world/brain/user/api"
 	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
+	apiUserGenericRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler/generic"
 	"gopkg.in/mgo.v2"
 )
 
@@ -11,7 +12,7 @@ func New(
 	mongoSession *mgo.Session,
 	databaseName string,
 	collectionName string,
-) *apiUserRecordHandler.RecordHandler {
+) apiUserRecordHandler.RecordHandler {
 	mongoRecordHandler := brainMongoRecordHandler.New(
 		mongoSession,
 		databaseName,
@@ -29,7 +30,7 @@ func New(
 		apiUser.ContextualiseFilter,
 	)
 
-	return apiUserRecordHandler.New(
+	return apiUserGenericRecordHandler.New(
 		mongoRecordHandler,
 	)
 }
