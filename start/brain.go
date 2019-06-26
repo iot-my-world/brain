@@ -74,6 +74,7 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler/mongo"
 
+	sf001TrackerAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator"
 	sf001AdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
 	sf001TrackerBasicAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator/basic"
 	sf001TrackerRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
@@ -508,7 +509,7 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, sf001TrackerValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, "SF001TrackerAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, sf001TrackerAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker Administrator Service")
 	}
 

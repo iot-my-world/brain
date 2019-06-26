@@ -176,10 +176,6 @@ var initialRoles = func() []role.Role {
 		// API User
 
 		api.SystemAdministratorUpdateAllowedFields,
-
-		// SF001 Tracker
-		api.SF001TrackerAdministratorCreate,
-		api.SF001TrackerAdministratorUpdateAllowedFields,
 	}
 
 	// The view permissions that root has
