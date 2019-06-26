@@ -5,6 +5,7 @@ import (
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/search/query"
 	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/security/permission/api"
 	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
@@ -15,6 +16,27 @@ type RecordHandler interface {
 	Delete(request *DeleteRequest) (*DeleteResponse, error)
 	Collect(request *CollectRequest) (*CollectResponse, error)
 }
+
+const ServiceProvider = "HumanUser-RecordHandler"
+const CreateService = ServiceProvider + ".Create"
+const RetrieveService = ServiceProvider + ".Retrieve"
+const UpdateService = ServiceProvider + ".Update"
+const DeleteService = ServiceProvider + ".Delete"
+const CollectService = ServiceProvider + ".Collect"
+
+var SystemUserPermissions = []api.Permission{}
+
+var CompanyAdminUserPermissions = []api.Permission{
+	CollectService,
+}
+
+var CompanyUserPermissions = make([]api.Permission, 0)
+
+var ClientAdminUserPermissions = []api.Permission{
+	CollectService,
+}
+
+var ClientUserPermissions = make([]api.Permission, 0)
 
 type CreateRequest struct {
 	User humanUser.User

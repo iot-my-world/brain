@@ -21,6 +21,8 @@ import (
 	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
 	roleRecordHandlerException "github.com/iot-my-world/brain/security/role/recordHandler/exception"
 	roleSetupException "github.com/iot-my-world/brain/security/role/setup/exception"
+	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
+	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
 
 var initialRoles = func() []role.Role {
@@ -35,6 +37,19 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, roleRecordHandler.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, roleRecordHandler.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, roleRecordHandler.ClientUserPermissions...)
+
+	// Human User RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, humanUserRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, humanUserRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, humanUserRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, humanUserRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, humanUserRecordHandler.ClientUserPermissions...)
+	// Human User Administrator
+	rootAPIPermissions = append(rootAPIPermissions, humanUserAdministrator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, humanUserAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, humanUserAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, humanUserAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, humanUserAdministrator.ClientUserPermissions...)
 
 	// Party Administrator
 	rootAPIPermissions = append(rootAPIPermissions, partyAdministrator.SystemUserPermissions...)
@@ -178,15 +193,8 @@ var CompanyAdmin = role.Role{
 		api.SystemRecordHandlerCollect,
 
 		// user
-		api.UserRecordHandlerCollect,
 
 		api.UserValidatorValidate,
-
-		api.UserAdministratorUpdateAllowedFields,
-		api.UserAdministratorCreate,
-		api.UserAdministratorGetMyUser,
-		api.UserAdministratorUpdatePassword,
-		api.UserAdministratorCheckPassword,
 
 		// Company
 
@@ -215,11 +223,6 @@ var CompanyUser = role.Role{
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
-		api.UserAdministratorGetMyUser,
-		api.UserAdministratorUpdateAllowedFields,
-		api.UserAdministratorUpdatePassword,
-		api.UserAdministratorCheckPassword,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -235,15 +238,8 @@ var ClientAdmin = role.Role{
 	Name: "clientAdmin",
 	APIPermissions: []api.Permission{
 		// user
-		api.UserRecordHandlerCollect,
 
 		api.UserValidatorValidate,
-
-		api.UserAdministratorUpdateAllowedFields,
-		api.UserAdministratorCreate,
-		api.UserAdministratorGetMyUser,
-		api.UserAdministratorUpdatePassword,
-		api.UserAdministratorCheckPassword,
 
 		// system
 		api.SystemRecordHandlerCollect,
@@ -272,11 +268,6 @@ var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
-
-		api.UserAdministratorGetMyUser,
-		api.UserAdministratorUpdateAllowedFields,
-		api.UserAdministratorUpdatePassword,
-		api.UserAdministratorCheckPassword,
 
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,

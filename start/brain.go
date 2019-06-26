@@ -32,12 +32,14 @@ import (
 
 	roleMongoRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler/mongo"
 
-	userAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/administrator/adaptor/jsonRpc"
-	userBasicAdministrator "github.com/iot-my-world/brain/user/human/administrator/basic"
-	userRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/recordHandler/adaptor/jsonRpc"
-	userMongoRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/mongo"
-	userValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
-	userBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
+	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
+	humanUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/administrator/adaptor/jsonRpc"
+	humanUserBasicAdministrator "github.com/iot-my-world/brain/user/human/administrator/basic"
+	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
+	humanUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/recordHandler/adaptor/jsonRpc"
+	humanUserMongoRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/mongo"
+	humanUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
+	humanUserBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
 
 	individualAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/individual/administrator/adaptor/jsonRpc"
 	individualBasicAdministrator "github.com/iot-my-world/brain/party/individual/administrator/basic"
@@ -207,16 +209,16 @@ func main() {
 		databaseCollection.Role,
 	)
 	// User
-	UserRecordHandler := userMongoRecordHandler.New(
+	UserRecordHandler := humanUserMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		databaseCollection.User,
 	)
-	UserValidator := userBasicValidator.New(
+	UserValidator := humanUserBasicValidator.New(
 		UserRecordHandler,
 		&systemClaims,
 	)
-	UserBasicAdministrator := userBasicAdministrator.New(
+	UserBasicAdministrator := humanUserBasicAdministrator.New(
 		UserRecordHandler,
 		UserValidator,
 		Mailer,
@@ -365,9 +367,9 @@ func main() {
 	// ________________________________ Create Service Provider Adaptors ________________________________
 
 	// User
-	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
-	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
-	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
+	HumanUserRecordHandlerAdaptor := humanUserRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
+	HumanUserValidatorAdaptor := humanUserValidatorJsonRpcAdaptor.New(UserValidator)
+	HumanUserAdministratorAdaptor := humanUserAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
 
 	// APIUser
 	APIUserRecordHandlerAdaptor := apiUserRecordHandlerJsonRpcAdaptor.New(APIUserRecordHandler)
@@ -420,13 +422,13 @@ func main() {
 	secureHumanUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// User
-	if err := secureHumanUserAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserRecordHandlerAdaptor, humanUserRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserValidatorAdaptor, "UserValidator"); err != nil {
 		log.Fatal("Unable to Register User Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserAdministratorAdaptor, humanUserAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Administrator Service")
 	}
 	// API User
