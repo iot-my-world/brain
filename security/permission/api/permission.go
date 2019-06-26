@@ -38,9 +38,6 @@ const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.U
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 
-const TrackingReportLive Permission = "TrackingReport.Live"
-const TrackingReportHistorical Permission = "TrackingReport.Historical"
-
 // Barcode Scanner
 const BarcodeScannerScan Permission = "BarcodeScanner.Scan"
 

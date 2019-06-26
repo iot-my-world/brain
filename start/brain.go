@@ -84,6 +84,7 @@ import (
 	apiUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/validator/adaptor/jsonRpc"
 	apiUserBasicValidator "github.com/iot-my-world/brain/user/api/validator/basic"
 
+	trackingReport "github.com/iot-my-world/brain/report/tracking"
 	trackingReportJsonRpcAdaptor "github.com/iot-my-world/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "github.com/iot-my-world/brain/report/tracking/basic"
 
@@ -495,7 +496,7 @@ func main() {
 	}
 
 	// Reports
-	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, trackingReport.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
 	}
 

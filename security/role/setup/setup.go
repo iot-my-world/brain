@@ -192,9 +192,6 @@ var CompanyAdmin = role.Role{
 
 		// Party
 
-		api.TrackingReportLive,
-		api.TrackingReportHistorical,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -215,9 +212,6 @@ var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
-
-		api.TrackingReportLive,
-		api.TrackingReportHistorical,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
@@ -258,9 +252,6 @@ var ClientAdmin = role.Role{
 
 		api.PermissionHandlerGetAllUsersViewPermissions,
 
-		api.TrackingReportLive,
-		api.TrackingReportHistorical,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -279,9 +270,6 @@ var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
 		api.PermissionHandlerGetAllUsersViewPermissions,
-
-		api.TrackingReportLive,
-		api.TrackingReportHistorical,
 
 		api.UserAdministratorGetMyUser,
 		api.UserAdministratorUpdateAllowedFields,
