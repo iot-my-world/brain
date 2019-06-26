@@ -23,6 +23,7 @@ import (
 	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
 	roleRecordHandlerException "github.com/iot-my-world/brain/security/role/recordHandler/exception"
 	roleSetupException "github.com/iot-my-world/brain/security/role/setup/exception"
+	sf001TrackerRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
 	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
@@ -144,6 +145,13 @@ var initialRoles = func() []role.Role {
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, individualValidator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, individualValidator.ClientUserPermissions...)
 
+	// SF001 Tracker RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, sf001TrackerRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sf001TrackerRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sf001TrackerRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sf001TrackerRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sf001TrackerRecordHandler.ClientUserPermissions...)
+
 	// Register roles here
 	allRoles := []role.Role{
 		ClientAdmin,
@@ -204,9 +212,8 @@ var initialRoles = func() []role.Role {
 }()
 
 var CompanyAdmin = role.Role{
-	Name: "companyAdmin",
+	Name:           "companyAdmin",
 	APIPermissions: []api.Permission{
-
 		// user
 
 		// Company
@@ -216,7 +223,6 @@ var CompanyAdmin = role.Role{
 		// Party
 
 		// SF001 Tracker
-		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.PartyProfileEditing,
@@ -232,10 +238,9 @@ var CompanyAdmin = role.Role{
 }
 
 var CompanyUser = role.Role{
-	Name: "companyUser",
+	Name:           "companyUser",
 	APIPermissions: []api.Permission{
 		// SF001 Tracker
-		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.LiveTrackingDashboard,
@@ -246,7 +251,7 @@ var CompanyUser = role.Role{
 }
 
 var ClientAdmin = role.Role{
-	Name: "clientAdmin",
+	Name:           "clientAdmin",
 	APIPermissions: []api.Permission{
 		// user
 
@@ -257,7 +262,6 @@ var ClientAdmin = role.Role{
 		// client
 
 		// SF001 Tracker
-		api.SF001TrackerRecordHandlerCollect,
 	},
 	ViewPermissions: []view.Permission{
 		view.PartyProfileEditing,
@@ -271,10 +275,8 @@ var ClientAdmin = role.Role{
 	},
 }
 var ClientUser = role.Role{
-	Name: "clientUser",
-	APIPermissions: []api.Permission{
-		api.SF001TrackerRecordHandlerCollect,
-	},
+	Name:           "clientUser",
+	APIPermissions: []api.Permission{},
 	ViewPermissions: []view.Permission{
 		view.LiveTrackingDashboard,
 		view.HistoricalTrackingDashboard,
