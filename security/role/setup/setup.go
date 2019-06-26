@@ -15,6 +15,7 @@ import (
 	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
+	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
 	"github.com/iot-my-world/brain/security/permission/api"
 	"github.com/iot-my-world/brain/security/permission/view"
 	"github.com/iot-my-world/brain/security/role"
@@ -38,6 +39,13 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, roleRecordHandler.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, roleRecordHandler.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, roleRecordHandler.ClientUserPermissions...)
+
+	// Permission Administrator
+	rootAPIPermissions = append(rootAPIPermissions, permissionAdministrator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, permissionAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, permissionAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, permissionAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, permissionAdministrator.ClientUserPermissions...)
 
 	// Human User RecordHandler
 	rootAPIPermissions = append(rootAPIPermissions, humanUserRecordHandler.SystemUserPermissions...)
@@ -145,9 +153,6 @@ var initialRoles = func() []role.Role {
 
 		api.SystemAdministratorUpdateAllowedFields,
 
-		// Barcode Scanner
-		api.BarcodeScannerScan,
-
 		// SF001 Tracker
 		api.SF001TrackerValidatorValidate,
 		api.SF001TrackerAdministratorCreate,
@@ -193,7 +198,6 @@ var initialRoles = func() []role.Role {
 var CompanyAdmin = role.Role{
 	Name: "companyAdmin",
 	APIPermissions: []api.Permission{
-		api.PermissionHandlerGetAllUsersViewPermissions,
 
 		api.SystemRecordHandlerCollect,
 
@@ -224,8 +228,6 @@ var CompanyAdmin = role.Role{
 var CompanyUser = role.Role{
 	Name: "companyUser",
 	APIPermissions: []api.Permission{
-		api.PermissionHandlerGetAllUsersViewPermissions,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -249,8 +251,6 @@ var ClientAdmin = role.Role{
 
 		// client
 
-		api.PermissionHandlerGetAllUsersViewPermissions,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},
@@ -268,8 +268,6 @@ var ClientAdmin = role.Role{
 var ClientUser = role.Role{
 	Name: "clientUser",
 	APIPermissions: []api.Permission{
-		api.PermissionHandlerGetAllUsersViewPermissions,
-
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,
 	},

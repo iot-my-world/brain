@@ -27,6 +27,7 @@ import (
 	apiUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/api"
 	apiUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/api"
 
+	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
 	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "github.com/iot-my-world/brain/security/permission/administrator/basic"
 
@@ -378,7 +379,7 @@ func main() {
 	APIUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(APIUserAuthorizationService)
 
 	// Permission
-	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
+	PermissionAdministratorAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
 
 	// Individual
 	IndividualRecordHandlerAdaptor := individualRecordHandlerJsonRpcAdaptor.New(IndividualRecordHandler)
@@ -442,7 +443,7 @@ func main() {
 	}
 
 	// Permission
-	if err := secureHumanUserAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PermissionAdministratorAdaptor, permissionAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
 

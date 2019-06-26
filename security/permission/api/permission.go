@@ -15,8 +15,6 @@ const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.U
 
 // Party
 
-const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
-
 // SF001 Tracker
 const SF001TrackerRecordHandlerCollect Permission = "SF001TrackerRecordHandler.Collect"
 const SF001TrackerValidatorValidate Permission = "SF001TrackerValidator.Validate"
