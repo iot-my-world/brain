@@ -15,6 +15,8 @@ type Validator interface {
 const ServiceProvider = "Client-Validator"
 const ValidateService = ServiceProvider + ".Validate"
 
+var SystemUserPermissions = make([]api.Permission, 0)
+
 var CompanyAdminUserPermissions = []api.Permission{
 	ValidateService,
 }

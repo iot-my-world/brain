@@ -16,6 +16,8 @@ const ServiceProvider = "Party-Administrator"
 const GetMyPartyService = ServiceProvider + ".GetMyParty"
 const RetrievePartyService = ServiceProvider + ".RetrieveParty"
 
+var SystemUserPermissions = make([]api.Permission, 0)
+
 var CompanyAdminUserPermissions = []api.Permission{
 	GetMyPartyService,
 	RetrievePartyService,

@@ -6,6 +6,8 @@ import (
 	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientValidator "github.com/iot-my-world/brain/party/client/validator"
+	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
+	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -18,24 +20,44 @@ import (
 
 var initialRoles = func() []role.Role {
 
+	rootAPIPermissions := make([]api.Permission, 0)
+
 	// Add Permissions to Roles
+
 	// Party Administrator
+	rootAPIPermissions = append(rootAPIPermissions, partyAdministrator.SystemUserPermissions...)
 	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, partyAdministrator.CompanyAdminUserPermissions...)
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, partyAdministrator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, partyAdministrator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, partyAdministrator.ClientUserPermissions...)
 
+	// Company Administrator
+	rootAPIPermissions = append(rootAPIPermissions, companyAdministrator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, companyAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, companyAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, companyAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, companyAdministrator.ClientUserPermissions...)
+	// Company RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, companyRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, companyRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, companyRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, companyRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, companyRecordHandler.ClientUserPermissions...)
+
 	// Client Administrator
+	rootAPIPermissions = append(rootAPIPermissions, clientAdministrator.SystemUserPermissions...)
 	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, clientAdministrator.CompanyAdminUserPermissions...)
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientAdministrator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientAdministrator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientAdministrator.ClientUserPermissions...)
 	// Client RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, clientRecordHandler.SystemUserPermissions...)
 	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, clientRecordHandler.CompanyAdminUserPermissions...)
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientRecordHandler.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientRecordHandler.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientRecordHandler.ClientUserPermissions...)
 	// Client Validator
+	rootAPIPermissions = append(rootAPIPermissions, clientValidator.SystemUserPermissions...)
 	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, clientValidator.CompanyAdminUserPermissions...)
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientValidator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientValidator.ClientAdminUserPermissions...)
@@ -51,7 +73,7 @@ var initialRoles = func() []role.Role {
 
 	// Register additional root api permissions here
 	// i.e. these are permissions that ONLY root has
-	rootAPIPermissions := []api.Permission{
+	rootAPIPermissions = []api.Permission{
 		// Role
 		api.RoleCreate,
 		api.RoleRetrieve,
@@ -63,11 +85,7 @@ var initialRoles = func() []role.Role {
 		api.APIUserAdministratorCreate,
 		api.APIUserValidatorValidate,
 
-		api.CompanyRecordHandlerRetrieve,
-
 		api.CompanyValidatorValidate,
-
-		api.CompanyAdministratorCreate,
 
 		api.SystemAdministratorUpdateAllowedFields,
 
@@ -138,9 +156,6 @@ var CompanyAdmin = role.Role{
 		api.UserAdministratorCheckPassword,
 
 		// Company
-		api.CompanyRecordHandlerCollect,
-
-		api.CompanyAdministratorUpdateAllowedFields,
 		api.CompanyValidatorValidate,
 
 		// Client
@@ -211,7 +226,6 @@ var ClientAdmin = role.Role{
 		api.SystemRecordHandlerCollect,
 
 		// company
-		api.CompanyRecordHandlerCollect,
 
 		// client
 

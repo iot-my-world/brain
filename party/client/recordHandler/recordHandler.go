@@ -24,6 +24,8 @@ const UpdateService = ServiceProvider + ".Update"
 const DeleteService = ServiceProvider + ".Delete"
 const CollectService = ServiceProvider + ".Collect"
 
+var SystemUserPermissions = make([]api.Permission, 0)
+
 var CompanyAdminUserPermissions = []api.Permission{
 	RetrieveService,
 	CollectService,
