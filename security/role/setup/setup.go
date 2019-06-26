@@ -24,6 +24,7 @@ import (
 	roleRecordHandlerException "github.com/iot-my-world/brain/security/role/recordHandler/exception"
 	roleSetupException "github.com/iot-my-world/brain/security/role/setup/exception"
 	sf001TrackerRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
+	sf001TrackerValidator "github.com/iot-my-world/brain/tracker/sf001/validator"
 	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
@@ -152,6 +153,13 @@ var initialRoles = func() []role.Role {
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sf001TrackerRecordHandler.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sf001TrackerRecordHandler.ClientUserPermissions...)
 
+	// SF001 Tracker Validator
+	rootAPIPermissions = append(rootAPIPermissions, sf001TrackerValidator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sf001TrackerValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sf001TrackerValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sf001TrackerValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sf001TrackerValidator.ClientUserPermissions...)
+
 	// Register roles here
 	allRoles := []role.Role{
 		ClientAdmin,
@@ -170,7 +178,6 @@ var initialRoles = func() []role.Role {
 		api.SystemAdministratorUpdateAllowedFields,
 
 		// SF001 Tracker
-		api.SF001TrackerValidatorValidate,
 		api.SF001TrackerAdministratorCreate,
 		api.SF001TrackerAdministratorUpdateAllowedFields,
 	}
