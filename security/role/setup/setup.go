@@ -12,6 +12,7 @@ import (
 	individualAdministrator "github.com/iot-my-world/brain/party/individual/administrator"
 	individualRecordHandler "github.com/iot-my-world/brain/party/individual/recordHandler"
 	individualValidator "github.com/iot-my-world/brain/party/individual/validator"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -34,6 +35,12 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, partyAdministrator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, partyAdministrator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, partyAdministrator.ClientUserPermissions...)
+	// Party Registrar
+	rootAPIPermissions = append(rootAPIPermissions, partyRegistrar.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, partyRegistrar.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, partyRegistrar.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, partyRegistrar.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, partyRegistrar.ClientUserPermissions...)
 
 	// Company Administrator
 	rootAPIPermissions = append(rootAPIPermissions, companyAdministrator.SystemUserPermissions...)
@@ -116,9 +123,6 @@ var initialRoles = func() []role.Role {
 
 		api.SystemAdministratorUpdateAllowedFields,
 
-		api.PartyRegistrarInviteCompanyAdminUser,
-		api.PartyRegistrarRegisterCompanyAdminUser,
-
 		// Barcode Scanner
 		api.BarcodeScannerScan,
 
@@ -187,9 +191,6 @@ var CompanyAdmin = role.Role{
 		// Client
 
 		// Party
-		api.PartyRegistrarInviteUser,
-		api.PartyRegistrarInviteClientAdminUser,
-		api.PartyRegistrarAreAdminsRegistered,
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
@@ -259,9 +260,6 @@ var ClientAdmin = role.Role{
 
 		api.TrackingReportLive,
 		api.TrackingReportHistorical,
-
-		api.PartyRegistrarInviteUser,
-		api.PartyRegistrarAreAdminsRegistered,
 
 		// SF001 Tracker
 		api.SF001TrackerRecordHandlerCollect,

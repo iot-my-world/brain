@@ -90,6 +90,7 @@ import (
 	"flag"
 	"github.com/iot-my-world/brain/communication/email/mailer"
 	gmailMailer "github.com/iot-my-world/brain/communication/email/mailer/gmail"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
 	partyBasicRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "github.com/iot-my-world/brain/party/registrar/basic"
 
@@ -481,7 +482,7 @@ func main() {
 	}
 
 	// Party
-	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, partyRegistrar.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
 	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, partyAdministrator.ServiceProvider); err != nil {

@@ -35,14 +35,6 @@ const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.U
 // Company
 
 // Party
-const PartyRegistrarInviteCompanyAdminUser Permission = "PartyRegistrar.InviteCompanyAdminUser"
-const PartyRegistrarRegisterCompanyAdminUser Permission = "PartyRegistrar.RegisterCompanyAdminUser"
-const PartyRegistrarRegisterCompanyUser Permission = "PartyRegistrar.RegisterCompanyUser"
-const PartyRegistrarInviteClientAdminUser Permission = "PartyRegistrar.InviteClientAdminUser"
-const PartyRegistrarRegisterClientAdminUser Permission = "PartyRegistrar.RegisterClientAdminUser"
-const PartyRegistrarRegisterClientUser Permission = "PartyRegistrar.RegisterClientUser"
-const PartyRegistrarInviteUser Permission = "PartyRegistrar.InviteUser"
-const PartyRegistrarAreAdminsRegistered Permission = "PartyRegistrar.AreAdminsRegistered"
 
 const PermissionHandlerGetAllUsersViewPermissions Permission = "PermissionHandler.GetAllUsersViewPermissions"
 

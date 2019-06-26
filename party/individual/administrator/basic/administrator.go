@@ -13,12 +13,12 @@ import (
 
 type administrator struct {
 	individualIndividualValidator individualIndividualValidator.Validator
-	individualRecordHandler       *individualRecordHandler.RecordHandler
+	individualRecordHandler       individualRecordHandler.RecordHandler
 }
 
 func New(
 	individualIndividualValidator individualIndividualValidator.Validator,
-	individualRecordHandler *individualRecordHandler.RecordHandler,
+	individualRecordHandler individualRecordHandler.RecordHandler,
 ) individualIndividualAdministrator.Administrator {
 	return &administrator{
 		individualIndividualValidator: individualIndividualValidator,
@@ -39,10 +39,11 @@ func (a *administrator) ValidateCreateRequest(request *individualIndividualAdmin
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating individual individual: "+err.Error())
-		}
-		if len(individualIndividualValidateResponse.ReasonsInvalid) > 0 {
-			for _, reason := range individualIndividualValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("individual individual invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(individualIndividualValidateResponse.ReasonsInvalid) > 0 {
+				for _, reason := range individualIndividualValidateResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("individual individual invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -84,10 +85,11 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *individualIn
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating individual: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("individual individual invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				for _, reason := range validationResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("individual individual invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
