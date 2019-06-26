@@ -34,8 +34,6 @@ const SystemAdministratorUpdateAllowedFields Permission = "SystemAdministrator.U
 
 // Company
 
-const CompanyValidatorValidate Permission = "CompanyValidator.Validate"
-
 // Party
 const PartyRegistrarInviteCompanyAdminUser Permission = "PartyRegistrar.InviteCompanyAdminUser"
 const PartyRegistrarRegisterCompanyAdminUser Permission = "PartyRegistrar.RegisterCompanyAdminUser"

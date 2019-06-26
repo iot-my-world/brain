@@ -8,6 +8,7 @@ import (
 	clientValidator "github.com/iot-my-world/brain/party/client/validator"
 	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
+	companyValidator "github.com/iot-my-world/brain/party/company/validator"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/name"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -43,6 +44,12 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, companyRecordHandler.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, companyRecordHandler.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, companyRecordHandler.ClientUserPermissions...)
+	// Company Validator
+	rootAPIPermissions = append(rootAPIPermissions, companyValidator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, companyValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, companyValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, companyValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, companyValidator.ClientUserPermissions...)
 
 	// Client Administrator
 	rootAPIPermissions = append(rootAPIPermissions, clientAdministrator.SystemUserPermissions...)
@@ -84,8 +91,6 @@ var initialRoles = func() []role.Role {
 		api.APIUserRecordHandlerCollect,
 		api.APIUserAdministratorCreate,
 		api.APIUserValidatorValidate,
-
-		api.CompanyValidatorValidate,
 
 		api.SystemAdministratorUpdateAllowedFields,
 
@@ -156,7 +161,6 @@ var CompanyAdmin = role.Role{
 		api.UserAdministratorCheckPassword,
 
 		// Company
-		api.CompanyValidatorValidate,
 
 		// Client
 
