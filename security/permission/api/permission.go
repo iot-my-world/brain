@@ -6,10 +6,6 @@ type Permission string
 
 // API User
 
-const APIUserAdministratorCreate Permission = "APIUserAdministrator.Create"
-
-const APIUserValidatorValidate Permission = "APIUserValidator.Validate"
-
 // System
 const SystemRecordHandlerCollect Permission = "SystemRecordHandler.Collect"
 

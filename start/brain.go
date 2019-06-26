@@ -79,12 +79,14 @@ import (
 	sf001ValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/validator/adaptor/jsonRpc"
 	sf001TrackerBasicValidator "github.com/iot-my-world/brain/tracker/sf001/validator/basic"
 
+	apiUserAdministrator "github.com/iot-my-world/brain/user/api/administrator"
 	apiUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "github.com/iot-my-world/brain/user/api/administrator/basic"
 	apiUserBasicPasswordGenerator "github.com/iot-my-world/brain/user/api/password/generator/basic"
 	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
 	apiUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/recordHandler/adaptor/jsonRpc"
 	apiUserMongoRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler/mongo"
+	apiUserValidator "github.com/iot-my-world/brain/user/api/validator"
 	apiUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/validator/adaptor/jsonRpc"
 	apiUserBasicValidator "github.com/iot-my-world/brain/user/api/validator/basic"
 
@@ -436,10 +438,10 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, apiUserRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, apiUserValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(APIUserAdministratorAdaptor, "APIUserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserAdministratorAdaptor, apiUserAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Administrator Service")
 	}
 

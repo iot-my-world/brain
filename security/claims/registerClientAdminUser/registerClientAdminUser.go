@@ -7,6 +7,7 @@ import (
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
 	humanUser "github.com/iot-my-world/brain/user/human"
+	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 	"time"
 )
 
@@ -47,6 +48,6 @@ func (r RegisterClientAdminUser) PartyDetails() party.Details {
 
 // permissions granted by having a valid set of these claims
 var GrantedAPIPermissions = []api.Permission{
-	api.UserValidatorValidate,                     // Ability to validate users
+	humanUserValidator.ValidateService,            // Ability to validate users
 	partyRegistrar.RegisterClientAdminUserService, // Ability to register self
 }

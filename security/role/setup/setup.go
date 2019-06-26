@@ -142,8 +142,6 @@ var initialRoles = func() []role.Role {
 		// Role
 
 		// API User
-		api.APIUserAdministratorCreate,
-		api.APIUserValidatorValidate,
 
 		api.SystemAdministratorUpdateAllowedFields,
 
