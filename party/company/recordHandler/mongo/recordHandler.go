@@ -23,6 +23,10 @@ func New(
 				Unique: true,
 			},
 			{
+				Key:    []string{"name"},
+				Unique: true,
+			},
+			{
 				Key:    []string{"adminEmailAddress"},
 				Unique: true,
 			},

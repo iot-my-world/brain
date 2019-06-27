@@ -6,7 +6,7 @@ import (
 	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
-var CompanyTestData = []companyTest.Data{
+var TestData = []companyTest.Data{
 	{
 		Company: company.Company{
 			Name:              "Monteagle Logistics Limited",
