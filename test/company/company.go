@@ -10,10 +10,10 @@ import (
 )
 
 func Test(t *testing.T) {
-	// perform system company tests
+	// perform company client tests
 	suite.Run(t, clientTest.New(
 		environment.BrainURL,
-		systemTestData.SystemUser,
+		systemTestData.User,
 		clientTestData.TestData,
 	))
 }

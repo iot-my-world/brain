@@ -4,7 +4,7 @@ import (
 	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
-var SystemUser = humanUser.User{
+var User = humanUser.User{
 	//Id string
 
 	// Personal Details

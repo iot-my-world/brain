@@ -13,7 +13,7 @@ func Test(t *testing.T) {
 	// perform system company tests
 	suite.Run(t, companyTest.New(
 		environment.BrainURL,
-		systemTestData.SystemUser,
-		companyTestData.CompanyTestData,
+		systemTestData.User,
+		companyTestData.TestData,
 	))
 }
