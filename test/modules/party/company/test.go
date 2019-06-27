@@ -13,6 +13,7 @@ import (
 	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
 	partyJsonRpcRegistrar "github.com/iot-my-world/brain/party/registrar/jsonRpc"
 	"github.com/iot-my-world/brain/search/criterion"
+	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/query"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
@@ -29,7 +30,7 @@ import (
 func New(
 	url string,
 	user humanUser.User,
-	testData *[]Data,
+	testData []Data,
 ) *test {
 	return &test{
 		testData:      testData,
@@ -45,7 +46,7 @@ type test struct {
 	companyAdministrator companyAdministrator.Administrator
 	partyRegistrar       partyRegistrar.Registrar
 	user                 humanUser.User
-	testData             *[]Data
+	testData             []Data
 }
 
 type Data struct {
@@ -86,35 +87,42 @@ func (suite *test) TestCreateCompanies() {
 		return
 	}
 
-	for idx := range *suite.testData {
-		companyEntity := &((*suite.testData)[idx].Company)
+	for _, data := range suite.testData {
+		companyEntity := data.Company
 
 		// update the new company's details as would be done from the front end
-		(*companyEntity).ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
-		(*companyEntity).ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+		companyEntity.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+		companyEntity.ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
 
 		// create the company
-		companyCreateResponse, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
-			Company: *companyEntity,
-		})
-		if err != nil {
+		if _, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
+			Company: companyEntity,
+		}); err != nil {
 			suite.FailNow("create company failed", err.Error())
 			return
 		}
-
-		// update the company
-		(*companyEntity).Id = companyCreateResponse.Company.Id
 	}
 }
 
 func (suite *test) TestInviteAndRegisterCompanyAdminUsers() {
-	for idx := range *suite.testData {
-		companyEntity := &((*suite.testData)[idx].Company)
-		companyAdminUserEntity := &((*suite.testData)[idx].AdminUser)
+	for _, data := range suite.testData {
+		companyEntity := data.Company
+		companyAdminUserEntity := data.AdminUser
+
+		// retrieve the company by admin email address
+		companyRetrieveResponse, err := suite.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			Identifier: adminEmailAddress.Identifier{
+				AdminEmailAddress: companyEntity.AdminEmailAddress,
+			},
+		})
+		if err != nil {
+			suite.FailNow("retrieve company entity failed", err.Error())
+			return
+		}
 
 		// invite the admin user
 		inviteCompanyAdminUserResponse, err := suite.partyRegistrar.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
-			CompanyIdentifier: id.Identifier{Id: companyEntity.Id},
+			CompanyIdentifier: id.Identifier{Id: companyRetrieveResponse.Company.Id},
 		})
 		if err != nil {
 			suite.FailNow("invite company admin user failed", err.Error())
@@ -152,12 +160,12 @@ func (suite *test) TestInviteAndRegisterCompanyAdminUsers() {
 		// infer the interfaces type and update the company admin user entity with details from them
 		switch typedClaims := unwrappedClaims.(type) {
 		case registerCompanyAdminUser.RegisterCompanyAdminUser:
-			(*companyAdminUserEntity).Id = typedClaims.User.Id
-			(*companyAdminUserEntity).EmailAddress = typedClaims.User.EmailAddress
-			(*companyAdminUserEntity).ParentPartyType = typedClaims.User.ParentPartyType
-			(*companyAdminUserEntity).ParentId = typedClaims.User.ParentId
-			(*companyAdminUserEntity).PartyType = typedClaims.User.PartyType
-			(*companyAdminUserEntity).PartyId = typedClaims.User.PartyId
+			companyAdminUserEntity.Id = typedClaims.User.Id
+			companyAdminUserEntity.EmailAddress = typedClaims.User.EmailAddress
+			companyAdminUserEntity.ParentPartyType = typedClaims.User.ParentPartyType
+			companyAdminUserEntity.ParentId = typedClaims.User.ParentId
+			companyAdminUserEntity.PartyType = typedClaims.User.PartyType
+			companyAdminUserEntity.PartyId = typedClaims.User.PartyId
 		default:
 			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
 		}
@@ -170,10 +178,9 @@ func (suite *test) TestInviteAndRegisterCompanyAdminUsers() {
 		}
 
 		// register the company admin user
-		registerCompanyAdminUserResponse, err := suite.partyRegistrar.RegisterCompanyAdminUser(&partyRegistrar.RegisterCompanyAdminUserRequest{
-			User: *companyAdminUserEntity,
-		})
-		if err != nil {
+		if _, err := suite.partyRegistrar.RegisterCompanyAdminUser(&partyRegistrar.RegisterCompanyAdminUserRequest{
+			User: companyAdminUserEntity,
+		}); err != nil {
 			suite.FailNow("error registering company admin user", err.Error())
 			return
 		}
@@ -182,9 +189,5 @@ func (suite *test) TestInviteAndRegisterCompanyAdminUsers() {
 		if err := suite.jsonRpcClient.SetJWT(logInToken); err != nil {
 			suite.FailNow("failed to set json rpc client jwt back to logInToken", err.Error())
 		}
-
-		// update the company admin user entity
-		(*companyAdminUserEntity).Id = registerCompanyAdminUserResponse.User.Id
-		(*companyAdminUserEntity).Roles = registerCompanyAdminUserResponse.User.Roles
 	}
 }

@@ -12,6 +12,6 @@ func Test(t *testing.T) {
 	suite.Run(t, companyTest.New(
 		testData.BrainURL,
 		testData.SystemUser,
-		&testData.CompanyTestData,
+		testData.CompanyTestData,
 	))
 }
