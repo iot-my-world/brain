@@ -73,20 +73,7 @@ func (suite *test) SetupTest() {
 }
 
 func (suite *test) TestCreateCompanies() {
-	// confirm that there are no companies in database, should be starting clean
-	companyCollectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
-		Criteria: make([]criterion.Criterion, 0),
-		Query:    query.Query{},
-	})
-	if err != nil {
-		suite.Failf("collect companies failed", err.Error())
-		return
-	}
-	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
-		suite.FailNow("company collection not empty")
-		return
-	}
-
+	// create all companies in test data
 	for _, data := range suite.testData {
 		companyEntity := data.Company
 
@@ -102,7 +89,69 @@ func (suite *test) TestCreateCompanies() {
 			return
 		}
 	}
+
+	// collect all companies
+	companyCollectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+		Criteria: make([]criterion.Criterion, 0),
+		Query:    query.Query{},
+	})
+	if err != nil {
+		suite.Failf("collect companies failed", err.Error())
+		return
+	}
+
+	// confirm that each created company can be found
+nextCompanyToCreate:
+	// for every company that should be created
+	for _, companyToCreate := range suite.testData {
+		// look for companyToCreate among collected companies
+		for _, existingCompany := range companyCollectResponse.Records {
+			if companyToCreate.Company.AdminEmailAddress == existingCompany.AdminEmailAddress {
+				// update fields set during creation
+				companyToCreate.Company.Id = existingCompany.Id
+				companyToCreate.Company.ParentPartyType = existingCompany.ParentPartyType
+				companyToCreate.Company.ParentId = existingCompany.ParentId
+				// assert should be equal
+				suite.Equal(companyToCreate.Company, existingCompany, "created company should be equal")
+				// if it is found and equal, check for next company to create
+				continue nextCompanyToCreate
+			}
+		}
+		// if execution reaches here then companyToCreate was not found among collected companies
+	}
 }
+
+//func (suite *test) TestUpdateCompanies() {
+//	// confirm that there are no companies in database, should be starting clean
+//	companyCollectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+//		Criteria: make([]criterion.Criterion, 0),
+//		Query:    query.Query{},
+//	})
+//	if err != nil {
+//		suite.Failf("collect companies failed", err.Error())
+//		return
+//	}
+//	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
+//		suite.FailNow("company collection not empty")
+//		return
+//	}
+//
+//	for _, data := range suite.testData {
+//		companyEntity := data.Company
+//
+//		// update the new company's details as would be done from the front end
+//		companyEntity.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+//		companyEntity.ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+//
+//		// create the company
+//		if _, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
+//			Company: companyEntity,
+//		}); err != nil {
+//			suite.FailNow("create company failed", err.Error())
+//			return
+//		}
+//	}
+//}
 
 func (suite *test) TestInviteAndRegisterCompanyAdminUsers() {
 	for _, data := range suite.testData {
