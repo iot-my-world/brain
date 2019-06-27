@@ -72,7 +72,7 @@ func (suite *test) SetupTest() {
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 }
 
-func (suite *test) TestCreateCompanies() {
+func (suite *test) Test1CreateCompanies() {
 	// create all companies in test data
 	for _, data := range suite.testData {
 		companyEntity := data.Company
@@ -121,39 +121,76 @@ nextCompanyToCreate:
 	}
 }
 
-//func (suite *test) TestUpdateCompanies() {
-//	// confirm that there are no companies in database, should be starting clean
-//	companyCollectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
-//		Criteria: make([]criterion.Criterion, 0),
-//		Query:    query.Query{},
-//	})
-//	if err != nil {
-//		suite.Failf("collect companies failed", err.Error())
-//		return
-//	}
-//	if !suite.Equal(0, companyCollectResponse.Total, "company collection should be empty") {
-//		suite.FailNow("company collection not empty")
-//		return
-//	}
-//
-//	for _, data := range suite.testData {
-//		companyEntity := data.Company
-//
-//		// update the new company's details as would be done from the front end
-//		companyEntity.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
-//		companyEntity.ParentId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
-//
-//		// create the company
-//		if _, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
-//			Company: companyEntity,
-//		}); err != nil {
-//			suite.FailNow("create company failed", err.Error())
-//			return
-//		}
-//	}
-//}
+func (suite *test) Test2CompanyUpdateAllowedFields() {
+	for _, data := range suite.testData {
 
-func (suite *test) TestInviteAndRegisterCompanyAdminUsers() {
+		// retrieve the company by admin email address
+		companyRetrieveResponse, err := suite.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			Identifier: adminEmailAddress.Identifier{
+				AdminEmailAddress: data.Company.AdminEmailAddress,
+			},
+		})
+		if err != nil {
+			suite.FailNow("retrieve company entity failed", err.Error())
+			return
+		}
+
+		// copy retrieved company
+		updatedCompanyEntity := companyRetrieveResponse.Company
+
+		// update allowed fields
+		updatedCompanyEntity.Name = "Changed Name"
+
+		// perform update
+		updateAllowedFieldsResponse, err := suite.companyAdministrator.UpdateAllowedFields(&companyAdministrator.UpdateAllowedFieldsRequest{
+			Company: updatedCompanyEntity,
+		})
+		if err != nil {
+			suite.FailNow("company update allowed fields failed", err.Error())
+			return
+		}
+
+		suite.Equal(
+			updatedCompanyEntity,
+			updateAllowedFieldsResponse.Company,
+			"updated company should equal company in updated response",
+		)
+
+		// retrieve the updated entity by id
+		updatedCompanyRetrieveResponse, err := suite.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			Identifier: id.Identifier{
+				Id: updatedCompanyEntity.Id,
+			},
+		})
+		if err != nil {
+			suite.FailNow("retrieve updated company entity failed", err.Error())
+			return
+		}
+
+		suite.Equal(
+			updatedCompanyEntity,
+			updatedCompanyRetrieveResponse.Company,
+			"retrieved company should equal updated company",
+		)
+
+		// update company back to original
+		updateAllowedFieldsResponse, err = suite.companyAdministrator.UpdateAllowedFields(&companyAdministrator.UpdateAllowedFieldsRequest{
+			Company: companyRetrieveResponse.Company,
+		})
+		if err != nil {
+			suite.FailNow("company update allowed fields failed", err.Error())
+			return
+		}
+
+		suite.Equal(
+			companyRetrieveResponse.Company,
+			updateAllowedFieldsResponse.Company,
+			"updated company should equal company in updated response",
+		)
+	}
+}
+
+func (suite *test) Test3InviteAndRegisterCompanyAdminUsers() {
 	for _, data := range suite.testData {
 		companyEntity := data.Company
 		companyAdminUserEntity := data.AdminUser
