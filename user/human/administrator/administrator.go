@@ -3,6 +3,7 @@ package administrator
 import (
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/security/permission/api"
 	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
@@ -14,6 +15,49 @@ type Administrator interface {
 	CheckPassword(request *CheckPasswordRequest) (*CheckPasswordResponse, error)
 	UpdatePassword(request *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
 	ForgotPassword(request *ForgotPasswordRequest) (*ForgotPasswordResponse, error)
+}
+
+const ServiceProvider = "HumanUser-Administrator"
+const GetMyUserService = ServiceProvider + ".GetMyUser"
+const UpdateAllowedFieldsService = ServiceProvider + ".UpdateAllowedFields"
+const CreateService = ServiceProvider + ".Create"
+const SetPasswordService = ServiceProvider + ".SetPassword"
+const CheckPasswordService = ServiceProvider + ".CheckPassword"
+const UpdatePasswordService = ServiceProvider + ".UpdatePassword"
+const ForgotPasswordService = ServiceProvider + ".ForgotPassword"
+
+var SystemUserPermissions = make([]api.Permission, 0)
+
+var CompanyAdminUserPermissions = []api.Permission{
+	UpdateAllowedFieldsService,
+	CreateService,
+	GetMyUserService,
+	UpdatePasswordService,
+	CheckPasswordService,
+}
+
+var CompanyUserPermissions = []api.Permission{
+	UpdateAllowedFieldsService,
+	CreateService,
+	GetMyUserService,
+	UpdatePasswordService,
+	CheckPasswordService,
+}
+
+var ClientAdminUserPermissions = []api.Permission{
+	UpdateAllowedFieldsService,
+	CreateService,
+	GetMyUserService,
+	UpdatePasswordService,
+	CheckPasswordService,
+}
+
+var ClientUserPermissions = []api.Permission{
+	UpdateAllowedFieldsService,
+	CreateService,
+	GetMyUserService,
+	UpdatePasswordService,
+	CheckPasswordService,
 }
 
 type UpdateAllowedFieldsRequest struct {

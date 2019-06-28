@@ -5,6 +5,7 @@ import (
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
+	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	"time"
 )
 
@@ -45,5 +46,5 @@ func (r ResetPassword) PartyDetails() party.Details {
 
 // permissions granted by having a valid set of these claims
 var GrantedAPIPermissions = []api.Permission{
-	api.UserAdministratorSetPassword,
+	humanUserAdministrator.SetPasswordService,
 }

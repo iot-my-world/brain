@@ -27,17 +27,21 @@ import (
 	apiUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/api"
 	apiUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/api"
 
+	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
 	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "github.com/iot-my-world/brain/security/permission/administrator/basic"
 
 	roleMongoRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler/mongo"
 
-	userAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/administrator/adaptor/jsonRpc"
-	userBasicAdministrator "github.com/iot-my-world/brain/user/human/administrator/basic"
-	userRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/recordHandler/adaptor/jsonRpc"
-	userMongoRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/mongo"
-	userValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
-	userBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
+	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
+	humanUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/administrator/adaptor/jsonRpc"
+	humanUserBasicAdministrator "github.com/iot-my-world/brain/user/human/administrator/basic"
+	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
+	humanUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/recordHandler/adaptor/jsonRpc"
+	humanUserMongoRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/mongo"
+	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
+	humanUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/human/validator/adaptor/jsonRpc"
+	humanUserBasicValidator "github.com/iot-my-world/brain/user/human/validator/basic"
 
 	individualAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/individual/administrator/adaptor/jsonRpc"
 	individualBasicAdministrator "github.com/iot-my-world/brain/party/individual/administrator/basic"
@@ -46,56 +50,68 @@ import (
 	individualValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/individual/validator/adaptor/jsonRpc"
 	individualBasicValidator "github.com/iot-my-world/brain/party/individual/validator/basic"
 
+	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "github.com/iot-my-world/brain/party/company/administrator/basic"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler/mongo"
+	companyValidator "github.com/iot-my-world/brain/party/company/validator"
 	companyValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "github.com/iot-my-world/brain/party/company/validator/basic"
 
+	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
 	clientAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/administrator/adaptor/jsonRpc"
 	clientBasicAdministrator "github.com/iot-my-world/brain/party/client/administrator/basic"
+	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler/mongo"
+	clientValidator "github.com/iot-my-world/brain/party/client/validator"
 	clientValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/party/client/validator/adaptor/jsonRpc"
 	clientBasicValidator "github.com/iot-my-world/brain/party/client/validator/basic"
 
+	systemRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler"
 	systemRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "github.com/iot-my-world/brain/party/system/recordHandler/mongo"
 
+	sf001TrackerAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator"
 	sf001AdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/administrator/adaptor/jsonRpc"
 	sf001TrackerBasicAdministrator "github.com/iot-my-world/brain/tracker/sf001/administrator/basic"
+	sf001TrackerRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
 	sf001RecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/recordHandler/adaptor/jsonRpc"
 	sf001TrackerMongoRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler/mongo"
+	sf001TrackerValidator "github.com/iot-my-world/brain/tracker/sf001/validator"
 	sf001ValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/tracker/sf001/validator/adaptor/jsonRpc"
 	sf001TrackerBasicValidator "github.com/iot-my-world/brain/tracker/sf001/validator/basic"
 
+	apiUserAdministrator "github.com/iot-my-world/brain/user/api/administrator"
 	apiUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "github.com/iot-my-world/brain/user/api/administrator/basic"
 	apiUserBasicPasswordGenerator "github.com/iot-my-world/brain/user/api/password/generator/basic"
+	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
 	apiUserRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/recordHandler/adaptor/jsonRpc"
 	apiUserMongoRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler/mongo"
+	apiUserValidator "github.com/iot-my-world/brain/user/api/validator"
 	apiUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/user/api/validator/adaptor/jsonRpc"
 	apiUserBasicValidator "github.com/iot-my-world/brain/user/api/validator/basic"
 
+	trackingReport "github.com/iot-my-world/brain/report/tracking"
 	trackingReportJsonRpcAdaptor "github.com/iot-my-world/brain/report/tracking/adaptor/jsonRpc"
 	trackingBasicReport "github.com/iot-my-world/brain/report/tracking/basic"
 
 	"flag"
 	"github.com/iot-my-world/brain/communication/email/mailer"
 	gmailMailer "github.com/iot-my-world/brain/communication/email/mailer/gmail"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
 	partyBasicRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "github.com/iot-my-world/brain/party/registrar/basic"
 
 	registrationEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/registration"
 	setPasswordEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/set/password"
 
+	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
 	partyBasicAdministrator "github.com/iot-my-world/brain/party/administrator/basic"
-
-	barcodeScanner "github.com/iot-my-world/brain/barcode/scanner"
-	barcodeScannerJsonRpcAdaptor "github.com/iot-my-world/brain/barcode/scanner/adaptor/jsonRpc"
 
 	"fmt"
 	"github.com/iot-my-world/brain/party"
@@ -198,16 +214,16 @@ func main() {
 		databaseCollection.Role,
 	)
 	// User
-	UserRecordHandler := userMongoRecordHandler.New(
+	UserRecordHandler := humanUserMongoRecordHandler.New(
 		mainMongoSession,
 		databaseName,
 		databaseCollection.User,
 	)
-	UserValidator := userBasicValidator.New(
+	UserValidator := humanUserBasicValidator.New(
 		UserRecordHandler,
 		&systemClaims,
 	)
-	UserBasicAdministrator := userBasicAdministrator.New(
+	UserBasicAdministrator := humanUserBasicAdministrator.New(
 		UserRecordHandler,
 		UserValidator,
 		Mailer,
@@ -350,15 +366,12 @@ func main() {
 		PartyBasicAdministrator,
 	)
 
-	// Barcode Scanner
-	BarcodeScanner := barcodeScanner.New()
-
 	// ________________________________ Create Service Provider Adaptors ________________________________
 
 	// User
-	UserRecordHandlerAdaptor := userRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
-	UserValidatorAdaptor := userValidatorJsonRpcAdaptor.New(UserValidator)
-	UserAdministratorAdaptor := userAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
+	HumanUserRecordHandlerAdaptor := humanUserRecordHandlerJsonRpcAdaptor.New(UserRecordHandler)
+	HumanUserValidatorAdaptor := humanUserValidatorJsonRpcAdaptor.New(UserValidator)
+	HumanUserAdministratorAdaptor := humanUserAdministratorJsonRpcAdaptor.New(UserBasicAdministrator)
 
 	// APIUser
 	APIUserRecordHandlerAdaptor := apiUserRecordHandlerJsonRpcAdaptor.New(APIUserRecordHandler)
@@ -370,7 +383,7 @@ func main() {
 	APIUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(APIUserAuthorizationService)
 
 	// Permission
-	PermissionHandlerAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
+	PermissionAdministratorAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
 
 	// Individual
 	IndividualRecordHandlerAdaptor := individualRecordHandlerJsonRpcAdaptor.New(IndividualRecordHandler)
@@ -397,9 +410,6 @@ func main() {
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
 
-	// Barcode Scanner
-	BarcodeScannerAdaptor := barcodeScannerJsonRpcAdaptor.New(BarcodeScanner)
-
 	// SF001 Tracker
 	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
 	SF001TrackerValidatorJsonRpcAdaptor := sf001ValidatorJsonRpcAdaptor.New(SF001TrackerBasicValidator)
@@ -411,23 +421,23 @@ func main() {
 	secureHumanUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// User
-	if err := secureHumanUserAPIServer.RegisterService(UserRecordHandlerAdaptor, "UserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserRecordHandlerAdaptor, humanUserRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(UserValidatorAdaptor, "UserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserValidatorAdaptor, humanUserValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(UserAdministratorAdaptor, "UserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserAdministratorAdaptor, humanUserAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register User Administrator Service")
 	}
 	// API User
-	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, "APIUserRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserRecordHandlerAdaptor, apiUserRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, "APIUserValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserValidatorAdaptor, apiUserValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(APIUserAdministratorAdaptor, "APIUserAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(APIUserAdministratorAdaptor, apiUserAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Administrator Service")
 	}
 
@@ -437,7 +447,7 @@ func main() {
 	}
 
 	// Permission
-	if err := secureHumanUserAPIServer.RegisterService(PermissionHandlerAdaptor, "PermissionHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PermissionAdministratorAdaptor, permissionAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Permission Handler Service Adaptor")
 	}
 
@@ -456,55 +466,50 @@ func main() {
 	if err := secureHumanUserAPIServer.RegisterService(CompanyRecordHandlerAdaptor, companyRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Company Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(CompanyValidatorAdaptor, "CompanyValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyValidatorAdaptor, companyValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Company Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(CompanyAdministratorAdaptor, "CompanyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(CompanyAdministratorAdaptor, companyAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Company Administrator Service")
 	}
 
 	// Client
-	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, "ClientRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, clientRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Record Handler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, "ClientValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, clientValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, "ClientAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, clientAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Client Administrator Service")
 	}
 
 	// Party
-	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, "PartyRegistrar"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyBasicRegistrarAdaptor, partyRegistrar.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Party Registrar Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, "PartyAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(PartyHandlerAdaptor, partyAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Party Administrator Service")
 	}
 
 	// System
-	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, "SystemRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, systemRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
 	}
 
 	// Reports
-	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, "TrackingReport"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, trackingReport.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
 	}
 
-	// Barcode Scanner
-	if err := secureHumanUserAPIServer.RegisterService(BarcodeScannerAdaptor, "BarcodeScanner"); err != nil {
-		log.Fatal("Unable to Register Barcode Scanner Service")
-	}
-
 	// SF001 Tracker
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerRecordHandlerJsonRpcAdaptor, "SF001TrackerRecordHandler"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerRecordHandlerJsonRpcAdaptor, sf001TrackerRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker RecordHandler Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, "SF001TrackerValidator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, sf001TrackerValidator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker Validator Service")
 	}
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, "SF001TrackerAdministrator"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, sf001TrackerAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register SF001 Tracker Administrator Service")
 	}
 

@@ -16,13 +16,13 @@ import (
 
 type administrator struct {
 	apiUserValidator         apiUserValidator.Validator
-	apiUserRecordHandler     *apiUserRecordHandler.RecordHandler
+	apiUserRecordHandler     apiUserRecordHandler.RecordHandler
 	apiUserPasswordGenerator apiUserPasswordGenerator.Generator
 }
 
 func New(
 	apiUserValidator apiUserValidator.Validator,
-	apiUserRecordHandler *apiUserRecordHandler.RecordHandler,
+	apiUserRecordHandler apiUserRecordHandler.RecordHandler,
 	apiUserPasswordGenerator apiUserPasswordGenerator.Generator,
 ) apiUserAdministrator.Administrator {
 	return &administrator{
@@ -45,10 +45,11 @@ func (a *administrator) ValidateCreateRequest(request *apiUserAdministrator.Crea
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating apiUser apiUser: "+err.Error())
-		}
-		if len(apiUserAPIUserValidateResponse.ReasonsInvalid) > 0 {
-			for _, reason := range apiUserAPIUserValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("apiUser apiUser invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(apiUserAPIUserValidateResponse.ReasonsInvalid) > 0 {
+				for _, reason := range apiUserAPIUserValidateResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("apiUser apiUser invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -114,10 +115,11 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *apiUserAdmin
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating apiUser: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("apiUser apiUser invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				for _, reason := range validationResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("apiUser apiUser invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}

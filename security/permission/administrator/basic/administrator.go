@@ -19,13 +19,13 @@ import (
 type administrator struct {
 	userRecordHandler    userRecordHandler.RecordHandler
 	roleRecordHandler    roleRecordHandler.RecordHandler
-	apiUserRecordHandler *apiUserRecordHandler.RecordHandler
+	apiUserRecordHandler apiUserRecordHandler.RecordHandler
 }
 
 func New(
 	userRecordHandler userRecordHandler.RecordHandler,
 	roleRecordHandler roleRecordHandler.RecordHandler,
-	apiUserRecordHandler *apiUserRecordHandler.RecordHandler,
+	apiUserRecordHandler apiUserRecordHandler.RecordHandler,
 ) permissionAdministrator.Administrator {
 	return &administrator{
 		userRecordHandler:    userRecordHandler,

@@ -17,10 +17,20 @@ func New(
 		mongoSession,
 		databaseName,
 		collectionName,
-		[]mgo.Index{{
-			Key:    []string{"id"},
-			Unique: true,
-		}},
+		[]mgo.Index{
+			{
+				Key:    []string{"id"},
+				Unique: true,
+			},
+			{
+				Key:    []string{"name"},
+				Unique: true,
+			},
+			{
+				Key:    []string{"adminEmailAddress"},
+				Unique: true,
+			},
+		},
 		company.IsValidIdentifier,
 		company.ContextualiseFilter,
 	)

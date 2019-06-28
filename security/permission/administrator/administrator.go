@@ -13,6 +13,29 @@ type Administrator interface {
 	GetAllUsersViewPermissions(request *GetAllUsersViewPermissionsRequest) (*GetAllUsersViewPermissionsResponse, error)
 }
 
+const ServiceProvider = "Permission-Administrator"
+const UserHasPermissionService = ServiceProvider + ".UserHasPermission"
+const GetAllUsersAPIPermissionsService = ServiceProvider + ".GetAllUsersAPIPermissions"
+const GetAllUsersViewPermissionsService = ServiceProvider + ".GetAllUsersViewPermissions"
+
+var SystemUserPermissions = make([]api.Permission, 0)
+
+var CompanyAdminUserPermissions = []api.Permission{
+	GetAllUsersViewPermissionsService,
+}
+
+var CompanyUserPermissions = []api.Permission{
+	GetAllUsersViewPermissionsService,
+}
+
+var ClientAdminUserPermissions = []api.Permission{
+	GetAllUsersViewPermissionsService,
+}
+
+var ClientUserPermissions = []api.Permission{
+	GetAllUsersViewPermissionsService,
+}
+
 type UserHasPermissionRequest struct {
 	Claims         claims.Claims
 	UserIdentifier identifier.Identifier

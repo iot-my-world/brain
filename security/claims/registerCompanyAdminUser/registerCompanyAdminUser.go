@@ -2,10 +2,12 @@ package registerCompanyAdminUser
 
 import (
 	"github.com/iot-my-world/brain/party"
+	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
 	humanUser "github.com/iot-my-world/brain/user/human"
+	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 	"time"
 )
 
@@ -46,6 +48,6 @@ func (r RegisterCompanyAdminUser) PartyDetails() party.Details {
 
 // permissions granted by having a valid set of these claims
 var GrantedAPIPermissions = []api.Permission{
-	api.UserValidatorValidate,                  // Ability to validate users
-	api.PartyRegistrarRegisterCompanyAdminUser, // Ability to register self
+	humanUserValidator.ValidateService,             // Ability to validate users
+	partyRegistrar.RegisterCompanyAdminUserService, // Ability to register self
 }

@@ -36,7 +36,7 @@ func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*co
 
 	companyCreateResponse := companyAdministratorJsonRpcAdaptor.CreateResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"CompanyAdministrator.Create",
+		companyAdministrator.CreateService,
 		companyAdministratorJsonRpcAdaptor.CreateRequest{
 			Company: request.Company,
 		},
@@ -65,7 +65,7 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 
 	companyUpdateAllowedFieldsResponse := companyAdministratorJsonRpcAdaptor.UpdateAllowedFieldsResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"CompanyAdministrator.UpdateAllowedFields",
+		companyAdministrator.UpdateAllowedFieldsService,
 		companyAdministratorJsonRpcAdaptor.UpdateAllowedFieldsRequest{
 			Company: request.Company,
 		},

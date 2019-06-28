@@ -13,12 +13,12 @@ import (
 
 type administrator struct {
 	sf001DeviceValidator sf001DeviceValidator.Validator
-	sf001RecordHandler   *sf001RecordHandler.RecordHandler
+	sf001RecordHandler   sf001RecordHandler.RecordHandler
 }
 
 func New(
 	sf001DeviceValidator sf001DeviceValidator.Validator,
-	sf001RecordHandler *sf001RecordHandler.RecordHandler,
+	sf001RecordHandler sf001RecordHandler.RecordHandler,
 ) sf001DeviceAdministrator.Administrator {
 	return &administrator{
 		sf001DeviceValidator: sf001DeviceValidator,
@@ -39,10 +39,11 @@ func (a *administrator) ValidateCreateRequest(request *sf001DeviceAdministrator.
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating sf001 device: "+err.Error())
-		}
-		if len(sf001DeviceValidateResponse.ReasonsInvalid) > 0 {
-			for _, reason := range sf001DeviceValidateResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("sf001 device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(sf001DeviceValidateResponse.ReasonsInvalid) > 0 {
+				for _, reason := range sf001DeviceValidateResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("sf001 device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -84,10 +85,11 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *sf001DeviceA
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating device: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("sf001 device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				for _, reason := range validationResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("sf001 device invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}

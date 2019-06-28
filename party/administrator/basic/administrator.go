@@ -15,13 +15,13 @@ import (
 )
 
 type administrator struct {
-	clientRecordHandler  *clientRecordHandler.RecordHandler
+	clientRecordHandler  clientRecordHandler.RecordHandler
 	companyRecordHandler companyRecordHandler.RecordHandler
 	systemRecordHandler  systemRecordHandler.RecordHandler
 }
 
 func New(
-	clientRecordHandler *clientRecordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	systemRecordHandler systemRecordHandler.RecordHandler,
 ) partyAdministrator.Administrator {
