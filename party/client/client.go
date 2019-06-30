@@ -5,9 +5,17 @@ import (
 	"github.com/iot-my-world/brain/search/identifier/id"
 )
 
+type Type string
+
+const Individual Type = "Individual"
+const Company Type = "Company"
+
 // Client is the model for the client entities in the system
 type Client struct {
 	Id string `json:"id" bson:"id"`
+
+	// Client Type, Individual or Company
+	Type Type `json:"type" bson:"type"`
 
 	Name string `json:"name" bson:"name"`
 
