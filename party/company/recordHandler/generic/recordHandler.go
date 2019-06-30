@@ -99,6 +99,10 @@ func (r *RecordHandler) Collect(request *companyRecordHandler.CollectRequest) (*
 		return nil, companyRecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
+	if collectedCompanies == nil {
+		collectedCompanies = make([]company.Company, 0)
+	}
+
 	return &companyRecordHandler.CollectResponse{
 		Records: collectedCompanies,
 		Total:   collectResponse.Total,

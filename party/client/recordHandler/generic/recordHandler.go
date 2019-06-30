@@ -103,6 +103,10 @@ func (r *RecordHandler) Collect(request *clientRecordHandler.CollectRequest) (*c
 		return nil, clientRecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
+	if collectedClients == nil {
+		collectedClients = make([]client.Client, 0)
+	}
+
 	return &clientRecordHandler.CollectResponse{
 		Records: collectedClients,
 		Total:   collectResponse.Total,
