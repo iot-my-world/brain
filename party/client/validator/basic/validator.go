@@ -3,6 +3,7 @@ package basic
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/party/client"
 	clientAction "github.com/iot-my-world/brain/party/client/action"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientRecordHandlerException "github.com/iot-my-world/brain/party/client/recordHandler/exception"
@@ -84,6 +85,26 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 			Help:  "cannot be blank",
 			Data:  (*clientToValidate).Name,
 		})
+	}
+
+	if (*clientToValidate).Type == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "type",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*clientToValidate).Name,
+		})
+	} else {
+		switch (*clientToValidate).Type {
+		case client.Company, client.Individual:
+		default:
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "type",
+				Type:  reasonInvalid.Invalid,
+				Help:  "must be a valid client type",
+				Data:  (*clientToValidate).Type,
+			})
+		}
 	}
 
 	if (*clientToValidate).ParentPartyType == "" {
