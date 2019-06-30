@@ -113,15 +113,6 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest) (*compan
 		})
 	}
 
-	if (*companyToValidate).AdminEmailAddress == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "adminEmailAddress",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*companyToValidate).AdminEmailAddress,
-		})
-	}
-
 	// Perform additional checks/ignores considering method field
 	switch request.Action {
 	case companyAction.Create:

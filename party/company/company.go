@@ -45,30 +45,3 @@ func (c Company) Details() party.Details {
 func (c *Company) SetId(id string) {
 	c.Id = id
 }
-
-//
-//func (c Company) GetBSON() (interface{}, error) {
-//	return wrapped{
-//		Id:                c.Id,
-//		Name:              c.Name,
-//		AdminEmailAddress: c.AdminEmailAddress,
-//		ParentPartyType:   c.ParentPartyType,
-//		ParentId:          c.ParentId,
-//	}, nil
-//}
-//
-//func (c Company) SetBSON(raw bson.Raw) error {
-//	unmarshalledCompany := new(wrapped)
-//	err := raw.Unmarshal(unmarshalledCompany)
-//	if err != nil {
-//		return err
-//	}
-//
-//	c.Id = unmarshalledCompany.Id
-//	c.Name = unmarshalledCompany.Name
-//	c.AdminEmailAddress = unmarshalledCompany.AdminEmailAddress
-//	c.ParentPartyType = unmarshalledCompany.ParentPartyType
-//	c.ParentId = unmarshalledCompany.ParentId
-//
-//	return nil
-//}
