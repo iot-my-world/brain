@@ -165,15 +165,18 @@ type ForgotPasswordRequest struct {
 }
 
 type ForgotPasswordResponse struct {
+	URLToken string `json:"urlToken"`
 }
 
 func (a *adaptor) ForgotPassword(r *http.Request, request *ForgotPasswordRequest, response *ForgotPasswordResponse) error {
-	_, err := a.humanUserAdministrator.ForgotPassword(&humanUserAdministrator.ForgotPasswordRequest{
+	forgotPasswordResponse, err := a.humanUserAdministrator.ForgotPassword(&humanUserAdministrator.ForgotPasswordRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 	})
 	if err != nil {
 		return err
 	}
+
+	response.URLToken = forgotPasswordResponse.URLToken
 
 	return nil
 }
