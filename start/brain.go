@@ -120,16 +120,16 @@ var apiUserAPIServerPort = "9011"
 func main() {
 	pathToConfigFile := flag.String("pathToConfigFile", "config.toml", "brain configuration file")
 	//kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
-
 	flag.Parse()
+
+	brainConfig := config.New(*pathToConfigFile)
+	log.Info("environment: ", brainConfig.Environment)
 
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal("fail to get dir:" + err.Error())
 	}
-	log.Info("brain working directory: " + dir)
-
-	brainConfig := config.New(*pathToConfigFile)
+	log.Info("working directory: " + dir)
 
 	// Connect to database
 	databaseName := "brain"

@@ -1,7 +1,7 @@
 package company
 
 import (
-	"github.com/iot-my-world/brain/test"
+	"github.com/iot-my-world/brain/test/data"
 	clientTest "github.com/iot-my-world/brain/test/modules/party/client"
 	"github.com/iot-my-world/brain/test/stories/client"
 	"github.com/stretchr/testify/suite"
@@ -16,7 +16,7 @@ func Test(t *testing.T) {
 			return
 		}
 		suite.Run(t, clientTest.New(
-			test.BrainURL,
+			data.BrainURL,
 			companyData.AdminUser,
 			clientData,
 		))
