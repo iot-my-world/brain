@@ -182,11 +182,11 @@ func main() {
 
 	// Create system claims for the services that root privileges
 	var systemClaims = humanUserLoginClaims.Login{
-		//UserId          id.Identifier `json:"userId"`
-		//IssueTime       int64         `json:"issueTime"`
-		//ExpirationTime  int64         `json:"expirationTime"`
-		//ParentPartyType party.Type    `json:"parentPartyType"`
-		//ParentId        id.Identifier `json:"parentId"`
+		//UserId          id.Identifier
+		//IssueTime       int64
+		//ExpirationTime  int64
+		//ParentPartyType party.Type
+		//ParentId        id.Identifier
 		PartyType: party.System,
 		//PartyId         id.Identifier `json:"partyId"`
 	}

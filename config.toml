@@ -1,13 +1,28 @@
 # default config file
 
+# email details with which brain will email users
 emailaddress = ""
 emailhost = ""
 emailpassword = ""
+
+# NB: set to "production" when running a production environment
+# when this is set to "development" there are serious security flaws
 environment = "development"
+
+# path to public and private key files used to sign claims
 keyfilepath = ""
+
+# url to which email links will go
 mailredirectbaseurl = "http://localhost:3000"
+
+# database connection and user details
 mongonodes = ["localhost:27017"]
 mongopassword = ""
 mongouser = ""
+
+# email templates
 pathtoemailtemplatefolder = "communication/email/template"
+
+# file used to set root users password
+# removed by brain on first start up
 rootpasswordfilelocation = ""
