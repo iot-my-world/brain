@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/iot-my-world/brain/environment"
 	"github.com/iot-my-world/brain/log"
 	"github.com/spf13/viper"
 	"os"
@@ -17,6 +18,7 @@ type Config struct {
 	RootPasswordFileLocation  string
 	PathToEmailTemplateFolder string
 	KeyFilePath               string
+	Environment               environment.Type
 }
 
 func New(pathToConfigFile string) Config {
@@ -32,6 +34,7 @@ func New(pathToConfigFile string) Config {
 	viper.SetDefault("rootPasswordFileLocation", "")
 	viper.SetDefault("pathToEmailTemplateFolder", "communication/email/template")
 	viper.SetDefault("keyFilePath", "")
+	viper.SetDefault("environment", environment.Development)
 
 	// check if the config file exists
 	if _, err := os.Stat(pathToConfigFile); err != nil {
@@ -63,5 +66,6 @@ func New(pathToConfigFile string) Config {
 		RootPasswordFileLocation:  viper.GetString("rootPasswordFileLocation"),
 		PathToEmailTemplateFolder: viper.GetString("pathToEmailTemplateFolder"),
 		KeyFilePath:               viper.GetString("keyFilePath"),
+		Environment:               environment.Type(viper.GetString("environment")),
 	}
 }
