@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc"
 	gorillaJson "github.com/gorilla/rpc/json"
+	"github.com/iot-my-world/brain/config"
 	"github.com/iot-my-world/brain/cors"
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/security/encrypt"
@@ -117,8 +118,10 @@ var humanUserAPIServerPort = "9010"
 var apiUserAPIServerPort = "9011"
 
 func main() {
+	configFilePath := flag.String("configFilePath", "config.toml", "brain configuration file")
+	createConfigFile := flag.String("createConfigFile", "false", "brain configuration file")
+
 	// get the command line args
-	mongoNodes := flag.String("mongoNodes", "localhost:27016", "the nodes in the db cluster")
 	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
 	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
 	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
@@ -135,12 +138,16 @@ func main() {
 	}
 	log.Info("brain working directory: " + dir)
 
+	brainConfig := config.New(
+		*configFilePath,
+		*createConfigFile == "true",
+	)
+
 	// Connect to database
 	databaseName := "brain"
-	mongoCluster := strings.Split(*mongoNodes, ",")
-	log.Info(fmt.Sprintf("connecting to mongo @ node addresses: [%s]", strings.Join(mongoCluster, ", ")))
+	log.Info(fmt.Sprintf("connecting to mongo @ node addresses: [%s]", strings.Join(brainConfig.MongoNodes, ", ")))
 	dialInfo := mgo.DialInfo{
-		Addrs:     mongoCluster,
+		Addrs:     brainConfig.MongoNodes,
 		Username:  *mongoUser,
 		Password:  *mongoPassword,
 		Mechanism: "SCRAM-SHA-1",

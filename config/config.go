@@ -18,8 +18,11 @@ type Config struct {
 	KeyFilePath               string
 }
 
-func New(configFilePath string) Config {
-	viper.SetConfigFile(configFilePath)
+func New(
+	configFilePath string,
+	createFile bool,
+) Config {
+	viper.AddConfigPath(configFilePath)
 
 	viper.SetDefault("mongoNodes", []string{"localhost:27015"})
 	viper.SetDefault("mongoUser", "")
@@ -37,8 +40,13 @@ func New(configFilePath string) Config {
 		switch err.(type) {
 		case viper.ConfigFileNotFoundError:
 			log.Info("using default brain config")
+			if createFile {
+				if err := viper.WriteConfigAs(configFilePath); err != nil {
+					log.Fatal("error writing config file", err)
+				}
+			}
 		default:
-			log.Fatal("error reading in config file")
+			log.Fatal("error reading in config file", err)
 		}
 	}
 

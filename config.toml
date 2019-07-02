@@ -1,0 +1,12 @@
+# brain config file
+
+emailaddress = ""
+emailhost = ""
+emailpassword = ""
+keyfilepath = ""
+mailredirectbaseurl = "http://localhost:3000"
+mongonodes = ["localhost:27015"]
+mongopassword = ""
+mongouser = ""
+pathtoemailtemplatefolder = "communication/email/template"
+rootpasswordfilelocation = ""
