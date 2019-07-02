@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/iot-my-world/brain/log"
 	"github.com/spf13/viper"
+	"os"
 )
 
 type Config struct {
@@ -18,11 +19,8 @@ type Config struct {
 	KeyFilePath               string
 }
 
-func New(
-	configFilePath string,
-	createFile bool,
-) Config {
-	viper.AddConfigPath(configFilePath)
+func New(pathToConfigFile string) Config {
+	viper.SetConfigFile(pathToConfigFile)
 
 	viper.SetDefault("mongoNodes", []string{"localhost:27015"})
 	viper.SetDefault("mongoUser", "")
@@ -35,19 +33,23 @@ func New(
 	viper.SetDefault("pathToEmailTemplateFolder", "communication/email/template")
 	viper.SetDefault("keyFilePath", "")
 
+	// check if the config file exists
+	if _, err := os.Stat(pathToConfigFile); err != nil {
+		// if the error is that the file does not exist
+		if os.IsNotExist(err) {
+			// create the file
+			if err := viper.WriteConfigAs(pathToConfigFile); err != nil {
+				log.Fatal("error writing config file", err)
+			}
+		} else {
+			// the error is something else
+			log.Fatal("error determining if config file exists", err)
+		}
+	}
+
 	err := viper.ReadInConfig()
 	if err != nil {
-		switch err.(type) {
-		case viper.ConfigFileNotFoundError:
-			log.Info("using default brain config")
-			if createFile {
-				if err := viper.WriteConfigAs(configFilePath); err != nil {
-					log.Fatal("error writing config file", err)
-				}
-			}
-		default:
-			log.Fatal("error reading in config file", err)
-		}
+		log.Fatal("error reading in config file", err)
 	}
 
 	return Config{

@@ -118,16 +118,7 @@ var humanUserAPIServerPort = "9010"
 var apiUserAPIServerPort = "9011"
 
 func main() {
-	configFilePath := flag.String("configFilePath", "config.toml", "brain configuration file")
-	createConfigFile := flag.String("createConfigFile", "false", "brain configuration file")
-
-	// get the command line args
-	mongoUser := flag.String("mongoUser", "", "brains mongo db user")
-	mongoPassword := flag.String("mongoPassword", "", "passwords for brains mongo db")
-	mailRedirectBaseUrl := flag.String("mailRedirectBaseUrl", "http://localhost:3000", "base url for all email invites")
-	rootPasswordFileLocation := flag.String("rootPasswordFileLocation", "", "path to file containing root password")
-	pathToEmailTemplateFolder := flag.String("pathToEmailTemplateFolder", "communication/email/template", "path to email template files")
-	keysFilePath := flag.String("keysFilePath", "", "path to pvt and pub keys")
+	pathToConfigFile := flag.String("pathToConfigFile", "config.toml", "brain configuration file")
 	//kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 
 	flag.Parse()
@@ -138,18 +129,15 @@ func main() {
 	}
 	log.Info("brain working directory: " + dir)
 
-	brainConfig := config.New(
-		*configFilePath,
-		*createConfigFile == "true",
-	)
+	brainConfig := config.New(*pathToConfigFile)
 
 	// Connect to database
 	databaseName := "brain"
 	log.Info(fmt.Sprintf("connecting to mongo @ node addresses: [%s]", strings.Join(brainConfig.MongoNodes, ", ")))
 	dialInfo := mgo.DialInfo{
 		Addrs:     brainConfig.MongoNodes,
-		Username:  *mongoUser,
-		Password:  *mongoPassword,
+		Username:  brainConfig.MongoUser,
+		Password:  brainConfig.MongoPassword,
 		Mechanism: "SCRAM-SHA-1",
 		Timeout:   10 * time.Second,
 		Source:    "admin",
@@ -167,22 +155,22 @@ func main() {
 	// spotnavza@gmail.com
 
 	// Get or Generate RSA Key Pair
-	rsaPrivateKey := encrypt.FetchPrivateKey(*keysFilePath)
+	rsaPrivateKey := encrypt.FetchPrivateKey(brainConfig.KeyFilePath)
 
 	// Create Mailer
 	Mailer := gmailMailer.New(mailer.AuthInfo{
 		Identity: "",
-		Username: "spotnavza@gmail.com",
-		Password: "spotNav123",
-		Host:     "smtp.gmail.com",
+		Username: brainConfig.EmailAddress,
+		Password: brainConfig.EmailPassword,
+		Host:     brainConfig.EmailHost,
 	})
 
 	// email generators
 	RegistrationEmailGenerator := registrationEmailGenerator.New(
-		*pathToEmailTemplateFolder,
+		brainConfig.PathToEmailTemplateFolder,
 	)
 	SetPasswordEmailGenerator := setPasswordEmailGenerator.New(
-		*pathToEmailTemplateFolder,
+		brainConfig.PathToEmailTemplateFolder,
 	)
 
 	// create and start nerveBroadcast producer
@@ -228,7 +216,7 @@ func main() {
 		UserValidator,
 		Mailer,
 		rsaPrivateKey,
-		*mailRedirectBaseUrl,
+		brainConfig.MailRedirectBaseUrl,
 		&systemClaims,
 		SetPasswordEmailGenerator,
 	)
@@ -284,7 +272,7 @@ func main() {
 		ClientRecordHandler,
 		Mailer,
 		rsaPrivateKey,
-		*mailRedirectBaseUrl,
+		brainConfig.MailRedirectBaseUrl,
 		&systemClaims,
 		RegistrationEmailGenerator,
 	)
@@ -294,7 +282,7 @@ func main() {
 		mainMongoSession,
 		databaseName,
 		databaseCollection.System,
-		*rootPasswordFileLocation,
+		brainConfig.RootPasswordFileLocation,
 		PartyBasicRegistrar,
 		&systemClaims,
 	)
