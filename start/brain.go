@@ -216,6 +216,7 @@ func main() {
 		brainConfig.MailRedirectBaseUrl,
 		&systemClaims,
 		SetPasswordEmailGenerator,
+		brainConfig.Environment,
 	)
 
 	// Auth
@@ -272,6 +273,7 @@ func main() {
 		brainConfig.MailRedirectBaseUrl,
 		&systemClaims,
 		RegistrationEmailGenerator,
+		brainConfig.Environment,
 	)
 
 	// System
