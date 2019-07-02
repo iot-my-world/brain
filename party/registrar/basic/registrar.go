@@ -6,6 +6,7 @@ import (
 	emailGenerator "github.com/iot-my-world/brain/communication/email/generator"
 	registrationEmail "github.com/iot-my-world/brain/communication/email/generator/registration"
 	"github.com/iot-my-world/brain/communication/email/mailer"
+	"github.com/iot-my-world/brain/environment"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
@@ -44,6 +45,7 @@ type registrar struct {
 	mailRedirectBaseUrl        string
 	systemClaims               *humanUserLogin.Login
 	registrationEmailGenerator emailGenerator.Generator
+	environmentType            environment.Type
 }
 
 func New(
@@ -57,6 +59,7 @@ func New(
 	mailRedirectBaseUrl string,
 	systemClaims *humanUserLogin.Login,
 	registrationEmailGenerator emailGenerator.Generator,
+	environmentType environment.Type,
 ) partyRegistrar.Registrar {
 	return &registrar{
 		companyRecordHandler:       companyRecordHandler,
@@ -69,6 +72,7 @@ func New(
 		mailRedirectBaseUrl:        mailRedirectBaseUrl,
 		systemClaims:               systemClaims,
 		registrationEmailGenerator: registrationEmailGenerator,
+		environmentType:            environmentType,
 	}
 }
 
@@ -202,6 +206,12 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		return nil, err
 	}
 
+	if r.environmentType == environment.Development {
+		// if this is the development environment return response with token
+		return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: urlToken}, nil
+	}
+
+	// otherwise send email and return response without token
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
@@ -210,7 +220,7 @@ func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompany
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: urlToken}, nil
+	return &partyRegistrar.InviteCompanyAdminUserResponse{}, nil
 }
 
 func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
@@ -413,6 +423,12 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		return nil, err
 	}
 
+	if r.environmentType == environment.Development {
+		// if this is the development environment return response with token
+		return &partyRegistrar.InviteCompanyUserResponse{URLToken: urlToken}, nil
+	}
+
+	// otherwise send email and return response without token
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
@@ -421,7 +437,7 @@ func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserR
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteCompanyUserResponse{URLToken: urlToken}, nil
+	return &partyRegistrar.InviteCompanyUserResponse{}, nil
 }
 
 func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.RegisterCompanyUserRequest) error {
@@ -641,6 +657,12 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		return nil, err
 	}
 
+	if r.environmentType == environment.Development {
+		// if this is the development environment return response with token
+		return &partyRegistrar.InviteClientAdminUserResponse{URLToken: urlToken}, nil
+	}
+
+	// otherwise send email and return response without token
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
@@ -649,7 +671,7 @@ func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAd
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteClientAdminUserResponse{URLToken: urlToken}, nil
+	return &partyRegistrar.InviteClientAdminUserResponse{}, nil
 }
 
 func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
@@ -852,6 +874,12 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 		return nil, err
 	}
 
+	if r.environmentType == environment.Development {
+		// if this is the development environment return response with token
+		return &partyRegistrar.InviteClientUserResponse{URLToken: urlToken}, nil
+	}
+
+	// otherwise send email and return response without token
 	if _, err := r.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {
@@ -860,7 +888,7 @@ func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserReq
 		return nil, err
 	}
 
-	return &partyRegistrar.InviteClientUserResponse{URLToken: urlToken}, nil
+	return &partyRegistrar.InviteClientUserResponse{}, nil
 }
 
 func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.RegisterClientUserRequest) error {

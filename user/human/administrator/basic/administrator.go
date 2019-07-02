@@ -6,6 +6,7 @@ import (
 	emailGenerator "github.com/iot-my-world/brain/communication/email/generator"
 	setPasswordEmail "github.com/iot-my-world/brain/communication/email/generator/set/password"
 	"github.com/iot-my-world/brain/communication/email/mailer"
+	"github.com/iot-my-world/brain/environment"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
@@ -35,6 +36,7 @@ type administrator struct {
 	mailRedirectBaseUrl       string
 	systemClaims              *humanUserLoginClaims.Login
 	setPasswordEmailGenerator emailGenerator.Generator
+	environmentType           environment.Type
 }
 
 func New(
@@ -45,6 +47,7 @@ func New(
 	mailRedirectBaseUrl string,
 	systemClaims *humanUserLoginClaims.Login,
 	setPasswordEmailGenerator emailGenerator.Generator,
+	environmentType environment.Type,
 ) humanUserAdministrator.Administrator {
 	return &administrator{
 		humanUserRecordHandler:    humanUserRecordHandler,
@@ -54,6 +57,7 @@ func New(
 		mailRedirectBaseUrl:       mailRedirectBaseUrl,
 		systemClaims:              systemClaims,
 		setPasswordEmailGenerator: setPasswordEmailGenerator,
+		environmentType:           environmentType,
 	}
 }
 
@@ -536,6 +540,12 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 		return nil, err
 	}
 
+	if a.environmentType == environment.Development {
+		// if this is the development environment return response with token
+		return &humanUserAdministrator.ForgotPasswordResponse{URLToken: forgotPasswordToken}, nil
+	}
+
+	// otherwise send email and return response without token
 	if _, err := a.mailer.Send(&mailer.SendRequest{
 		Email: generateEmailResponse.Email,
 	}); err != nil {

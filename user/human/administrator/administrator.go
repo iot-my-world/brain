@@ -119,4 +119,5 @@ type ForgotPasswordRequest struct {
 }
 
 type ForgotPasswordResponse struct {
+	URLToken string
 }
