@@ -16,12 +16,14 @@ type Administrator interface {
 const ServiceProvider = "Client-Administrator"
 const UpdateAllowedFieldsService = ServiceProvider + ".UpdateAllowedFields"
 const CreateService = ServiceProvider + ".Create"
+const DeleteService = ServiceProvider + ".Delete"
 
 var SystemUserPermissions = make([]api.Permission, 0)
 
 var CompanyAdminUserPermissions = []api.Permission{
 	UpdateAllowedFieldsService,
 	CreateService,
+	DeleteService,
 }
 
 var CompanyUserPermissions = make([]api.Permission, 0)

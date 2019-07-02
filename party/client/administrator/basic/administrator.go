@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	clientAction "github.com/iot-my-world/brain/party/client/action"
 	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
@@ -153,4 +154,39 @@ func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateA
 	return &clientAdministrator.UpdateAllowedFieldsResponse{
 		Client: clientRetrieveResponse.Client,
 	}, nil
+}
+
+func (a *administrator) ValidateDeleteRequest(request *clientAdministrator.DeleteRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.ClientIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "client identifier is nil")
+	}
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*clientAdministrator.DeleteResponse, error) {
+	if err := a.ValidateDeleteRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	if _, err := a.clientRecordHandler.Delete(&clientRecordHandler.DeleteRequest{
+		Claims:     request.Claims,
+		Identifier: request.ClientIdentifier,
+	}); err != nil {
+		err = clientAdministratorException.Delete{Reasons: []string{"delete error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &clientAdministrator.DeleteResponse{}, nil
 }

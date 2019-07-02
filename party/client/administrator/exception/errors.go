@@ -25,3 +25,11 @@ type AllowedFieldsUpdate struct {
 func (e AllowedFieldsUpdate) Error() string {
 	return "allowed fields update error: " + strings.Join(e.Reasons, "; ")
 }
+
+type Delete struct {
+	Reasons []string
+}
+
+func (e Delete) Error() string {
+	return "delete error: " + strings.Join(e.Reasons, "; ")
+}
