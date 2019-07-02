@@ -4,6 +4,7 @@ import (
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party/client"
 	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
@@ -72,6 +73,30 @@ func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *Crea
 	}
 
 	response.Client = createResponse.Client
+
+	return nil
+}
+
+type DeleteRequest struct {
+	ClientIdentifier wrappedIdentifier.Wrapped `json:"clientIdentifier"`
+}
+
+type DeleteResponse struct {
+}
+
+func (a *adaptor) Delete(r *http.Request, request *DeleteRequest, response *DeleteResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	if _, err := a.clientAdministrator.Delete(&clientAdministrator.DeleteRequest{
+		Claims:           claims,
+		ClientIdentifier: request.ClientIdentifier.Identifier,
+	}); err != nil {
+		return err
+	}
 
 	return nil
 }

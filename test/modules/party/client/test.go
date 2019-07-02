@@ -72,7 +72,7 @@ func (suite *test) SetupTest() {
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 }
 
-func (suite *test) Test1CreateClients() {
+func (suite *test) TestClient1Create() {
 	// create all clients in test data
 	for _, data := range suite.testData {
 		clientEntity := data.Client
@@ -125,7 +125,7 @@ nextClientToCreate:
 	}
 }
 
-func (suite *test) Test2ClientUpdateAllowedFields() {
+func (suite *test) TestClient2UpdateAllowedFields() {
 	for _, data := range suite.testData {
 
 		// retrieve the client by admin email address
@@ -194,7 +194,12 @@ func (suite *test) Test2ClientUpdateAllowedFields() {
 	}
 }
 
-func (suite *test) Test3InviteAndRegisterClientAdminUsers() {
+func (suite *test) TestClient3Delete() {
+	// create a client
+	createResponse, err := suite.clientRecordHandler.
+}
+
+func (suite *test) TestClient4InviteAndRegisterAdmin() {
 	for _, data := range suite.testData {
 		clientEntity := data.Client
 		clientAdminUserEntity := data.AdminUser
