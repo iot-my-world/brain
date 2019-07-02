@@ -13,14 +13,14 @@ type Data struct {
 
 func (d Data) Details() email.Details {
 	return email.Details{
-		Subject: "Welcome To SpotNav",
+		Subject: "Welcome To IOT My World",
 		To: []mail.Address{{
 			Name:    d.User.Name,
 			Address: d.User.EmailAddress,
 		}},
 		From: mail.Address{
-			Name:    "SpotNav Team",
-			Address: "noreply@spotnav.co.za",
+			Name:    "IOT My World Team",
+			Address: "iotmyworldteam@gmail.com",
 		},
 	}
 }

@@ -151,9 +151,6 @@ func main() {
 	log.Info("Connected to Mongo!")
 	defer mainMongoSession.Close()
 
-	// spotNav123
-	// spotnavza@gmail.com
-
 	// Get or Generate RSA Key Pair
 	rsaPrivateKey := encrypt.FetchPrivateKey(brainConfig.KeyFilePath)
 

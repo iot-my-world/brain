@@ -1,7 +1,4 @@
 # brain config file
 
-emailaddress = "spotnavza@gmail.com"
-emailhost = "smtp.gmail.com"
-emailpassword = "spotNav123"
 pathtoemailtemplatefolder = "../communication/email/template"
 mongonodes = ["db:27017"]
