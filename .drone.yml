@@ -24,7 +24,7 @@ steps:
     image: golang
     commands:
       - cd build
-      - ./brain --pathToConfigFile=config-build.toml
+      - ./brain --pathToConfigFile=config-build.toml &
       - sleep 6
       - cd ../test
       - go get -t
