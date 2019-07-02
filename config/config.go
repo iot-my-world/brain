@@ -24,7 +24,7 @@ type Config struct {
 func New(pathToConfigFile string) Config {
 	viper.SetConfigFile(pathToConfigFile)
 
-	viper.SetDefault("mongoNodes", []string{"localhost:27015"})
+	viper.SetDefault("mongoNodes", []string{"localhost:27017"})
 	viper.SetDefault("mongoUser", "")
 	viper.SetDefault("mongoPassword", "")
 	viper.SetDefault("mailRedirectBaseUrl", "http://localhost:3000")
