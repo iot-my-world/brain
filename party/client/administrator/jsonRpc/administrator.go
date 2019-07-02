@@ -111,7 +111,7 @@ func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*cli
 	if err := a.jsonRpcClient.JsonRpcRequest(
 		clientAdministrator.DeleteService,
 		clientAdministratorJsonRpcAdaptor.DeleteRequest{
-			ClientIdentifier: id,
+			ClientIdentifier: *id,
 		},
 		&response); err != nil {
 		return nil, err

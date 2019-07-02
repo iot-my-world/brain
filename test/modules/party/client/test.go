@@ -196,7 +196,57 @@ func (suite *test) TestClient2UpdateAllowedFields() {
 
 func (suite *test) TestClient3Delete() {
 	// create a client
-	createResponse, err := suite.clientRecordHandler.
+	createResponse, err := suite.clientAdministrator.Create(&clientAdministrator.CreateRequest{
+		Client: client.Client{
+			Type:              client.Individual,
+			Name:              "BobToBeDeleted",
+			AdminEmailAddress: "bob@gmail.com",
+			ParentPartyType:   suite.jsonRpcClient.Claims().PartyDetails().PartyType,
+			ParentId:          suite.jsonRpcClient.Claims().PartyDetails().PartyId,
+		},
+	})
+	if err != nil {
+		suite.FailNow("error creating client", err.Error())
+		return
+	}
+
+	// retrieve the client
+	retrieveResponse, err := suite.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		Identifier: id.Identifier{
+			Id: createResponse.Client.Id,
+		},
+	})
+	if err != nil {
+		suite.FailNow("error retrieving client", err.Error())
+		return
+	}
+
+	// delete the client
+	if _, err := suite.clientAdministrator.Delete(&clientAdministrator.DeleteRequest{
+		ClientIdentifier: id.Identifier{
+			Id: retrieveResponse.Client.Id,
+		},
+	}); err != nil {
+		suite.FailNow("error deleting client", err.Error())
+		return
+	}
+
+	// collect all clients
+	collectResponse, err := suite.clientRecordHandler.Collect(&clientRecordHandler.CollectRequest{
+		Criteria: make([]criterion.Criterion, 0),
+		Query:    query.Query{},
+	})
+	if err != nil {
+		suite.FailNow("error collecting clients", err.Error())
+		return
+	}
+
+	// confirm that deleted client not among collected clients
+	for _, c := range collectResponse.Records {
+		if c.Id == retrieveResponse.Client.Id {
+			suite.FailNow("client found in collected clients after deletion")
+		}
+	}
 }
 
 func (suite *test) TestClient4InviteAndRegisterAdmin() {

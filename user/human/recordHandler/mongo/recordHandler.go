@@ -223,7 +223,8 @@ func (r *recordHandler) Delete(request *userRecordHandler.DeleteRequest) (*userR
 
 	userCollection := mgoSession.DB(r.database).C(r.collection)
 
-	if err := userCollection.Remove(request.Identifier.ToFilter()); err != nil {
+	filter := humanUser.ContextualiseFilter(request.Identifier.ToFilter(), request.Claims)
+	if err := userCollection.Remove(filter); err != nil {
 		return nil, err
 	}
 
