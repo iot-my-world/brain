@@ -1,0 +1,13 @@
+# default config file
+
+emailaddress = ""
+emailhost = ""
+emailpassword = ""
+environment = "development"
+keyfilepath = ""
+mailredirectbaseurl = "http://localhost:3000"
+mongonodes = ["localhost:27017"]
+mongopassword = ""
+mongouser = ""
+pathtoemailtemplatefolder = "communication/email/template"
+rootpasswordfilelocation = ""
