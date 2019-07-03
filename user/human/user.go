@@ -28,6 +28,6 @@ type User struct {
 	Registered bool `json:"registered" bson:"registered"`
 }
 
-func SetId() {
-
+func (u *User) SetId(id string) {
+	u.Id = id
 }
