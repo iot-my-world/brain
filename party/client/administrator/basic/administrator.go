@@ -13,6 +13,7 @@ import (
 	"github.com/iot-my-world/brain/search/criterion"
 	exactTextCriterion "github.com/iot-my-world/brain/search/criterion/exact/text"
 	"github.com/iot-my-world/brain/search/identifier/id"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	humanUser "github.com/iot-my-world/brain/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
@@ -21,17 +22,20 @@ type administrator struct {
 	clientRecordHandler clientRecordHandler.RecordHandler
 	clientValidator     clientValidator.Validator
 	userRecordHandler   userRecordHandler.RecordHandler
+	systemClaims        *humanUserLoginClaims.Login
 }
 
 func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	clientValidator clientValidator.Validator,
 	userRecordHandler userRecordHandler.RecordHandler,
+	systemClaims *humanUserLoginClaims.Login,
 ) clientAdministrator.Administrator {
 	return &administrator{
 		clientRecordHandler: clientRecordHandler,
 		clientValidator:     clientValidator,
 		userRecordHandler:   userRecordHandler,
+		systemClaims:        systemClaims,
 	}
 }
 
@@ -194,7 +198,7 @@ func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*cli
 
 	// collect any users in the client party
 	clientUserCollectResponse, err := a.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
-		Claims: request.Claims,
+		Claims: a.systemClaims, // using system claims since only system can users from another party
 		Criteria: []criterion.Criterion{
 			exactTextCriterion.Criterion{
 				Field: "partyId.id",
@@ -211,7 +215,7 @@ func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*cli
 	// delete all users in the client party
 	for idx := range clientUserCollectResponse.Records {
 		if _, err := a.userRecordHandler.Delete(&userRecordHandler.DeleteRequest{
-			Claims: request.Claims,
+			Claims: a.systemClaims, // using system claims since only system can users from another party
 			Identifier: id.Identifier{
 				Id: clientUserCollectResponse.Records[idx].Id,
 			},

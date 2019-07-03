@@ -259,6 +259,7 @@ func main() {
 		ClientRecordHandler,
 		ClientValidator,
 		UserRecordHandler,
+		&systemClaims,
 	)
 
 	// Party
