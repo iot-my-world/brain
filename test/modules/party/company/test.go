@@ -72,7 +72,7 @@ func (suite *test) SetupTest() {
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 }
 
-func (suite *test) Test1CreateCompanies() {
+func (suite *test) TestCompany1Create() {
 	// create all companies in test data
 	for _, data := range suite.testData {
 		companyEntity := data.Company
@@ -121,7 +121,7 @@ nextCompanyToCreate:
 	}
 }
 
-func (suite *test) Test2CompanyUpdateAllowedFields() {
+func (suite *test) TestCompany2UpdateAllowedFields() {
 	for _, data := range suite.testData {
 
 		// retrieve the company by admin email address
@@ -190,7 +190,61 @@ func (suite *test) Test2CompanyUpdateAllowedFields() {
 	}
 }
 
-func (suite *test) Test3InviteAndRegisterCompanyAdminUsers() {
+func (suite *test) TestCompany3Delete() {
+	// create a company
+	createResponse, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
+		Company: company.Company{
+			Name:              "BobToBeDeleted",
+			AdminEmailAddress: "bob@gmail.com",
+			ParentPartyType:   suite.jsonRpcClient.Claims().PartyDetails().PartyType,
+			ParentId:          suite.jsonRpcClient.Claims().PartyDetails().PartyId,
+		},
+	})
+	if err != nil {
+		suite.FailNow("error creating company", err.Error())
+		return
+	}
+
+	// retrieve the company
+	retrieveResponse, err := suite.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		Identifier: id.Identifier{
+			Id: createResponse.Company.Id,
+		},
+	})
+	if err != nil {
+		suite.FailNow("error retrieving company", err.Error())
+		return
+	}
+
+	// delete the company
+	if _, err := suite.companyAdministrator.Delete(&companyAdministrator.DeleteRequest{
+		CompanyIdentifier: id.Identifier{
+			Id: retrieveResponse.Company.Id,
+		},
+	}); err != nil {
+		suite.FailNow("error deleting company", err.Error())
+		return
+	}
+
+	// collect all companies
+	collectResponse, err := suite.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
+		Criteria: make([]criterion.Criterion, 0),
+		Query:    query.Query{},
+	})
+	if err != nil {
+		suite.FailNow("error collecting companies", err.Error())
+		return
+	}
+
+	// confirm that deleted company not among collected companies
+	for _, c := range collectResponse.Records {
+		if c.Id == retrieveResponse.Company.Id {
+			suite.FailNow("company found in collected companies after deletion")
+		}
+	}
+}
+
+func (suite *test) TestCompany4InviteAndRegisterAdmin() {
 	for _, data := range suite.testData {
 		companyEntity := data.Company
 		companyAdminUserEntity := data.AdminUser
