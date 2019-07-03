@@ -6,6 +6,7 @@ import (
 	"github.com/iot-my-world/brain/log"
 	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/party/company/administrator/adaptor/jsonRpc"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 )
 
 type administrator struct {
@@ -78,4 +79,43 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 	return &companyAdministrator.UpdateAllowedFieldsResponse{
 		Company: companyUpdateAllowedFieldsResponse.Company,
 	}, nil
+}
+
+func (a *administrator) ValidateDeleteRequest(request *companyAdministrator.DeleteRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.CompanyIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "company identifier is nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Delete(request *companyAdministrator.DeleteRequest) (*companyAdministrator.DeleteResponse, error) {
+	if err := a.ValidateDeleteRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// wrap identifier
+	id, err := wrappedIdentifier.Wrap(request.CompanyIdentifier)
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	response := companyAdministratorJsonRpcAdaptor.DeleteResponse{}
+	if err := a.jsonRpcClient.JsonRpcRequest(
+		companyAdministrator.DeleteService,
+		companyAdministratorJsonRpcAdaptor.DeleteRequest{
+			CompanyIdentifier: *id,
+		},
+		&response); err != nil {
+		return nil, err
+	}
+
+	return &companyAdministrator.DeleteResponse{}, nil
 }

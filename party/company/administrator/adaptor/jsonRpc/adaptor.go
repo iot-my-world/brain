@@ -4,6 +4,7 @@ import (
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party/company"
 	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
+	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
@@ -72,6 +73,30 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 	}
 
 	response.Company = updateAllowedFieldsResponse.Company
+
+	return nil
+}
+
+type DeleteRequest struct {
+	CompanyIdentifier wrappedIdentifier.Wrapped `json:"companyIdentifier"`
+}
+
+type DeleteResponse struct {
+}
+
+func (a *adaptor) Delete(r *http.Request, request *DeleteRequest, response *DeleteResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	if _, err := a.companyAdministrator.Delete(&companyAdministrator.DeleteRequest{
+		Claims:            claims,
+		CompanyIdentifier: request.CompanyIdentifier.Identifier,
+	}); err != nil {
+		return err
+	}
 
 	return nil
 }

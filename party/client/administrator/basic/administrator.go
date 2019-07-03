@@ -198,7 +198,7 @@ func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*cli
 
 	// collect any users in the client party
 	clientUserCollectResponse, err := a.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
-		Claims: a.systemClaims, // using system claims since only system can users from another party
+		Claims: a.systemClaims, // using system claims since only system can see users from another party
 		Criteria: []criterion.Criterion{
 			exactTextCriterion.Criterion{
 				Field: "partyId.id",
@@ -215,7 +215,7 @@ func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*cli
 	// delete all users in the client party
 	for idx := range clientUserCollectResponse.Records {
 		if _, err := a.userRecordHandler.Delete(&userRecordHandler.DeleteRequest{
-			Claims: a.systemClaims, // using system claims since only system can users from another party
+			Claims: a.systemClaims, // using system claims since only system can see users from another party
 			Identifier: id.Identifier{
 				Id: clientUserCollectResponse.Records[idx].Id,
 			},

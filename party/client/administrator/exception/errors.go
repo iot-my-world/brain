@@ -31,5 +31,5 @@ type Delete struct {
 }
 
 func (e Delete) Error() string {
-	return "delete error: " + strings.Join(e.Reasons, "; ")
+	return "delete client error: " + strings.Join(e.Reasons, "; ")
 }
