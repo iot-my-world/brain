@@ -242,6 +242,7 @@ func main() {
 		CompanyRecordHandler,
 		CompanyValidator,
 		UserRecordHandler,
+		&systemClaims,
 	)
 
 	// Client
