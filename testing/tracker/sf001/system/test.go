@@ -3,8 +3,8 @@ package system
 import (
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
-	"github.com/iot-my-world/brain/party"
-	partyAdministratorJsonAdaptor "github.com/iot-my-world/brain/party/administrator/adaptor/jsonRpc"
+	"github.com/iot-my-world/brain/pkg/party"
+	partyAdministratorJsonAdaptor "github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"

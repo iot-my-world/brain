@@ -3,7 +3,7 @@ package validator
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	zx303TaskAction "github.com/iot-my-world/brain/tracker/zx303/task/action"
 	zx303TaskValidator "github.com/iot-my-world/brain/tracker/zx303/task/validator"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"

@@ -3,9 +3,9 @@ package validator
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/party"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
-	partyAdministratorException "github.com/iot-my-world/brain/party/administrator/exception"
+	"github.com/iot-my-world/brain/pkg/party"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
+	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	apiUserAction "github.com/iot-my-world/brain/user/api/action"
 	apiUserValidator "github.com/iot-my-world/brain/user/api/validator"

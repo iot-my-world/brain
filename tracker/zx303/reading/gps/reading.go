@@ -1,7 +1,7 @@
 package gps
 
 import (
-	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"math"

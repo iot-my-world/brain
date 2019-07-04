@@ -5,7 +5,7 @@ import (
 	"fmt"
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
-	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/party/registrar/adaptor/jsonRpc"
+	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"

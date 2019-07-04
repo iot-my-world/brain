@@ -3,9 +3,9 @@ package validator
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/party"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
-	partyAdministratorException "github.com/iot-my-world/brain/party/administrator/exception"
+	"github.com/iot-my-world/brain/pkg/party"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
+	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
 	zx303DeviceAction "github.com/iot-my-world/brain/tracker/zx303/action"
 	deviceValidator "github.com/iot-my-world/brain/tracker/zx303/validator"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"

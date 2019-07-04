@@ -9,7 +9,7 @@ import (
 	"github.com/iot-my-world/brain/environment"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
-	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/identifier/username"

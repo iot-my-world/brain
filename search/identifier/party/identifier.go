@@ -2,7 +2,7 @@ package party
 
 import (
 	"github.com/go-errors/errors"
-	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"gopkg.in/mgo.v2/bson"

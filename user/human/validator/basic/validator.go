@@ -3,7 +3,7 @@ package basic
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
-	partyRegistrarAction "github.com/iot-my-world/brain/party/registrar/action"
+	partyRegistrarAction "github.com/iot-my-world/brain/pkg/party/registrar/action"
 	"github.com/iot-my-world/brain/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/search/identifier/username"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"

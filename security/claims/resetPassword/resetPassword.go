@@ -1,7 +1,7 @@
 package resetPassword
 
 import (
-	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"

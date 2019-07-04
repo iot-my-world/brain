@@ -3,9 +3,9 @@ package basic
 import (
 	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/party"
-	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
-	partyAdministratorException "github.com/iot-my-world/brain/party/administrator/exception"
+	"github.com/iot-my-world/brain/pkg/party"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
+	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
 	tk102DeviceAction "github.com/iot-my-world/brain/tracker/tk102/action"
 	tk102DeviceValidator "github.com/iot-my-world/brain/tracker/tk102/validator"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"

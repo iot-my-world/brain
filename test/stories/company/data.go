@@ -1,7 +1,7 @@
 package company
 
 import (
-	"github.com/iot-my-world/brain/party/company"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	companyTest "github.com/iot-my-world/brain/test/modules/party/company"
 	humanUser "github.com/iot-my-world/brain/user/human"
 )

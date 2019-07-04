@@ -1,7 +1,7 @@
 package sf001
 
 import (
-	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/search/identifier/id"
 )
 
