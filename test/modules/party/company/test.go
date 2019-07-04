@@ -20,6 +20,7 @@ import (
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/claims/registerCompanyAdminUser"
+	"github.com/iot-my-world/brain/security/claims/registerCompanyUser"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	humanUser "github.com/iot-my-world/brain/user/human"
 	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
@@ -306,7 +307,7 @@ func (suite *test) TestCompany4InviteAndRegisterAdmin() {
 			suite.FailNow(fmt.Sprintf("claims are not of type %s", claims.RegisterCompanyAdminUser))
 		}
 
-		// infer the interfaces type and update the company admin user entity with details from them
+		// infer the interface's type and update the company admin user entity with details from them
 		switch typedClaims := unwrappedClaims.(type) {
 		case registerCompanyAdminUser.RegisterCompanyAdminUser:
 			companyAdminUserEntity.Id = typedClaims.User.Id
@@ -341,7 +342,7 @@ func (suite *test) TestCompany4InviteAndRegisterAdmin() {
 	}
 }
 
-func (suite *test) TestCompany5CreateInviteRegisterCompanyUsers() {
+func (suite *test) TestCompany5CreateUsers() {
 	for _, companyData := range suite.testData {
 		// authenticate json rpc client as company admin user
 		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
@@ -392,6 +393,113 @@ func (suite *test) TestCompany5CreateInviteRegisterCompanyUsers() {
 				retrieveUserResponse.User,
 				"retrieved user should be the same as created",
 			) {
+				return
+			}
+		}
+	}
+}
+
+func (suite *test) TestCompany6InviteAndRegisterUsers() {
+	for _, companyData := range suite.testData {
+		// authenticate json rpc client as company admin user
+		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+			UsernameOrEmailAddress: companyData.AdminUser.Username,
+			Password:               string(companyData.AdminUser.Password),
+		}); err != nil {
+			suite.FailNow("could not log in as company admin user", err.Error())
+			return
+		}
+
+		for _, userToInvite := range companyData.Users {
+			// invite user
+			inviteUserResponse, err := suite.partyRegistrar.InviteUser(&partyRegistrar.InviteUserRequest{
+				UserIdentifier: emailAddress.Identifier{
+					EmailAddress: userToInvite.EmailAddress,
+				},
+			})
+			if err != nil {
+				suite.FailNow("invite company user failed", err.Error())
+				return
+			}
+
+			// parse the urlToken into a jsonWebToken object
+			jwt := inviteUserResponse.URLToken[strings.Index(inviteUserResponse.URLToken, "&t=")+3:]
+			jwtObject, err := jose.ParseSigned(jwt)
+			if err != nil {
+				suite.FailNow("error parsing jwt", err.Error())
+			}
+
+			// Access Underlying jwt payload bytes without verification
+			jwtPayload := reflect.ValueOf(jwtObject).Elem().FieldByName("payload")
+
+			// parse the bytes into wrapped claims
+			wrapped := wrappedClaims.Wrapped{}
+			if err := json.Unmarshal(jwtPayload.Bytes(), &wrapped); err != nil {
+				suite.FailNow("error unmarshalling claims", err.Error())
+			}
+
+			// unwrap the claims into a claims.Claims interface
+			unwrappedClaims, err := wrapped.Unwrap()
+			if err != nil {
+				suite.FailNow("error unwrapping claims", err.Error())
+				return
+			}
+
+			// confirm that the claims Type is correct
+			if !suite.Equal(
+				claims.RegisterCompanyUser,
+				unwrappedClaims.Type(),
+				"claims should be "+claims.RegisterCompanyUser,
+			) {
+				return
+			}
+
+			// infer the interfaces type and update the company user entity with details from them
+			switch typedClaims := unwrappedClaims.(type) {
+			case registerCompanyUser.RegisterCompanyUser:
+				userToInvite.Id = typedClaims.User.Id
+				userToInvite.EmailAddress = typedClaims.User.EmailAddress
+				userToInvite.ParentPartyType = typedClaims.User.ParentPartyType
+				userToInvite.ParentId = typedClaims.User.ParentId
+				userToInvite.PartyType = typedClaims.User.PartyType
+				userToInvite.PartyId = typedClaims.User.PartyId
+			default:
+				suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyUser))
+				return
+			}
+
+			// store login token
+			logInToken := suite.jsonRpcClient.GetJWT()
+
+			// change token to registration token
+			if err := suite.jsonRpcClient.SetJWT(jwt); err != nil {
+				suite.FailNow("failed to set json rpc client jwt for registration", err.Error())
+			}
+
+			// register the company user
+			if _, err := suite.partyRegistrar.RegisterCompanyUser(&partyRegistrar.RegisterCompanyUserRequest{
+				User: userToInvite,
+			}); err != nil {
+				suite.FailNow("error registering company user", err.Error())
+				return
+			}
+
+			// set token back to logInToken
+			if err := suite.jsonRpcClient.SetJWT(logInToken); err != nil {
+				suite.FailNow("failed to set json rpc client jwt back to logInToken", err.Error())
+			}
+		}
+	}
+}
+
+func (suite *test) TestCompany7UserLogin() {
+	for _, companyData := range suite.testData {
+		for _, userToTest := range companyData.Users {
+			if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+				UsernameOrEmailAddress: userToTest.Username,
+				Password:               string(userToTest.Password),
+			}); err != nil {
+				suite.FailNow("could not log company user", err.Error())
 				return
 			}
 		}
