@@ -238,7 +238,7 @@ func main() {
 		UserRecordHandler,
 		&systemClaims,
 	)
-	CompanyBasicAdministrator := companyBasicAdministrator.New(
+	CompanyAdministrator := companyBasicAdministrator.New(
 		CompanyRecordHandler,
 		CompanyValidator,
 		UserRecordHandler,
@@ -293,6 +293,10 @@ func main() {
 		ClientRecordHandler,
 		CompanyRecordHandler,
 		SystemRecordHandler,
+		&systemClaims,
+		CompanyAdministrator,
+		ClientBasicAdministrator,
+		PartyBasicRegistrar,
 	)
 
 	// API User
@@ -365,7 +369,7 @@ func main() {
 	// Company
 	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
 	CompanyValidatorAdaptor := companyValidatorJsonRpcAdaptor.New(CompanyValidator)
-	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyBasicAdministrator)
+	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyAdministrator)
 
 	// Client
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)

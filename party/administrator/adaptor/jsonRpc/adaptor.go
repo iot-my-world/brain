@@ -107,16 +107,16 @@ func (a *adaptor) CreateAndInviteCompany(r *http.Request, request *CreateAndInvi
 	return nil
 }
 
-type CreateAndInviteCompanyClientRequest struct {
+type CreateAndInviteClientRequest struct {
 	Client client.Client `json:"client"`
 }
 
-type CreateAndInviteCompanyClientResponse struct {
+type CreateAndInviteResponse struct {
 	RegistrationURLToken string `json:"registrationURLToken"`
 }
 
-func (a *adaptor) CreateAndInviteCompanyClient(r *http.Request, request *CreateAndInviteCompanyClientRequest, response *CreateAndInviteCompanyClientResponse) error {
-	createAndInviteCompanyClientResponse, err := a.partyAdministrator.CreateAndInviteCompanyClient(&partyAdministrator.CreateAndInviteCompanyClientRequest{
+func (a *adaptor) CreateAndInviteClient(r *http.Request, request *CreateAndInviteClientRequest, response *CreateAndInviteResponse) error {
+	createAndInviteCompanyClientResponse, err := a.partyAdministrator.CreateAndInviteClient(&partyAdministrator.CreateAndInviteClientRequest{
 		Client: request.Client,
 	})
 	if err != nil {
@@ -124,27 +124,6 @@ func (a *adaptor) CreateAndInviteCompanyClient(r *http.Request, request *CreateA
 	}
 
 	response.RegistrationURLToken = createAndInviteCompanyClientResponse.RegistrationURLToken
-
-	return nil
-}
-
-type CreateAndInviteIndividualClientRequest struct {
-	Client client.Client `json:"client"`
-}
-
-type CreateAndInviteIndividualClientResponse struct {
-	RegistrationURLToken string `json:"registrationURLToken"`
-}
-
-func (a *adaptor) CreateAndInviteIndividualClient(r *http.Request, request *CreateAndInviteIndividualClientRequest, response *CreateAndInviteIndividualClientResponse) error {
-	createAndInviteIndividualClientResponse, err := a.partyAdministrator.CreateAndInviteIndividualClient(&partyAdministrator.CreateAndInviteIndividualClientRequest{
-		Client: request.Client,
-	})
-	if err != nil {
-		return err
-	}
-
-	response.RegistrationURLToken = createAndInviteIndividualClientResponse.RegistrationURLToken
 
 	return nil
 }
