@@ -4,7 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc"
 	gorillaJson "github.com/gorilla/rpc/json"
-	"github.com/iot-my-world/brain/config"
+	"github.com/iot-my-world/brain/internal/config"
 	"github.com/iot-my-world/brain/internal/cors"
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/internal/security/encrypt"
