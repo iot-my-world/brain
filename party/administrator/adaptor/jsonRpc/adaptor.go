@@ -4,6 +4,8 @@ import (
 	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
+	"github.com/iot-my-world/brain/party/client"
+	"github.com/iot-my-world/brain/party/company"
 	wrappedParty "github.com/iot-my-world/brain/party/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
@@ -80,6 +82,69 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 	}
 
 	response.Party = *wrappedPty
+
+	return nil
+}
+
+type CreateAndInviteCompanyRequest struct {
+	Company company.Company `json:"company"`
+}
+
+type CreateAndInviteCompanyResponse struct {
+	RegistrationURLToken string `json:"registrationURLToken"`
+}
+
+func (a *adaptor) CreateAndInviteCompany(r *http.Request, request *CreateAndInviteCompanyRequest, response *CreateAndInviteCompanyResponse) error {
+	createAndInviteCompanyResponse, err := a.partyAdministrator.CreateAndInviteCompany(&partyAdministrator.CreateAndInviteCompanyRequest{
+		Company: request.Company,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.RegistrationURLToken = createAndInviteCompanyResponse.RegistrationURLToken
+
+	return nil
+}
+
+type CreateAndInviteCompanyClientRequest struct {
+	Client client.Client `json:"client"`
+}
+
+type CreateAndInviteCompanyClientResponse struct {
+	RegistrationURLToken string `json:"registrationURLToken"`
+}
+
+func (a *adaptor) CreateAndInviteCompanyClient(r *http.Request, request *CreateAndInviteCompanyClientRequest, response *CreateAndInviteCompanyClientResponse) error {
+	createAndInviteCompanyClientResponse, err := a.partyAdministrator.CreateAndInviteCompanyClient(&partyAdministrator.CreateAndInviteCompanyClientRequest{
+		Client: request.Client,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.RegistrationURLToken = createAndInviteCompanyClientResponse.RegistrationURLToken
+
+	return nil
+}
+
+type CreateAndInviteIndividualClientRequest struct {
+	Client client.Client `json:"client"`
+}
+
+type CreateAndInviteIndividualClientResponse struct {
+	RegistrationURLToken string `json:"registrationURLToken"`
+}
+
+func (a *adaptor) CreateAndInviteIndividualClient(r *http.Request, request *CreateAndInviteIndividualClientRequest, response *CreateAndInviteIndividualClientResponse) error {
+	createAndInviteIndividualClientResponse, err := a.partyAdministrator.CreateAndInviteIndividualClient(&partyAdministrator.CreateAndInviteIndividualClientRequest{
+		Client: request.Client,
+	})
+	if err != nil {
+		return err
+	}
+
+	response.RegistrationURLToken = createAndInviteIndividualClientResponse.RegistrationURLToken
 
 	return nil
 }

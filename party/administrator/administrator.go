@@ -2,6 +2,8 @@ package administrator
 
 import (
 	"github.com/iot-my-world/brain/party"
+	"github.com/iot-my-world/brain/party/client"
+	"github.com/iot-my-world/brain/party/company"
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
@@ -64,19 +66,25 @@ type RetrievePartyResponse struct {
 }
 
 type CreateAndInviteCompanyRequest struct {
+	Company company.Company
 }
 
 type CreateAndInviteCompanyResponse struct {
+	RegistrationURLToken string
 }
 
 type CreateAndInviteCompanyClientRequest struct {
+	Client client.Client
 }
 
 type CreateAndInviteCompanyClientResponse struct {
+	RegistrationURLToken string
 }
 
 type CreateAndInviteIndividualClientRequest struct {
+	Client client.Client
 }
 
 type CreateAndInviteIndividualClientResponse struct {
+	RegistrationURLToken string
 }
