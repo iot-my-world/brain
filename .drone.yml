@@ -17,7 +17,7 @@ steps:
     commands:
       - cd cmd/brain
       - go get
-      - cd ../build
+      - cd ../../build
       - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/cmd/brain
 
   - name: test
