@@ -4,8 +4,8 @@ import (
 	"github.com/iot-my-world/brain/party/company"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	companyRecordHandlerException "github.com/iot-my-world/brain/party/company/recordHandler/exception"
-	brainRecordHandler "github.com/iot-my-world/brain/recordHandler"
-	brainRecordHandlerException "github.com/iot-my-world/brain/recordHandler/exception"
+	brainRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler"
+	brainRecordHandlerException "github.com/iot-my-world/brain/pkg/recordHandler/exception"
 )
 
 type RecordHandler struct {

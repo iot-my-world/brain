@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	brainMongoRecordHandler "github.com/iot-my-world/brain/recordHandler/mongo"
+	brainMongoRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler/mongo"
 	humanUser "github.com/iot-my-world/brain/user/human"
 	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 	humanUserGenericRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/generic"

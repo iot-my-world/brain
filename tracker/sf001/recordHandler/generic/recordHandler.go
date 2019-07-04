@@ -2,8 +2,8 @@ package recordHandler
 
 import (
 	brainException "github.com/iot-my-world/brain/exception"
-	brainRecordHandler "github.com/iot-my-world/brain/recordHandler"
-	brainRecordHandlerException "github.com/iot-my-world/brain/recordHandler/exception"
+	brainRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler"
+	brainRecordHandlerException "github.com/iot-my-world/brain/pkg/recordHandler/exception"
 	"github.com/iot-my-world/brain/tracker/sf001"
 	sf001RecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
 	sf001RecordHandlerException "github.com/iot-my-world/brain/tracker/sf001/recordHandler/exception"

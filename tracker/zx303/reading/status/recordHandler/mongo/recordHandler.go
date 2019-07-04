@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	brainMongoRecordHandler "github.com/iot-my-world/brain/recordHandler/mongo"
+	brainMongoRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler/mongo"
 	"github.com/iot-my-world/brain/security/claims"
 	zx303StatusReading "github.com/iot-my-world/brain/tracker/zx303/reading/status"
 	zx303StatusReadingRecordHandler "github.com/iot-my-world/brain/tracker/zx303/reading/status/recordHandler"

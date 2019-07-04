@@ -4,7 +4,7 @@ import (
 	"github.com/iot-my-world/brain/party/client"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientGenericRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler/generic"
-	brainMongoRecordHandler "github.com/iot-my-world/brain/recordHandler/mongo"
+	brainMongoRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler/mongo"
 	"gopkg.in/mgo.v2"
 )
 

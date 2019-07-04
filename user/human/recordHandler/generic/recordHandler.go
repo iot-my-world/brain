@@ -2,8 +2,8 @@ package recordHandler
 
 import (
 	"github.com/iot-my-world/brain/log"
-	brainRecordHandler "github.com/iot-my-world/brain/recordHandler"
-	brainRecordHandlerException "github.com/iot-my-world/brain/recordHandler/exception"
+	brainRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler"
+	brainRecordHandlerException "github.com/iot-my-world/brain/pkg/recordHandler/exception"
 	humanUser "github.com/iot-my-world/brain/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 	userRecordHandlerException "github.com/iot-my-world/brain/user/human/recordHandler/exception"

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
-	brainRecordHandler "github.com/iot-my-world/brain/recordHandler"
-	recordHandlerException "github.com/iot-my-world/brain/recordHandler/exception"
+	recordHandler2 "github.com/iot-my-world/brain/pkg/recordHandler"
+	"github.com/iot-my-world/brain/pkg/recordHandler/exception"
 	"github.com/iot-my-world/brain/search/criterion"
 	"github.com/iot-my-world/brain/search/identifier"
 	"github.com/iot-my-world/brain/security/claims"
@@ -30,7 +30,7 @@ func New(
 	uniqueIndexes []mgo.Index,
 	validIdentifier func(id identifier.Identifier) bool,
 	contextualiseFilter func(filter bson.M, claimsToAdd claims.Claims) bson.M,
-) brainRecordHandler.RecordHandler {
+) recordHandler2.RecordHandler {
 
 	if contextualiseFilter == nil {
 		contextualiseFilter = claims.ContextualiseFilter
@@ -61,7 +61,7 @@ func setupIndices(mongoSession *mgo.Session, database, collectionName string, un
 	}
 }
 
-func (r *recordHandler) ValidateCreateRequest(request *brainRecordHandler.CreateRequest) error {
+func (r *recordHandler) ValidateCreateRequest(request *recordHandler2.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -70,7 +70,7 @@ func (r *recordHandler) ValidateCreateRequest(request *brainRecordHandler.Create
 	return nil
 }
 
-func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest, response *brainRecordHandler.CreateResponse) error {
+func (r *recordHandler) Create(request *recordHandler2.CreateRequest, response *recordHandler2.CreateResponse) error {
 	if err := r.ValidateCreateRequest(request); err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest, respon
 	request.Entity.SetId(newId.String())
 
 	if err := collection.Insert(request.Entity); err != nil {
-		return recordHandlerException.Create{Reasons: []string{"inserting record", err.Error()}}
+		return exception.Create{Reasons: []string{"inserting record", err.Error()}}
 	}
 
 	response.Entity = request.Entity
@@ -96,7 +96,7 @@ func (r *recordHandler) Create(request *brainRecordHandler.CreateRequest, respon
 	return nil
 }
 
-func (r *recordHandler) ValidateRetrieveRequest(request *brainRecordHandler.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *recordHandler2.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -117,7 +117,7 @@ func (r *recordHandler) ValidateRetrieveRequest(request *brainRecordHandler.Retr
 	return nil
 }
 
-func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest, response *brainRecordHandler.RetrieveResponse) error {
+func (r *recordHandler) Retrieve(request *recordHandler2.RetrieveRequest, response *recordHandler2.RetrieveResponse) error {
 	if err := r.ValidateRetrieveRequest(request); err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest, re
 
 	if err := collection.Find(filter).One(response.Entity); err != nil {
 		if err == mgo.ErrNotFound {
-			return recordHandlerException.NotFound{}
+			return exception.NotFound{}
 		}
 		return brainException.Unexpected{Reasons: []string{err.Error()}}
 	}
@@ -140,7 +140,7 @@ func (r *recordHandler) Retrieve(request *brainRecordHandler.RetrieveRequest, re
 	return nil
 }
 
-func (r *recordHandler) ValidateUpdateRequest(request *brainRecordHandler.UpdateRequest) error {
+func (r *recordHandler) ValidateUpdateRequest(request *recordHandler2.UpdateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -159,7 +159,7 @@ func (r *recordHandler) ValidateUpdateRequest(request *brainRecordHandler.Update
 	return nil
 }
 
-func (r *recordHandler) Update(request *brainRecordHandler.UpdateRequest, response *brainRecordHandler.UpdateResponse) error {
+func (r *recordHandler) Update(request *recordHandler2.UpdateRequest, response *recordHandler2.UpdateResponse) error {
 	if err := r.ValidateUpdateRequest(request); err != nil {
 		return err
 	}
@@ -173,13 +173,13 @@ func (r *recordHandler) Update(request *brainRecordHandler.UpdateRequest, respon
 	filter = r.contextualiseFilter(filter, request.Claims)
 
 	if err := collection.Update(filter, request.Entity); err != nil {
-		return recordHandlerException.Update{Reasons: []string{"updating record", err.Error()}}
+		return exception.Update{Reasons: []string{"updating record", err.Error()}}
 	}
 
 	return nil
 }
 
-func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.DeleteRequest) error {
+func (r *recordHandler) ValidateDeleteRequest(request *recordHandler2.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -200,7 +200,7 @@ func (r *recordHandler) ValidateDeleteRequest(request *brainRecordHandler.Delete
 	return nil
 }
 
-func (r *recordHandler) Delete(request *brainRecordHandler.DeleteRequest, response *brainRecordHandler.DeleteResponse) error {
+func (r *recordHandler) Delete(request *recordHandler2.DeleteRequest, response *recordHandler2.DeleteResponse) error {
 	if err := r.ValidateDeleteRequest(request); err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func (r *recordHandler) Delete(request *brainRecordHandler.DeleteRequest, respon
 	return nil
 }
 
-func (r *recordHandler) ValidateCollectRequest(request *brainRecordHandler.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *recordHandler2.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -243,7 +243,7 @@ func (r *recordHandler) ValidateCollectRequest(request *brainRecordHandler.Colle
 	return nil
 }
 
-func (r *recordHandler) Collect(request *brainRecordHandler.CollectRequest, response *brainRecordHandler.CollectResponse) error {
+func (r *recordHandler) Collect(request *recordHandler2.CollectRequest, response *recordHandler2.CollectResponse) error {
 	if err := r.ValidateCollectRequest(request); err != nil {
 		return err
 	}
