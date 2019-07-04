@@ -31,3 +31,11 @@ type InvalidClaims struct {
 func (e InvalidClaims) Error() string {
 	return "invalid claims: " + strings.Join(e.Reasons, "; ")
 }
+
+type CreateAndInviteCompany struct {
+	Reasons []string
+}
+
+func (e CreateAndInviteCompany) Error() string {
+	return "create and invite company error: " + strings.Join(e.Reasons, "; ")
+}
