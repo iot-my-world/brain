@@ -2,14 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
+	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
 	"github.com/iot-my-world/brain/security/claims"
 )
 
 type Client interface {
 	Post(request *Request) (*Response, error)
 	JsonRpcRequest(method string, request, response interface{}) error
-	Login(authJsonRpcAdaptor.LoginRequest) error
+	Login(authorizationAdministrator.LoginRequest) error
 	Logout()
 	Claims() claims.Claims
 	SetJWT(jwt string) error

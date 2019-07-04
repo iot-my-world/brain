@@ -8,7 +8,8 @@ import (
 	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
+	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
+	authorizationAdministratorJsonRpc "github.com/iot-my-world/brain/security/authorization/administrator/jsonRpc"
 	"github.com/iot-my-world/brain/security/claims"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"github.com/satori/go.uuid"
@@ -21,20 +22,24 @@ import (
 )
 
 type client struct {
-	url          string
-	jwt          string
-	claims       claims.Claims
-	loggedIn     bool
-	loginRequest authJsonRpcAdaptor.LoginRequest
+	url                        string
+	jwt                        string
+	claims                     claims.Claims
+	loggedIn                   bool
+	loginRequest               authorizationAdministrator.LoginRequest
+	authorizationAdministrator authorizationAdministrator.Administrator
 }
 
 // Create New basic json rpc client
 func New(
 	url string,
 ) jsonRpcClient.Client {
-	return &client{
+	newJsonRpcClient := client{
 		url: url,
 	}
+	newJsonRpcClient.authorizationAdministrator = authorizationAdministratorJsonRpc.New(&newJsonRpcClient)
+
+	return &newJsonRpcClient
 }
 
 func (c *client) LoggedIn() bool {
@@ -77,7 +82,11 @@ func (c *client) Post(request *jsonRpcClient.Request) (*jsonRpcClient.Response, 
 
 	// read the body bytes of the response
 	postResponseBytes, err := ioutil.ReadAll(postResponse.Body)
-	defer postResponse.Body.Close()
+	defer func() {
+		if err := postResponse.Body.Close(); err != nil {
+			log.Error(err.Error())
+		}
+	}()
 	if err != nil {
 		return nil, errors.New("error reading post response body bytes " + err.Error())
 	}
@@ -121,14 +130,10 @@ func (c *client) JsonRpcRequest(method string, request, response interface{}) er
 	return nil
 }
 
-func (c *client) Login(loginRequest authJsonRpcAdaptor.LoginRequest) error {
-	loginResponse := authJsonRpcAdaptor.LoginResponse{}
-
-	if err := c.JsonRpcRequest(
-		"Auth.Login",
-		loginRequest,
-		&loginResponse,
-	); err != nil {
+func (c *client) Login(loginRequest authorizationAdministrator.LoginRequest) error {
+	loginResponse, err := c.authorizationAdministrator.Login(&loginRequest)
+	if err != nil {
+		log.Error(err)
 		return err
 	}
 
