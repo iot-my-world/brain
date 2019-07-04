@@ -3,30 +3,30 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
-	"github.com/iot-my-world/brain/party/client"
-	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
-	clientJsonRpcAdministrator "github.com/iot-my-world/brain/party/client/administrator/jsonRpc"
-	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
-	clientJsonRpcRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler/jsonRpc"
-	partyRegistrar "github.com/iot-my-world/brain/party/registrar"
-	partyJsonRpcRegistrar "github.com/iot-my-world/brain/party/registrar/jsonRpc"
-	"github.com/iot-my-world/brain/search/criterion"
-	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
-	"github.com/iot-my-world/brain/search/identifier/emailAddress"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	"github.com/iot-my-world/brain/search/query"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	"github.com/iot-my-world/brain/security/claims"
-	"github.com/iot-my-world/brain/security/claims/registerClientAdminUser"
-	"github.com/iot-my-world/brain/security/claims/registerClientUser"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	humanUser "github.com/iot-my-world/brain/user/human"
-	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
-	humanUserJsonRpcAdministrator "github.com/iot-my-world/brain/user/human/administrator/jsonRpc"
-	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
-	humanUserJsonRpcRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/jsonRpc"
+	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
+	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client/basic"
+	"github.com/iot-my-world/brain/pkg/party/client"
+	clientAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator"
+	clientJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator/jsonRpc"
+	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
+	clientJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler/jsonRpc"
+	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
+	partyJsonRpcRegistrar "github.com/iot-my-world/brain/pkg/party/registrar/jsonRpc"
+	"github.com/iot-my-world/brain/pkg/search/criterion"
+	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
+	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/query"
+	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
+	"github.com/iot-my-world/brain/pkg/security/claims"
+	"github.com/iot-my-world/brain/pkg/security/claims/registerClientAdminUser"
+	"github.com/iot-my-world/brain/pkg/security/claims/registerClientUser"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
+	humanUserJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator/jsonRpc"
+	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
+	humanUserJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler/jsonRpc"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -66,7 +66,7 @@ type Data struct {
 func (suite *test) SetupTest() {
 
 	// log in the client
-	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+	if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 		UsernameOrEmailAddress: suite.user.Username,
 		Password:               string(suite.user.Password),
 	}); err != nil {
@@ -350,7 +350,7 @@ func (suite *test) TestClient4InviteAndRegisterAdmin() {
 func (suite *test) TestClient5CreateUsers() {
 	for _, clientData := range suite.testData {
 		// authenticate json rpc client as client admin user
-		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 			UsernameOrEmailAddress: clientData.AdminUser.Username,
 			Password:               string(clientData.AdminUser.Password),
 		}); err != nil {
@@ -407,7 +407,7 @@ func (suite *test) TestClient5CreateUsers() {
 func (suite *test) TestClient6InviteAndRegisterUsers() {
 	for _, clientData := range suite.testData {
 		// authenticate json rpc client as client admin user
-		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 			UsernameOrEmailAddress: clientData.AdminUser.Username,
 			Password:               string(clientData.AdminUser.Password),
 		}); err != nil {
@@ -499,7 +499,7 @@ func (suite *test) TestClient6InviteAndRegisterUsers() {
 func (suite *test) TestClient7UserLogin() {
 	for _, clientData := range suite.testData {
 		for _, userToTest := range clientData.Users {
-			if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+			if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 				UsernameOrEmailAddress: userToTest.Username,
 				Password:               string(userToTest.Password),
 			}); err != nil {

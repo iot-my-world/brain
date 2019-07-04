@@ -15,17 +15,18 @@ steps:
   - name: build
     image: golang
     commands:
-      - cd start
+      - cd cmd/brain
       - go get
       - cd ../build
-      - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/start
+      - env GOOD=linux GOARCH=amd64 go build -o=brain /go/src/github.com/iot-my-world/brain/cmd/brain
 
   - name: test
     image: golang
     commands:
       - cd build
       - ./brain --pathToConfigFile=config-build.toml &
-      - sleep 6
+      - timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' localhost 9010
+      - timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' localhost 9011
       - cd ../test
       - go get -t
       - go test
