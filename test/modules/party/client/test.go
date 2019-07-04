@@ -17,7 +17,7 @@ import (
 	"github.com/iot-my-world/brain/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/query"
-	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
+	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/claims/registerClientAdminUser"
 	"github.com/iot-my-world/brain/security/claims/registerClientUser"
@@ -66,7 +66,7 @@ type Data struct {
 func (suite *test) SetupTest() {
 
 	// log in the client
-	if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+	if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 		UsernameOrEmailAddress: suite.user.Username,
 		Password:               string(suite.user.Password),
 	}); err != nil {
@@ -350,7 +350,7 @@ func (suite *test) TestClient4InviteAndRegisterAdmin() {
 func (suite *test) TestClient5CreateUsers() {
 	for _, clientData := range suite.testData {
 		// authenticate json rpc client as client admin user
-		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 			UsernameOrEmailAddress: clientData.AdminUser.Username,
 			Password:               string(clientData.AdminUser.Password),
 		}); err != nil {
@@ -407,7 +407,7 @@ func (suite *test) TestClient5CreateUsers() {
 func (suite *test) TestClient6InviteAndRegisterUsers() {
 	for _, clientData := range suite.testData {
 		// authenticate json rpc client as client admin user
-		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 			UsernameOrEmailAddress: clientData.AdminUser.Username,
 			Password:               string(clientData.AdminUser.Password),
 		}); err != nil {
@@ -499,7 +499,7 @@ func (suite *test) TestClient6InviteAndRegisterUsers() {
 func (suite *test) TestClient7UserLogin() {
 	for _, clientData := range suite.testData {
 		for _, userToTest := range clientData.Users {
-			if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+			if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
 				UsernameOrEmailAddress: userToTest.Username,
 				Password:               string(userToTest.Password),
 			}); err != nil {
