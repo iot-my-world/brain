@@ -10,11 +10,17 @@ import (
 type Administrator interface {
 	GetMyParty(request *GetMyPartyRequest) (*GetMyPartyResponse, error)
 	RetrieveParty(request *RetrievePartyRequest) (*RetrievePartyResponse, error)
+	CreateAndInviteCompany(request *CreateAndInviteCompanyRequest) (*CreateAndInviteCompanyResponse, error)
+	CreateAndInviteCompanyClient(request *CreateAndInviteCompanyClientRequest) (*CreateAndInviteCompanyClientResponse, error)
+	CreateAndInviteIndividualClient(request *CreateAndInviteIndividualClientRequest) (*CreateAndInviteIndividualClientResponse, error)
 }
 
 const ServiceProvider = "Party-Administrator"
 const GetMyPartyService = ServiceProvider + ".GetMyParty"
 const RetrievePartyService = ServiceProvider + ".RetrieveParty"
+const CreateAndInviteCompanyService = ServiceProvider + ".CreateAndInviteCompany"
+const CreateAndInviteCompanyClientService = ServiceProvider + ".CreateAndInviteCompanyClient"
+const CreateAndInviteIndividualClientService = ServiceProvider + ".CreateAndInviteIndividualClient"
 
 var SystemUserPermissions = make([]api.Permission, 0)
 
@@ -55,4 +61,22 @@ type RetrievePartyRequest struct {
 
 type RetrievePartyResponse struct {
 	Party party.Party
+}
+
+type CreateAndInviteCompanyRequest struct {
+}
+
+type CreateAndInviteCompanyResponse struct {
+}
+
+type CreateAndInviteCompanyClientRequest struct {
+}
+
+type CreateAndInviteCompanyClientResponse struct {
+}
+
+type CreateAndInviteIndividualClientRequest struct {
+}
+
+type CreateAndInviteIndividualClientResponse struct {
 }

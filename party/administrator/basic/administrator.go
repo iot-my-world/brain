@@ -185,3 +185,27 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 
 	return &response, nil
 }
+
+func (a *administrator) ValidateCreateAndInviteCompanyRequest(request *partyAdministrator.CreateAndInviteCompanyRequest) error {
+
+}
+
+func (a *administrator) CreateAndInviteCompany(request *partyAdministrator.CreateAndInviteCompanyRequest) (*partyAdministrator.CreateAndInviteCompanyResponse, error) {
+
+}
+
+func (a *administrator) ValidateCreateAndInviteCompanyClientRequest(request *partyAdministrator.CreateAndInviteCompanyClientRequest) error {
+
+}
+
+func (a *administrator) CreateAndInviteCompanyClient(request *partyAdministrator.CreateAndInviteCompanyClientRequest) (*partyAdministrator.CreateAndInviteCompanyClientResponse, error) {
+
+}
+
+func (a *administrator) ValidateCreateAndInviteIndividualClient(request *partyAdministrator.CreateAndInviteIndividualClientRequest) error {
+
+}
+
+func (a *administrator) CreateAndInviteIndividualClient(request *partyAdministrator.CreateAndInviteIndividualClientRequest) (*partyAdministrator.CreateAndInviteIndividualClientResponse, error) {
+
+}
