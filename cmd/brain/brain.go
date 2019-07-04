@@ -120,7 +120,7 @@ var humanUserAPIServerPort = "9010"
 var apiUserAPIServerPort = "9011"
 
 func main() {
-	pathToConfigFile := flag.String("pathToConfigFile", "config.toml", "brain configuration file")
+	pathToConfigFile := flag.String("pathToConfigFile", "configs/config.toml", "brain configuration file")
 	//kafkaBrokers := flag.String("kafkaBrokers", "localhost:9092", "ipAddress:port of each kafka broker node (, separated)")
 	flag.Parse()
 
