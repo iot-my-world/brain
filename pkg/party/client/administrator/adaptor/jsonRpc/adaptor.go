@@ -5,7 +5,7 @@ import (
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/administrator"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"net/http"
 )
 

@@ -2,9 +2,9 @@ package validator
 
 import (
 	"github.com/iot-my-world/brain/pkg/action"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	tk1022 "github.com/iot-my-world/brain/pkg/tracker/tk102"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	"github.com/iot-my-world/brain/security/claims"
 )
 
 type Validator interface {

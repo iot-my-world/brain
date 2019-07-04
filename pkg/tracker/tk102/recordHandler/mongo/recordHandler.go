@@ -5,10 +5,10 @@ import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	tk1022 "github.com/iot-my-world/brain/pkg/tracker/tk102"
 	recordHandler2 "github.com/iot-my-world/brain/pkg/tracker/tk102/recordHandler"
 	"github.com/iot-my-world/brain/pkg/tracker/tk102/recordHandler/exception"
-	"github.com/iot-my-world/brain/security/claims"
 	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 )

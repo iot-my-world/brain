@@ -13,9 +13,9 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	exactTextCriterion "github.com/iot-my-world/brain/pkg/search/criterion/exact/text"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 )
 
 type administrator struct {

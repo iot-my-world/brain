@@ -2,8 +2,8 @@ package authenticator
 
 import (
 	"github.com/iot-my-world/brain/pkg/search/identifier"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	zx3032 "github.com/iot-my-world/brain/pkg/tracker/zx303"
-	"github.com/iot-my-world/brain/security/claims"
 )
 
 type Authenticator interface {

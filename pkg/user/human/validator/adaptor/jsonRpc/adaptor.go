@@ -3,10 +3,10 @@ package user
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"github.com/iot-my-world/brain/pkg/user/human"
 	"github.com/iot-my-world/brain/pkg/user/human/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 

@@ -2,9 +2,9 @@ package administrator
 
 import (
 	"github.com/iot-my-world/brain/pkg/search/identifier"
+	"github.com/iot-my-world/brain/pkg/security/claims"
+	"github.com/iot-my-world/brain/pkg/security/permission/api"
 	"github.com/iot-my-world/brain/pkg/user/human"
-	"github.com/iot-my-world/brain/security/claims"
-	"github.com/iot-my-world/brain/security/permission/api"
 )
 
 type Administrator interface {

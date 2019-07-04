@@ -3,9 +3,9 @@ package jsonRpc
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	zx3032 "github.com/iot-my-world/brain/pkg/tracker/zx303"
 	"github.com/iot-my-world/brain/pkg/tracker/zx303/authenticator"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 

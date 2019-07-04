@@ -6,9 +6,9 @@ import (
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	"github.com/iot-my-world/brain/pkg/search/query"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"github.com/iot-my-world/brain/pkg/user/api"
 	"github.com/iot-my-world/brain/pkg/user/api/recordHandler"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 

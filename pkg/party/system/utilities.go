@@ -3,7 +3,7 @@ package system
 import (
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
-	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	"gopkg.in/mgo.v2/bson"
 )
 

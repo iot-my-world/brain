@@ -2,8 +2,8 @@ package gps
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	zx303GPSReadingAdministrator "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps/administrator"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	messagingException "github.com/iot-my-world/messaging/exception"
 	messagingMessage "github.com/iot-my-world/messaging/message"
 	messagingMessageHandler "github.com/iot-my-world/messaging/message/handler"

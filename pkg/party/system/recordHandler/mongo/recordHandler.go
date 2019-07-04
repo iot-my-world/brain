@@ -10,8 +10,8 @@ import (
 	"github.com/iot-my-world/brain/pkg/party/system/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/party/system/setup"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 )

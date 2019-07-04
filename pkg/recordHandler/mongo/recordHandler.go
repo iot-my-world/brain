@@ -8,7 +8,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
-	"github.com/iot-my-world/brain/security/claims"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

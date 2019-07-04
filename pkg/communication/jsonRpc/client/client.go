@@ -2,8 +2,8 @@ package client
 
 import (
 	"encoding/json"
-	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
-	"github.com/iot-my-world/brain/security/claims"
+	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 )
 
 type Client interface {

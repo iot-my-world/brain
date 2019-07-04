@@ -4,8 +4,8 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/search/query"
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	tk1022 "github.com/iot-my-world/brain/pkg/tracker/tk102"
-	"github.com/iot-my-world/brain/security/claims"
 )
 
 type RecordHandler interface {

@@ -10,10 +10,10 @@ import (
 	validator2 "github.com/iot-my-world/brain/pkg/party/client/validator"
 	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
+	humanUserLogin "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	userRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	humanUserLogin "github.com/iot-my-world/brain/security/claims/login/user/human"
 )
 
 type validator struct {

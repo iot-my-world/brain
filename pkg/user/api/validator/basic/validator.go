@@ -6,10 +6,10 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	action2 "github.com/iot-my-world/brain/pkg/user/api/action"
 	validator2 "github.com/iot-my-world/brain/pkg/user/api/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 )
 
 type validator struct {

@@ -5,8 +5,8 @@ import (
 	"github.com/iot-my-world/brain/pkg/action"
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/validator"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 

@@ -5,8 +5,8 @@ import (
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	company2 "github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
-	"github.com/iot-my-world/brain/security/claims"
-	"github.com/iot-my-world/brain/security/permission/api"
+	"github.com/iot-my-world/brain/pkg/security/claims"
+	"github.com/iot-my-world/brain/pkg/security/permission/api"
 )
 
 type Administrator interface {

@@ -2,8 +2,8 @@ package administrator
 
 import (
 	system2 "github.com/iot-my-world/brain/pkg/party/system"
-	"github.com/iot-my-world/brain/security/claims"
-	"github.com/iot-my-world/brain/security/permission/api"
+	"github.com/iot-my-world/brain/pkg/security/claims"
+	"github.com/iot-my-world/brain/pkg/security/permission/api"
 )
 
 type Administrator interface {

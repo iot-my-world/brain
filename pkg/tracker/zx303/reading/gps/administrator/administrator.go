@@ -1,8 +1,8 @@
 package administrator
 
 import (
+	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps"
-	"github.com/iot-my-world/brain/security/claims"
 )
 
 type Administrator interface {

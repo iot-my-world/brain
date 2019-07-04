@@ -3,10 +3,10 @@ package tk102
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	tk1022 "github.com/iot-my-world/brain/pkg/tracker/tk102"
 	"github.com/iot-my-world/brain/pkg/tracker/tk102/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
-	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )
 

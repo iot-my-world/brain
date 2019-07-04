@@ -17,7 +17,7 @@ import (
 	recordHandler3 "github.com/iot-my-world/brain/pkg/party/system/recordHandler"
 	exception3 "github.com/iot-my-world/brain/pkg/party/system/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 )
 
 type administrator struct {

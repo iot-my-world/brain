@@ -7,8 +7,8 @@ import (
 	"github.com/iot-my-world/brain/config"
 	"github.com/iot-my-world/brain/internal/cors"
 	"github.com/iot-my-world/brain/internal/log"
-	"github.com/iot-my-world/brain/security/encrypt"
-	"github.com/iot-my-world/brain/security/token"
+	"github.com/iot-my-world/brain/internal/security/encrypt"
+	"github.com/iot-my-world/brain/pkg/security/token"
 	"gopkg.in/mgo.v2"
 	"net/http"
 	"os"
@@ -18,23 +18,23 @@ import (
 
 	databaseCollection "github.com/iot-my-world/brain/pkg/database/collection"
 
-	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
+	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 
-	authServiceJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/administrator/adaptor/jsonRpc"
-	apiUserAuthorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator/user/api"
-	humanUserAuthorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator/user/human"
+	authServiceJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/authorization/administrator/adaptor/jsonRpc"
+	apiUserAuthorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator/user/api"
+	humanUserAuthorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator/user/human"
 
-	humanUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/human"
-	humanUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/human"
+	humanUserHttpAPIAuthApplier "github.com/iot-my-world/brain/pkg/security/authorization/api/applier/http/user/human"
+	humanUserAPIAuthorizer "github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer/user/human"
 
-	apiUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/api"
-	apiUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/api"
+	apiUserHttpAPIAuthApplier "github.com/iot-my-world/brain/pkg/security/authorization/api/applier/http/user/api"
+	apiUserAPIAuthorizer "github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer/user/api"
 
-	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
-	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/security/permission/administrator/adaptor/jsonRpc"
-	permissionBasicAdministrator "github.com/iot-my-world/brain/security/permission/administrator/basic"
+	permissionAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator"
+	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/permission/administrator/adaptor/jsonRpc"
+	permissionBasicAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator/basic"
 
-	roleMongoRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler/mongo"
+	roleMongoRecordHandler "github.com/iot-my-world/brain/pkg/security/role/recordHandler/mongo"
 
 	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	humanUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/user/human/administrator/adaptor/jsonRpc"
@@ -91,9 +91,9 @@ import (
 	apiUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/user/api/validator/adaptor/jsonRpc"
 	apiUserBasicValidator "github.com/iot-my-world/brain/pkg/user/api/validator/basic"
 
-	trackingReport "github.com/iot-my-world/brain/report/tracking"
-	trackingReportJsonRpcAdaptor "github.com/iot-my-world/brain/report/tracking/adaptor/jsonRpc"
-	trackingBasicReport "github.com/iot-my-world/brain/report/tracking/basic"
+	trackingReport "github.com/iot-my-world/brain/pkg/report/tracking"
+	trackingReportJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/report/tracking/adaptor/jsonRpc"
+	trackingBasicReport "github.com/iot-my-world/brain/pkg/report/tracking/basic"
 
 	"flag"
 	"github.com/iot-my-world/brain/pkg/communication/email/mailer"
@@ -111,7 +111,7 @@ import (
 
 	"fmt"
 	"github.com/iot-my-world/brain/pkg/party"
-	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"path/filepath"
 	"strings"
 )
