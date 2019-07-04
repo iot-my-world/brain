@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/iot-my-world/brain/test/company"
-	"github.com/iot-my-world/brain/test/system"
+	"github.com/iot-my-world/brain/test/stories/company"
+	"github.com/iot-my-world/brain/test/stories/system"
 	"testing"
 )
 

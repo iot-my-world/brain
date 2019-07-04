@@ -261,6 +261,15 @@ func (v *validator) Validate(request *userValidator.ValidateRequest) (*userValid
 		})
 	}
 
+	if (*userToValidate).Roles == nil {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "roles",
+			Type:  reasonInvalid.Nil,
+			Help:  "cannot be nil",
+			Data:  (*userToValidate).Roles,
+		})
+	}
+
 	switch request.Action {
 
 	case partyRegistrarAction.RegisterCompanyAdminUser, partyRegistrarAction.RegisterCompanyUser,

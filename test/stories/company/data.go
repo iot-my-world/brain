@@ -17,6 +17,7 @@ var TestData = []companyTest.Data{
 			Surname:  "Griffin",
 			Username: "monteagleAdmin",
 			Password: []byte("123"),
+			Roles:    make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
@@ -25,6 +26,7 @@ var TestData = []companyTest.Data{
 				Username:     "monteagleUser1",
 				Password:     []byte("123"),
 				EmailAddress: "monteagleUser1@monteagle.com",
+				Roles:        make([]string, 0),
 			},
 			{
 				Name:         "monteagleUser2",
@@ -32,6 +34,7 @@ var TestData = []companyTest.Data{
 				Username:     "monteagleUser2",
 				Password:     []byte("123"),
 				EmailAddress: "monteagleUser2@monteagle.com",
+				Roles:        make([]string, 0),
 			},
 		},
 	},
@@ -48,6 +51,7 @@ var TestData = []companyTest.Data{
 			Surname:  "Rubin",
 			Username: "dhlAdmin",
 			Password: []byte("123"),
+			Roles:    make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
@@ -56,6 +60,7 @@ var TestData = []companyTest.Data{
 				Username:     "dhlUser1",
 				Password:     []byte("123"),
 				EmailAddress: "dhlUser1@dhl.com",
+				Roles:        make([]string, 0),
 			},
 			{
 				Name:         "dhlUser2",
@@ -63,6 +68,7 @@ var TestData = []companyTest.Data{
 				Username:     "dhlUser2",
 				Password:     []byte("123"),
 				EmailAddress: "dhlUser2@dhl.com",
+				Roles:        make([]string, 0),
 			},
 		},
 	},
@@ -79,6 +85,7 @@ var TestData = []companyTest.Data{
 			Surname:  "Smith",
 			Username: "reinhardAdmin",
 			Password: []byte("123"),
+			Roles:    make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
@@ -87,6 +94,7 @@ var TestData = []companyTest.Data{
 				Username:     "reinhardUser1",
 				Password:     []byte("123"),
 				EmailAddress: "reinhardUser1@reinhard.com",
+				Roles:        make([]string, 0),
 			},
 			{
 				Name:         "reinhardUser2",
@@ -94,6 +102,7 @@ var TestData = []companyTest.Data{
 				Username:     "reinhardUser2",
 				Password:     []byte("123"),
 				EmailAddress: "reinhardUser2@reinhard.com",
+				Roles:        make([]string, 0),
 			},
 		},
 	},

@@ -3,13 +3,17 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	companyAction "github.com/iot-my-world/brain/party/company/action"
 	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
 	companyAdministratorException "github.com/iot-my-world/brain/party/company/administrator/exception"
 	companyRecordHandler "github.com/iot-my-world/brain/party/company/recordHandler"
 	companyValidator "github.com/iot-my-world/brain/party/company/validator"
+	"github.com/iot-my-world/brain/search/criterion"
+	exactTextCriterion "github.com/iot-my-world/brain/search/criterion/exact/text"
 	"github.com/iot-my-world/brain/search/identifier/id"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	humanUser "github.com/iot-my-world/brain/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
@@ -18,17 +22,20 @@ type administrator struct {
 	companyRecordHandler companyRecordHandler.RecordHandler
 	companyValidator     companyValidator.Validator
 	userRecordHandler    userRecordHandler.RecordHandler
+	systemClaims         *humanUserLoginClaims.Login
 }
 
 func New(
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	companyValidator companyValidator.Validator,
 	userRecordHandler userRecordHandler.RecordHandler,
+	systemClaims *humanUserLoginClaims.Login,
 ) companyAdministrator.Administrator {
 	return &administrator{
 		companyRecordHandler: companyRecordHandler,
 		companyValidator:     companyValidator,
 		userRecordHandler:    userRecordHandler,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -51,10 +58,11 @@ func (a *administrator) ValidateCreateRequest(request *companyAdministrator.Crea
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating company: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("company invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				for _, reason := range validationResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("company invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -138,4 +146,81 @@ func (a *administrator) UpdateAllowedFields(request *companyAdministrator.Update
 	}
 
 	return &companyAdministrator.UpdateAllowedFieldsResponse{Company: companyRetrieveResponse.Company}, nil
+}
+
+func (a *administrator) ValidateDeleteRequest(request *companyAdministrator.DeleteRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.CompanyIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "company identifier is nil")
+	}
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Delete(request *companyAdministrator.DeleteRequest) (*companyAdministrator.DeleteResponse, error) {
+	if err := a.ValidateDeleteRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// retrieve the company to be deleted
+	companyRetrieveResponse, err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.CompanyIdentifier,
+	})
+	if err != nil {
+		err = companyAdministratorException.Delete{Reasons: []string{"retrieve company error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// collect any users in the company party
+	companyUserCollectResponse, err := a.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
+		Claims: a.systemClaims, // using system claims since only system can see users from another party
+		Criteria: []criterion.Criterion{
+			exactTextCriterion.Criterion{
+				Field: "partyId.id",
+				Text:  companyRetrieveResponse.Company.Id,
+			},
+		},
+	})
+	if err != nil {
+		err = companyAdministratorException.Delete{Reasons: []string{"collect users error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// delete all users in the company party
+	for idx := range companyUserCollectResponse.Records {
+		if _, err := a.userRecordHandler.Delete(&userRecordHandler.DeleteRequest{
+			Claims: a.systemClaims, // using system claims since only system can see users from another party
+			Identifier: id.Identifier{
+				Id: companyUserCollectResponse.Records[idx].Id,
+			},
+		}); err != nil {
+			err = companyAdministratorException.Delete{Reasons: []string{"delete company user error", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
+		}
+	}
+
+	// delete company
+	if _, err := a.companyRecordHandler.Delete(&companyRecordHandler.DeleteRequest{
+		Claims:     request.Claims,
+		Identifier: request.CompanyIdentifier,
+	}); err != nil {
+		err = companyAdministratorException.Delete{Reasons: []string{"delete error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &companyAdministrator.DeleteResponse{}, nil
 }

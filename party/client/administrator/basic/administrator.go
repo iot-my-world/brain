@@ -3,13 +3,17 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	clientAction "github.com/iot-my-world/brain/party/client/action"
 	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
 	clientAdministratorException "github.com/iot-my-world/brain/party/client/administrator/exception"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientValidator "github.com/iot-my-world/brain/party/client/validator"
+	"github.com/iot-my-world/brain/search/criterion"
+	exactTextCriterion "github.com/iot-my-world/brain/search/criterion/exact/text"
 	"github.com/iot-my-world/brain/search/identifier/id"
+	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	humanUser "github.com/iot-my-world/brain/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
@@ -18,17 +22,20 @@ type administrator struct {
 	clientRecordHandler clientRecordHandler.RecordHandler
 	clientValidator     clientValidator.Validator
 	userRecordHandler   userRecordHandler.RecordHandler
+	systemClaims        *humanUserLoginClaims.Login
 }
 
 func New(
 	clientRecordHandler clientRecordHandler.RecordHandler,
 	clientValidator clientValidator.Validator,
 	userRecordHandler userRecordHandler.RecordHandler,
+	systemClaims *humanUserLoginClaims.Login,
 ) clientAdministrator.Administrator {
 	return &administrator{
 		clientRecordHandler: clientRecordHandler,
 		clientValidator:     clientValidator,
 		userRecordHandler:   userRecordHandler,
+		systemClaims:        systemClaims,
 	}
 }
 
@@ -153,4 +160,81 @@ func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateA
 	return &clientAdministrator.UpdateAllowedFieldsResponse{
 		Client: clientRetrieveResponse.Client,
 	}, nil
+}
+
+func (a *administrator) ValidateDeleteRequest(request *clientAdministrator.DeleteRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.ClientIdentifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "client identifier is nil")
+	}
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*clientAdministrator.DeleteResponse, error) {
+	if err := a.ValidateDeleteRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// retrieve the client to be deleted
+	clientRetrieveResponse, err := a.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.ClientIdentifier,
+	})
+	if err != nil {
+		err = clientAdministratorException.Delete{Reasons: []string{"retrieve client error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// collect any users in the client party
+	clientUserCollectResponse, err := a.userRecordHandler.Collect(&userRecordHandler.CollectRequest{
+		Claims: a.systemClaims, // using system claims since only system can see users from another party
+		Criteria: []criterion.Criterion{
+			exactTextCriterion.Criterion{
+				Field: "partyId.id",
+				Text:  clientRetrieveResponse.Client.Id,
+			},
+		},
+	})
+	if err != nil {
+		err = clientAdministratorException.Delete{Reasons: []string{"collect users error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// delete all users in the client party
+	for idx := range clientUserCollectResponse.Records {
+		if _, err := a.userRecordHandler.Delete(&userRecordHandler.DeleteRequest{
+			Claims: a.systemClaims, // using system claims since only system can see users from another party
+			Identifier: id.Identifier{
+				Id: clientUserCollectResponse.Records[idx].Id,
+			},
+		}); err != nil {
+			err = clientAdministratorException.Delete{Reasons: []string{"delete client user error", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
+		}
+	}
+
+	// delete client
+	if _, err := a.clientRecordHandler.Delete(&clientRecordHandler.DeleteRequest{
+		Claims:     request.Claims,
+		Identifier: request.ClientIdentifier,
+	}); err != nil {
+		err = clientAdministratorException.Delete{Reasons: []string{"delete error", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &clientAdministrator.DeleteResponse{}, nil
 }
