@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/log"
 	"github.com/iot-my-world/brain/party"
 	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/party/administrator/exception"
@@ -187,25 +188,49 @@ func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyR
 }
 
 func (a *administrator) ValidateCreateAndInviteCompanyRequest(request *partyAdministrator.CreateAndInviteCompanyRequest) error {
+	reasonsInvalid := make([]string, 0)
 
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
 }
 
 func (a *administrator) CreateAndInviteCompany(request *partyAdministrator.CreateAndInviteCompanyRequest) (*partyAdministrator.CreateAndInviteCompanyResponse, error) {
-
+	if err := a.ValidateCreateAndInviteCompanyRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
 }
 
 func (a *administrator) ValidateCreateAndInviteCompanyClientRequest(request *partyAdministrator.CreateAndInviteCompanyClientRequest) error {
+	reasonsInvalid := make([]string, 0)
 
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
 }
 
 func (a *administrator) CreateAndInviteCompanyClient(request *partyAdministrator.CreateAndInviteCompanyClientRequest) (*partyAdministrator.CreateAndInviteCompanyClientResponse, error) {
-
+	if err := a.ValidateCreateAndInviteCompanyClientRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
 }
 
-func (a *administrator) ValidateCreateAndInviteIndividualClient(request *partyAdministrator.CreateAndInviteIndividualClientRequest) error {
+func (a *administrator) ValidateCreateAndInviteIndividualClientRequest(request *partyAdministrator.CreateAndInviteIndividualClientRequest) error {
+	reasonsInvalid := make([]string, 0)
 
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
 }
 
 func (a *administrator) CreateAndInviteIndividualClient(request *partyAdministrator.CreateAndInviteIndividualClientRequest) (*partyAdministrator.CreateAndInviteIndividualClientResponse, error) {
-
+	if err := a.ValidateCreateAndInviteIndividualClientRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
 }
