@@ -2,7 +2,7 @@ package company
 
 import (
 	"github.com/iot-my-world/brain/test/data"
-	clientTest "github.com/iot-my-world/brain/test/modules/party/client"
+	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	"github.com/iot-my-world/brain/test/stories/client"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -15,7 +15,7 @@ func Test(t *testing.T) {
 			t.Fatalf("no client data for company")
 			return
 		}
-		suite.Run(t, clientTest.New(
+		suite.Run(t, clientTestModule.New(
 			data.BrainURL,
 			companyData.AdminUser,
 			clientData,

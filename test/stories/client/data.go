@@ -7,6 +7,61 @@ import (
 )
 
 var TestData = map[string][]clientTest.Data{
+	"root": { // clients created by root
+		{
+			Client: client.Client{
+				Name:              "John",
+				Type:              client.Individual,
+				AdminEmailAddress: "john@gmail.com",
+				// ParentId: // populated on creation
+			},
+			AdminUser: humanUser.User{
+				Name:     "John",
+				Surname:  "Smith",
+				Username: "jsmith",
+				Password: []byte("123"),
+			},
+			Users: []humanUser.User{
+				{
+					Name:         "Samantha",
+					Surname:      "Smith",
+					Username:     "ssmith",
+					Password:     []byte("123"),
+					EmailAddress: "sam@gmail.com",
+				},
+			},
+		},
+		{
+			Client: client.Client{
+				Name:              "Sunbeam Tech",
+				Type:              client.Company,
+				AdminEmailAddress: "sunbeamTechAdmin@sunbeam.com",
+				// ParentId: // populated on creation
+			},
+			AdminUser: humanUser.User{
+				Name:     "Johan",
+				Surname:  "von delft",
+				Username: "sunbeamAdmin",
+				Password: []byte("123"),
+			},
+			Users: []humanUser.User{
+				{
+					Name:         "Juliana",
+					Surname:      "Trump",
+					Username:     "sunbeamUser1",
+					Password:     []byte("123"),
+					EmailAddress: "sunbeamUser1@sunbeam.com",
+				},
+				{
+					Name:         "Paul",
+					Surname:      "Xulu",
+					Username:     "sunbeamUser2",
+					Password:     []byte("123"),
+					EmailAddress: "sunbeamUser2@sunbeam.com",
+				},
+			},
+		},
+	},
 	"Monteagle Logistics Limited": {
 		{
 			Client: client.Client{
