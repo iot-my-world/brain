@@ -20,6 +20,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "Smith",
 				Username: "jsmith",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -28,6 +29,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "ssmith",
 					Password:     []byte("123"),
 					EmailAddress: "sam@gmail.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -43,6 +45,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "von delft",
 				Username: "sunbeamAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -51,6 +54,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "sunbeamUser1",
 					Password:     []byte("123"),
 					EmailAddress: "sunbeamUser1@sunbeam.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "Paul",
@@ -58,6 +62,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "sunbeamUser2",
 					Password:     []byte("123"),
 					EmailAddress: "sunbeamUser2@sunbeam.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -75,6 +80,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "Govender",
 				Username: "picknpayAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -83,6 +89,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "picknpayUser1",
 					Password:     []byte("123"),
 					EmailAddress: "picknpayUser1@picknpay.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "picknpayUser2",
@@ -90,6 +97,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "picknpayUser2",
 					Password:     []byte("123"),
 					EmailAddress: "picknpayUser2@picknpay.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -105,6 +113,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "Kruger",
 				Username: "woolworthsAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -113,6 +122,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "woolworthsUser1",
 					Password:     []byte("123"),
 					EmailAddress: "woolworthsUser1@woolworths.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "woolworthsUser2",
@@ -120,6 +130,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "woolworthsUser2",
 					Password:     []byte("123"),
 					EmailAddress: "woolworthsUser2@woolworths.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -137,6 +148,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "Smith",
 				Username: "makroAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -145,6 +157,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "makroUser1",
 					Password:     []byte("123"),
 					EmailAddress: "makroUser1@makro.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "makroUser2",
@@ -152,6 +165,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "makroUser2",
 					Password:     []byte("123"),
 					EmailAddress: "makroUser2@makro.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -167,6 +181,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "smith",
 				Username: "fruitnvegAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -175,6 +190,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "fruitnvegUser1",
 					Password:     []byte("123"),
 					EmailAddress: "fruitnvegUser1@fruitnveg.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "fruitnvegUser2",
@@ -182,6 +198,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "fruitnvegUser2",
 					Password:     []byte("123"),
 					EmailAddress: "fruitnvegUser2@fruitnveg.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -199,6 +216,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "Shezi",
 				Username: "sparAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -207,6 +225,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "sparUser1",
 					Password:     []byte("123"),
 					EmailAddress: "sparUser1@spar.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "sparUser2",
@@ -214,6 +233,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "sparUser2",
 					Password:     []byte("123"),
 					EmailAddress: "sparUser2@spar.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},
@@ -229,6 +249,7 @@ var TestData = map[string][]clientTest.Data{
 				Surname:  "Black",
 				Username: "gameAdmin",
 				Password: []byte("123"),
+				Roles:    make([]string, 0),
 			},
 			Users: []humanUser.User{
 				{
@@ -237,6 +258,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "gameUser1",
 					Password:     []byte("123"),
 					EmailAddress: "gameUser1@game.com",
+					Roles:        make([]string, 0),
 				},
 				{
 					Name:         "gameUser2",
@@ -244,6 +266,7 @@ var TestData = map[string][]clientTest.Data{
 					Username:     "gameUser2",
 					Password:     []byte("123"),
 					EmailAddress: "gameUser2@game.com",
+					Roles:        make([]string, 0),
 				},
 			},
 		},

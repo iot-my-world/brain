@@ -38,7 +38,7 @@ func (a *administrator) UpdateAllowedFields(request *humanUserAdministrator.Upda
 
 	updateAllowedFieldsResponse := userAdministratorJsonRpcAdaptor.UpdateAllowedFieldsResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.UpdateAllowedFields",
+		humanUserAdministrator.UpdateAllowedFieldsService,
 		userAdministratorJsonRpcAdaptor.UpdateAllowedFieldsRequest{
 			User: request.User,
 		},
@@ -70,7 +70,7 @@ func (a *administrator) GetMyUser(request *humanUserAdministrator.GetMyUserReque
 
 	getMyUserResponse := userAdministratorJsonRpcAdaptor.GetMyUserResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.GetMyUser",
+		humanUserAdministrator.GetMyUserService,
 		userAdministratorJsonRpcAdaptor.GetMyUserRequest{},
 		&getMyUserResponse,
 	); err != nil {
@@ -99,7 +99,7 @@ func (a *administrator) Create(request *humanUserAdministrator.CreateRequest) (*
 
 	createResponse := userAdministratorJsonRpcAdaptor.CreateResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.Create",
+		humanUserAdministrator.CreateService,
 		userAdministratorJsonRpcAdaptor.CreateRequest{
 			User: request.User,
 		},
@@ -139,7 +139,7 @@ func (a *administrator) SetPassword(request *humanUserAdministrator.SetPasswordR
 
 	setPasswordResponse := userAdministratorJsonRpcAdaptor.SetPasswordResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.SetPassword",
+		humanUserAdministrator.SetPasswordService,
 		userAdministratorJsonRpcAdaptor.SetPasswordRequest{
 			WrappedIdentifier: *id,
 			NewPassword:       request.NewPassword,
@@ -170,7 +170,7 @@ func (a *administrator) UpdatePassword(request *humanUserAdministrator.UpdatePas
 
 	updatePasswordResponse := userAdministratorJsonRpcAdaptor.UpdatePasswordResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.UpdatePassword",
+		humanUserAdministrator.UpdatePasswordService,
 		userAdministratorJsonRpcAdaptor.UpdatePasswordRequest{
 			ExistingPassword: request.ExistingPassword,
 			NewPassword:      request.NewPassword,
@@ -203,7 +203,7 @@ func (a *administrator) CheckPassword(request *humanUserAdministrator.CheckPassw
 
 	updatePasswordResponse := userAdministratorJsonRpcAdaptor.CheckPasswordResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.CheckPassword",
+		humanUserAdministrator.CheckPasswordService,
 		userAdministratorJsonRpcAdaptor.CheckPasswordRequest{
 			Password: request.Password,
 		},
@@ -235,7 +235,7 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 
 	forgotPasswordResponse := userAdministratorJsonRpcAdaptor.ForgotPasswordResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		"UserAdministrator.ForgotPassword",
+		humanUserAdministrator.ForgotPasswordService,
 		userAdministratorJsonRpcAdaptor.ForgotPasswordRequest{
 			UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 		},

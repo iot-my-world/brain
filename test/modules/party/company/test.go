@@ -14,6 +14,7 @@ import (
 	partyJsonRpcRegistrar "github.com/iot-my-world/brain/party/registrar/jsonRpc"
 	"github.com/iot-my-world/brain/search/criterion"
 	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
+	"github.com/iot-my-world/brain/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/search/identifier/id"
 	"github.com/iot-my-world/brain/search/query"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
@@ -342,8 +343,22 @@ func (suite *test) TestCompany4InviteAndRegisterAdmin() {
 
 func (suite *test) TestCompany5CreateInviteRegisterCompanyUsers() {
 	for _, companyData := range suite.testData {
+		// authenticate json rpc client as company admin user
+		if err := suite.jsonRpcClient.Login(authJsonRpcAdaptor.LoginRequest{
+			UsernameOrEmailAddress: companyData.AdminUser.Username,
+			Password:               string(companyData.AdminUser.Password),
+		}); err != nil {
+			suite.FailNow("could not log in as company admin user", err.Error())
+			return
+		}
 
 		for _, userToCreate := range companyData.Users {
+			// set user's party details
+			userToCreate.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().ParentPartyType
+			userToCreate.ParentId = suite.jsonRpcClient.Claims().PartyDetails().ParentId
+			userToCreate.PartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+			userToCreate.PartyId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+
 			// create user
 			createResponse, err := suite.humanUserAdministrator.Create(&humanUserAdministrator.CreateRequest{
 				User: userToCreate,
@@ -352,9 +367,33 @@ func (suite *test) TestCompany5CreateInviteRegisterCompanyUsers() {
 				suite.FailNow("error creating company user")
 				return
 			}
+			// set fields set on creation
+			userToCreate.Id = createResponse.User.Id
+			if !suite.Equal(
+				userToCreate,
+				createResponse.User,
+				"user in create response should be equal to user to create",
+			) {
+				return
+			}
 
 			// retrieve user
-			retrieveUserReponse, err := suite.hu
+			retrieveUserResponse, err := suite.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
+				Identifier: emailAddress.Identifier{
+					EmailAddress: userToCreate.EmailAddress,
+				},
+			})
+			if err != nil {
+				suite.FailNow("error retrieving user", err.Error())
+				return
+			}
+			if !suite.Equal(
+				userToCreate,
+				retrieveUserResponse.User,
+				"retrieved user should be the same as created",
+			) {
+				return
+			}
 		}
 	}
 }

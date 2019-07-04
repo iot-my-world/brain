@@ -28,12 +28,14 @@ var SystemUserPermissions = make([]api.Permission, 0)
 
 var CompanyAdminUserPermissions = []api.Permission{
 	CollectService,
+	RetrieveService,
 }
 
 var CompanyUserPermissions = make([]api.Permission, 0)
 
 var ClientAdminUserPermissions = []api.Permission{
 	CollectService,
+	RetrieveService,
 }
 
 var ClientUserPermissions = make([]api.Permission, 0)
