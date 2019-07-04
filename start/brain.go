@@ -18,9 +18,11 @@ import (
 
 	databaseCollection "github.com/iot-my-world/brain/database/collection"
 
-	authServiceJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
-	apiUserAuthorizationService "github.com/iot-my-world/brain/security/authorization/service/user/api"
-	humanUserAuthorizationService "github.com/iot-my-world/brain/security/authorization/service/user/human"
+	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
+
+	authServiceJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/administrator/adaptor/jsonRpc"
+	apiUserAuthorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator/user/api"
+	humanUserAuthorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator/user/human"
 
 	humanUserHttpAPIAuthApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http/user/human"
 	humanUserAPIAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer/user/human"
@@ -220,7 +222,7 @@ func main() {
 	)
 
 	// Auth
-	HumanUserAuthorizationService := humanUserAuthorizationService.New(
+	HumanUserAuthorizationService := humanUserAuthorizationAdministrator.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
@@ -315,7 +317,7 @@ func main() {
 		APIUserPasswordGenerator,
 	)
 
-	APIUserAuthorizationService := apiUserAuthorizationService.New(
+	APIUserAuthorizationService := apiUserAuthorizationAdministrator.New(
 		APIUserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
@@ -418,7 +420,7 @@ func main() {
 	}
 
 	// Auth
-	if err := secureHumanUserAPIServer.RegisterService(HumanUserAuthServiceAdaptor, "Auth"); err != nil {
+	if err := secureHumanUserAPIServer.RegisterService(HumanUserAuthServiceAdaptor, authorizationAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Auth Service Adaptor")
 	}
 
@@ -502,7 +504,7 @@ func main() {
 	secureAPIUserAPIServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 
 	// Auth
-	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, "Auth"); err != nil {
+	if err := secureAPIUserAPIServer.RegisterService(APIUserAuthServiceAdaptor, authorizationAdministrator.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register API User Authorization Service Adaptor")
 	}
 

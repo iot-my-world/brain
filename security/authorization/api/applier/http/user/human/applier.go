@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/iot-my-world/brain/log"
+	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
 	httpAPIAuthorisationApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http"
 	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
+	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	"io/ioutil"
 	"net/http"
 )
@@ -39,7 +41,7 @@ func (a *applier) ApplyAuth(next http.Handler) http.Handler {
 		// UserAdministrator.ForgotPassword
 		// Check if Authorization Header is present in request indicating that the user is logged in
 		switch jsonRpcServiceMethod {
-		case "Auth.Login", "UserAdministrator.ForgotPassword":
+		case authorizationAdministrator.LoginService, humanUserAdministrator.ForgotPasswordService:
 			next.ServeHTTP(w, r)
 			return
 		default:
@@ -64,10 +66,6 @@ func (a *applier) ApplyAuth(next http.Handler) http.Handler {
 			// TODO: Unauthorised access attempts like this should be getting tracked more formally. Could indicate an attack.
 			return
 		}
-
-		// if it can't be retrieved, error 404
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
 	})
 }
 

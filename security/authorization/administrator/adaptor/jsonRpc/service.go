@@ -2,17 +2,17 @@ package auth
 
 import (
 	"fmt"
-	authService "github.com/iot-my-world/brain/security/authorization/service"
+	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
 	"net/http"
 )
 
 type adaptor struct {
-	authService authService.Service
+	authorizationAdministrator authorizationAdministrator.Administrator
 }
 
-func New(authService authService.Service) *adaptor {
+func New(authorizationAdministrator authorizationAdministrator.Administrator) *adaptor {
 	return &adaptor{
-		authService: authService,
+		authorizationAdministrator: authorizationAdministrator,
 	}
 }
 
@@ -38,7 +38,7 @@ type LoginResponse struct {
 
 func (s *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	loginResponse, err := s.authService.Login(&authService.LoginRequest{
+	loginResponse, err := s.authorizationAdministrator.Login(&authorizationAdministrator.LoginRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 		Password:               request.Password,
 	})

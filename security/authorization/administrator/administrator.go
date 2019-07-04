@@ -1,9 +1,13 @@
-package service
+package administrator
 
-type Service interface {
+type Administrator interface {
 	Login(request *LoginRequest) (*LoginResponse, error)
 	Logout(request *LogoutRequest) (*LogoutResponse, error)
 }
+
+const ServiceProvider = "Authorization-Service"
+const LoginService = ServiceProvider + ".Login"
+const LogoutService = ServiceProvider + ".Logout"
 
 type LogoutRequest struct {
 }
