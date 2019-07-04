@@ -96,14 +96,14 @@ import (
 	trackingBasicReport "github.com/iot-my-world/brain/report/tracking/basic"
 
 	"flag"
-	"github.com/iot-my-world/brain/communication/email/mailer"
-	gmailMailer "github.com/iot-my-world/brain/communication/email/mailer/gmail"
+	"github.com/iot-my-world/brain/pkg/communication/email/mailer"
+	gmailMailer "github.com/iot-my-world/brain/pkg/communication/email/mailer/gmail"
 	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	partyBasicRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"
 	partyBasicRegistrar "github.com/iot-my-world/brain/pkg/party/registrar/basic"
 
-	registrationEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/registration"
-	setPasswordEmailGenerator "github.com/iot-my-world/brain/communication/email/generator/set/password"
+	registrationEmailGenerator "github.com/iot-my-world/brain/pkg/communication/email/generator/registration"
+	setPasswordEmailGenerator "github.com/iot-my-world/brain/pkg/communication/email/generator/set/password"
 
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"

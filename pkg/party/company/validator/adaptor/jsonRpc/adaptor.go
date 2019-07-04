@@ -1,8 +1,8 @@
 package company
 
 import (
-	"github.com/iot-my-world/brain/action"
 	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/pkg/action"
 	company2 "github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/company/validator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"

@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/iot-my-world/brain/action"
 	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/pkg/action"
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/validator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"

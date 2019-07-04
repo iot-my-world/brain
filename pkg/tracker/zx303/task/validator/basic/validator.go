@@ -1,8 +1,8 @@
 package validator
 
 import (
-	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/pkg/action"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	action2 "github.com/iot-my-world/brain/pkg/tracker/zx303/task/action"
 	validator2 "github.com/iot-my-world/brain/pkg/tracker/zx303/task/validator"

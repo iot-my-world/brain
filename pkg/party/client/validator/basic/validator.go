@@ -1,8 +1,8 @@
 package basic
 
 import (
-	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/pkg/action"
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	action2 "github.com/iot-my-world/brain/pkg/party/client/action"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"

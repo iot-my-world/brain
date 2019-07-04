@@ -1,6 +1,8 @@
 package mailer
 
-import "github.com/iot-my-world/brain/communication/email"
+import (
+	email2 "github.com/iot-my-world/brain/pkg/communication/email"
+)
 
 type AuthInfo struct {
 	Identity string
@@ -14,7 +16,7 @@ type Mailer interface {
 }
 
 type SendRequest struct {
-	Email email.Email
+	Email email2.Email
 }
 
 type SendResponse struct {

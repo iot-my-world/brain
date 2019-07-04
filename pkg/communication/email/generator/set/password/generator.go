@@ -3,11 +3,11 @@ package password
 import (
 	"bytes"
 	"fmt"
-	"github.com/iot-my-world/brain/communication/email"
-	emailGenerator "github.com/iot-my-world/brain/communication/email/generator"
-	emailGeneratorException "github.com/iot-my-world/brain/communication/email/generator/exception"
 	brainException "github.com/iot-my-world/brain/exception"
 	"github.com/iot-my-world/brain/log"
+	email2 "github.com/iot-my-world/brain/pkg/communication/email"
+	generator2 "github.com/iot-my-world/brain/pkg/communication/email/generator"
+	"github.com/iot-my-world/brain/pkg/communication/email/generator/exception"
 	"html/template"
 )
 
@@ -17,7 +17,7 @@ type generator struct {
 
 func New(
 	pathToTemplateFolder string,
-) emailGenerator.Generator {
+) generator2.Generator {
 
 	emailTemplate, err := template.ParseFiles(fmt.Sprintf("%s/%s", pathToTemplateFolder, "set/password/template.html"))
 	if err != nil {
@@ -29,7 +29,7 @@ func New(
 	}
 }
 
-func (g *generator) ValidateGenerateEmailRequest(request *emailGenerator.GenerateRequest) error {
+func (g *generator) ValidateGenerateEmailRequest(request *generator2.GenerateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Data == nil {
@@ -43,18 +43,18 @@ func (g *generator) ValidateGenerateEmailRequest(request *emailGenerator.Generat
 	return nil
 }
 
-func (g *generator) Generate(request *emailGenerator.GenerateRequest) (*emailGenerator.GenerateResponse, error) {
+func (g *generator) Generate(request *generator2.GenerateRequest) (*generator2.GenerateResponse, error) {
 	if err := g.ValidateGenerateEmailRequest(request); err != nil {
 		return nil, err
 	}
 
 	var emailBytes bytes.Buffer
 	if err := g.emailTemplate.Execute(&emailBytes, request.Data); err != nil {
-		return nil, emailGeneratorException.TemplateExecution{Reasons: []string{err.Error()}}
+		return nil, exception.TemplateExecution{Reasons: []string{err.Error()}}
 	}
 
-	return &emailGenerator.GenerateResponse{
-		Email: email.Email{
+	return &generator2.GenerateResponse{
+		Email: email2.Email{
 			Body:    emailBytes.String(),
 			Details: request.Data.Details(),
 		},

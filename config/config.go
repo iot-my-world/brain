@@ -32,7 +32,7 @@ func New(pathToConfigFile string) Config {
 	viper.SetDefault("emailAddress", "")
 	viper.SetDefault("emailPassword", "")
 	viper.SetDefault("rootPasswordFileLocation", "")
-	viper.SetDefault("pathToEmailTemplateFolder", "communication/email/template")
+	viper.SetDefault("pathToEmailTemplateFolder", "assets/email/template")
 	viper.SetDefault("keyFilePath", "")
 	viper.SetDefault("environment", environment.Development)
 

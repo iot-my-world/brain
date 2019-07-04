@@ -1,8 +1,8 @@
 package jsonRpc
 
 import (
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
 	brainException "github.com/iot-my-world/brain/exception"
+	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
 	administrator2 "github.com/iot-my-world/brain/pkg/user/api/administrator"
 )
 

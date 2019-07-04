@@ -1,8 +1,8 @@
 package tk102
 
 import (
-	"github.com/iot-my-world/brain/action"
 	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/pkg/action"
 	tk1022 "github.com/iot-my-world/brain/pkg/tracker/tk102"
 	"github.com/iot-my-world/brain/pkg/tracker/tk102/validator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"

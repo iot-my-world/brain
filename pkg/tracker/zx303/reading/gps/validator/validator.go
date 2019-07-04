@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/iot-my-world/brain/action"
+	"github.com/iot-my-world/brain/pkg/action"
 	"github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"

@@ -1,8 +1,8 @@
 package basic
 
 import (
-	"github.com/iot-my-world/brain/action"
 	brainException "github.com/iot-my-world/brain/exception"
+	"github.com/iot-my-world/brain/pkg/action"
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"

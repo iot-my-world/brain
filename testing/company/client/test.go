@@ -3,8 +3,8 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	jsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/communication/jsonRpc/client/basic"
+	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
+	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client/basic"
 	clientAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/client/administrator/adaptor/jsonRpc"
 	partyRegistrarJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"

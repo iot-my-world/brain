@@ -21,7 +21,7 @@ mongopassword = ""
 mongouser = ""
 
 # email templates
-pathtoemailtemplatefolder = "communication/email/template"
+pathtoemailtemplatefolder = "assets/email/template"
 
 # file used to set root users password
 # removed by brain on first start up

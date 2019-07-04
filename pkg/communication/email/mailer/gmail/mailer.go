@@ -1,25 +1,25 @@
 package gmail
 
 import (
-	emailMailer "github.com/iot-my-world/brain/communication/email/mailer"
 	brainException "github.com/iot-my-world/brain/exception"
+	mailer2 "github.com/iot-my-world/brain/pkg/communication/email/mailer"
 	"github.com/jpoehls/gophermail"
 	"net/smtp"
 )
 
 type mailer struct {
-	authInfo emailMailer.AuthInfo
+	authInfo mailer2.AuthInfo
 }
 
 func New(
-	authInfo emailMailer.AuthInfo,
-) emailMailer.Mailer {
+	authInfo mailer2.AuthInfo,
+) mailer2.Mailer {
 	return &mailer{
 		authInfo: authInfo,
 	}
 }
 
-func (m *mailer) ValidateSendRequest(request *emailMailer.SendRequest) error {
+func (m *mailer) ValidateSendRequest(request *mailer2.SendRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	for _, toAddress := range request.Email.Details.To {
@@ -47,7 +47,7 @@ func (m *mailer) ValidateSendRequest(request *emailMailer.SendRequest) error {
 	return nil
 }
 
-func (m *mailer) Send(request *emailMailer.SendRequest) (*emailMailer.SendResponse, error) {
+func (m *mailer) Send(request *mailer2.SendRequest) (*mailer2.SendResponse, error) {
 	if err := m.ValidateSendRequest(request); err != nil {
 		return nil, err
 	}
@@ -71,5 +71,5 @@ func (m *mailer) Send(request *emailMailer.SendRequest) (*emailMailer.SendRespon
 		return nil, err
 	}
 
-	return &emailMailer.SendResponse{}, nil
+	return &mailer2.SendResponse{}, nil
 }

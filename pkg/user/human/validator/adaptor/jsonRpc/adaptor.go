@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/iot-my-world/brain/action"
 	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/pkg/action"
 	"github.com/iot-my-world/brain/pkg/user/human"
 	"github.com/iot-my-world/brain/pkg/user/human/validator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"

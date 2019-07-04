@@ -1,8 +1,8 @@
 package apiUser
 
 import (
-	"github.com/iot-my-world/brain/action"
 	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/pkg/action"
 	"github.com/iot-my-world/brain/pkg/user/api"
 	"github.com/iot-my-world/brain/pkg/user/api/validator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
