@@ -7,6 +7,7 @@ import (
 	"github.com/iot-my-world/brain/party"
 	partyAdministrator "github.com/iot-my-world/brain/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/party/administrator/exception"
+	clientAdministrator "github.com/iot-my-world/brain/party/client/administrator"
 	clientRecordHandler "github.com/iot-my-world/brain/party/client/recordHandler"
 	clientRecordHandlerException "github.com/iot-my-world/brain/party/client/recordHandler/exception"
 	companyAdministrator "github.com/iot-my-world/brain/party/company/administrator"
@@ -25,6 +26,7 @@ type administrator struct {
 	systemRecordHandler  systemRecordHandler.RecordHandler
 	systemClaims         *humanUserLoginClaims.Login
 	companyAdministrator companyAdministrator.Administrator
+	clientAdministrator  clientAdministrator.Administrator
 	partyRegistrar       partyRegistrar.Registrar
 }
 
@@ -33,6 +35,8 @@ func New(
 	companyRecordHandler companyRecordHandler.RecordHandler,
 	systemRecordHandler systemRecordHandler.RecordHandler,
 	systemClaims *humanUserLoginClaims.Login,
+	companyAdministrator companyAdministrator.Administrator,
+	clientAdministrator clientAdministrator.Administrator,
 	partyRegistrar partyRegistrar.Registrar,
 ) partyAdministrator.Administrator {
 	return &administrator{
@@ -40,6 +44,8 @@ func New(
 		companyRecordHandler: companyRecordHandler,
 		systemRecordHandler:  systemRecordHandler,
 		systemClaims:         systemClaims,
+		companyAdministrator: companyAdministrator,
+		clientAdministrator:  clientAdministrator,
 		partyRegistrar:       partyRegistrar,
 	}
 }
@@ -240,7 +246,7 @@ func (a *administrator) CreateAndInviteCompany(request *partyAdministrator.Creat
 	return &partyAdministrator.CreateAndInviteCompanyResponse{RegistrationURLToken: inviteResponse.URLToken}, nil
 }
 
-func (a *administrator) ValidateCreateAndInviteCompanyClientRequest(request *partyAdministrator.CreateAndInviteCompanyClientRequest) error {
+func (a *administrator) ValidateCreateAndInviteClientRequest(request *partyAdministrator.CreateAndInviteClientRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -249,25 +255,35 @@ func (a *administrator) ValidateCreateAndInviteCompanyClientRequest(request *par
 	return nil
 }
 
-func (a *administrator) CreateAndInviteCompanyClient(request *partyAdministrator.CreateAndInviteCompanyClientRequest) (*partyAdministrator.CreateAndInviteCompanyClientResponse, error) {
-	if err := a.ValidateCreateAndInviteCompanyClientRequest(request); err != nil {
+func (a *administrator) CreateAndInviteClient(request *partyAdministrator.CreateAndInviteClientRequest) (*partyAdministrator.CreateAndInviteClientResponse, error) {
+	if err := a.ValidateCreateAndInviteClientRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
-}
 
-func (a *administrator) ValidateCreateAndInviteIndividualClientRequest(request *partyAdministrator.CreateAndInviteIndividualClientRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	}
-	return nil
-}
-
-func (a *administrator) CreateAndInviteIndividualClient(request *partyAdministrator.CreateAndInviteIndividualClientRequest) (*partyAdministrator.CreateAndInviteIndividualClientResponse, error) {
-	if err := a.ValidateCreateAndInviteIndividualClientRequest(request); err != nil {
+	// create client via client administrator
+	createResponse, err := a.clientAdministrator.Create(&clientAdministrator.CreateRequest{
+		Claims: a.systemClaims,
+		Client: request.Client,
+	})
+	if err != nil {
+		err = partyAdministratorException.CreateAndInviteClient{Reasons: []string{"client create", err.Error()}}
 		log.Error(err.Error())
 		return nil, err
 	}
+
+	// invite client admin user
+	inviteResponse, err := a.partyRegistrar.InviteClientAdminUser(&partyRegistrar.InviteClientAdminUserRequest{
+		Claims: a.systemClaims,
+		ClientIdentifier: id.Identifier{
+			Id: createResponse.Client.Id,
+		},
+	})
+	if err != nil {
+		err = partyAdministratorException.CreateAndInviteClient{Reasons: []string{"invite client admin user", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &partyAdministrator.CreateAndInviteClientResponse{RegistrationURLToken: inviteResponse.URLToken}, nil
 }

@@ -39,3 +39,11 @@ type CreateAndInviteCompany struct {
 func (e CreateAndInviteCompany) Error() string {
 	return "create and invite company error: " + strings.Join(e.Reasons, "; ")
 }
+
+type CreateAndInviteClient struct {
+	Reasons []string
+}
+
+func (e CreateAndInviteClient) Error() string {
+	return "create and invite client error: " + strings.Join(e.Reasons, "; ")
+}

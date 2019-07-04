@@ -13,16 +13,14 @@ type Administrator interface {
 	GetMyParty(request *GetMyPartyRequest) (*GetMyPartyResponse, error)
 	RetrieveParty(request *RetrievePartyRequest) (*RetrievePartyResponse, error)
 	CreateAndInviteCompany(request *CreateAndInviteCompanyRequest) (*CreateAndInviteCompanyResponse, error)
-	CreateAndInviteCompanyClient(request *CreateAndInviteCompanyClientRequest) (*CreateAndInviteCompanyClientResponse, error)
-	CreateAndInviteIndividualClient(request *CreateAndInviteIndividualClientRequest) (*CreateAndInviteIndividualClientResponse, error)
+	CreateAndInviteClient(request *CreateAndInviteClientRequest) (*CreateAndInviteClientResponse, error)
 }
 
 const ServiceProvider = "Party-Administrator"
 const GetMyPartyService = ServiceProvider + ".GetMyParty"
 const RetrievePartyService = ServiceProvider + ".RetrieveParty"
 const CreateAndInviteCompanyService = ServiceProvider + ".CreateAndInviteCompany"
-const CreateAndInviteCompanyClientService = ServiceProvider + ".CreateAndInviteCompanyClient"
-const CreateAndInviteIndividualClientService = ServiceProvider + ".CreateAndInviteIndividualClient"
+const CreateAndInviteClientService = ServiceProvider + ".CreateAndInviteClient"
 
 var SystemUserPermissions = make([]api.Permission, 0)
 
@@ -73,18 +71,10 @@ type CreateAndInviteCompanyResponse struct {
 	RegistrationURLToken string
 }
 
-type CreateAndInviteCompanyClientRequest struct {
+type CreateAndInviteClientRequest struct {
 	Client client.Client
 }
 
-type CreateAndInviteCompanyClientResponse struct {
-	RegistrationURLToken string
-}
-
-type CreateAndInviteIndividualClientRequest struct {
-	Client client.Client
-}
-
-type CreateAndInviteIndividualClientResponse struct {
+type CreateAndInviteClientResponse struct {
 	RegistrationURLToken string
 }
