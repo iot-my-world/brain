@@ -4,7 +4,7 @@ import (
 	"github.com/iot-my-world/brain/log"
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/administrator"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	"net/http"
 )

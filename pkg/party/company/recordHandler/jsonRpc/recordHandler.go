@@ -6,8 +6,8 @@ import (
 	"github.com/iot-my-world/brain/log"
 	recordHandler2 "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler/adaptor/jsonRpc"
-	wrappedCriterion "github.com/iot-my-world/brain/search/criterion/wrapped"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
 type recordHandler struct {

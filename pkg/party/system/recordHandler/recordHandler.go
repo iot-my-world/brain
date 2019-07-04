@@ -3,9 +3,9 @@ package recordHandler
 import (
 	"github.com/iot-my-world/brain/api"
 	system2 "github.com/iot-my-world/brain/pkg/party/system"
-	"github.com/iot-my-world/brain/search/criterion"
-	"github.com/iot-my-world/brain/search/identifier"
-	"github.com/iot-my-world/brain/search/query"
+	"github.com/iot-my-world/brain/pkg/search/criterion"
+	"github.com/iot-my-world/brain/pkg/search/identifier"
+	"github.com/iot-my-world/brain/pkg/search/query"
 	"github.com/iot-my-world/brain/security/claims"
 	apiPermission "github.com/iot-my-world/brain/security/permission/api"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"

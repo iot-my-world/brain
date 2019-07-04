@@ -2,7 +2,7 @@ package system
 
 import (
 	"github.com/iot-my-world/brain/pkg/party"
-	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/security/claims"
 	"gopkg.in/mgo.v2/bson"
 )

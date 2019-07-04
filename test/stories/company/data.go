@@ -2,8 +2,8 @@ package company
 
 import (
 	"github.com/iot-my-world/brain/pkg/party/company"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	companyTest "github.com/iot-my-world/brain/test/modules/party/company"
-	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
 var TestData = []companyTest.Data{

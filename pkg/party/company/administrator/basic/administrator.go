@@ -10,12 +10,12 @@ import (
 	"github.com/iot-my-world/brain/pkg/party/company/administrator/exception"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/company/validator"
-	"github.com/iot-my-world/brain/search/criterion"
-	exactTextCriterion "github.com/iot-my-world/brain/search/criterion/exact/text"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/criterion"
+	exactTextCriterion "github.com/iot-my-world/brain/pkg/search/criterion/exact/text"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
-	humanUser "github.com/iot-my-world/brain/user/human"
-	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
 
 type administrator struct {

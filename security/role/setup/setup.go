@@ -11,8 +11,13 @@ import (
 	companyValidator "github.com/iot-my-world/brain/pkg/party/company/validator"
 	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	systemRecordHandler "github.com/iot-my-world/brain/pkg/party/system/recordHandler"
-	"github.com/iot-my-world/brain/search/identifier/id"
-	"github.com/iot-my-world/brain/search/identifier/name"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/identifier/name"
+	sf001TrackerRecordHandler "github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler"
+	sf001TrackerValidator "github.com/iot-my-world/brain/pkg/tracker/sf001/validator"
+	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
+	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
+	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
 	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
 	"github.com/iot-my-world/brain/security/permission/api"
 	"github.com/iot-my-world/brain/security/permission/view"
@@ -20,11 +25,6 @@ import (
 	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
 	roleRecordHandlerException "github.com/iot-my-world/brain/security/role/recordHandler/exception"
 	roleSetupException "github.com/iot-my-world/brain/security/role/setup/exception"
-	sf001TrackerRecordHandler "github.com/iot-my-world/brain/tracker/sf001/recordHandler"
-	sf001TrackerValidator "github.com/iot-my-world/brain/tracker/sf001/validator"
-	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
-	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
-	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 )
 
 var CompanyAdmin = role.Role{

@@ -6,7 +6,7 @@ import (
 	"github.com/iot-my-world/brain/log"
 	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
 type registrar struct {

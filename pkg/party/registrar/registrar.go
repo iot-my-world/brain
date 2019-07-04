@@ -1,11 +1,11 @@
 package registrar
 
 import (
-	"github.com/iot-my-world/brain/search/identifier"
-	"github.com/iot-my-world/brain/search/identifier/party"
+	"github.com/iot-my-world/brain/pkg/search/identifier"
+	"github.com/iot-my-world/brain/pkg/search/identifier/party"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
-	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
 type Registrar interface {

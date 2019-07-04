@@ -2,8 +2,8 @@ package client
 
 import (
 	"github.com/iot-my-world/brain/pkg/party/client"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	clientTest "github.com/iot-my-world/brain/test/modules/party/client"
-	humanUser "github.com/iot-my-world/brain/user/human"
 )
 
 var TestData = map[string][]clientTest.Data{

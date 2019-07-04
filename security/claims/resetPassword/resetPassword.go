@@ -2,10 +2,10 @@ package resetPassword
 
 import (
 	"github.com/iot-my-world/brain/pkg/party"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
-	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	"time"
 )
 

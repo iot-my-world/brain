@@ -2,7 +2,7 @@ package company
 
 import (
 	"github.com/iot-my-world/brain/pkg/party/company"
-	humanUser "github.com/iot-my-world/brain/user/human"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 )
 
 type TestData struct {

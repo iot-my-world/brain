@@ -8,11 +8,11 @@ import (
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
 	validator2 "github.com/iot-my-world/brain/pkg/party/client/validator"
-	"github.com/iot-my-world/brain/search/identifier/adminEmailAddress"
-	"github.com/iot-my-world/brain/search/identifier/emailAddress"
+	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
+	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
+	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
+	userRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
 	humanUserLogin "github.com/iot-my-world/brain/security/claims/login/user/human"
-	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
-	userRecordHandlerException "github.com/iot-my-world/brain/user/human/recordHandler/exception"
 	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 

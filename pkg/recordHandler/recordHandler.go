@@ -2,9 +2,9 @@ package recordHandler
 
 import (
 	"github.com/iot-my-world/brain/entity"
-	"github.com/iot-my-world/brain/search/criterion"
-	"github.com/iot-my-world/brain/search/identifier"
-	"github.com/iot-my-world/brain/search/query"
+	"github.com/iot-my-world/brain/pkg/search/criterion"
+	"github.com/iot-my-world/brain/pkg/search/identifier"
+	"github.com/iot-my-world/brain/pkg/search/query"
 	"github.com/iot-my-world/brain/security/claims"
 )
 

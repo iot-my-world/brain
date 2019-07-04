@@ -2,7 +2,7 @@ package administrator
 
 import (
 	company2 "github.com/iot-my-world/brain/pkg/party/company"
-	"github.com/iot-my-world/brain/search/identifier"
+	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
 )

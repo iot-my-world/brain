@@ -2,7 +2,7 @@ package company
 
 import (
 	"github.com/iot-my-world/brain/pkg/party"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 )
 
 type Company struct {

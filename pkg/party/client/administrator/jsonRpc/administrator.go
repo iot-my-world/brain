@@ -6,7 +6,7 @@ import (
 	"github.com/iot-my-world/brain/log"
 	administrator2 "github.com/iot-my-world/brain/pkg/party/client/administrator"
 	"github.com/iot-my-world/brain/pkg/party/client/administrator/adaptor/jsonRpc"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
 type administrator struct {

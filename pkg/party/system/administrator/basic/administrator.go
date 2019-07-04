@@ -5,7 +5,7 @@ import (
 	administrator2 "github.com/iot-my-world/brain/pkg/party/system/administrator"
 	"github.com/iot-my-world/brain/pkg/party/system/administrator/exception"
 	"github.com/iot-my-world/brain/pkg/party/system/recordHandler"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 )
 
 type administrator struct {

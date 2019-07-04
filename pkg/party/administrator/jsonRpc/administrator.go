@@ -13,7 +13,7 @@ import (
 	company2 "github.com/iot-my-world/brain/pkg/party/company"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/partyarty/administrator"
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/partyarty/administrator/adaptor/jsonRpc"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
 type administrator struct {

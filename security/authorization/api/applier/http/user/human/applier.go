@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/iot-my-world/brain/log"
+	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
 	httpAPIAuthorisationApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http"
 	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
-	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
 	"io/ioutil"
 	"net/http"
 )

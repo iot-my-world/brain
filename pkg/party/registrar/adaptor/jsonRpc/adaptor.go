@@ -4,10 +4,10 @@ import (
 	"errors"
 	"github.com/iot-my-world/brain/log"
 	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
-	"github.com/iot-my-world/brain/search/identifier/party"
-	wrappedIdentifier "github.com/iot-my-world/brain/search/identifier/wrapped"
+	"github.com/iot-my-world/brain/pkg/search/identifier/party"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
-	humanUser "github.com/iot-my-world/brain/user/human"
 	"net/http"
 )
 

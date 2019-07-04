@@ -3,11 +3,11 @@ package registerClientUser
 import (
 	"github.com/iot-my-world/brain/pkg/party"
 	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
-	humanUser "github.com/iot-my-world/brain/user/human"
-	humanUserValidator "github.com/iot-my-world/brain/user/human/validator"
 	"time"
 )
 

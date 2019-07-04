@@ -2,7 +2,7 @@ package registration
 
 import (
 	"github.com/iot-my-world/brain/communication/email"
-	humanUser "github.com/iot-my-world/brain/user/human"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	"net/mail"
 )
 

@@ -1,6 +1,6 @@
 package data
 
-import humanUser "github.com/iot-my-world/brain/user/human"
+import humanUser "github.com/iot-my-world/brain/pkg/user/human"
 
 var User = humanUser.User{
 	//Id string

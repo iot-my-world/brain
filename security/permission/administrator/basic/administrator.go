@@ -3,7 +3,10 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/search/identifier/name"
+	"github.com/iot-my-world/brain/pkg/search/identifier/name"
+	apiUserRecordHandler "github.com/iot-my-world/brain/pkg/user/api/recordHandler"
+	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	apiUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/api"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 	permissionAdministrator "github.com/iot-my-world/brain/security/permission/administrator"
@@ -11,9 +14,6 @@ import (
 	"github.com/iot-my-world/brain/security/permission/api"
 	"github.com/iot-my-world/brain/security/permission/view"
 	roleRecordHandler "github.com/iot-my-world/brain/security/role/recordHandler"
-	apiUserRecordHandler "github.com/iot-my-world/brain/user/api/recordHandler"
-	humanUser "github.com/iot-my-world/brain/user/human"
-	userRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
 )
 
 type administrator struct {

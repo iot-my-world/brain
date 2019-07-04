@@ -16,7 +16,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/party/registrar"
 	recordHandler3 "github.com/iot-my-world/brain/pkg/party/system/recordHandler"
 	exception3 "github.com/iot-my-world/brain/pkg/party/system/recordHandler/exception"
-	"github.com/iot-my-world/brain/search/identifier/id"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
 )
 
