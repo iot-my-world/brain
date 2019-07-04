@@ -1,5 +1,5 @@
 # brain config file
 
 environment = "development"
-pathtoemailtemplatefolder = "../communication/email/template"
+pathtoemailtemplatefolder = "../assets/email/template"
 mongonodes = ["db:27017"]
