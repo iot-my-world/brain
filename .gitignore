@@ -3,3 +3,5 @@ start/debug
 ~$*
 *.rdat
 config-dev.toml
+privateKey.pem
+publicKey.pem
