@@ -3,7 +3,7 @@ package workbook
 import (
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
-	workbookException "github.com/iot-my-world/brain/workbook/exception"
+	"github.com/iot-my-world/brain/pkg/workbook/exception"
 )
 
 type Workbook struct {
@@ -23,7 +23,7 @@ func New(
 	// open the workbook
 	file, err := excelize.OpenFile(pathToWorkBook)
 	if err != nil {
-		return nil, workbookException.OpeningFile{Reasons: []string{err.Error()}}
+		return nil, exception.OpeningFile{Reasons: []string{err.Error()}}
 	}
 
 	// build header map for each sheet
@@ -55,7 +55,7 @@ func (w *Workbook) SheetAsSliceMap(sheetName string) ([]map[string]string, error
 		}
 		sheetCount++
 		if sheetCount == noSheets {
-			return nil, workbookException.SheetDoesNotExist{SheetName: sheetName}
+			return nil, exception.SheetDoesNotExist{SheetName: sheetName}
 		}
 	}
 

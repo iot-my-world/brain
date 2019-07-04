@@ -3,7 +3,7 @@ package workbook
 import (
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
-	workbookException "github.com/iot-my-world/brain/workbook/exception"
+	"github.com/iot-my-world/brain/pkg/workbook/exception"
 )
 
 /*
@@ -16,7 +16,7 @@ func ColumnHeaderMap(xlsxFile *excelize.File, sheet string, topRowIdx int) (map[
 		return nil, err
 	}
 	if len(rows)-1 < topRowIdx {
-		return nil, workbookException.NotEnoughRowsInSheet{
+		return nil, exception.NotEnoughRowsInSheet{
 			Reasons: []string{
 				fmt.Sprintf("only %d rows", len(rows)),
 				fmt.Sprintf("should be %d rows", topRowIdx+1),

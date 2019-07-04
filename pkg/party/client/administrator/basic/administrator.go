@@ -2,8 +2,8 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
+	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/client/action"
 	administrator2 "github.com/iot-my-world/brain/pkg/party/client/administrator"

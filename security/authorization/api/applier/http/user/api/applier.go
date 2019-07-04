@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	httpAPIAuthorisationApplier "github.com/iot-my-world/brain/security/authorization/api/applier/http"
 	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
 	"io/ioutil"

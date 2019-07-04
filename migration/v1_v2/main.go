@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/migration"
 	v1v2zx303Migration "github.com/iot-my-world/brain/migration/v1_v2/zx303"
 )

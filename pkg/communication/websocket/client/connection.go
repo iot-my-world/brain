@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/iot-my-world/brain/exoWSC"
+	websocket2 "github.com/iot-my-world/brain/pkg/communication/websocket"
 	"net/url"
 	"time"
 )
@@ -48,11 +48,11 @@ func (c *Connection) Connect() error {
 	defer c.Conn.Close()
 
 	// Set necessary parameters
-	c.Conn.SetReadLimit(exoWSC.MaxMessageSize)
-	c.Conn.SetReadDeadline(time.Now().Add(exoWSC.PongWait))
+	c.Conn.SetReadLimit(websocket2.MaxMessageSize)
+	c.Conn.SetReadDeadline(time.Now().Add(websocket2.PongWait))
 	c.Conn.SetPongHandler(func(string) error {
 		fmt.Println("Client got pong back")
-		c.Conn.SetReadDeadline(time.Now().Add(exoWSC.PongWait))
+		c.Conn.SetReadDeadline(time.Now().Add(websocket2.PongWait))
 		return nil
 	})
 
@@ -92,7 +92,7 @@ func (c *Connection) StartRX() error {
 }
 
 func (c *Connection) StartTX() error {
-	ticker := time.NewTicker(exoWSC.PingPeriod)
+	ticker := time.NewTicker(websocket2.PingPeriod)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -101,14 +101,14 @@ func (c *Connection) StartTX() error {
 		select {
 		case message, ok := <-c.Send:
 			if ok {
-				c.Conn.SetWriteDeadline(time.Now().Add(exoWSC.WriteWait))
+				c.Conn.SetWriteDeadline(time.Now().Add(websocket2.WriteWait))
 				//fmt.Println("Need to send message!", message)
 				c.Conn.WriteMessage(websocket.TextMessage, message)
 			} else {
 				return errors.New("send channel is closed")
 			}
 		case <-ticker.C:
-			c.Conn.SetWriteDeadline(time.Now().Add(exoWSC.WriteWait))
+			c.Conn.SetWriteDeadline(time.Now().Add(websocket2.WriteWait))
 			//fmt.Println("Ping the server!")
 			if err := c.Conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return errors.New("Could not send ping: " + err.Error())

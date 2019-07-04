@@ -1,7 +1,7 @@
 package jsonRpc
 
 import (
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	tk1022 "github.com/iot-my-world/brain/pkg/tracker/tk102"
 	"github.com/iot-my-world/brain/pkg/tracker/tk102/administrator"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"

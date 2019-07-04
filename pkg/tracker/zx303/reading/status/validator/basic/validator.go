@@ -1,12 +1,12 @@
 package validator
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	action2 "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/status/action"
 	validator2 "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/status/validator"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
 type validator struct {

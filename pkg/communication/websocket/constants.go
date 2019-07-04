@@ -1,4 +1,4 @@
-package exoWSC
+package websocket
 
 import "time"
 

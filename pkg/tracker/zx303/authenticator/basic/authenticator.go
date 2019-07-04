@@ -1,8 +1,8 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
+	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	zx3032 "github.com/iot-my-world/brain/pkg/tracker/zx303"
 	authenticator2 "github.com/iot-my-world/brain/pkg/tracker/zx303/authenticator"

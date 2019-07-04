@@ -2,7 +2,7 @@ package wrapped
 
 import (
 	"encoding/json"
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	criterion2 "github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/criterion/exact/text"
 	"github.com/iot-my-world/brain/pkg/search/criterion/exception"

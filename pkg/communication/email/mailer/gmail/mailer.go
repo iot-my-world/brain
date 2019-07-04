@@ -1,7 +1,7 @@
 package gmail
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	mailer2 "github.com/iot-my-world/brain/pkg/communication/email/mailer"
 	"github.com/jpoehls/gophermail"
 	"net/smtp"

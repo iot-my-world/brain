@@ -3,7 +3,7 @@ package migration
 import (
 	"fmt"
 	"github.com/go-errors/errors"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"

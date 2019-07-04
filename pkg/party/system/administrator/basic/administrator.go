@@ -1,7 +1,7 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	administrator2 "github.com/iot-my-world/brain/pkg/party/system/administrator"
 	"github.com/iot-my-world/brain/pkg/party/system/administrator/exception"
 	"github.com/iot-my-world/brain/pkg/party/system/recordHandler"

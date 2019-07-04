@@ -2,13 +2,13 @@ package clientHelper
 
 import (
 	"github.com/gorilla/websocket"
-	"github.com/iot-my-world/brain/exoWSC"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
+	websocket2 "github.com/iot-my-world/brain/pkg/communication/websocket"
 	"net/http"
 )
 
 // serveWs handles websocket requests from the peer.
-func ServeWs(w http.ResponseWriter, r *http.Request, hub *exoWSC.Hub) {
+func ServeWs(w http.ResponseWriter, r *http.Request, hub *websocket2.Hub) {
 	log.Info("New Websocket Client Connected")
 
 	//Allow any origin to connect
@@ -25,7 +25,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request, hub *exoWSC.Hub) {
 	}
 
 	//Construct a new client helper
-	newClientHelper := exoWSC.NewClientHelper(conn, hub)
+	newClientHelper := websocket2.NewClientHelper(conn, hub)
 
 	log.Info("Registering Client With Hub")
 	// Register ClientHelper with hub

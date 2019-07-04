@@ -2,8 +2,8 @@ package mongo
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
+	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	reading2 "github.com/iot-my-world/brain/pkg/tracker/tk102/reading"
 	recordHandler2 "github.com/iot-my-world/brain/pkg/tracker/tk102/reading/recordHandler"

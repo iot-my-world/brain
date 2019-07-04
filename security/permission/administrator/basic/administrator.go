@@ -2,7 +2,7 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	apiUserRecordHandler "github.com/iot-my-world/brain/pkg/user/api/recordHandler"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"

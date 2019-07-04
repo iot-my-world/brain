@@ -2,16 +2,16 @@ package mongo
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
+	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/party/registrar"
 	system2 "github.com/iot-my-world/brain/pkg/party/system"
 	recordHandler2 "github.com/iot-my-world/brain/pkg/party/system/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/system/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/party/system/setup"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
+	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
 	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 )

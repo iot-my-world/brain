@@ -3,9 +3,9 @@ package validator
 import (
 	"github.com/iot-my-world/brain/pkg/action"
 	sf0012 "github.com/iot-my-world/brain/pkg/tracker/sf001"
+	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 	"github.com/iot-my-world/brain/security/claims"
 	"github.com/iot-my-world/brain/security/permission/api"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type Validator interface {

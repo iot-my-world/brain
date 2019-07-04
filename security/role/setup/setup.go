@@ -1,7 +1,7 @@
 package setup
 
 import (
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	clientAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator"
 	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"

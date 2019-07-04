@@ -3,9 +3,9 @@ package basic
 import (
 	"crypto/rsa"
 	"fmt"
-	"github.com/iot-my-world/brain/environment"
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/environment"
+	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	emailGenerator "github.com/iot-my-world/brain/pkg/communication/email/generator"
 	setPasswordEmail "github.com/iot-my-world/brain/pkg/communication/email/generator/set/password"
 	"github.com/iot-my-world/brain/pkg/communication/email/mailer"

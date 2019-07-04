@@ -1,10 +1,10 @@
-package exoWSC
+package websocket
 
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
-	"github.com/iot-my-world/brain/exoWSC/message"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
+	"github.com/iot-my-world/brain/pkg/communication/websocket/message"
 	"time"
 )
 
@@ -95,7 +95,7 @@ func (c *clientHelper) HandleRX() {
 			log.Error("Error unmarshalling received message: " + err.Error())
 			continue
 		}
-		c.Hub.Broadcast <- receivedMsg
+		Broadcast <- receivedMsg
 	}
 }
 

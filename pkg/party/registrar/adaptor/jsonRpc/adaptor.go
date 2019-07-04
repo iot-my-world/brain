@@ -2,7 +2,7 @@ package jsonRpc
 
 import (
 	"errors"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/search/identifier/party"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"

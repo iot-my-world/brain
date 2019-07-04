@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	client2 "github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"

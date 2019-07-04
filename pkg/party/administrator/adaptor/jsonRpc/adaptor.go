@@ -1,7 +1,7 @@
 package jsonRpc
 
 import (
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/administrator"
 	client2 "github.com/iot-my-world/brain/pkg/party/client"

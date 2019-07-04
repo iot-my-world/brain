@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/go-errors/errors"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/criterion/text"
 	"github.com/iot-my-world/brain/pkg/search/identifier/device/tk102"

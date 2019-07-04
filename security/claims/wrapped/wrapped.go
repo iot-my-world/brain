@@ -2,7 +2,7 @@ package wrapped
 
 import (
 	"encoding/json"
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/security/claims"
 	apiUserLogin "github.com/iot-my-world/brain/security/claims/login/user/api"
 	humanUserLogin "github.com/iot-my-world/brain/security/claims/login/user/human"

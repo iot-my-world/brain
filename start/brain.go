@@ -5,8 +5,8 @@ import (
 	"github.com/gorilla/rpc"
 	gorillaJson "github.com/gorilla/rpc/json"
 	"github.com/iot-my-world/brain/config"
-	"github.com/iot-my-world/brain/cors"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/cors"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/security/encrypt"
 	"github.com/iot-my-world/brain/security/token"
 	"gopkg.in/mgo.v2"
@@ -16,7 +16,7 @@ import (
 	"runtime/debug"
 	"time"
 
-	databaseCollection "github.com/iot-my-world/brain/database/collection"
+	databaseCollection "github.com/iot-my-world/brain/pkg/database/collection"
 
 	authorizationAdministrator "github.com/iot-my-world/brain/security/authorization/administrator"
 

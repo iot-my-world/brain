@@ -1,7 +1,7 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	zx303GPSReading "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps"
 	trackingReport "github.com/iot-my-world/brain/report/tracking"

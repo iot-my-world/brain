@@ -1,7 +1,7 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
 	action2 "github.com/iot-my-world/brain/pkg/party/company/action"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
@@ -11,8 +11,8 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
 	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	userRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
+	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 	humanUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/human"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
 )
 
 type validator struct {

@@ -1,8 +1,8 @@
 package jsonRpc
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
-	"github.com/iot-my-world/brain/log"
+	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
 	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"

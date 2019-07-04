@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/iot-my-world/brain/environment"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/environment"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/spf13/viper"
 	"os"
 )

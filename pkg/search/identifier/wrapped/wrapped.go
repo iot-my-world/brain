@@ -3,7 +3,7 @@ package wrapped
 import (
 	"encoding/json"
 	"errors"
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	identifier2 "github.com/iot-my-world/brain/pkg/search/identifier"
 	adminEmailAddress2 "github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
 	tk1022 "github.com/iot-my-world/brain/pkg/search/identifier/device/tk102"

@@ -1,10 +1,10 @@
-package exoWSC
+package websocket
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/iot-my-world/brain/exoWSC/message"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
+	"github.com/iot-my-world/brain/pkg/communication/websocket/message"
 )
 
 type Hub struct {
@@ -59,7 +59,7 @@ func (h *Hub) Run() {
 				SerialData: messageData,
 			}
 			if err == nil {
-				c.Send(welcomeMessage)
+				Send(welcomeMessage)
 			} else {
 				log.Warn("Unable to marshal message for client")
 			}
@@ -83,7 +83,7 @@ func (h *Hub) Run() {
 func (h *Hub) broadcastMessage() {
 	fmt.Println("hub is broadcasting message:", h.content)
 	for c := range h.Clients {
-		if err := c.Send(h.content); err != nil {
+		if err := Send(h.content); err != nil {
 			log.Error("Error Sending msg to client: " + err.Error())
 			// TODO: Unregister Client here?
 		}

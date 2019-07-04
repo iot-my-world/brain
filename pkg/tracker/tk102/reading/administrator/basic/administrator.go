@@ -2,7 +2,7 @@ package basic
 
 import (
 	"fmt"
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/tracker/tk102/reading/action"
 	administrator2 "github.com/iot-my-world/brain/pkg/tracker/tk102/reading/administrator"
 	"github.com/iot-my-world/brain/pkg/tracker/tk102/reading/administrator/exception"

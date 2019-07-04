@@ -1,14 +1,14 @@
 package basic
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
 	action2 "github.com/iot-my-world/brain/pkg/tracker/tk102/action"
 	validator2 "github.com/iot-my-world/brain/pkg/tracker/tk102/validator"
-	"github.com/iot-my-world/brain/validate/reasonInvalid"
+	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
 type validator struct {

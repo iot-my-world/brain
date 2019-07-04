@@ -1,11 +1,11 @@
-package exoWSC
+package websocket
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/iot-my-world/brain/log"
+	"github.com/iot-my-world/brain/internal/log"
 	"net/url"
 	"time"
 )
@@ -94,7 +94,7 @@ func (cp *ContextProvider) StartRX() error {
 		if err := json.Unmarshal(msgByteData, &rxedMsg); err != nil {
 			log.Error("error unmarshalling rxed WS Message: " + err.Error())
 		}
-		switch rxedMsg.Type {
+		switch Type {
 		default:
 			fmt.Println("Default Case!", rxedMsg)
 		}

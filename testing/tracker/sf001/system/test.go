@@ -10,10 +10,10 @@ import (
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	"github.com/iot-my-world/brain/pkg/tracker/sf001"
 	sf001TrackerAdministratorJsonAdaptor "github.com/iot-my-world/brain/pkg/tracker/sf001/administrator/adaptor/jsonRpc"
+	"github.com/iot-my-world/brain/pkg/workbook"
 	authJsonRpcAdaptor "github.com/iot-my-world/brain/security/authorization/service/adaptor/jsonRpc"
 	testData "github.com/iot-my-world/brain/testing/data"
 	systemTestData "github.com/iot-my-world/brain/testing/system/data"
-	"github.com/iot-my-world/brain/workbook"
 	"github.com/stretchr/testify/suite"
 	"os"
 )

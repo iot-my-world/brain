@@ -1,7 +1,7 @@
 package api
 
 import (
-	brainException "github.com/iot-my-world/brain/exception"
+	brainException "github.com/iot-my-world/brain/internal/exception"
 	apiAuthorizer "github.com/iot-my-world/brain/security/authorization/api/authorizer"
 	apiAuthException "github.com/iot-my-world/brain/security/authorization/api/authorizer/exception"
 	apiUserLoginClaims "github.com/iot-my-world/brain/security/claims/login/user/api"
