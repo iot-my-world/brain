@@ -21,6 +21,10 @@ import (
 	"github.com/iot-my-world/brain/security/claims/registerCompanyAdminUser"
 	wrappedClaims "github.com/iot-my-world/brain/security/claims/wrapped"
 	humanUser "github.com/iot-my-world/brain/user/human"
+	humanUserAdministrator "github.com/iot-my-world/brain/user/human/administrator"
+	humanUserJsonRpcAdministrator "github.com/iot-my-world/brain/user/human/administrator/jsonRpc"
+	humanUserRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler"
+	humanUserJsonRpcRecordHandler "github.com/iot-my-world/brain/user/human/recordHandler/jsonRpc"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -41,12 +45,14 @@ func New(
 
 type test struct {
 	suite.Suite
-	jsonRpcClient        jsonRpcClient.Client
-	companyRecordHandler companyRecordHandler.RecordHandler
-	companyAdministrator companyAdministrator.Administrator
-	partyRegistrar       partyRegistrar.Registrar
-	user                 humanUser.User
-	testData             []Data
+	jsonRpcClient          jsonRpcClient.Client
+	companyRecordHandler   companyRecordHandler.RecordHandler
+	companyAdministrator   companyAdministrator.Administrator
+	humanUserAdministrator humanUserAdministrator.Administrator
+	humanUserRecordHandler humanUserRecordHandler.RecordHandler
+	partyRegistrar         partyRegistrar.Registrar
+	user                   humanUser.User
+	testData               []Data
 }
 
 type Data struct {
@@ -70,6 +76,8 @@ func (suite *test) SetupTest() {
 	suite.companyRecordHandler = companyJsonRpcRecordHandler.New(suite.jsonRpcClient)
 	suite.companyAdministrator = companyJsonRpcAdministrator.New(suite.jsonRpcClient)
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
+	suite.humanUserAdministrator = humanUserJsonRpcAdministrator.New(suite.jsonRpcClient)
+	suite.humanUserRecordHandler = humanUserJsonRpcRecordHandler.New(suite.jsonRpcClient)
 }
 
 func (suite *test) TestCompany1Create() {
@@ -328,6 +336,25 @@ func (suite *test) TestCompany4InviteAndRegisterAdmin() {
 		// set token back to logInToken
 		if err := suite.jsonRpcClient.SetJWT(logInToken); err != nil {
 			suite.FailNow("failed to set json rpc client jwt back to logInToken", err.Error())
+		}
+	}
+}
+
+func (suite *test) TestCompany5CreateInviteRegisterCompanyUsers() {
+	for _, companyData := range suite.testData {
+
+		for _, userToCreate := range companyData.Users {
+			// create user
+			createResponse, err := suite.humanUserAdministrator.Create(&humanUserAdministrator.CreateRequest{
+				User: userToCreate,
+			})
+			if err != nil {
+				suite.FailNow("error creating company user")
+				return
+			}
+
+			// retrieve user
+			retrieveUserReponse, err := suite.hu
 		}
 	}
 }
