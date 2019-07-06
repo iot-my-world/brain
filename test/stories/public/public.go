@@ -10,7 +10,7 @@ import (
 func Test(t *testing.T) {
 	suite.Run(t, publicTestModule.New(
 		data.BrainURL,
-		[]publicTestModule.CompanyData{},
-		[]publicTestModule.ClientData{},
+		CompanyTestData,
+		ClientTestData,
 	))
 }

@@ -1,12 +1,13 @@
 package public
 
 import (
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/company"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
-	companyTest "github.com/iot-my-world/brain/test/modules/party/company"
+	publicTestModule "github.com/iot-my-world/brain/test/modules/public"
 )
 
-var TestData = []companyTest.Data{
+var CompanyTestData = []publicTestModule.CompanyData{
 	{
 		Company: company.Company{
 			Name:              "Public Sun Shop",
@@ -102,6 +103,34 @@ var TestData = []companyTest.Data{
 				Username:     "reinhardUser2",
 				Password:     []byte("123"),
 				EmailAddress: "reinhardUser2@reinhard.com",
+				Roles:        make([]string, 0),
+			},
+		},
+	},
+}
+
+var ClientTestData = []publicTestModule.ClientData{
+	{
+		Client: client.Client{
+			Type:              "",
+			Name:              "",
+			AdminEmailAddress: "",
+		},
+		AdminUser: humanUser.User{
+			Name:         "",
+			Surname:      "",
+			Username:     "",
+			EmailAddress: "",
+			Password:     []byte("123"),
+			Roles:        make([]string, 0),
+		},
+		Users: []humanUser.User{
+			{
+				Name:         "",
+				Surname:      "",
+				Username:     "",
+				EmailAddress: "",
+				Password:     []byte("123"),
 				Roles:        make([]string, 0),
 			},
 		},
