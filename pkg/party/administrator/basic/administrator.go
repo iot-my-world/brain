@@ -219,6 +219,10 @@ func (a *administrator) CreateAndInviteCompany(request *administrator2.CreateAnd
 		return nil, err
 	}
 
+	// set company parent details to system
+	request.Company.ParentPartyType = a.systemClaims.PartyType
+	request.Company.ParentId = a.systemClaims.PartyId
+
 	// create company via company administrator
 	createResponse, err := a.companyAdministrator.Create(&administrator4.CreateRequest{
 		Claims:  a.systemClaims,

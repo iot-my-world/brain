@@ -165,7 +165,7 @@ func (a *administrator) CreateAndInviteCompany(request *partyAdministrator.Creat
 	}, nil
 }
 
-func (a *administrator) ValidateCreateAndInviteCompanyClientRequest(request *partyAdministrator.CreateAndInviteCompanyClientRequest) error {
+func (a *administrator) ValidateCreateAndInviteClientRequest(request *partyAdministrator.CreateAndInviteClientRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -174,57 +174,25 @@ func (a *administrator) ValidateCreateAndInviteCompanyClientRequest(request *par
 	return nil
 }
 
-func (a *administrator) CreateAndInviteCompanyClient(request *partyAdministrator.CreateAndInviteCompanyClientRequest) (*partyAdministrator.CreateAndInviteCompanyClientResponse, error) {
-	if err := a.ValidateCreateAndInviteCompanyClientRequest(request); err != nil {
+func (a *administrator) CreateAndInviteClient(request *partyAdministrator.CreateAndInviteClientRequest) (*partyAdministrator.CreateAndInviteClientResponse, error) {
+	if err := a.ValidateCreateAndInviteClientRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
 
-	createAndInviteCompanyClientResponse := partyAdministratorJsonRpcAdaptor.CreateAndInviteCompanyClientResponse{}
+	createAndInviteClientResponse := partyAdministratorJsonRpcAdaptor.CreateAndInviteClientResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		partyAdministrator.CreateAndInviteCompanyClientService,
-		partyAdministratorJsonRpcAdaptor.CreateAndInviteCompanyClientRequest{
+		partyAdministrator.CreateAndInviteClientService,
+		partyAdministratorJsonRpcAdaptor.CreateAndInviteClientRequest{
 			Client: request.Client,
 		},
-		&createAndInviteCompanyClientResponse,
+		&createAndInviteClientResponse,
 	); err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
 
-	return &partyAdministrator.CreateAndInviteCompanyClientResponse{
-		RegistrationURLToken: createAndInviteCompanyClientResponse.RegistrationURLToken,
-	}, nil
-}
-
-func (a *administrator) ValidateCreateAndInviteIndividualClientRequest(request *partyAdministrator.CreateAndInviteIndividualClientRequest) error {
-	reasonsInvalid := make([]string, 0)
-
-	if len(reasonsInvalid) > 0 {
-		return brainException.RequestInvalid{Reasons: reasonsInvalid}
-	}
-	return nil
-}
-
-func (a *administrator) CreateAndInviteIndividualClient(request *partyAdministrator.CreateAndInviteIndividualClientRequest) (*partyAdministrator.CreateAndInviteIndividualClientResponse, error) {
-	if err := a.ValidateCreateAndInviteIndividualClientRequest(request); err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-
-	createAndInviteIndividualClientResponse := partyAdministratorJsonRpcAdaptor.CreateAndInviteIndividualClientResponse{}
-	if err := a.jsonRpcClient.JsonRpcRequest(
-		partyAdministrator.CreateAndInviteIndividualClientService,
-		partyAdministratorJsonRpcAdaptor.CreateAndInviteIndividualClientRequest{
-			Client: request.Client,
-		},
-		&createAndInviteIndividualClientResponse,
-	); err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-
-	return &partyAdministrator.CreateAndInviteIndividualClientResponse{
-		RegistrationURLToken: createAndInviteIndividualClientResponse.RegistrationURLToken,
+	return &partyAdministrator.CreateAndInviteClientResponse{
+		RegistrationURLToken: createAndInviteClientResponse.RegistrationURLToken,
 	}, nil
 }

@@ -111,11 +111,11 @@ type CreateAndInviteClientRequest struct {
 	Client client2.Client `json:"client"`
 }
 
-type CreateAndInviteResponse struct {
+type CreateAndInviteClientResponse struct {
 	RegistrationURLToken string `json:"registrationURLToken"`
 }
 
-func (a *adaptor) CreateAndInviteClient(r *http.Request, request *CreateAndInviteClientRequest, response *CreateAndInviteResponse) error {
+func (a *adaptor) CreateAndInviteClient(r *http.Request, request *CreateAndInviteClientRequest, response *CreateAndInviteClientResponse) error {
 	createAndInviteCompanyClientResponse, err := a.partyAdministrator.CreateAndInviteClient(&administrator.CreateAndInviteClientRequest{
 		Client: request.Client,
 	})

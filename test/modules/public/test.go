@@ -11,10 +11,16 @@ import (
 	"github.com/iot-my-world/brain/pkg/party/company"
 	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	partyJsonRpcRegistrar "github.com/iot-my-world/brain/pkg/party/registrar/jsonRpc"
+	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
+	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/claims/registerCompanyAdminUser"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
+	humanUserJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator/jsonRpc"
+	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
+	humanUserJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler/jsonRpc"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -23,11 +29,13 @@ import (
 
 type test struct {
 	suite.Suite
-	jsonRpcClient      jsonRpcClient.Client
-	partyAdministrator partyAdministrator.Administrator
-	companyTestData    []CompanyData
-	clientTestData     []ClientData
-	partyRegistrar     partyRegistrar.Registrar
+	jsonRpcClient          jsonRpcClient.Client
+	partyAdministrator     partyAdministrator.Administrator
+	companyTestData        []CompanyData
+	clientTestData         []ClientData
+	partyRegistrar         partyRegistrar.Registrar
+	humanUserAdministrator humanUserAdministrator.Administrator
+	humanUserRecordHandler humanUserRecordHandler.RecordHandler
 }
 
 type CompanyData struct {
@@ -58,6 +66,8 @@ func (suite *test) SetupTest() {
 	// not logging in jsonRpcClient since these tests are done as a public user
 	suite.partyAdministrator = partyJsonRpcAdministrator.New(suite.jsonRpcClient)
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
+	suite.humanUserAdministrator = humanUserJsonRpcAdministrator.New(suite.jsonRpcClient)
+	suite.humanUserRecordHandler = humanUserJsonRpcRecordHandler.New(suite.jsonRpcClient)
 }
 
 func (suite *test) TestPublic1InviteAndRegisterCompanies() {
@@ -129,5 +139,82 @@ func (suite *test) TestPublic1InviteAndRegisterCompanies() {
 
 		// log out the json rpc client
 		suite.jsonRpcClient.Logout()
+	}
+}
+
+func (suite *test) TestPublic2CompanyAdminInviteUsers() {
+	for _, companyData := range suite.companyTestData {
+		// log in json rpc client as company admin user
+		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
+			UsernameOrEmailAddress: companyData.AdminUser.Username,
+			Password:               string(companyData.AdminUser.Password),
+		}); err != nil {
+			suite.Fail("log in as company admin user error", err.Error())
+			return
+		}
+
+		for _, userToCreate := range companyData.Users {
+			// set user's party details
+			userToCreate.ParentPartyType = suite.jsonRpcClient.Claims().PartyDetails().ParentPartyType
+			userToCreate.ParentId = suite.jsonRpcClient.Claims().PartyDetails().ParentId
+			userToCreate.PartyType = suite.jsonRpcClient.Claims().PartyDetails().PartyType
+			userToCreate.PartyId = suite.jsonRpcClient.Claims().PartyDetails().PartyId
+
+			// create user
+			createResponse, err := suite.humanUserAdministrator.Create(&humanUserAdministrator.CreateRequest{
+				User: userToCreate,
+			})
+			if err != nil {
+				suite.FailNow("error creating company user")
+				return
+			}
+			// set fields set on creation
+			userToCreate.Id = createResponse.User.Id
+			if !suite.Equal(
+				userToCreate,
+				createResponse.User,
+				"user in create response should be equal to user to create",
+			) {
+				return
+			}
+
+			// retrieve user
+			retrieveUserResponse, err := suite.humanUserRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
+				Identifier: emailAddress.Identifier{
+					EmailAddress: userToCreate.EmailAddress,
+				},
+			})
+			if err != nil {
+				suite.FailNow("error retrieving user", err.Error())
+				return
+			}
+			if !suite.Equal(
+				userToCreate,
+				retrieveUserResponse.User,
+				"retrieved user should be the same as created",
+			) {
+				return
+			}
+		}
+
+		// log out the json rpc client
+		suite.jsonRpcClient.Logout()
+	}
+}
+
+func (suite *test) TestPublic3CompanyUserLogin() {
+	for _, companyData := range suite.companyTestData {
+		for _, userToTest := range companyData.Users {
+			// test user log in
+			if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
+				UsernameOrEmailAddress: userToTest.Username,
+				Password:               string(userToTest.Password),
+			}); err != nil {
+				suite.FailNow("could not log company user", err.Error())
+				return
+			}
+			// log out the json rpc client
+			suite.jsonRpcClient.Logout()
+		}
 	}
 }

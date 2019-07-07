@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/iot-my-world/brain/internal/log"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	"github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	http2 "github.com/iot-my-world/brain/pkg/security/authorization/api/applier/http"
 	"github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer"
@@ -41,7 +42,10 @@ func (a *applier) ApplyAuth(next http.Handler) http.Handler {
 		// UserAdministrator.ForgotPassword
 		// Check if Authorization Header is present in request indicating that the user is logged in
 		switch jsonRpcServiceMethod {
-		case administrator.LoginService, humanUserAdministrator.ForgotPasswordService:
+		case administrator.LoginService,
+			humanUserAdministrator.ForgotPasswordService,
+			partyAdministrator.CreateAndInviteCompanyService,
+			partyAdministrator.CreateAndInviteClientService:
 			next.ServeHTTP(w, r)
 			return
 		default:
