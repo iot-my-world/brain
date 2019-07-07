@@ -42,33 +42,33 @@ var CompanyTestData = []publicTestModule.CompanyData{
 	{
 		Company: company.Company{
 			// Id:
-			Name:              "DHL",
-			AdminEmailAddress: "dhlAdmin@dhl.com",
+			Name:              "Fastway",
+			AdminEmailAddress: "fastwayAdmin@fastway.com",
 			// ParentPartyType:
 			// ParentId:
 		},
 		AdminUser: humanUser.User{
 			Name:     "Simon",
 			Surname:  "Rubin",
-			Username: "dhlAdmin",
+			Username: "fastwayAdmin",
 			Password: []byte("123"),
 			Roles:    make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
-				Name:         "dhlUser1",
+				Name:         "fastwayUser1",
 				Surname:      "test1",
-				Username:     "dhlUser1",
+				Username:     "fastwayUser1",
 				Password:     []byte("123"),
-				EmailAddress: "dhlUser1@dhl.com",
+				EmailAddress: "fastwayUser1@fastway.com",
 				Roles:        make([]string, 0),
 			},
 			{
-				Name:         "dhlUser2",
+				Name:         "fastwayUser2",
 				Surname:      "test2",
-				Username:     "dhlUser2",
+				Username:     "fastwayUser2",
 				Password:     []byte("123"),
-				EmailAddress: "dhlUser2@dhl.com",
+				EmailAddress: "fastwayUser2@fastway.com",
 				Roles:        make([]string, 0),
 			},
 		},
@@ -76,33 +76,33 @@ var CompanyTestData = []publicTestModule.CompanyData{
 	{
 		Company: company.Company{
 			// Id:
-			Name:              "Reinhard Trucking",
-			AdminEmailAddress: "reinhardAdmin@reinhard.com",
+			Name:              "Eskom",
+			AdminEmailAddress: "eskomAdmin@eskom.com",
 			// ParentPartyType:
 			// ParentId:
 		},
 		AdminUser: humanUser.User{
 			Name:     "Bob",
 			Surname:  "Smith",
-			Username: "reinhardAdmin",
+			Username: "eskomAdmin",
 			Password: []byte("123"),
 			Roles:    make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
-				Name:         "reinhardUser1",
+				Name:         "eskomUser1",
 				Surname:      "test1",
-				Username:     "reinhardUser1",
+				Username:     "eskomUser1",
 				Password:     []byte("123"),
-				EmailAddress: "reinhardUser1@reinhard.com",
+				EmailAddress: "eskomUser1@eskom.com",
 				Roles:        make([]string, 0),
 			},
 			{
-				Name:         "reinhardUser2",
+				Name:         "eskomUser2",
 				Surname:      "test2",
-				Username:     "reinhardUser2",
+				Username:     "eskomUser2",
 				Password:     []byte("123"),
-				EmailAddress: "reinhardUser2@reinhard.com",
+				EmailAddress: "eskomUser2@eskom.com",
 				Roles:        make([]string, 0),
 			},
 		},
