@@ -20,6 +20,7 @@ import (
 	humanUserJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator/jsonRpc"
 	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	humanUserJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler/jsonRpc"
+	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/square/go-jose.v2"
@@ -232,5 +233,26 @@ func (suite *test) TestPublic3InviteAndRegisterClients() {
 
 		// log out the json rpc client
 		suite.jsonRpcClient.Logout()
+	}
+}
+
+func (suite *test) TestPublic4ClientTests() {
+	for _, clientData := range suite.clientTestData {
+		clientTests := clientTestModule.New(
+			suite.jsonRpcClient.GetURL(),
+			clientData.AdminUser,
+			[]clientTestModule.Data{
+				{
+					Client:    clientData.Client,
+					AdminUser: clientData.AdminUser,
+					Users:     clientData.Users,
+				},
+			},
+		)
+		clientTests.Suite = suite.Suite
+		clientTests.SetupTest()
+		suite.Run("Create Users", clientTests.TestClient5CreateUsers)
+		suite.Run("Invite And Register Users", clientTests.TestClient6InviteAndRegisterUsers)
+		suite.Run("User Login", clientTests.TestClient7UserLogin)
 	}
 }
