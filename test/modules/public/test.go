@@ -217,6 +217,11 @@ func (suite *test) TestPublic3InviteAndRegisterClients() {
 			suite.FailNow(fmt.Sprintf("claims could not be inferred to type %s", claims.RegisterCompanyAdminUser))
 		}
 
+		// set registration token
+		if err := suite.jsonRpcClient.SetJWT(jwt); err != nil {
+			suite.FailNow("failed to set json rpc client jwt for registration", err.Error())
+		}
+
 		// register the client admin user
 		if _, err := suite.partyRegistrar.RegisterClientAdminUser(&partyRegistrar.RegisterClientAdminUserRequest{
 			User: clientData.AdminUser,
