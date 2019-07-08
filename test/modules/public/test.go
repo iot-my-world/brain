@@ -256,3 +256,7 @@ func (suite *test) TestPublic4ClientTests() {
 		suite.Run("User Login", clientTests.TestClient7UserLogin)
 	}
 }
+
+func (suite *test) TestPublic5ForgotPassword() {
+
+}
