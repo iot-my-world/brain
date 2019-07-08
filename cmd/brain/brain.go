@@ -70,16 +70,6 @@ import (
 	systemRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/system/recordHandler/adaptor/jsonRpc"
 	systemMongoRecordHandler "github.com/iot-my-world/brain/pkg/party/system/recordHandler/mongo"
 
-	sf001TrackerAdministrator "github.com/iot-my-world/brain/pkg/tracker/sf001/administrator"
-	sf001AdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/tracker/sf001/administrator/adaptor/jsonRpc"
-	sf001TrackerBasicAdministrator "github.com/iot-my-world/brain/pkg/tracker/sf001/administrator/basic"
-	sf001TrackerRecordHandler "github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler"
-	sf001RecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler/adaptor/jsonRpc"
-	sf001TrackerMongoRecordHandler "github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler/mongo"
-	sf001TrackerValidator "github.com/iot-my-world/brain/pkg/tracker/sf001/validator"
-	sf001ValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/tracker/sf001/validator/adaptor/jsonRpc"
-	sf001TrackerBasicValidator "github.com/iot-my-world/brain/pkg/tracker/sf001/validator/basic"
-
 	apiUserAdministrator "github.com/iot-my-world/brain/pkg/user/api/administrator"
 	apiUserAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/user/api/administrator/adaptor/jsonRpc"
 	apiUserBasicAdministrator "github.com/iot-my-world/brain/pkg/user/api/administrator/basic"
@@ -332,20 +322,6 @@ func main() {
 		APIUserRecordHandler,
 	)
 
-	// SF001 Device
-	SF001TrackerMongoRecordHandler := sf001TrackerMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		databaseCollection.SF001Tracker,
-	)
-	SF001TrackerBasicValidator := sf001TrackerBasicValidator.New(
-		PartyBasicAdministrator,
-	)
-	SF001TrackerBasicAdministrator := sf001TrackerBasicAdministrator.New(
-		SF001TrackerBasicValidator,
-		SF001TrackerMongoRecordHandler,
-	)
-
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
@@ -389,11 +365,6 @@ func main() {
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
-
-	// SF001 Tracker
-	SF001TrackerRecordHandlerJsonRpcAdaptor := sf001RecordHandlerJsonRpcAdaptor.New(SF001TrackerMongoRecordHandler)
-	SF001TrackerValidatorJsonRpcAdaptor := sf001ValidatorJsonRpcAdaptor.New(SF001TrackerBasicValidator)
-	SF001TrackerAdministratorJsonRpcAdaptor := sf001AdministratorJsonRpcAdaptor.New(SF001TrackerBasicAdministrator)
 
 	// ________________________________ Register Service Provider Adaptors with secureHumanUserAPIServer ________________________________
 	// Create secureHumanUserAPIServer
@@ -469,17 +440,6 @@ func main() {
 	// Reports
 	if err := secureHumanUserAPIServer.RegisterService(TrackingReportAdaptor, trackingReport.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register Tracking Report Service")
-	}
-
-	// SF001 Tracker
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerRecordHandlerJsonRpcAdaptor, sf001TrackerRecordHandler.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register SF001 Tracker RecordHandler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerValidatorJsonRpcAdaptor, sf001TrackerValidator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register SF001 Tracker Validator Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(SF001TrackerAdministratorJsonRpcAdaptor, sf001TrackerAdministrator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register SF001 Tracker Administrator Service")
 	}
 
 	// Set up Secure Human User API Server i.e. the Portal API Server

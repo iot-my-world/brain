@@ -20,8 +20,6 @@ import (
 	"github.com/iot-my-world/brain/pkg/security/role/recordHandler"
 	exception2 "github.com/iot-my-world/brain/pkg/security/role/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/security/role/setup/exception"
-	sf001TrackerRecordHandler "github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler"
-	sf001TrackerValidator "github.com/iot-my-world/brain/pkg/tracker/sf001/validator"
 	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
@@ -174,20 +172,6 @@ var initialRoles = func() []role2.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, clientValidator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientValidator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientValidator.ClientUserPermissions...)
-
-	// SF001 Tracker RecordHandler
-	rootAPIPermissions = append(rootAPIPermissions, sf001TrackerRecordHandler.SystemUserPermissions...)
-	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sf001TrackerRecordHandler.CompanyAdminUserPermissions...)
-	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sf001TrackerRecordHandler.CompanyUserPermissions...)
-	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sf001TrackerRecordHandler.ClientAdminUserPermissions...)
-	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sf001TrackerRecordHandler.ClientUserPermissions...)
-
-	// SF001 Tracker Validator
-	rootAPIPermissions = append(rootAPIPermissions, sf001TrackerValidator.SystemUserPermissions...)
-	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sf001TrackerValidator.CompanyAdminUserPermissions...)
-	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sf001TrackerValidator.CompanyUserPermissions...)
-	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sf001TrackerValidator.ClientAdminUserPermissions...)
-	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sf001TrackerValidator.ClientUserPermissions...)
 
 	// Register roles here
 	allRoles := []role2.Role{
