@@ -747,7 +747,7 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistr
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *r.systemClaims,
 		User:   request.User,
-		Action: partyRegistrarAction.RegisterClientAdminUser,
+		Action: action.RegisterClientAdminUser,
 	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
