@@ -245,5 +245,5 @@ func (a *administrator) ForgotPassword(request *administrator2.ForgotPasswordReq
 		return nil, err
 	}
 
-	return &administrator2.ForgotPasswordResponse{}, nil
+	return &administrator2.ForgotPasswordResponse{URLToken: forgotPasswordResponse.URLToken}, nil
 }

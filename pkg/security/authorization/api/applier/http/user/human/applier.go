@@ -48,6 +48,7 @@ func (a *applier) ApplyAuth(next http.Handler) http.Handler {
 			partyAdministrator.CreateAndInviteClientService:
 			next.ServeHTTP(w, r)
 			return
+
 		default:
 			if r.Header["Authorization"] == nil {
 				log.Info("Unauthorised Json RPC access! - No Authorisation header!")

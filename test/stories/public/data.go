@@ -14,11 +14,12 @@ var CompanyTestData = []publicTestModule.CompanyData{
 			AdminEmailAddress: "publicSunShopAdmin@sunShop.com",
 		},
 		AdminUser: humanUser.User{
-			Name:     "Tom",
-			Surname:  "Smith",
-			Username: "publicSunShopAdmin",
-			Password: []byte("123"),
-			Roles:    make([]string, 0),
+			Name:         "Tom",
+			Surname:      "Smith",
+			Username:     "publicSunShopAdmin",
+			EmailAddress: "publicSunShopAdmin@sunShop.com",
+			Password:     []byte("123"),
+			Roles:        make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
@@ -48,11 +49,12 @@ var CompanyTestData = []publicTestModule.CompanyData{
 			// ParentId:
 		},
 		AdminUser: humanUser.User{
-			Name:     "Simon",
-			Surname:  "Rubin",
-			Username: "fastwayAdmin",
-			Password: []byte("123"),
-			Roles:    make([]string, 0),
+			Name:         "Simon",
+			Surname:      "Rubin",
+			Username:     "fastwayAdmin",
+			EmailAddress: "fastwayAdmin@fastway.com",
+			Password:     []byte("123"),
+			Roles:        make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
@@ -82,11 +84,12 @@ var CompanyTestData = []publicTestModule.CompanyData{
 			// ParentId:
 		},
 		AdminUser: humanUser.User{
-			Name:     "Bob",
-			Surname:  "Smith",
-			Username: "eskomAdmin",
-			Password: []byte("123"),
-			Roles:    make([]string, 0),
+			Name:         "Bob",
+			Surname:      "Smith",
+			Username:     "eskomAdmin",
+			EmailAddress: "eskomAdmin@eskom.com",
+			Password:     []byte("123"),
+			Roles:        make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
