@@ -4,10 +4,10 @@ import (
 	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/company"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
-	publicTestModule "github.com/iot-my-world/brain/test/modules/public"
+	"github.com/iot-my-world/brain/test/modules/public/party/registrar"
 )
 
-var CompanyTestData = []publicTestModule.CompanyData{
+var CompanyTestData = []registrarAdministrator.CompanyData{
 	{
 		Company: company.Company{
 			Name:              "Public Sun Shop",
@@ -112,7 +112,7 @@ var CompanyTestData = []publicTestModule.CompanyData{
 	},
 }
 
-var ClientTestData = []publicTestModule.ClientData{
+var ClientTestData = []registrarAdministrator.ClientData{
 	{
 		Client: client.Client{
 			Type:              client.Individual,

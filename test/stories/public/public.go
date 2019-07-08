@@ -2,13 +2,13 @@ package public
 
 import (
 	"github.com/iot-my-world/brain/test/data"
-	publicTestModule "github.com/iot-my-world/brain/test/modules/public"
+	partyRegistrarAdministratorTestModule "github.com/iot-my-world/brain/test/modules/party/registrarAdministrator"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
 func Test(t *testing.T) {
-	suite.Run(t, publicTestModule.New(
+	suite.Run(t, partyRegistrarAdministratorTestModule.New(
 		data.BrainURL,
 		CompanyTestData,
 		ClientTestData,
