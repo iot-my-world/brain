@@ -1,12 +1,12 @@
 package recordHandler
 
 import (
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/search/query"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/permission/api"
-	sf0012 "github.com/iot-my-world/brain/pkg/tracker/sf001"
 )
 
 type RecordHandler interface {
@@ -17,7 +17,7 @@ type RecordHandler interface {
 	Collect(*CollectRequest) (*CollectResponse, error)
 }
 
-const ServiceProvider = "SF001-RecordHandler"
+const ServiceProvider = "Sigbug-RecordHandler"
 const CreateService = ServiceProvider + ".Create"
 const RetrieveService = ServiceProvider + ".Retrieve"
 const UpdateService = ServiceProvider + ".Update"
@@ -43,11 +43,11 @@ var ClientUserPermissions = []api.Permission{
 }
 
 type CreateRequest struct {
-	SF001 sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type CreateResponse struct {
-	SF001 sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type RetrieveRequest struct {
@@ -56,13 +56,13 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	SF001 sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type UpdateRequest struct {
 	Claims     claims.Claims
 	Identifier identifier.Identifier
-	SF001      sf0012.SF001
+	Sigbug     sigbug.Sigbug
 }
 
 type UpdateResponse struct{}
@@ -82,6 +82,6 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []sf0012.SF001
+	Records []sigbug.Sigbug
 	Total   int
 }

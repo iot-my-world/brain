@@ -3,11 +3,11 @@ package validator
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
+	action2 "github.com/iot-my-world/brain/pkg/device/sigbug/action"
+	validator2 "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
-	action2 "github.com/iot-my-world/brain/pkg/tracker/sf001/action"
-	validator2 "github.com/iot-my-world/brain/pkg/tracker/sf001/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
@@ -62,14 +62,14 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	sf001ToValidate := &request.SF001
+	sigbugToValidate := &request.Sigbug
 
-	if (*sf001ToValidate).Id == "" {
+	if (*sigbugToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*sf001ToValidate).Id,
+			Data:  (*sigbugToValidate).Id,
 		})
 	}
 
@@ -80,22 +80,22 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 	}
 
 	// owner party type must be set, cannot be blank
-	if (*sf001ToValidate).OwnerPartyType == "" {
+	if (*sigbugToValidate).OwnerPartyType == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "ownerPartyType",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*sf001ToValidate).OwnerPartyType,
+			Data:  (*sigbugToValidate).OwnerPartyType,
 		})
 	} else {
 		// if it is not blank
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
-		switch (*sf001ToValidate).OwnerPartyType {
+		switch (*sigbugToValidate).OwnerPartyType {
 		case party.System, party.Client, party.Company:
 			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 				Claims:     request.Claims,
-				PartyType:  (*sf001ToValidate).OwnerPartyType,
-				Identifier: (*sf001ToValidate).OwnerId,
+				PartyType:  (*sigbugToValidate).OwnerPartyType,
+				Identifier: (*sigbugToValidate).OwnerId,
 			})
 			if err != nil {
 				switch err.(type) {
@@ -104,14 +104,14 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 						Field: "ownerId",
 						Type:  reasonInvalid.MustExist,
 						Help:  "owner party must exist",
-						Data:  (*sf001ToValidate).OwnerId,
+						Data:  (*sigbugToValidate).OwnerId,
 					})
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "ownerId",
 						Type:  reasonInvalid.Unknown,
 						Help:  "error retrieving owner party: " + err.Error(),
-						Data:  (*sf001ToValidate).OwnerId,
+						Data:  (*sigbugToValidate).OwnerId,
 					})
 				}
 			}
@@ -121,34 +121,34 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 				Field: "ownerPartyType",
 				Type:  reasonInvalid.Invalid,
 				Help:  "must be a valid type",
-				Data:  (*sf001ToValidate).OwnerPartyType,
+				Data:  (*sigbugToValidate).OwnerPartyType,
 			})
 		}
 	}
 
 	// although assigned party type can be blank, if it is then the assigned id must also be blank
-	if ((*sf001ToValidate).AssignedPartyType == "" && (*sf001ToValidate).AssignedId.Id != "") ||
-		((*sf001ToValidate).AssignedId.Id == "" && (*sf001ToValidate).AssignedPartyType != "") {
+	if ((*sigbugToValidate).AssignedPartyType == "" && (*sigbugToValidate).AssignedId.Id != "") ||
+		((*sigbugToValidate).AssignedId.Id == "" && (*sigbugToValidate).AssignedPartyType != "") {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "assignedPartyType",
 			Type:  reasonInvalid.Invalid,
 			Help:  "must both be blank or set",
-			Data:  (*sf001ToValidate).AssignedPartyType,
+			Data:  (*sigbugToValidate).AssignedPartyType,
 		})
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "assignedId",
 			Type:  reasonInvalid.Invalid,
 			Help:  "must both be blank or set",
-			Data:  (*sf001ToValidate).AssignedId,
+			Data:  (*sigbugToValidate).AssignedId,
 		})
-	} else if (*sf001ToValidate).AssignedPartyType != "" && (*sf001ToValidate).AssignedId.Id != "" {
+	} else if (*sigbugToValidate).AssignedPartyType != "" && (*sigbugToValidate).AssignedId.Id != "" {
 		// neither are blank
-		switch (*sf001ToValidate).AssignedPartyType {
+		switch (*sigbugToValidate).AssignedPartyType {
 		case party.System, party.Client, party.Company:
 			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
 				Claims:     request.Claims,
-				PartyType:  (*sf001ToValidate).AssignedPartyType,
-				Identifier: (*sf001ToValidate).AssignedId,
+				PartyType:  (*sigbugToValidate).AssignedPartyType,
+				Identifier: (*sigbugToValidate).AssignedId,
 			})
 			if err != nil {
 				switch err.(type) {
@@ -157,14 +157,14 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 						Field: "assignedId",
 						Type:  reasonInvalid.MustExist,
 						Help:  "assigned party must exist",
-						Data:  (*sf001ToValidate).AssignedId,
+						Data:  (*sigbugToValidate).AssignedId,
 					})
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 						Field: "assignedId",
 						Type:  reasonInvalid.Unknown,
 						Help:  "error retrieving assigned party: " + err.Error(),
-						Data:  (*sf001ToValidate).AssignedId,
+						Data:  (*sigbugToValidate).AssignedId,
 					})
 				}
 			}
@@ -174,7 +174,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 				Field: "assignedPartyType",
 				Type:  reasonInvalid.Invalid,
 				Help:  "must be a valid type",
-				Data:  (*sf001ToValidate).AssignedPartyType,
+				Data:  (*sigbugToValidate).AssignedPartyType,
 			})
 		}
 	}

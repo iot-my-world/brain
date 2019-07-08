@@ -1,11 +1,11 @@
 package mongo
 
 import (
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
+	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
+	sigbugGenericRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/generic"
 	brainMongoRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler/mongo"
 	"github.com/iot-my-world/brain/pkg/security/claims"
-	sf0012 "github.com/iot-my-world/brain/pkg/tracker/sf001"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler"
-	"github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler/generic"
 	"gopkg.in/mgo.v2"
 )
 
@@ -13,7 +13,7 @@ func New(
 	mongoSession *mgo.Session,
 	databaseName string,
 	collectionName string,
-) recordHandler2.RecordHandler {
+) sigbugRecordHandler.RecordHandler {
 	mongoRecordHandler := brainMongoRecordHandler.New(
 		mongoSession,
 		databaseName,
@@ -28,11 +28,11 @@ func New(
 				Unique: true,
 			},
 		},
-		sf0012.IsValidIdentifier,
+		sigbug.IsValidIdentifier,
 		claims.ContextualiseFilter,
 	)
 
-	return recordHandler.New(
+	return sigbugGenericRecordHandler.New(
 		mongoRecordHandler,
 	)
 }

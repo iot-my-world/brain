@@ -5,13 +5,13 @@ import "strings"
 type RecordHandlerNil struct{}
 
 func (e RecordHandlerNil) Error() string {
-	return "given brain sf001 recordHandler is nil"
+	return "given brain sigbug recordHandler is nil"
 }
 
 type NotFound struct{}
 
 func (e NotFound) Error() string {
-	return "sf001 not found"
+	return "sigbug not found"
 }
 
 type Create struct {
@@ -19,7 +19,7 @@ type Create struct {
 }
 
 func (e Create) Error() string {
-	return "sf001 creation error: " + strings.Join(e.Reasons, "; ")
+	return "sigbug creation error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Retrieve struct {
@@ -27,7 +27,7 @@ type Retrieve struct {
 }
 
 func (e Retrieve) Error() string {
-	return "sf001 retrieval error: " + strings.Join(e.Reasons, "; ")
+	return "sigbug retrieval error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Update struct {
@@ -35,7 +35,7 @@ type Update struct {
 }
 
 func (e Update) Error() string {
-	return "sf001 update error: " + strings.Join(e.Reasons, "; ")
+	return "sigbug update error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Delete struct {
@@ -43,7 +43,7 @@ type Delete struct {
 }
 
 func (e Delete) Error() string {
-	return "sf001 delete error: " + strings.Join(e.Reasons, "; ")
+	return "sigbug delete error: " + strings.Join(e.Reasons, "; ")
 }
 
 type Collect struct {
@@ -51,5 +51,5 @@ type Collect struct {
 }
 
 func (e Collect) Error() string {
-	return "sf001 collect error: " + strings.Join(e.Reasons, "; ")
+	return "sigbug collect error: " + strings.Join(e.Reasons, "; ")
 }

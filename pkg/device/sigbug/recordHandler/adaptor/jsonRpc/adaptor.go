@@ -2,21 +2,21 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
+	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	"github.com/iot-my-world/brain/pkg/search/query"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
-	sf0012 "github.com/iot-my-world/brain/pkg/tracker/sf001"
-	"github.com/iot-my-world/brain/pkg/tracker/sf001/recordHandler"
 	"net/http"
 )
 
 type adaptor struct {
-	RecordHandler recordHandler.RecordHandler
+	RecordHandler sigbugRecordHandler.RecordHandler
 }
 
-func New(recordHandler recordHandler.RecordHandler) *adaptor {
+func New(recordHandler sigbugRecordHandler.RecordHandler) *adaptor {
 	return &adaptor{
 		RecordHandler: recordHandler,
 	}
@@ -27,7 +27,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	SF001 sf0012.SF001 `json:"sf001"`
+	Sigbug sigbug.Sigbug `json:"sigbug"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -37,8 +37,8 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	retrieveSF001Response, err := s.RecordHandler.Retrieve(
-		&recordHandler.RetrieveRequest{
+	retrieveSigbugResponse, err := s.RecordHandler.Retrieve(
+		&sigbugRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
 		})
@@ -46,7 +46,7 @@ func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *
 		return err
 	}
 
-	response.SF001 = retrieveSF001Response.SF001
+	response.Sigbug = retrieveSigbugResponse.Sigbug
 
 	return nil
 }
@@ -57,8 +57,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []sf0012.SF001 `json:"records"`
-	Total   int            `json:"total"`
+	Records []sigbug.Sigbug `json:"records"`
+	Total   int             `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
@@ -77,7 +77,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectSF001Response, err := s.RecordHandler.Collect(&recordHandler.CollectRequest{
+	collectSigbugResponse, err := s.RecordHandler.Collect(&sigbugRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,
@@ -86,7 +86,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		return err
 	}
 
-	response.Records = collectSF001Response.Records
-	response.Total = collectSF001Response.Total
+	response.Records = collectSigbugResponse.Records
+	response.Total = collectSigbugResponse.Total
 	return nil
 }

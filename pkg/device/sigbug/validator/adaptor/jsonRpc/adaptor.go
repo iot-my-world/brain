@@ -3,25 +3,25 @@ package jsonRpc
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
+	"github.com/iot-my-world/brain/pkg/device/sigbug/validator"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
-	sf0012 "github.com/iot-my-world/brain/pkg/tracker/sf001"
-	"github.com/iot-my-world/brain/pkg/tracker/sf001/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 	"net/http"
 )
 
 type adaptor struct {
-	sf001DeviceValidator validator.Validator
+	sigbugDeviceValidator validator.Validator
 }
 
-func New(sf001DeviceValidator validator.Validator) *adaptor {
+func New(sigbugDeviceValidator validator.Validator) *adaptor {
 	return &adaptor{
-		sf001DeviceValidator: sf001DeviceValidator,
+		sigbugDeviceValidator: sigbugDeviceValidator,
 	}
 }
 
 type ValidateRequest struct {
-	SF001  sf0012.SF001  `json:"sf001"`
+	Sigbug sigbug.Sigbug `json:"sigbug"`
 	Action action.Action `json:"action"`
 }
 
@@ -36,16 +36,16 @@ func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	validateSF001DeviceResponse, err := s.sf001DeviceValidator.Validate(&validator.ValidateRequest{
+	validateSigbugDeviceResponse, err := s.sigbugDeviceValidator.Validate(&validator.ValidateRequest{
 		Claims: claims,
-		SF001:  request.SF001,
+		Sigbug: request.Sigbug,
 		Action: request.Action,
 	})
 	if err != nil {
 		return err
 	}
 
-	response.ReasonsInvalid = validateSF001DeviceResponse.ReasonsInvalid
+	response.ReasonsInvalid = validateSigbugDeviceResponse.ReasonsInvalid
 
 	return nil
 }

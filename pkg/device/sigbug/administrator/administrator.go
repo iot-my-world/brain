@@ -1,10 +1,10 @@
 package administrator
 
 import (
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/permission/api"
-	sf0012 "github.com/iot-my-world/brain/pkg/tracker/sf001"
 )
 
 type Administrator interface {
@@ -12,7 +12,7 @@ type Administrator interface {
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
 }
 
-const ServiceProvider = "SF001Tracker-Administrator"
+const ServiceProvider = "SigbugTracker-Administrator"
 const UpdateAllowedFieldsService = ServiceProvider + ".UpdateAllowedFields"
 const CreateService = ServiceProvider + ".Create"
 
@@ -31,25 +31,25 @@ var ClientUserPermissions = make([]api.Permission, 0)
 
 type CreateRequest struct {
 	Claims claims.Claims
-	SF001  sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type CreateResponse struct {
-	SF001 sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type UpdateAllowedFieldsRequest struct {
 	Claims claims.Claims
-	SF001  sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type UpdateAllowedFieldsResponse struct {
-	SF001 sf0012.SF001
+	Sigbug sigbug.Sigbug
 }
 
 type HeartbeatRequest struct {
-	Claims          claims.Claims
-	SF001Identifier identifier.Identifier
+	Claims           claims.Claims
+	SigbugIdentifier identifier.Identifier
 }
 
 type HeartbeatResponse struct {

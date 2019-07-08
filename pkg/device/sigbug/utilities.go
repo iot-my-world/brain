@@ -1,4 +1,4 @@
-package sf001
+package sigbug
 
 import (
 	"github.com/iot-my-world/brain/pkg/search/identifier"
