@@ -112,24 +112,49 @@ var CompanyTestData = []publicTestModule.CompanyData{
 var ClientTestData = []publicTestModule.ClientData{
 	{
 		Client: client.Client{
-			Type:              "",
-			Name:              "",
-			AdminEmailAddress: "",
+			Type:              client.Individual,
+			Name:              "Paul",
+			AdminEmailAddress: "paul@gmail.com",
 		},
 		AdminUser: humanUser.User{
-			Name:         "",
-			Surname:      "",
-			Username:     "",
-			EmailAddress: "",
+			Name:         "Paul",
+			Surname:      "Smith",
+			Username:     "paul",
+			EmailAddress: "paul@gmail.com",
 			Password:     []byte("123"),
 			Roles:        make([]string, 0),
 		},
 		Users: []humanUser.User{
 			{
-				Name:         "",
-				Surname:      "",
-				Username:     "",
-				EmailAddress: "",
+				Name:         "Sandra",
+				Surname:      "Smith",
+				Username:     "sandra",
+				EmailAddress: "sandra@gmail.com",
+				Password:     []byte("123"),
+				Roles:        make([]string, 0),
+			},
+		},
+	},
+	{
+		Client: client.Client{
+			Type:              client.Company,
+			Name:              "Samson Logistics",
+			AdminEmailAddress: "jacqui@gmail.com",
+		},
+		AdminUser: humanUser.User{
+			Name:         "Jacqui",
+			Surname:      "White",
+			Username:     "jacqui",
+			EmailAddress: "jacqui@gmail.com",
+			Password:     []byte("123"),
+			Roles:        make([]string, 0),
+		},
+		Users: []humanUser.User{
+			{
+				Name:         "Kyle",
+				Surname:      "May",
+				Username:     "kyleUser",
+				EmailAddress: "kyle@gmail.com",
 				Password:     []byte("123"),
 				Roles:        make([]string, 0),
 			},

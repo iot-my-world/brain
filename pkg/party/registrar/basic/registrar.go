@@ -11,8 +11,8 @@ import (
 	"github.com/iot-my-world/brain/pkg/communication/email/mailer"
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
-	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
+	companyRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
+	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/party/registrar/action"
 	"github.com/iot-my-world/brain/pkg/party/registrar/exception"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
@@ -35,7 +35,7 @@ import (
 )
 
 type registrar struct {
-	companyRecordHandler       recordHandler2.RecordHandler
+	companyRecordHandler       companyRecordHandler.RecordHandler
 	userRecordHandler          userRecordHandler.RecordHandler
 	userValidator              userValidator.Validator
 	userAdministrator          userAdministrator.Administrator
@@ -49,7 +49,7 @@ type registrar struct {
 }
 
 func New(
-	companyRecordHandler recordHandler2.RecordHandler,
+	companyRecordHandler companyRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	userValidator userValidator.Validator,
 	userAdministrator userAdministrator.Administrator,
@@ -60,7 +60,7 @@ func New(
 	systemClaims *humanUserLogin.Login,
 	registrationEmailGenerator emailGenerator.Generator,
 	environmentType environment.Type,
-) registrar2.Registrar {
+) partyRegistrar.Registrar {
 	return &registrar{
 		companyRecordHandler:       companyRecordHandler,
 		userRecordHandler:          userRecordHandler,
@@ -76,7 +76,7 @@ func New(
 	}
 }
 
-func (r *registrar) RegisterSystemAdminUser(request *registrar2.RegisterSystemAdminUserRequest) (*registrar2.RegisterSystemAdminUserResponse, error) {
+func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSystemAdminUserRequest) (*partyRegistrar.RegisterSystemAdminUserResponse, error) {
 
 	// check if the system admin user already exists (i.e. has already been registered)
 	userRetrieveResponse, err := r.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
@@ -86,7 +86,7 @@ func (r *registrar) RegisterSystemAdminUser(request *registrar2.RegisterSystemAd
 	switch err.(type) {
 	case nil:
 		// this means that the user already exists
-		return &registrar2.RegisterSystemAdminUserResponse{User: userRetrieveResponse.User}, exception.AlreadyRegistered{}
+		return &partyRegistrar.RegisterSystemAdminUserResponse{User: userRetrieveResponse.User}, exception.AlreadyRegistered{}
 	case userRecordHandlerException.NotFound:
 		// this is fine, we will be creating the user now
 	default:
@@ -116,10 +116,10 @@ func (r *registrar) RegisterSystemAdminUser(request *registrar2.RegisterSystemAd
 		return nil, err
 	}
 
-	return &registrar2.RegisterSystemAdminUserResponse{User: userCreateResponse.User}, nil
+	return &partyRegistrar.RegisterSystemAdminUserResponse{User: userCreateResponse.User}, nil
 }
 
-func (r *registrar) ValidateInviteCompanyAdminUserRequest(request *registrar2.InviteCompanyAdminUserRequest) error {
+func (r *registrar) ValidateInviteCompanyAdminUserRequest(request *partyRegistrar.InviteCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.CompanyIdentifier == nil {
@@ -137,13 +137,13 @@ func (r *registrar) ValidateInviteCompanyAdminUserRequest(request *registrar2.In
 	}
 }
 
-func (r *registrar) InviteCompanyAdminUser(request *registrar2.InviteCompanyAdminUserRequest) (*registrar2.InviteCompanyAdminUserResponse, error) {
+func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompanyAdminUserRequest) (*partyRegistrar.InviteCompanyAdminUserResponse, error) {
 	if err := r.ValidateInviteCompanyAdminUserRequest(request); err != nil {
 		return nil, err
 	}
 
 	// Retrieve the company party
-	companyRetrieveResponse, err := r.companyRecordHandler.Retrieve(&recordHandler2.RetrieveRequest{
+	companyRetrieveResponse, err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 		Claims:     request.Claims,
 		Identifier: request.CompanyIdentifier,
 	})
@@ -208,7 +208,7 @@ func (r *registrar) InviteCompanyAdminUser(request *registrar2.InviteCompanyAdmi
 
 	if r.environmentType == environment.Development {
 		// if this is the development environment return response with token
-		return &registrar2.InviteCompanyAdminUserResponse{URLToken: urlToken}, nil
+		return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: urlToken}, nil
 	}
 
 	// otherwise send email and return response without token
@@ -220,10 +220,10 @@ func (r *registrar) InviteCompanyAdminUser(request *registrar2.InviteCompanyAdmi
 		return nil, err
 	}
 
-	return &registrar2.InviteCompanyAdminUserResponse{}, nil
+	return &partyRegistrar.InviteCompanyAdminUserResponse{}, nil
 }
 
-func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *registrar2.RegisterCompanyAdminUserRequest) error {
+func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// user must not be set to registered
@@ -312,7 +312,7 @@ func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *registrar2.
 	return nil
 }
 
-func (r *registrar) RegisterCompanyAdminUser(request *registrar2.RegisterCompanyAdminUserRequest) (*registrar2.RegisterCompanyAdminUserResponse, error) {
+func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCompanyAdminUserRequest) (*partyRegistrar.RegisterCompanyAdminUserResponse, error) {
 	if err := r.ValidateRegisterCompanyAdminUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -347,10 +347,10 @@ func (r *registrar) RegisterCompanyAdminUser(request *registrar2.RegisterCompany
 		return nil, err
 	}
 
-	return &registrar2.RegisterCompanyAdminUserResponse{User: request.User}, nil
+	return &partyRegistrar.RegisterCompanyAdminUserResponse{User: request.User}, nil
 }
 
-func (r *registrar) ValidateInviteCompanyUserRequest(request *registrar2.InviteCompanyUserRequest) error {
+func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.InviteCompanyUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -367,7 +367,7 @@ func (r *registrar) ValidateInviteCompanyUserRequest(request *registrar2.InviteC
 	}
 }
 
-func (r *registrar) InviteCompanyUser(request *registrar2.InviteCompanyUserRequest) (*registrar2.InviteCompanyUserResponse, error) {
+func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserRequest) (*partyRegistrar.InviteCompanyUserResponse, error) {
 	if err := r.ValidateInviteCompanyUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -425,7 +425,7 @@ func (r *registrar) InviteCompanyUser(request *registrar2.InviteCompanyUserReque
 
 	if r.environmentType == environment.Development {
 		// if this is the development environment return response with token
-		return &registrar2.InviteCompanyUserResponse{URLToken: urlToken}, nil
+		return &partyRegistrar.InviteCompanyUserResponse{URLToken: urlToken}, nil
 	}
 
 	// otherwise send email and return response without token
@@ -437,10 +437,10 @@ func (r *registrar) InviteCompanyUser(request *registrar2.InviteCompanyUserReque
 		return nil, err
 	}
 
-	return &registrar2.InviteCompanyUserResponse{}, nil
+	return &partyRegistrar.InviteCompanyUserResponse{}, nil
 }
 
-func (r *registrar) ValidateRegisterCompanyUserRequest(request *registrar2.RegisterCompanyUserRequest) error {
+func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.RegisterCompanyUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// user must not be set to registered
@@ -529,7 +529,7 @@ func (r *registrar) ValidateRegisterCompanyUserRequest(request *registrar2.Regis
 	return nil
 }
 
-func (r *registrar) RegisterCompanyUser(request *registrar2.RegisterCompanyUserRequest) (*registrar2.RegisterCompanyUserResponse, error) {
+func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyUserRequest) (*partyRegistrar.RegisterCompanyUserResponse, error) {
 	if err := r.ValidateRegisterCompanyUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -564,10 +564,10 @@ func (r *registrar) RegisterCompanyUser(request *registrar2.RegisterCompanyUserR
 		return nil, err
 	}
 
-	return &registrar2.RegisterCompanyUserResponse{User: request.User}, nil
+	return &partyRegistrar.RegisterCompanyUserResponse{User: request.User}, nil
 }
 
-func (r *registrar) ValidateInviteClientAdminUserRequest(request *registrar2.InviteClientAdminUserRequest) error {
+func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.ClientIdentifier == nil {
@@ -585,7 +585,7 @@ func (r *registrar) ValidateInviteClientAdminUserRequest(request *registrar2.Inv
 	}
 }
 
-func (r *registrar) InviteClientAdminUser(request *registrar2.InviteClientAdminUserRequest) (*registrar2.InviteClientAdminUserResponse, error) {
+func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAdminUserRequest) (*partyRegistrar.InviteClientAdminUserResponse, error) {
 	if err := r.ValidateInviteClientAdminUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -659,7 +659,7 @@ func (r *registrar) InviteClientAdminUser(request *registrar2.InviteClientAdminU
 
 	if r.environmentType == environment.Development {
 		// if this is the development environment return response with token
-		return &registrar2.InviteClientAdminUserResponse{URLToken: urlToken}, nil
+		return &partyRegistrar.InviteClientAdminUserResponse{URLToken: urlToken}, nil
 	}
 
 	// otherwise send email and return response without token
@@ -671,10 +671,10 @@ func (r *registrar) InviteClientAdminUser(request *registrar2.InviteClientAdminU
 		return nil, err
 	}
 
-	return &registrar2.InviteClientAdminUserResponse{}, nil
+	return &partyRegistrar.InviteClientAdminUserResponse{}, nil
 }
 
-func (r *registrar) ValidateRegisterClientAdminUserRequest(request *registrar2.RegisterClientAdminUserRequest) error {
+func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// user must not be set to registered
@@ -747,7 +747,7 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *registrar2.R
 		// system claims since we want all users to be visible for the email address check done in validate user
 		Claims: *r.systemClaims,
 		User:   request.User,
-		Action: action.RegisterClientAdminUser,
+		Action: partyRegistrarAction.RegisterClientAdminUser,
 	})
 	if err != nil {
 		reasonsInvalid = append(reasonsInvalid, "unable to validate newAdminUser")
@@ -763,7 +763,7 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *registrar2.R
 	return nil
 }
 
-func (r *registrar) RegisterClientAdminUser(request *registrar2.RegisterClientAdminUserRequest) (*registrar2.RegisterClientAdminUserResponse, error) {
+func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClientAdminUserRequest) (*partyRegistrar.RegisterClientAdminUserResponse, error) {
 	if err := r.ValidateRegisterClientAdminUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -798,10 +798,10 @@ func (r *registrar) RegisterClientAdminUser(request *registrar2.RegisterClientAd
 		return nil, err
 	}
 
-	return &registrar2.RegisterClientAdminUserResponse{User: request.User}, nil
+	return &partyRegistrar.RegisterClientAdminUserResponse{User: request.User}, nil
 }
 
-func (r *registrar) ValidateInviteClientUserRequest(request *registrar2.InviteClientUserRequest) error {
+func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -818,7 +818,7 @@ func (r *registrar) ValidateInviteClientUserRequest(request *registrar2.InviteCl
 	return nil
 }
 
-func (r *registrar) InviteClientUser(request *registrar2.InviteClientUserRequest) (*registrar2.InviteClientUserResponse, error) {
+func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserRequest) (*partyRegistrar.InviteClientUserResponse, error) {
 	if err := r.ValidateInviteClientUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -876,7 +876,7 @@ func (r *registrar) InviteClientUser(request *registrar2.InviteClientUserRequest
 
 	if r.environmentType == environment.Development {
 		// if this is the development environment return response with token
-		return &registrar2.InviteClientUserResponse{URLToken: urlToken}, nil
+		return &partyRegistrar.InviteClientUserResponse{URLToken: urlToken}, nil
 	}
 
 	// otherwise send email and return response without token
@@ -888,10 +888,10 @@ func (r *registrar) InviteClientUser(request *registrar2.InviteClientUserRequest
 		return nil, err
 	}
 
-	return &registrar2.InviteClientUserResponse{}, nil
+	return &partyRegistrar.InviteClientUserResponse{}, nil
 }
 
-func (r *registrar) ValidateRegisterClientUserRequest(request *registrar2.RegisterClientUserRequest) error {
+func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.RegisterClientUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	// user must not be set to registered
@@ -980,7 +980,7 @@ func (r *registrar) ValidateRegisterClientUserRequest(request *registrar2.Regist
 	return nil
 }
 
-func (r *registrar) RegisterClientUser(request *registrar2.RegisterClientUserRequest) (*registrar2.RegisterClientUserResponse, error) {
+func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUserRequest) (*partyRegistrar.RegisterClientUserResponse, error) {
 	if err := r.ValidateRegisterClientUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -1017,10 +1017,10 @@ func (r *registrar) RegisterClientUser(request *registrar2.RegisterClientUserReq
 		return nil, err
 	}
 
-	return &registrar2.RegisterClientUserResponse{User: request.User}, nil
+	return &partyRegistrar.RegisterClientUserResponse{User: request.User}, nil
 }
 
-func (r *registrar) ValidateAreAdminsRegisteredRequest(request *registrar2.AreAdminsRegisteredRequest) error {
+func (r *registrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -1033,7 +1033,7 @@ func (r *registrar) ValidateAreAdminsRegisteredRequest(request *registrar2.AreAd
 	return nil
 }
 
-func (r *registrar) ValidateInviteUserRequest(request *registrar2.InviteUserRequest) error {
+func (r *registrar) ValidateInviteUserRequest(request *partyRegistrar.InviteUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -1050,7 +1050,7 @@ func (r *registrar) ValidateInviteUserRequest(request *registrar2.InviteUserRequ
 	return nil
 }
 
-func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registrar2.InviteUserResponse, error) {
+func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*partyRegistrar.InviteUserResponse, error) {
 	if err := r.ValidateInviteUserRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -1067,13 +1067,13 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 		return nil, err
 	}
 
-	response := registrar2.InviteUserResponse{}
+	response := partyRegistrar.InviteUserResponse{}
 
 	// the purpose of this service is to provide a generic way to invite a user from any party, admin user or not
 	switch userRetrieveResponse.User.PartyType {
 	case party.Company:
 		// determine it this is the admin user
-		companyRetrieveResponse, err := r.companyRecordHandler.Retrieve(&recordHandler2.RetrieveRequest{
+		companyRetrieveResponse, err := r.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     *r.systemClaims,
 			Identifier: userRetrieveResponse.User.PartyId,
 		})
@@ -1083,7 +1083,7 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 			return nil, err
 		}
 		if userRetrieveResponse.User.EmailAddress == companyRetrieveResponse.Company.AdminEmailAddress {
-			inviteCompanyAdminUserResponse, err := r.InviteCompanyAdminUser(&registrar2.InviteCompanyAdminUserRequest{
+			inviteCompanyAdminUserResponse, err := r.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
 				Claims:            request.Claims,
 				CompanyIdentifier: userRetrieveResponse.User.PartyId,
 			})
@@ -1094,7 +1094,7 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 			}
 			response.URLToken = inviteCompanyAdminUserResponse.URLToken
 		} else {
-			inviteCompanyUserResponse, err := r.InviteCompanyUser(&registrar2.InviteCompanyUserRequest{
+			inviteCompanyUserResponse, err := r.InviteCompanyUser(&partyRegistrar.InviteCompanyUserRequest{
 				Claims:         request.Claims,
 				UserIdentifier: id.Identifier{Id: userRetrieveResponse.User.Id},
 			})
@@ -1118,7 +1118,7 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 			return nil, err
 		}
 		if userRetrieveResponse.User.EmailAddress == clientRetrieveResponse.Client.AdminEmailAddress {
-			inviteClientAdminUserResponse, err := r.InviteClientAdminUser(&registrar2.InviteClientAdminUserRequest{
+			inviteClientAdminUserResponse, err := r.InviteClientAdminUser(&partyRegistrar.InviteClientAdminUserRequest{
 				Claims:           request.Claims,
 				ClientIdentifier: userRetrieveResponse.User.PartyId,
 			})
@@ -1129,7 +1129,7 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 			}
 			response.URLToken = inviteClientAdminUserResponse.URLToken
 		} else {
-			inviteClientUserResponse, err := r.InviteClientUser(&registrar2.InviteClientUserRequest{
+			inviteClientUserResponse, err := r.InviteClientUser(&partyRegistrar.InviteClientUserRequest{
 				Claims:         request.Claims,
 				UserIdentifier: id.Identifier{Id: userRetrieveResponse.User.Id},
 			})
@@ -1150,7 +1150,7 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 	return &response, nil
 }
 
-func (r *registrar) AreAdminsRegistered(request *registrar2.AreAdminsRegisteredRequest) (*registrar2.AreAdminsRegisteredResponse, error) {
+func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegisteredRequest) (*partyRegistrar.AreAdminsRegisteredResponse, error) {
 	if err := r.ValidateAreAdminsRegisteredRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -1161,7 +1161,7 @@ func (r *registrar) AreAdminsRegistered(request *registrar2.AreAdminsRegisteredR
 	clientIds := make([]string, 0)
 	clientAdminEmails := make([]string, 0)
 
-	response := registrar2.AreAdminsRegisteredResponse{
+	response := partyRegistrar.AreAdminsRegisteredResponse{
 		Result: make(map[string]bool),
 	}
 
@@ -1182,7 +1182,7 @@ func (r *registrar) AreAdminsRegistered(request *registrar2.AreAdminsRegisteredR
 	}
 
 	// collect companies in request
-	companyCollectResponse, err := r.companyRecordHandler.Collect(&recordHandler2.CollectRequest{
+	companyCollectResponse, err := r.companyRecordHandler.Collect(&companyRecordHandler.CollectRequest{
 		Claims: request.Claims,
 		Criteria: []criterion.Criterion{
 			listText.Criterion{
