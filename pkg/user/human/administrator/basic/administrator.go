@@ -542,7 +542,7 @@ func (a *administrator) ForgotPassword(request *humanUserAdministrator.ForgotPas
 
 	if a.environmentType == environment.Development {
 		// if this is the development environment return response with token
-		return &humanUserAdministrator.ForgotPasswordResponse{URLToken: forgotPasswordToken}, nil
+		return &humanUserAdministrator.ForgotPasswordResponse{URLToken: urlToken}, nil
 	}
 
 	// otherwise send email and return response without token
