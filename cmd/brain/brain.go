@@ -194,6 +194,7 @@ func main() {
 	}
 
 	// ________________________________ Create Service Providers ________________________________
+	//
 
 	RoleRecordHandler := roleMongoRecordHandler.New(
 		mainMongoSession,
@@ -206,8 +207,20 @@ func main() {
 		databaseName,
 		databaseCollection.User,
 	)
+	CompanyRecordHandler := companyMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.Company,
+	)
+	ClientRecordHandler := clientMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.Client,
+	)
 	UserValidator := humanUserBasicValidator.New(
 		UserRecordHandler,
+		CompanyRecordHandler,
+		ClientRecordHandler,
 		&systemClaims,
 	)
 	UserBasicAdministrator := humanUserBasicAdministrator.New(
@@ -229,12 +242,6 @@ func main() {
 	)
 
 	// Company
-	CompanyRecordHandler := companyMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		databaseCollection.Company,
-	)
-
 	CompanyValidator := companyBasicValidator.New(
 		CompanyRecordHandler,
 		UserRecordHandler,
@@ -248,11 +255,6 @@ func main() {
 	)
 
 	// Client
-	ClientRecordHandler := clientMongoRecordHandler.New(
-		mainMongoSession,
-		databaseName,
-		databaseCollection.Client,
-	)
 	ClientValidator := clientBasicValidator.New(
 		ClientRecordHandler,
 		UserRecordHandler,

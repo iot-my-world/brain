@@ -228,3 +228,11 @@ func (c *client) MaintainLogin() error {
 		}
 	}
 }
+
+func (c *client) GetURL() string {
+	return c.url
+}
+
+func (c *client) SetURL(url string) {
+	c.url = url
+}

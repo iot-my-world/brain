@@ -14,6 +14,8 @@ type Client interface {
 	Claims() claims.Claims
 	SetJWT(jwt string) error
 	GetJWT() string
+	SetURL(url string)
+	GetURL() string
 	LoggedIn() bool
 	RefreshLogin() error
 	MaintainLogin() error

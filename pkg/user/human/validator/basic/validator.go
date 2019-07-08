@@ -3,30 +3,39 @@ package basic
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
+	"github.com/iot-my-world/brain/pkg/party/client"
+	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
+	companyRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
+	companyRecordHandlerException "github.com/iot-my-world/brain/pkg/party/company/recordHandler/exception"
 	partyRegistrarAction "github.com/iot-my-world/brain/pkg/party/registrar/action"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/username"
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
-	action2 "github.com/iot-my-world/brain/pkg/user/human/action"
-	"github.com/iot-my-world/brain/pkg/user/human/recordHandler"
-	"github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
-	validator2 "github.com/iot-my-world/brain/pkg/user/human/validator"
+	humanUserAction "github.com/iot-my-world/brain/pkg/user/human/action"
+	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
+	humanUserRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
+	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
+	humanUserValidatorException "github.com/iot-my-world/brain/pkg/user/human/validator/exception"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
 type validator struct {
-	userRecordHandler    recordHandler.RecordHandler
+	userRecordHandler    humanUserRecordHandler.RecordHandler
+	companyRecordHandler companyRecordHandler.RecordHandler
+	clientRecordHandler  clientRecordHandler.RecordHandler
 	systemClaims         *humanUserLoginClaims.Login
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
-	userRecordHandler recordHandler.RecordHandler,
+	userRecordHandler humanUserRecordHandler.RecordHandler,
+	companyRecordHandler companyRecordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 	systemClaims *humanUserLoginClaims.Login,
-) validator2.Validator {
+) humanUserValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
-		action2.Create: {
+		humanUserAction.Create: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
@@ -145,12 +154,14 @@ func New(
 
 	return &validator{
 		userRecordHandler:    userRecordHandler,
+		companyRecordHandler: companyRecordHandler,
+		clientRecordHandler:  clientRecordHandler,
 		systemClaims:         systemClaims,
 		actionIgnoredReasons: actionIgnoredReasons,
 	}
 }
 
-func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest) error {
+func (v *validator) ValidateValidateRequest(request *humanUserValidator.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -163,7 +174,7 @@ func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest)
 	return nil
 }
 
-func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.ValidateResponse, error) {
+func (v *validator) Validate(request *humanUserValidator.ValidateRequest) (*humanUserValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
 		return nil, err
 	}
@@ -270,14 +281,15 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		})
 	}
 
+	// username and email uniqueness checks
 	switch request.Action {
 
 	case partyRegistrarAction.RegisterCompanyAdminUser, partyRegistrarAction.RegisterCompanyUser,
 		partyRegistrarAction.RegisterClientAdminUser, partyRegistrarAction.RegisterClientUser:
 		// when registering a user the username is scrutinised to ensure that it has not yet been used
-		// this is done by checking if the users username has already been assigned to another user
+		// this is done by checking if the user's username has already been assigned to another user
 		if (*userToValidate).Username != "" {
-			if userRetrieveResponse, err := v.userRecordHandler.Retrieve(&recordHandler.RetrieveRequest{
+			if userRetrieveResponse, err := v.userRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: username.Identifier{
@@ -285,7 +297,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 				},
 			}); err != nil {
 				switch err.(type) {
-				case exception.NotFound:
+				case humanUserRecordHandlerException.NotFound:
 					// this is what we want
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -308,7 +320,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 			}
 		}
 
-	case action2.Create,
+	case humanUserAction.Create,
 		partyRegistrarAction.InviteCompanyAdminUser, partyRegistrarAction.InviteCompanyUser,
 		partyRegistrarAction.InviteClientAdminUser, partyRegistrarAction.InviteClientUser:
 
@@ -336,13 +348,13 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		// optionally, a username can be provided at this point, it can/will be changed later, but if one
 		// is provided now, we check to see if it has been used yet
 		if (*userToValidate).Username != "" {
-			if _, err := v.userRecordHandler.Retrieve(&recordHandler.RetrieveRequest{
+			if _, err := v.userRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims:     *v.systemClaims,
 				Identifier: username.Identifier{Username: (*userToValidate).Username},
 			}); err != nil {
 				switch err.(type) {
-				case exception.NotFound:
+				case humanUserRecordHandlerException.NotFound:
 					// this is what we want, user not found so username not taken yet
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -366,13 +378,13 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		// check if the email address is already used
 		// is provided now, we check to see if it has been used yet
 		if (*userToValidate).EmailAddress != "" {
-			if _, err := v.userRecordHandler.Retrieve(&recordHandler.RetrieveRequest{
+			if _, err := v.userRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims:     *v.systemClaims,
 				Identifier: emailAddress.Identifier{EmailAddress: (*userToValidate).EmailAddress},
 			}); err != nil {
 				switch err.(type) {
-				case exception.NotFound:
+				case humanUserRecordHandlerException.NotFound:
 					// this is what we want, user not found so username not taken yet
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -393,11 +405,11 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 			}
 		}
 
-	case action2.UpdateAllowedFields:
+	case humanUserAction.UpdateAllowedFields:
 		// username update is allowed, this is to confirm that the username has not been used yet
 		// or that it has not changed
 		if (*userToValidate).Username != "" {
-			if userRetrieveResponse, err := v.userRecordHandler.Retrieve(&recordHandler.RetrieveRequest{
+			if userRetrieveResponse, err := v.userRecordHandler.Retrieve(&humanUserRecordHandler.RetrieveRequest{
 				// we use system claims to make sure that all users are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: username.Identifier{
@@ -405,7 +417,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 				},
 			}); err != nil {
 				switch err.(type) {
-				case exception.NotFound:
+				case humanUserRecordHandlerException.NotFound:
 					// this is what we want
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
@@ -429,6 +441,78 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		}
 	}
 
+	// entity existence check
+	switch request.Action {
+	case partyRegistrarAction.RegisterCompanyAdminUser, partyRegistrarAction.RegisterCompanyUser:
+		// confirm that the company entity exists
+		if _, err := v.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: (*userToValidate).PartyId,
+		}); err != nil {
+			switch err.(type) {
+			case companyRecordHandlerException.NotFound:
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "partyId",
+					Type:  reasonInvalid.MustExist,
+					Help:  "does not exist",
+					Data:  (*userToValidate).PartyId,
+				})
+			default:
+				return nil, humanUserValidatorException.Validate{Reasons: []string{"retrieve company error", err.Error()}}
+			}
+		}
+
+	case partyRegistrarAction.RegisterClientAdminUser:
+		// confirm that the client entity exists
+		retrieveResponse, err := v.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: (*userToValidate).PartyId,
+		})
+		switch err.(type) {
+		case companyRecordHandlerException.NotFound:
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "partyId",
+				Type:  reasonInvalid.MustExist,
+				Help:  "does not exist",
+				Data:  (*userToValidate).PartyId,
+			})
+		default:
+			return nil, humanUserValidatorException.Validate{Reasons: []string{"retrieve company error", err.Error()}}
+		case nil:
+			if retrieveResponse.Client.Type == client.Individual {
+				// if the client type is individual then the name of the client entity
+				// must be the same as the admin user
+				if retrieveResponse.Client.Name != (*userToValidate).Name {
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "name",
+						Type:  reasonInvalid.Invalid,
+						Help:  "must be same as client name",
+						Data:  (*userToValidate).Name,
+					})
+				}
+			}
+		}
+
+	case partyRegistrarAction.RegisterClientUser:
+		// confirm that the client entity exists
+		if _, err := v.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+			Claims:     request.Claims,
+			Identifier: (*userToValidate).PartyId,
+		}); err != nil {
+			switch err.(type) {
+			case companyRecordHandlerException.NotFound:
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "partyId",
+					Type:  reasonInvalid.MustExist,
+					Help:  "does not exist",
+					Data:  (*userToValidate).PartyId,
+				})
+			default:
+				return nil, humanUserValidatorException.Validate{Reasons: []string{"retrieve company error", err.Error()}}
+			}
+		}
+	}
+
 	// Make list of reasons invalid to return
 	returnedReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
 
@@ -441,5 +525,5 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		}
 	}
 
-	return &validator2.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
+	return &humanUserValidator.ValidateResponse{ReasonsInvalid: returnedReasonsInvalid}, nil
 }

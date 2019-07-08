@@ -3,11 +3,12 @@ package basic
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
-	action2 "github.com/iot-my-world/brain/pkg/party/client/action"
+	"github.com/iot-my-world/brain/pkg/party/client"
+	clientAction "github.com/iot-my-world/brain/pkg/party/client/action"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
-	validator2 "github.com/iot-my-world/brain/pkg/party/client/validator"
+	clientValidator "github.com/iot-my-world/brain/pkg/party/client/validator"
+	partyRegistrarAction "github.com/iot-my-world/brain/pkg/party/registrar/action"
 	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
 	humanUserLogin "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
@@ -27,10 +28,10 @@ func New(
 	clientRecordHandler recordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	systemClaims *humanUserLogin.Login,
-) validator2.Validator {
+) clientValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
-		action2.Create: {
+		clientAction.Create: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
@@ -47,7 +48,7 @@ func New(
 	}
 }
 
-func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest) error {
+func (v *validator) ValidateValidateRequest(request *clientValidator.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -61,7 +62,7 @@ func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest)
 	}
 }
 
-func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.ValidateResponse, error) {
+func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
 		return nil, err
 	}
@@ -96,7 +97,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		})
 	} else {
 		switch (*clientToValidate).Type {
-		case client2.Company, client2.Individual:
+		case client.Company, client.Individual:
 		default:
 			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 				Field: "type",
@@ -136,7 +137,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 
 	// Perform additional checks/ignores considering method field
 	switch request.Action {
-	case action2.Create:
+	case clientAction.Create:
 
 		if (*clientToValidate).AdminEmailAddress != "" {
 
@@ -199,6 +200,12 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 				})
 			}
 		}
+
+	case partyRegistrarAction.RegisterClientAdminUser:
+		// when registering a client admin user the client entity must exist
+
+	case partyRegistrarAction.RegisterCompanyAdminUser:
+		// when registering a company admin user the company entity must exist
 	}
 
 	// Make list of reasons invalid to return
@@ -213,7 +220,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		}
 	}
 
-	return &validator2.ValidateResponse{
+	return &clientValidator.ValidateResponse{
 		ReasonsInvalid: returnedReasonsInvalid,
 	}, nil
 }

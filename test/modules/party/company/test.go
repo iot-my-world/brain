@@ -57,12 +57,6 @@ type test struct {
 	testData               []Data
 }
 
-type Data struct {
-	Company   company.Company
-	AdminUser humanUser.User
-	Users     []humanUser.User
-}
-
 func (suite *test) SetupTest() {
 
 	// log in the client
@@ -80,6 +74,12 @@ func (suite *test) SetupTest() {
 	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 	suite.humanUserAdministrator = humanUserJsonRpcAdministrator.New(suite.jsonRpcClient)
 	suite.humanUserRecordHandler = humanUserJsonRpcRecordHandler.New(suite.jsonRpcClient)
+}
+
+type Data struct {
+	Company   company.Company
+	AdminUser humanUser.User
+	Users     []humanUser.User
 }
 
 func (suite *test) TestCompany1Create() {

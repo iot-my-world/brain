@@ -5,8 +5,9 @@ import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/party"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/action"
-	administrator2 "github.com/iot-my-world/brain/pkg/party/client/administrator"
+	clientAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator"
 	"github.com/iot-my-world/brain/pkg/party/client/administrator/exception"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/client/validator"
@@ -30,7 +31,7 @@ func New(
 	clientValidator validator.Validator,
 	userRecordHandler userRecordHandler.RecordHandler,
 	systemClaims *humanUserLoginClaims.Login,
-) administrator2.Administrator {
+) clientAdministrator.Administrator {
 	return &administrator{
 		clientRecordHandler: clientRecordHandler,
 		clientValidator:     clientValidator,
@@ -39,7 +40,7 @@ func New(
 	}
 }
 
-func (a *administrator) ValidateCreateRequest(request *administrator2.CreateRequest) error {
+func (a *administrator) ValidateCreateRequest(request *clientAdministrator.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -68,10 +69,11 @@ func (a *administrator) ValidateCreateRequest(request *administrator2.CreateRequ
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating client: "+err.Error())
-		}
-		if len(validationResponse.ReasonsInvalid) > 0 {
-			for _, reason := range validationResponse.ReasonsInvalid {
-				reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("client invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+		} else {
+			if len(validationResponse.ReasonsInvalid) > 0 {
+				for _, reason := range validationResponse.ReasonsInvalid {
+					reasonsInvalid = append(reasonsInvalid, fmt.Sprintf("client invalid: %s - %s - %s", reason.Field, reason.Type, reason.Help))
+				}
 			}
 		}
 	}
@@ -82,7 +84,7 @@ func (a *administrator) ValidateCreateRequest(request *administrator2.CreateRequ
 	return nil
 }
 
-func (a *administrator) Create(request *administrator2.CreateRequest) (*administrator2.CreateResponse, error) {
+func (a *administrator) Create(request *clientAdministrator.CreateRequest) (*clientAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
 		return nil, err
 	}
@@ -96,24 +98,31 @@ func (a *administrator) Create(request *administrator2.CreateRequest) (*administ
 	}
 
 	// create minimal admin user for the client
+	adminUser := humanUser.User{
+		EmailAddress:    clientCreateResponse.Client.AdminEmailAddress,
+		ParentPartyType: clientCreateResponse.Client.ParentPartyType,
+		ParentId:        clientCreateResponse.Client.ParentId,
+		PartyType:       party.Client,
+		PartyId:         id.Identifier{Id: clientCreateResponse.Client.Id},
+	}
+	if request.Client.Type == client.Individual {
+		// the name of the client entity is the same as
+		// admin user name for individual clients
+		adminUser.Name = request.Client.Name
+	}
+
 	if _, err := a.userRecordHandler.Create(&userRecordHandler.CreateRequest{
-		User: humanUser.User{
-			EmailAddress:    clientCreateResponse.Client.AdminEmailAddress,
-			ParentPartyType: clientCreateResponse.Client.ParentPartyType,
-			ParentId:        clientCreateResponse.Client.ParentId,
-			PartyType:       party.Client,
-			PartyId:         id.Identifier{Id: clientCreateResponse.Client.Id},
-		},
+		User: adminUser,
 	}); err != nil {
 		return nil, exception.ClientCreation{Reasons: []string{"creating admin user", err.Error()}}
 	}
 
-	return &administrator2.CreateResponse{
+	return &clientAdministrator.CreateResponse{
 		Client: clientCreateResponse.Client,
 	}, nil
 }
 
-func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *administrator2.UpdateAllowedFieldsRequest) error {
+func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *clientAdministrator.UpdateAllowedFieldsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -126,7 +135,7 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *administrato
 	return nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *administrator2.UpdateAllowedFieldsRequest) (*administrator2.UpdateAllowedFieldsResponse, error) {
+func (a *administrator) UpdateAllowedFields(request *clientAdministrator.UpdateAllowedFieldsRequest) (*clientAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
 		return nil, err
 	}
@@ -157,12 +166,12 @@ func (a *administrator) UpdateAllowedFields(request *administrator2.UpdateAllowe
 		return nil, exception.AllowedFieldsUpdate{Reasons: []string{"updating", err.Error()}}
 	}
 
-	return &administrator2.UpdateAllowedFieldsResponse{
+	return &clientAdministrator.UpdateAllowedFieldsResponse{
 		Client: clientRetrieveResponse.Client,
 	}, nil
 }
 
-func (a *administrator) ValidateDeleteRequest(request *administrator2.DeleteRequest) error {
+func (a *administrator) ValidateDeleteRequest(request *clientAdministrator.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.ClientIdentifier == nil {
@@ -179,7 +188,7 @@ func (a *administrator) ValidateDeleteRequest(request *administrator2.DeleteRequ
 	return nil
 }
 
-func (a *administrator) Delete(request *administrator2.DeleteRequest) (*administrator2.DeleteResponse, error) {
+func (a *administrator) Delete(request *clientAdministrator.DeleteRequest) (*clientAdministrator.DeleteResponse, error) {
 	if err := a.ValidateDeleteRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -236,5 +245,5 @@ func (a *administrator) Delete(request *administrator2.DeleteRequest) (*administ
 		return nil, err
 	}
 
-	return &administrator2.DeleteResponse{}, nil
+	return &clientAdministrator.DeleteResponse{}, nil
 }
