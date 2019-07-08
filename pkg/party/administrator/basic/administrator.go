@@ -5,40 +5,40 @@ import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/party"
-	administrator2 "github.com/iot-my-world/brain/pkg/party/administrator"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	"github.com/iot-my-world/brain/pkg/party/administrator/exception"
-	administrator3 "github.com/iot-my-world/brain/pkg/party/client/administrator"
+	clientAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
-	exception2 "github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
-	administrator4 "github.com/iot-my-world/brain/pkg/party/company/administrator"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
-	exception4 "github.com/iot-my-world/brain/pkg/party/company/recordHandler/exception"
+	clientRecordHandlerException "github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
+	companyAdministrator "github.com/iot-my-world/brain/pkg/party/company/administrator"
+	companyRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
+	companyRecordHandlerException "github.com/iot-my-world/brain/pkg/party/company/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/party/registrar"
-	recordHandler3 "github.com/iot-my-world/brain/pkg/party/system/recordHandler"
-	exception3 "github.com/iot-my-world/brain/pkg/party/system/recordHandler/exception"
+	systemRecordHandler "github.com/iot-my-world/brain/pkg/party/system/recordHandler"
+	systemRecordHandlerException "github.com/iot-my-world/brain/pkg/party/system/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 )
 
 type administrator struct {
 	clientRecordHandler  recordHandler.RecordHandler
-	companyRecordHandler recordHandler2.RecordHandler
-	systemRecordHandler  recordHandler3.RecordHandler
+	companyRecordHandler companyRecordHandler.RecordHandler
+	systemRecordHandler  systemRecordHandler.RecordHandler
 	systemClaims         *humanUserLoginClaims.Login
-	companyAdministrator administrator4.Administrator
-	clientAdministrator  administrator3.Administrator
+	companyAdministrator companyAdministrator.Administrator
+	clientAdministrator  clientAdministrator.Administrator
 	partyRegistrar       registrar.Registrar
 }
 
 func New(
 	clientRecordHandler recordHandler.RecordHandler,
-	companyRecordHandler recordHandler2.RecordHandler,
-	systemRecordHandler recordHandler3.RecordHandler,
+	companyRecordHandler companyRecordHandler.RecordHandler,
+	systemRecordHandler systemRecordHandler.RecordHandler,
 	systemClaims *humanUserLoginClaims.Login,
-	companyAdministrator administrator4.Administrator,
-	clientAdministrator administrator3.Administrator,
+	companyAdministrator companyAdministrator.Administrator,
+	clientAdministrator clientAdministrator.Administrator,
 	partyRegistrar registrar.Registrar,
-) administrator2.Administrator {
+) partyAdministrator.Administrator {
 	return &administrator{
 		clientRecordHandler:  clientRecordHandler,
 		companyRecordHandler: companyRecordHandler,
@@ -50,7 +50,7 @@ func New(
 	}
 }
 
-func (a *administrator) ValidateGetMyPartyRequest(request *administrator2.GetMyPartyRequest) error {
+func (a *administrator) ValidateGetMyPartyRequest(request *partyAdministrator.GetMyPartyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -64,22 +64,22 @@ func (a *administrator) ValidateGetMyPartyRequest(request *administrator2.GetMyP
 	}
 }
 
-func (a *administrator) GetMyParty(request *administrator2.GetMyPartyRequest) (*administrator2.GetMyPartyResponse, error) {
+func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest) (*partyAdministrator.GetMyPartyResponse, error) {
 	if err := a.ValidateGetMyPartyRequest(request); err != nil {
 		return nil, err
 	}
 
-	response := administrator2.GetMyPartyResponse{}
+	response := partyAdministrator.GetMyPartyResponse{}
 
 	switch request.Claims.PartyDetails().PartyType {
 	case party.System:
-		systemRecordHandlerRetrieveResponse, err := a.systemRecordHandler.Retrieve(&recordHandler3.RetrieveRequest{
+		systemRecordHandlerRetrieveResponse, err := a.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
 		})
 		if err != nil {
 			switch err.(type) {
-			case exception3.NotFound:
+			case systemRecordHandlerException.NotFound:
 				return nil, exception.NotFound{}
 			default:
 				return nil, exception.PartyRetrieval{Reasons: []string{err.Error()}}
@@ -89,13 +89,13 @@ func (a *administrator) GetMyParty(request *administrator2.GetMyPartyRequest) (*
 		response.Party = systemRecordHandlerRetrieveResponse.System
 
 	case party.Company:
-		companyRecordHandlerRetrieveResponse, err := a.companyRecordHandler.Retrieve(&recordHandler2.RetrieveRequest{
+		companyRecordHandlerRetrieveResponse, err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Claims.PartyDetails().PartyId,
 		})
 		if err != nil {
 			switch err.(type) {
-			case exception4.NotFound:
+			case companyRecordHandlerException.NotFound:
 				return nil, exception.NotFound{}
 			default:
 				return nil, exception.PartyRetrieval{Reasons: []string{err.Error()}}
@@ -111,7 +111,7 @@ func (a *administrator) GetMyParty(request *administrator2.GetMyPartyRequest) (*
 		})
 		if err != nil {
 			switch err.(type) {
-			case exception2.NotFound:
+			case clientRecordHandlerException.NotFound:
 				return nil, exception.NotFound{}
 			default:
 				return nil, exception.PartyRetrieval{Reasons: []string{err.Error()}}
@@ -127,7 +127,7 @@ func (a *administrator) GetMyParty(request *administrator2.GetMyPartyRequest) (*
 	return &response, nil
 }
 
-func (a *administrator) ValidateRetrievePartyRequest(request *administrator2.RetrievePartyRequest) error {
+func (a *administrator) ValidateRetrievePartyRequest(request *partyAdministrator.RetrievePartyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -146,20 +146,20 @@ func (a *administrator) ValidateRetrievePartyRequest(request *administrator2.Ret
 	return nil
 }
 
-func (a *administrator) RetrieveParty(request *administrator2.RetrievePartyRequest) (*administrator2.RetrievePartyResponse, error) {
+func (a *administrator) RetrieveParty(request *partyAdministrator.RetrievePartyRequest) (*partyAdministrator.RetrievePartyResponse, error) {
 	if err := a.ValidateRetrievePartyRequest(request); err != nil {
 		return nil, err
 	}
-	response := administrator2.RetrievePartyResponse{}
+	response := partyAdministrator.RetrievePartyResponse{}
 	switch request.PartyType {
 	case party.System:
-		systemRecordHandlerRetrieveResponse, err := a.systemRecordHandler.Retrieve(&recordHandler3.RetrieveRequest{
+		systemRecordHandlerRetrieveResponse, err := a.systemRecordHandler.Retrieve(&systemRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		})
 		if err != nil {
 			switch err.(type) {
-			case exception3.NotFound:
+			case systemRecordHandlerException.NotFound:
 				return nil, exception.NotFound{}
 			default:
 				return nil, exception.PartyRetrieval{Reasons: []string{err.Error()}}
@@ -168,13 +168,13 @@ func (a *administrator) RetrieveParty(request *administrator2.RetrievePartyReque
 		response.Party = systemRecordHandlerRetrieveResponse.System
 
 	case party.Company:
-		companyRecordHandlerRetrieveResponse, err := a.companyRecordHandler.Retrieve(&recordHandler2.RetrieveRequest{
+		companyRecordHandlerRetrieveResponse, err := a.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
 			Claims:     request.Claims,
 			Identifier: request.Identifier,
 		})
 		if err != nil {
 			switch err.(type) {
-			case exception4.NotFound:
+			case companyRecordHandlerException.NotFound:
 				return nil, exception.NotFound{}
 			default:
 				return nil, exception.PartyRetrieval{Reasons: []string{err.Error()}}
@@ -189,7 +189,7 @@ func (a *administrator) RetrieveParty(request *administrator2.RetrievePartyReque
 		})
 		if err != nil {
 			switch err.(type) {
-			case exception2.NotFound:
+			case clientRecordHandlerException.NotFound:
 				return nil, exception.NotFound{}
 			default:
 				return nil, exception.PartyRetrieval{Reasons: []string{err.Error()}}
@@ -204,7 +204,7 @@ func (a *administrator) RetrieveParty(request *administrator2.RetrievePartyReque
 	return &response, nil
 }
 
-func (a *administrator) ValidateCreateAndInviteCompanyRequest(request *administrator2.CreateAndInviteCompanyRequest) error {
+func (a *administrator) ValidateCreateAndInviteCompanyRequest(request *partyAdministrator.CreateAndInviteCompanyRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -213,7 +213,7 @@ func (a *administrator) ValidateCreateAndInviteCompanyRequest(request *administr
 	return nil
 }
 
-func (a *administrator) CreateAndInviteCompany(request *administrator2.CreateAndInviteCompanyRequest) (*administrator2.CreateAndInviteCompanyResponse, error) {
+func (a *administrator) CreateAndInviteCompany(request *partyAdministrator.CreateAndInviteCompanyRequest) (*partyAdministrator.CreateAndInviteCompanyResponse, error) {
 	if err := a.ValidateCreateAndInviteCompanyRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -224,7 +224,7 @@ func (a *administrator) CreateAndInviteCompany(request *administrator2.CreateAnd
 	request.Company.ParentId = a.systemClaims.PartyId
 
 	// create company via company administrator
-	createResponse, err := a.companyAdministrator.Create(&administrator4.CreateRequest{
+	createResponse, err := a.companyAdministrator.Create(&companyAdministrator.CreateRequest{
 		Claims:  a.systemClaims,
 		Company: request.Company,
 	})
@@ -247,10 +247,10 @@ func (a *administrator) CreateAndInviteCompany(request *administrator2.CreateAnd
 		return nil, err
 	}
 
-	return &administrator2.CreateAndInviteCompanyResponse{RegistrationURLToken: inviteResponse.URLToken}, nil
+	return &partyAdministrator.CreateAndInviteCompanyResponse{RegistrationURLToken: inviteResponse.URLToken}, nil
 }
 
-func (a *administrator) ValidateCreateAndInviteClientRequest(request *administrator2.CreateAndInviteClientRequest) error {
+func (a *administrator) ValidateCreateAndInviteClientRequest(request *partyAdministrator.CreateAndInviteClientRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -259,14 +259,18 @@ func (a *administrator) ValidateCreateAndInviteClientRequest(request *administra
 	return nil
 }
 
-func (a *administrator) CreateAndInviteClient(request *administrator2.CreateAndInviteClientRequest) (*administrator2.CreateAndInviteClientResponse, error) {
+func (a *administrator) CreateAndInviteClient(request *partyAdministrator.CreateAndInviteClientRequest) (*partyAdministrator.CreateAndInviteClientResponse, error) {
 	if err := a.ValidateCreateAndInviteClientRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
 
+	// set client parent details to system
+	request.Client.ParentPartyType = a.systemClaims.PartyType
+	request.Client.ParentId = a.systemClaims.PartyId
+
 	// create client via client administrator
-	createResponse, err := a.clientAdministrator.Create(&administrator3.CreateRequest{
+	createResponse, err := a.clientAdministrator.Create(&clientAdministrator.CreateRequest{
 		Claims: a.systemClaims,
 		Client: request.Client,
 	})
@@ -289,5 +293,5 @@ func (a *administrator) CreateAndInviteClient(request *administrator2.CreateAndI
 		return nil, err
 	}
 
-	return &administrator2.CreateAndInviteClientResponse{RegistrationURLToken: inviteResponse.URLToken}, nil
+	return &partyAdministrator.CreateAndInviteClientResponse{RegistrationURLToken: inviteResponse.URLToken}, nil
 }
