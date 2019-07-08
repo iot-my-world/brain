@@ -5,10 +5,6 @@ import (
 	"fmt"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client/basic"
-	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
-	partyJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/party/administrator/jsonRpc"
-	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
-	partyJsonRpcRegistrar "github.com/iot-my-world/brain/pkg/party/registrar/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	"github.com/iot-my-world/brain/pkg/security/claims"
@@ -17,8 +13,6 @@ import (
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	humanUserJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator/jsonRpc"
-	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
-	humanUserJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler/jsonRpc"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/square/go-jose.v2"
 	"reflect"
@@ -28,11 +22,8 @@ import (
 type test struct {
 	suite.Suite
 	jsonRpcClient          jsonRpcClient.Client
-	partyAdministrator     partyAdministrator.Administrator
 	usersData              []humanUser.User
-	partyRegistrar         partyRegistrar.Registrar
 	humanUserAdministrator humanUserAdministrator.Administrator
-	humanUserRecordHandler humanUserRecordHandler.RecordHandler
 }
 
 func New(
@@ -47,10 +38,7 @@ func New(
 
 func (suite *test) SetupTest() {
 	// not logging in jsonRpcClient since these tests are done as a public user
-	suite.partyAdministrator = partyJsonRpcAdministrator.New(suite.jsonRpcClient)
-	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
 	suite.humanUserAdministrator = humanUserJsonRpcAdministrator.New(suite.jsonRpcClient)
-	suite.humanUserRecordHandler = humanUserJsonRpcRecordHandler.New(suite.jsonRpcClient)
 }
 
 func (suite *test) TestUserAdministrator1ForgotPassword() {
