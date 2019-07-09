@@ -1,7 +1,7 @@
 package administrator
 
 import (
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	company "github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/permission/api"
@@ -35,20 +35,20 @@ var ClientUserPermissions = make([]api.Permission, 0)
 
 type UpdateAllowedFieldsRequest struct {
 	Claims  claims.Claims
-	Company company2.Company
+	Company company.Company
 }
 
 type UpdateAllowedFieldsResponse struct {
-	Company company2.Company
+	Company company.Company
 }
 
 type CreateRequest struct {
 	Claims  claims.Claims
-	Company company2.Company
+	Company company.Company
 }
 
 type CreateResponse struct {
-	Company company2.Company
+	Company company.Company
 }
 
 type DeleteRequest struct {

@@ -3,10 +3,10 @@ package basic
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
-	action2 "github.com/iot-my-world/brain/pkg/party/company/action"
+	companyAction "github.com/iot-my-world/brain/pkg/party/company/action"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler/exception"
-	validator2 "github.com/iot-my-world/brain/pkg/party/company/validator"
+	companyValidator "github.com/iot-my-world/brain/pkg/party/company/validator"
 	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
@@ -27,10 +27,10 @@ func New(
 	companyRecordHandler recordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	systemClaims *humanUserLoginClaims.Login,
-) validator2.Validator {
+) companyValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
-		action2.Create: {
+		companyAction.Create: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
@@ -47,7 +47,7 @@ func New(
 	}
 }
 
-func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest) error {
+func (v *validator) ValidateValidateRequest(request *companyValidator.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -60,7 +60,7 @@ func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest)
 	return nil
 }
 
-func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.ValidateResponse, error) {
+func (v *validator) Validate(request *companyValidator.ValidateRequest) (*companyValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 
 	// Perform additional checks/ignores considering method field
 	switch request.Action {
-	case action2.Create:
+	case companyAction.Create:
 
 		// Check if there is another client that is already using the same admin email address
 		if (*companyToValidate).AdminEmailAddress != "" {
@@ -190,7 +190,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		}
 	}
 
-	return &validator2.ValidateResponse{
+	return &companyValidator.ValidateResponse{
 		ReasonsInvalid: returnedReasonsInvalid,
 	}, nil
 }
