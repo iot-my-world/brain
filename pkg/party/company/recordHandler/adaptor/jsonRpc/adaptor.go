@@ -1,8 +1,8 @@
-package company
+package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
@@ -27,7 +27,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Company company2.Company `json:"company"`
+	Company company.Company `json:"company"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -57,8 +57,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []company2.Company `json:"records"`
-	Total   int                `json:"total"`
+	Records []company.Company `json:"records"`
+	Total   int               `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {

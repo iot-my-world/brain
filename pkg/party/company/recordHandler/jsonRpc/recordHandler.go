@@ -4,8 +4,8 @@ import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
-	"github.com/iot-my-world/brain/pkg/party/company/recordHandler/adaptor/jsonRpc"
+	companyRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
+	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/company/recordHandler/adaptor/jsonRpc"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
@@ -16,13 +16,13 @@ type recordHandler struct {
 
 func New(
 	jsonRpcClient jsonRpcClient.Client,
-) recordHandler2.RecordHandler {
+) companyRecordHandler.RecordHandler {
 	return &recordHandler{
 		jsonRpcClient: jsonRpcClient,
 	}
 }
 
-func (r *recordHandler) ValidateCollectRequest(request *recordHandler2.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *companyRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Criteria == nil {
@@ -41,7 +41,7 @@ func (r *recordHandler) ValidateCollectRequest(request *recordHandler2.CollectRe
 	return nil
 }
 
-func (r *recordHandler) Collect(request *recordHandler2.CollectRequest) (*recordHandler2.CollectResponse, error) {
+func (r *recordHandler) Collect(request *companyRecordHandler.CollectRequest) (*companyRecordHandler.CollectResponse, error) {
 	if err := r.ValidateCollectRequest(request); err != nil {
 		return nil, err
 	}
@@ -57,10 +57,10 @@ func (r *recordHandler) Collect(request *recordHandler2.CollectRequest) (*record
 		criteria = append(criteria, *wrapped)
 	}
 
-	companyCollectResponse := company.CollectResponse{}
+	companyCollectResponse := companyRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		recordHandler2.CollectService,
-		company.CollectRequest{
+		companyRecordHandler.CollectService,
+		companyRecordHandlerJsonRpcAdaptor.CollectRequest{
 			Criteria: criteria,
 			Query:    request.Query,
 		},
@@ -68,13 +68,13 @@ func (r *recordHandler) Collect(request *recordHandler2.CollectRequest) (*record
 		return nil, err
 	}
 
-	return &recordHandler2.CollectResponse{
+	return &companyRecordHandler.CollectResponse{
 		Records: companyCollectResponse.Records,
 		Total:   companyCollectResponse.Total,
 	}, nil
 }
 
-func (r *recordHandler) ValidateRetrieveRequest(request *recordHandler2.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *companyRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -87,7 +87,7 @@ func (r *recordHandler) ValidateRetrieveRequest(request *recordHandler2.Retrieve
 	return nil
 }
 
-func (r *recordHandler) Retrieve(request *recordHandler2.RetrieveRequest) (*recordHandler2.RetrieveResponse, error) {
+func (r *recordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) (*companyRecordHandler.RetrieveResponse, error) {
 	if err := r.ValidateRetrieveRequest(request); err != nil {
 		return nil, err
 	}
@@ -99,29 +99,29 @@ func (r *recordHandler) Retrieve(request *recordHandler2.RetrieveRequest) (*reco
 		return nil, err
 	}
 
-	companyRetrieveResponse := company.RetrieveResponse{}
+	companyRetrieveResponse := companyRecordHandlerJsonRpcAdaptor.RetrieveResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		recordHandler2.RetrieveService,
-		company.RetrieveRequest{
+		companyRecordHandler.RetrieveService,
+		companyRecordHandlerJsonRpcAdaptor.RetrieveRequest{
 			WrappedIdentifier: *id,
 		},
 		&companyRetrieveResponse); err != nil {
 		return nil, err
 	}
 
-	return &recordHandler2.RetrieveResponse{
+	return &companyRecordHandler.RetrieveResponse{
 		Company: companyRetrieveResponse.Company,
 	}, nil
 }
 
-func (r *recordHandler) Create(request *recordHandler2.CreateRequest) (*recordHandler2.CreateResponse, error) {
+func (r *recordHandler) Create(request *companyRecordHandler.CreateRequest) (*companyRecordHandler.CreateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *recordHandler) Update(request *recordHandler2.UpdateRequest) (*recordHandler2.UpdateResponse, error) {
+func (r *recordHandler) Update(request *companyRecordHandler.UpdateRequest) (*companyRecordHandler.UpdateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *recordHandler) Delete(request *recordHandler2.DeleteRequest) (*recordHandler2.DeleteResponse, error) {
+func (r *recordHandler) Delete(request *companyRecordHandler.DeleteRequest) (*companyRecordHandler.DeleteResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
