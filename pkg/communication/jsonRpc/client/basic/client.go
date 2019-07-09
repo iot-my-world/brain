@@ -7,7 +7,7 @@ import (
 	"github.com/go-errors/errors"
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	client2 "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
+	jsonRPCClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
 	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	authorizationAdministratorJsonRpc "github.com/iot-my-world/brain/pkg/security/authorization/administrator/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/security/claims"
@@ -33,7 +33,7 @@ type client struct {
 // Create New basic json rpc client
 func New(
 	url string,
-) client2.Client {
+) jsonRPCClient.Client {
 	newJsonRpcClient := client{
 		url: url,
 	}
@@ -46,7 +46,7 @@ func (c *client) LoggedIn() bool {
 	return c.loggedIn
 }
 
-func (c *client) Post(request *client2.Request) (*client2.Response, error) {
+func (c *client) Post(request *jsonRPCClient.Request) (*jsonRPCClient.Response, error) {
 	// marshal the request message
 	marshalledRequest, err := json.Marshal(*request)
 	if err != nil {
@@ -97,7 +97,7 @@ func (c *client) Post(request *client2.Request) (*client2.Response, error) {
 	}
 
 	// unmarshal the body into the response
-	response := client2.Response{}
+	response := jsonRPCClient.Response{}
 	err = json.Unmarshal(postResponseBytes, &response)
 	if err != nil {
 		return nil, errors.New("error unmarshalling response bytes into json rpc response: " + err.Error())
@@ -116,7 +116,7 @@ func (c *client) JsonRpcRequest(method string, request, response interface{}) er
 		return brainException.UUIDGeneration{Reasons: []string{err.Error()}}
 	}
 
-	jsonRpcRequest := client2.NewRequest(id.String(), method, [1]interface{}{request})
+	jsonRpcRequest := jsonRPCClient.NewRequest(id.String(), method, [1]interface{}{request})
 
 	jsonRpcResponse, err := c.Post(&jsonRpcRequest)
 	if err != nil {

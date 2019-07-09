@@ -5,8 +5,8 @@ import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	email2 "github.com/iot-my-world/brain/pkg/communication/email"
-	generator2 "github.com/iot-my-world/brain/pkg/communication/email/generator"
+	"github.com/iot-my-world/brain/pkg/communication/email"
+	emailGenerator "github.com/iot-my-world/brain/pkg/communication/email/generator"
 	"github.com/iot-my-world/brain/pkg/communication/email/generator/exception"
 	"html/template"
 )
@@ -17,7 +17,7 @@ type generator struct {
 
 func New(
 	pathToTemplateFolder string,
-) generator2.Generator {
+) emailGenerator.Generator {
 
 	emailTemplate, err := template.ParseFiles(fmt.Sprintf("%s/%s", pathToTemplateFolder, "registration/template.html"))
 	if err != nil {
@@ -29,7 +29,7 @@ func New(
 	}
 }
 
-func (g *generator) ValidateGenerateEmailRequest(request *generator2.GenerateRequest) error {
+func (g *generator) ValidateGenerateEmailRequest(request *emailGenerator.GenerateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Data == nil {
@@ -43,7 +43,7 @@ func (g *generator) ValidateGenerateEmailRequest(request *generator2.GenerateReq
 	return nil
 }
 
-func (g *generator) Generate(request *generator2.GenerateRequest) (*generator2.GenerateResponse, error) {
+func (g *generator) Generate(request *emailGenerator.GenerateRequest) (*emailGenerator.GenerateResponse, error) {
 	if err := g.ValidateGenerateEmailRequest(request); err != nil {
 		return nil, err
 	}
@@ -53,8 +53,8 @@ func (g *generator) Generate(request *generator2.GenerateRequest) (*generator2.G
 		return nil, exception.TemplateExecution{Reasons: []string{err.Error()}}
 	}
 
-	return &generator2.GenerateResponse{
-		Email: email2.Email{
+	return &emailGenerator.GenerateResponse{
+		Email: email.Email{
 			Body:    emailBytes.String(),
 			Details: request.Data.Details(),
 		},
