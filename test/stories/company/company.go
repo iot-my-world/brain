@@ -10,7 +10,7 @@ import (
 
 func Test(t *testing.T) {
 	for _, companyData := range TestData {
-		clientData, found := client.TestData[companyData.Company.Name]
+		clientData, found := client.TestData[companyData.CompanyTestData.Company.Name]
 		if !found {
 			t.Fatalf("no client data for company")
 			return
@@ -22,7 +22,7 @@ func Test(t *testing.T) {
 		}
 		suite.Run(t, clientTestModule.New(
 			data.BrainURL,
-			companyData.AdminUser,
+			companyData.CompanyTestData.AdminUser,
 			clientTestData,
 		))
 	}

@@ -12,10 +12,14 @@ import (
 
 func Test(t *testing.T) {
 	// perform system company tests
+	companyTestData := make([]companyTestModule.Data, 0)
+	for _, companyData := range company.TestData {
+		companyTestData = append(companyTestData, companyData.CompanyTestData)
+	}
 	suite.Run(t, companyTestModule.New(
 		data.BrainURL,
 		User,
-		company.TestData,
+		companyTestData,
 	))
 
 	// perform system client tests
@@ -27,8 +31,8 @@ func Test(t *testing.T) {
 	}
 
 	clientTestData := make([]clientTestModule.Data, 0)
-	for _, data := range clientData {
-		clientTestData = append(clientTestData, data.ClientTestData)
+	for _, clientData := range clientData {
+		clientTestData = append(clientTestData, clientData.ClientTestData)
 	}
 	suite.Run(t, clientTestModule.New(
 		data.BrainURL,
