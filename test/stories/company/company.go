@@ -15,10 +15,15 @@ func Test(t *testing.T) {
 			t.Fatalf("no client data for company")
 			return
 		}
+		// build client data
+		clientTestData := make([]clientTestModule.Data, 0)
+		for _, data := range clientData {
+			clientTestData = append(clientTestData, data.ClientTestData)
+		}
 		suite.Run(t, clientTestModule.New(
 			data.BrainURL,
 			companyData.AdminUser,
-			clientData,
+			clientTestData,
 		))
 	}
 }

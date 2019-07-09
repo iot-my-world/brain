@@ -10,12 +10,12 @@ import (
 )
 
 var TestData = map[string][]struct {
-	clientTestData clientTest.Data
-	sigbugDevices  []sigbug.Sigbug
+	ClientTestData clientTest.Data
+	SigbugDevices  []sigbug.Sigbug
 }{
 	"root": {
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "John",
 					Type:              client.Individual,
@@ -40,7 +40,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "1asdfepoi",
 					OwnerPartyType: party.Client,
@@ -66,7 +66,7 @@ var TestData = map[string][]struct {
 			},
 		},
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Sunbeam Tech",
 					Type:              client.Company,
@@ -99,7 +99,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "2aposdiu3nv",
 					OwnerPartyType: party.Client,
@@ -128,7 +128,7 @@ var TestData = map[string][]struct {
 
 	"Monteagle Logistics Limited": {
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Pick 'n Pay",
 					Type:              client.Company,
@@ -161,7 +161,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "3poisdoiece",
 					OwnerPartyType: party.Client,
@@ -188,7 +188,7 @@ var TestData = map[string][]struct {
 		},
 
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Woolworths",
 					Type:              client.Company,
@@ -221,7 +221,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "4paspoivee",
 					OwnerPartyType: party.Client,
@@ -250,7 +250,7 @@ var TestData = map[string][]struct {
 
 	"DHL": {
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Makro",
 					Type:              client.Company,
@@ -283,7 +283,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "5p0aseojve",
 					OwnerPartyType: party.Client,
@@ -310,7 +310,7 @@ var TestData = map[string][]struct {
 		},
 
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Fruit 'n Veg",
 					Type:              client.Company,
@@ -343,7 +343,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "6eiuoipoi",
 					OwnerPartyType: party.Client,
@@ -372,7 +372,7 @@ var TestData = map[string][]struct {
 
 	"Reinhard Trucking": {
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Spar",
 					Type:              client.Company,
@@ -405,7 +405,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "7pasoiepoije",
 					OwnerPartyType: party.Client,
@@ -432,7 +432,7 @@ var TestData = map[string][]struct {
 		},
 
 		{
-			clientTestData: clientTest.Data{
+			ClientTestData: clientTest.Data{
 				Client: client.Client{
 					Name:              "Game",
 					Type:              client.Company,
@@ -465,7 +465,7 @@ var TestData = map[string][]struct {
 					},
 				},
 			},
-			sigbugDevices: []sigbug.Sigbug{
+			SigbugDevices: []sigbug.Sigbug{
 				{
 					DeviceId:       "8aspoeipe",
 					OwnerPartyType: party.Client,
