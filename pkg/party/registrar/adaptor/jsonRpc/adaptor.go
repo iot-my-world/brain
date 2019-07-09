@@ -3,7 +3,7 @@ package jsonRpc
 import (
 	"errors"
 	"github.com/iot-my-world/brain/internal/log"
-	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
+	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/search/identifier/party"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
@@ -12,11 +12,11 @@ import (
 )
 
 type adaptor struct {
-	registrar registrar2.Registrar
+	registrar partyRegistrar.Registrar
 }
 
 func New(
-	registrar registrar2.Registrar,
+	registrar partyRegistrar.Registrar,
 ) *adaptor {
 	return &adaptor{
 		registrar: registrar,
@@ -38,7 +38,7 @@ func (a *adaptor) InviteCompanyAdminUser(r *http.Request, request *InviteCompany
 		return err
 	}
 
-	inviteCompanyAdminUserResponse, err := a.registrar.InviteCompanyAdminUser(&registrar2.InviteCompanyAdminUserRequest{
+	inviteCompanyAdminUserResponse, err := a.registrar.InviteCompanyAdminUser(&partyRegistrar.InviteCompanyAdminUserRequest{
 		Claims:            claims,
 		CompanyIdentifier: request.WrappedCompanyIdentifier.Identifier,
 	})
@@ -64,7 +64,7 @@ func (a *adaptor) RegisterCompanyAdminUser(r *http.Request, request *RegisterCom
 		return err
 	}
 
-	registerUserResponse, err := a.registrar.RegisterCompanyAdminUser(&registrar2.RegisterCompanyAdminUserRequest{
+	registerUserResponse, err := a.registrar.RegisterCompanyAdminUser(&partyRegistrar.RegisterCompanyAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -92,7 +92,7 @@ func (a *adaptor) RegisterCompanyUser(r *http.Request, request *RegisterCompanyU
 		return err
 	}
 
-	registerResponse, err := a.registrar.RegisterCompanyUser(&registrar2.RegisterCompanyUserRequest{
+	registerResponse, err := a.registrar.RegisterCompanyUser(&partyRegistrar.RegisterCompanyUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -121,7 +121,7 @@ func (a *adaptor) InviteClientAdminUser(r *http.Request, request *InviteClientAd
 		return err
 	}
 
-	inviteClientAdminUserResponse, err := a.registrar.InviteClientAdminUser(&registrar2.InviteClientAdminUserRequest{
+	inviteClientAdminUserResponse, err := a.registrar.InviteClientAdminUser(&partyRegistrar.InviteClientAdminUserRequest{
 		Claims:           claims,
 		ClientIdentifier: request.WrappedClientIdentifier.Identifier,
 	})
@@ -147,7 +147,7 @@ func (a *adaptor) RegisterClientAdminUser(r *http.Request, request *RegisterClie
 		return err
 	}
 
-	registerResponse, err := a.registrar.RegisterClientAdminUser(&registrar2.RegisterClientAdminUserRequest{
+	registerResponse, err := a.registrar.RegisterClientAdminUser(&partyRegistrar.RegisterClientAdminUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -175,7 +175,7 @@ func (a *adaptor) RegisterClientUser(r *http.Request, request *RegisterClientUse
 		return err
 	}
 
-	registerResponse, err := a.registrar.RegisterClientUser(&registrar2.RegisterClientUserRequest{
+	registerResponse, err := a.registrar.RegisterClientUser(&partyRegistrar.RegisterClientUserRequest{
 		Claims: claims,
 		User:   request.User,
 	})
@@ -213,7 +213,7 @@ func (a *adaptor) AreAdminsRegistered(r *http.Request, request *AreAdminsRegiste
 		partyIdentifiers = append(partyIdentifiers, partyIdentifier)
 	}
 
-	areAdminsRegisteredResponse, err := a.registrar.AreAdminsRegistered(&registrar2.AreAdminsRegisteredRequest{
+	areAdminsRegisteredResponse, err := a.registrar.AreAdminsRegistered(&partyRegistrar.AreAdminsRegisteredRequest{
 		Claims:           claims,
 		PartyIdentifiers: partyIdentifiers,
 	})
@@ -241,7 +241,7 @@ func (a *adaptor) InviteUser(r *http.Request, request *InviteUserRequest, respon
 		return err
 	}
 
-	userInviteResponse, err := a.registrar.InviteUser(&registrar2.InviteUserRequest{
+	userInviteResponse, err := a.registrar.InviteUser(&partyRegistrar.InviteUserRequest{
 		Claims:         claims,
 		UserIdentifier: request.WrappedUserIdentifier.Identifier,
 	})
