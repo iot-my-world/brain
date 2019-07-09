@@ -25,9 +25,14 @@ func Test(t *testing.T) {
 		t.FailNow()
 		return
 	}
+
+	clientTestData := make([]clientTestModule.Data, 0)
+	for _, data := range clientData {
+		clientTestData = append(clientTestData, data.ClientTestData)
+	}
 	suite.Run(t, clientTestModule.New(
 		data.BrainURL,
 		User,
-		clientData,
+		clientTestData,
 	))
 }
