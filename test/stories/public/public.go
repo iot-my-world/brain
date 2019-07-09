@@ -6,33 +6,44 @@ import (
 	partyRegistrarAdministratorTestModule "github.com/iot-my-world/brain/test/modules/party/registrarAdministrator"
 	humanUserAdministratorTestModule "github.com/iot-my-world/brain/test/modules/user/human/administrator"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
-func Test(t *testing.T) {
-	suite.Run(t, partyRegistrarAdministratorTestModule.New(
+func New() *test {
+	return &test{}
+}
+
+type test struct {
+	suite.Suite
+}
+
+func (t *test) SetupTest() {
+
+}
+
+func (t *test) TestPublic() {
+	suite.Run(t.T(), partyRegistrarAdministratorTestModule.New(
 		data.BrainURL,
 		CompanyTestData,
 		ClientTestData,
 	))
 
 	for _, companyData := range CompanyTestData {
-		suite.Run(t, humanUserAdministratorTestModule.New(
+		suite.Run(t.T(), humanUserAdministratorTestModule.New(
 			data.BrainURL,
 			[]humanUser.User{companyData.AdminUser},
 		))
-		suite.Run(t, humanUserAdministratorTestModule.New(
+		suite.Run(t.T(), humanUserAdministratorTestModule.New(
 			data.BrainURL,
 			companyData.Users,
 		))
 	}
 
 	for _, clientData := range ClientTestData {
-		suite.Run(t, humanUserAdministratorTestModule.New(
+		suite.Run(t.T(), humanUserAdministratorTestModule.New(
 			data.BrainURL,
 			[]humanUser.User{clientData.AdminUser},
 		))
-		suite.Run(t, humanUserAdministratorTestModule.New(
+		suite.Run(t.T(), humanUserAdministratorTestModule.New(
 			data.BrainURL,
 			clientData.Users,
 		))

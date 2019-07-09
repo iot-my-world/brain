@@ -1,7 +1,10 @@
 package company
 
-import "testing"
+import (
+	"github.com/stretchr/testify/suite"
+	"testing"
+)
 
 func TestCompany(t *testing.T) {
-	Test(t)
+	suite.Run(t, New())
 }
