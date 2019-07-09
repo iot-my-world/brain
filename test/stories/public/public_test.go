@@ -1,7 +1,10 @@
 package public
 
-import "testing"
+import (
+	"github.com/stretchr/testify/suite"
+	"testing"
+)
 
-func TestSystem(t *testing.T) {
-	Test(t)
+func Test(t *testing.T) {
+	suite.Run(t, New())
 }
