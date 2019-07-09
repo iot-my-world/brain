@@ -7,5 +7,3 @@ const System = "system"
 const Individual = "individual"
 const Company = "company"
 const Client = "client"
-
-const SF001Tracker = "sf001Tracker"

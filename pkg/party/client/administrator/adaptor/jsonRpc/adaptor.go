@@ -2,7 +2,7 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/administrator"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
@@ -22,11 +22,11 @@ func New(
 }
 
 type UpdateAllowedFieldsRequest struct {
-	Client client2.Client `json:"client"`
+	Client client.Client `json:"client"`
 }
 
 type UpdateAllowedFieldsResponse struct {
-	Client client2.Client `json:"client"`
+	Client client.Client `json:"client"`
 }
 
 func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
@@ -50,11 +50,11 @@ func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFie
 }
 
 type CreateRequest struct {
-	Client client2.Client `json:"client"`
+	Client client.Client `json:"client"`
 }
 
 type CreateResponse struct {
-	Client client2.Client `json:"client"`
+	Client client.Client `json:"client"`
 }
 
 func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {

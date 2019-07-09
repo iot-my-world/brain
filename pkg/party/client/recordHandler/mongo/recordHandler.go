@@ -1,9 +1,9 @@
 package mongo
 
 import (
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/party/client/recordHandler/generic"
+	clientGenericRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler/generic"
 	brainMongoRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler/mongo"
 	"gopkg.in/mgo.v2"
 )
@@ -21,11 +21,11 @@ func New(
 			Key:    []string{"id"},
 			Unique: true,
 		}},
-		client2.IsValidIdentifier,
-		client2.ContextualiseFilter,
+		client.IsValidIdentifier,
+		client.ContextualiseFilter,
 	)
 
-	return recordHandler2.New(
+	return clientGenericRecordHandler.New(
 		mongoRecordHandler,
 	)
 }

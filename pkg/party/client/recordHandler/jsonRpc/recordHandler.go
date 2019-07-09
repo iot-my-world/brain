@@ -4,7 +4,7 @@ import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
+	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler/adaptor/jsonRpc"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
@@ -16,13 +16,13 @@ type recordHandler struct {
 
 func New(
 	jsonRpcClient jsonRpcClient.Client,
-) recordHandler2.RecordHandler {
+) clientRecordHandler.RecordHandler {
 	return &recordHandler{
 		jsonRpcClient: jsonRpcClient,
 	}
 }
 
-func (r *recordHandler) ValidateCollectRequest(request *recordHandler2.CollectRequest) error {
+func (r *recordHandler) ValidateCollectRequest(request *clientRecordHandler.CollectRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Criteria == nil {
@@ -41,7 +41,7 @@ func (r *recordHandler) ValidateCollectRequest(request *recordHandler2.CollectRe
 	return nil
 }
 
-func (r *recordHandler) Collect(request *recordHandler2.CollectRequest) (*recordHandler2.CollectResponse, error) {
+func (r *recordHandler) Collect(request *clientRecordHandler.CollectRequest) (*clientRecordHandler.CollectResponse, error) {
 	if err := r.ValidateCollectRequest(request); err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (r *recordHandler) Collect(request *recordHandler2.CollectRequest) (*record
 
 	clientCollectResponse := client.CollectResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		recordHandler2.CollectService,
+		clientRecordHandler.CollectService,
 		client.CollectRequest{
 			Criteria: criteria,
 			Query:    request.Query,
@@ -68,13 +68,13 @@ func (r *recordHandler) Collect(request *recordHandler2.CollectRequest) (*record
 		return nil, err
 	}
 
-	return &recordHandler2.CollectResponse{
+	return &clientRecordHandler.CollectResponse{
 		Records: clientCollectResponse.Records,
 		Total:   clientCollectResponse.Total,
 	}, nil
 }
 
-func (r *recordHandler) ValidateRetrieveRequest(request *recordHandler2.RetrieveRequest) error {
+func (r *recordHandler) ValidateRetrieveRequest(request *clientRecordHandler.RetrieveRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Identifier == nil {
@@ -87,7 +87,7 @@ func (r *recordHandler) ValidateRetrieveRequest(request *recordHandler2.Retrieve
 	return nil
 }
 
-func (r *recordHandler) Retrieve(request *recordHandler2.RetrieveRequest) (*recordHandler2.RetrieveResponse, error) {
+func (r *recordHandler) Retrieve(request *clientRecordHandler.RetrieveRequest) (*clientRecordHandler.RetrieveResponse, error) {
 	if err := r.ValidateRetrieveRequest(request); err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (r *recordHandler) Retrieve(request *recordHandler2.RetrieveRequest) (*reco
 
 	clientRetrieveResponse := client.RetrieveResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		recordHandler2.RetrieveService,
+		clientRecordHandler.RetrieveService,
 		client.RetrieveRequest{
 			WrappedIdentifier: *id,
 		},
@@ -109,19 +109,19 @@ func (r *recordHandler) Retrieve(request *recordHandler2.RetrieveRequest) (*reco
 		return nil, err
 	}
 
-	return &recordHandler2.RetrieveResponse{
+	return &clientRecordHandler.RetrieveResponse{
 		Client: clientRetrieveResponse.Client,
 	}, nil
 }
 
-func (r *recordHandler) Create(request *recordHandler2.CreateRequest) (*recordHandler2.CreateResponse, error) {
+func (r *recordHandler) Create(request *clientRecordHandler.CreateRequest) (*clientRecordHandler.CreateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *recordHandler) Update(request *recordHandler2.UpdateRequest) (*recordHandler2.UpdateResponse, error) {
+func (r *recordHandler) Update(request *clientRecordHandler.UpdateRequest) (*clientRecordHandler.UpdateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *recordHandler) Delete(request *recordHandler2.DeleteRequest) (*recordHandler2.DeleteResponse, error) {
+func (r *recordHandler) Delete(request *clientRecordHandler.DeleteRequest) (*clientRecordHandler.DeleteResponse, error) {
 	return nil, brainException.NotImplemented{}
 }

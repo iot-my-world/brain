@@ -4,8 +4,8 @@ import (
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/administrator"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
@@ -87,7 +87,7 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 }
 
 type CreateAndInviteCompanyRequest struct {
-	Company company2.Company `json:"company"`
+	Company company.Company `json:"company"`
 }
 
 type CreateAndInviteCompanyResponse struct {
@@ -108,7 +108,7 @@ func (a *adaptor) CreateAndInviteCompany(r *http.Request, request *CreateAndInvi
 }
 
 type CreateAndInviteClientRequest struct {
-	Client client2.Client `json:"client"`
+	Client client.Client `json:"client"`
 }
 
 type CreateAndInviteClientResponse struct {

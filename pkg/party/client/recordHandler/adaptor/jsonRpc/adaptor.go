@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
@@ -27,7 +27,7 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Client client2.Client `json:"client" bson:"client"`
+	Client client.Client `json:"client" bson:"client"`
 }
 
 func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
@@ -57,8 +57,8 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []client2.Client `json:"records"`
-	Total   int              `json:"total"`
+	Records []client.Client `json:"records"`
+	Total   int             `json:"total"`
 }
 
 func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {

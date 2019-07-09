@@ -10,8 +10,8 @@ import (
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	"github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
@@ -60,9 +60,9 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 	var castSuccess bool
 	switch getMyPartyResponse.PartyType {
 	case party.Client:
-		typedParty, castSuccess = getMyPartyResponse.Party.(client2.Client)
+		typedParty, castSuccess = getMyPartyResponse.Party.(client.Client)
 	case party.Company:
-		typedParty, castSuccess = getMyPartyResponse.Party.(company2.Company)
+		typedParty, castSuccess = getMyPartyResponse.Party.(company.Company)
 	default:
 		err := errors.New("invalid party type in get my party response")
 		log.Error(err.Error())

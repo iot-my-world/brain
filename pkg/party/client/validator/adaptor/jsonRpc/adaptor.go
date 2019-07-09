@@ -3,7 +3,7 @@ package client
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/validator"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
@@ -21,8 +21,8 @@ func New(clientValidator validator.Validator) *adaptor {
 }
 
 type ValidateRequest struct {
-	Client client2.Client `json:"client"`
-	Action action.Action  `json:"action"`
+	Client client.Client `json:"client"`
+	Action action.Action `json:"action"`
 }
 
 type ValidateResponse struct {
