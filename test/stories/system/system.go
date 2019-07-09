@@ -15,23 +15,36 @@ func New() *test {
 
 type test struct {
 	suite.Suite
+	companyTestModule *companyTestModule.Test
 }
 
 func (t *test) SetupTest() {
-
-}
-
-func (t *test) TestSystem() {
-	// perform system company tests
 	companyTestData := make([]companyTestModule.Data, 0)
 	for _, companyData := range company.TestData {
 		companyTestData = append(companyTestData, companyData.CompanyTestData)
 	}
-	suite.Run(t.T(), companyTestModule.New(
+	companyTestSuite, err := companyTestModule.New(
+		t.Suite,
 		data.BrainURL,
 		User,
 		companyTestData,
-	))
+	)
+	if err != nil {
+		t.FailNow("error creating company test module", err.Error())
+		return
+	}
+	t.companyTestModule = companyTestSuite
+}
+
+func (t *test) TestSystem() {
+	// perform system company tests
+	t.Run("Company Create", t.companyTestModule.TestCompany1Create)
+	t.Run("Company Update Allowed Fields", t.companyTestModule.TestCompany2UpdateAllowedFields)
+	t.Run("Company Delete", t.companyTestModule.TestCompany3Delete)
+	t.Run("Company Invite and Register Admin", t.companyTestModule.TestCompany4InviteAndRegisterAdmin)
+	t.Run("Company Create Users", t.companyTestModule.TestCompany5CreateUsers)
+	t.Run("Company Invite and Register Users", t.companyTestModule.TestCompany6InviteAndRegisterUsers)
+	t.Run("Company Company User Login", t.companyTestModule.TestCompany7UserLogin)
 
 	// perform system client tests
 	clientData, found := client.TestData["root"]
