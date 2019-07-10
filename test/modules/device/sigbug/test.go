@@ -11,7 +11,9 @@ import (
 	sigbugJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/jsonRpc"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorJsonRpc "github.com/iot-my-world/brain/pkg/party/administrator/jsonRpc"
+	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
+	"github.com/iot-my-world/brain/pkg/search/query"
 	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	"github.com/stretchr/testify/suite"
@@ -103,5 +105,33 @@ func (suite *test) TestSigbug1Create() {
 		}); err != nil {
 			suite.FailNow("error creating sigbug device", err.Error())
 		}
+	}
+
+	// collect all sigbugs
+	sigbugCollectResponse, err := suite.sigbugRecordHandler.Collect(&sigbugRecordHandler.CollectRequest{
+		Criteria: make([]criterion.Criterion, 0),
+		Query:    query.Query{},
+	})
+	if err != nil {
+		suite.Failf("collect sigbugs failed", err.Error())
+		return
+	}
+
+	// confirm that each created sigbug can be found
+nextSigbugToCreate:
+	// for every sigbug that should be created
+	for _, sigbugToCreate := range suite.testData {
+		// look for sigbugToCreate among collected sigbugs
+		for _, existingSigbug := range sigbugCollectResponse.Records {
+			if sigbugToCreate.Device.DeviceId == existingSigbug.DeviceId {
+				// update fields set during creation
+				sigbugToCreate.Device.Id = existingSigbug.Id
+				// assert should be equal
+				suite.Equal(sigbugToCreate.Device, existingSigbug, "created sigbug should be equal")
+				// if it is found and equal, check for next sigbug to create
+				continue nextSigbugToCreate
+			}
+		}
+		// if execution reaches here then sigbugToCreate was not found among collected sigbugs
 	}
 }
