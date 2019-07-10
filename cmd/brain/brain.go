@@ -104,6 +104,16 @@ import (
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"path/filepath"
 	"strings"
+
+	sigbugAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator"
+	sigbugAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/adaptor/jsonRpc"
+	sigbugBasicAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/basic"
+	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
+	sigbugRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/adaptor/jsonRpc"
+	sigbugMongoRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/mongo"
+	sigbugValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
+	sigbugValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/validator/adaptor/jsonRpc"
+	sigbugBasicValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator/basic"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -322,6 +332,20 @@ func main() {
 		APIUserRecordHandler,
 	)
 
+	// Sigbug Device
+	SigbugRecordHandler := sigbugMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.Sigbug,
+	)
+	SigbugValidator := sigbugBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	SigbugAdministrator := sigbugBasicAdministrator.New(
+		SigbugValidator,
+		SigbugRecordHandler,
+	)
+
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
@@ -362,6 +386,11 @@ func main() {
 
 	// System
 	SystemRecordHandlerAdaptor := systemRecordHandlerJsonRpcAdaptor.New(SystemRecordHandler)
+
+	// Sigbug
+	SigbugRecordHandlerAdaptor := sigbugRecordHandlerJsonRpcAdaptor.New(SigbugRecordHandler)
+	SigbugValidatorAdaptor := sigbugValidatorJsonRpcAdaptor.New(SigbugValidator)
+	SigbugAdministratorAdaptor := sigbugAdministratorJsonRpcAdaptor.New(SigbugAdministrator)
 
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
@@ -435,6 +464,17 @@ func main() {
 	// System
 	if err := secureHumanUserAPIServer.RegisterService(SystemRecordHandlerAdaptor, systemRecordHandler.ServiceProvider); err != nil {
 		log.Fatal("Unable to Register System Record Handler Service")
+	}
+
+	// Sigbug
+	if err := secureHumanUserAPIServer.RegisterService(SigbugRecordHandlerAdaptor, sigbugRecordHandler.ServiceProvider); err != nil {
+		log.Fatal("Unable to Register Sigbug Record Handler Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(SigbugValidatorAdaptor, sigbugValidator.ServiceProvider); err != nil {
+		log.Fatal("Unable to Register Sigbug Validator Service")
+	}
+	if err := secureHumanUserAPIServer.RegisterService(SigbugAdministratorAdaptor, sigbugAdministrator.ServiceProvider); err != nil {
+		log.Fatal("Unable to Register Sigbug Administrator Service")
 	}
 
 	// Reports
