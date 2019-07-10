@@ -21,11 +21,17 @@ var SystemUserPermissions = []api.Permission{
 	UpdateAllowedFieldsService,
 }
 
-var CompanyAdminUserPermissions = make([]api.Permission, 0)
+var CompanyAdminUserPermissions = []api.Permission{
+	CreateService,
+	UpdateAllowedFieldsService,
+}
 
 var CompanyUserPermissions = make([]api.Permission, 0)
 
-var ClientAdminUserPermissions = make([]api.Permission, 0)
+var ClientAdminUserPermissions = []api.Permission{
+	CreateService,
+	UpdateAllowedFieldsService,
+}
 
 var ClientUserPermissions = make([]api.Permission, 0)
 

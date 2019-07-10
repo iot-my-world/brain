@@ -2,6 +2,9 @@ package setup
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
+	sigbugAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator"
+	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
+	sigbugValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	clientAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator"
 	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
@@ -14,73 +17,73 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	"github.com/iot-my-world/brain/pkg/security/permission/administrator"
-	api2 "github.com/iot-my-world/brain/pkg/security/permission/api"
-	view2 "github.com/iot-my-world/brain/pkg/security/permission/view"
-	role2 "github.com/iot-my-world/brain/pkg/security/role"
+	apiPermission "github.com/iot-my-world/brain/pkg/security/permission/api"
+	viewPermission "github.com/iot-my-world/brain/pkg/security/permission/view"
+	"github.com/iot-my-world/brain/pkg/security/role"
 	"github.com/iot-my-world/brain/pkg/security/role/recordHandler"
-	exception2 "github.com/iot-my-world/brain/pkg/security/role/recordHandler/exception"
+	roleRecordHandlerException "github.com/iot-my-world/brain/pkg/security/role/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/security/role/setup/exception"
 	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
 )
 
-var CompanyAdmin = role2.Role{
+var CompanyAdmin = role.Role{
 	Name:           "companyAdmin",
-	APIPermissions: make([]api2.Permission, 0),
-	ViewPermissions: []view2.Permission{
-		view2.PartyProfileEditing,
+	APIPermissions: make([]apiPermission.Permission, 0),
+	ViewPermissions: []viewPermission.Permission{
+		viewPermission.PartyProfileEditing,
 
-		view2.PartyClient,
-		view2.PartyUser,
+		viewPermission.PartyClient,
+		viewPermission.PartyUser,
 
-		view2.LiveTrackingDashboard,
-		view2.HistoricalTrackingDashboard,
+		viewPermission.LiveTrackingDashboard,
+		viewPermission.HistoricalTrackingDashboard,
 
-		view2.TrackerSF001,
+		viewPermission.TrackerSF001,
 	},
 }
 
-var CompanyUser = role2.Role{
+var CompanyUser = role.Role{
 	Name:           "companyUser",
-	APIPermissions: make([]api2.Permission, 0),
-	ViewPermissions: []view2.Permission{
-		view2.LiveTrackingDashboard,
-		view2.HistoricalTrackingDashboard,
+	APIPermissions: make([]apiPermission.Permission, 0),
+	ViewPermissions: []viewPermission.Permission{
+		viewPermission.LiveTrackingDashboard,
+		viewPermission.HistoricalTrackingDashboard,
 
-		view2.TrackerSF001,
+		viewPermission.TrackerSF001,
 	},
 }
 
-var ClientAdmin = role2.Role{
+var ClientAdmin = role.Role{
 	Name:           "clientAdmin",
-	APIPermissions: make([]api2.Permission, 0),
-	ViewPermissions: []view2.Permission{
-		view2.PartyProfileEditing,
+	APIPermissions: make([]apiPermission.Permission, 0),
+	ViewPermissions: []viewPermission.Permission{
+		viewPermission.PartyProfileEditing,
 
-		view2.PartyUser,
+		viewPermission.PartyUser,
 
-		view2.LiveTrackingDashboard,
-		view2.HistoricalTrackingDashboard,
+		viewPermission.LiveTrackingDashboard,
+		viewPermission.HistoricalTrackingDashboard,
 
-		view2.TrackerSF001,
+		viewPermission.TrackerSF001,
 	},
 }
 
-var ClientUser = role2.Role{
+var ClientUser = role.Role{
 	Name:           "clientUser",
-	APIPermissions: make([]api2.Permission, 0),
-	ViewPermissions: []view2.Permission{
-		view2.LiveTrackingDashboard,
-		view2.HistoricalTrackingDashboard,
+	APIPermissions: make([]apiPermission.Permission, 0),
+	ViewPermissions: []viewPermission.Permission{
+		viewPermission.LiveTrackingDashboard,
+		viewPermission.HistoricalTrackingDashboard,
 
-		view2.TrackerSF001,
+		viewPermission.TrackerSF001,
 	},
 }
 
-var initialRoles = func() []role2.Role {
+var initialRoles = func() []role.Role {
 
-	rootAPIPermissions := make([]api2.Permission, 0)
+	rootAPIPermissions := make([]apiPermission.Permission, 0)
 
 	// System RecordHandler
 	rootAPIPermissions = append(rootAPIPermissions, systemRecordHandler.SystemUserPermissions...)
@@ -173,8 +176,27 @@ var initialRoles = func() []role2.Role {
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, clientValidator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, clientValidator.ClientUserPermissions...)
 
+	// Sigbug Administrator
+	rootAPIPermissions = append(rootAPIPermissions, sigbugAdministrator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigbugAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugAdministrator.ClientUserPermissions...)
+	// Sigbug RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, sigbugRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigbugRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugRecordHandler.ClientUserPermissions...)
+	// Sigbug Validator
+	rootAPIPermissions = append(rootAPIPermissions, sigbugValidator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigbugValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugValidator.ClientUserPermissions...)
+
 	// Register roles here
-	allRoles := []role2.Role{
+	allRoles := []role.Role{
 		ClientAdmin,
 		ClientUser,
 		CompanyAdmin,
@@ -182,16 +204,16 @@ var initialRoles = func() []role2.Role {
 	}
 
 	// The view permissions that root has
-	rootViewPermissions := []view2.Permission{
-		view2.PartyCompany,
-		view2.PartyClient,
-		view2.PartyUser,
-		view2.PartyAPIUser,
+	rootViewPermissions := []viewPermission.Permission{
+		viewPermission.PartyCompany,
+		viewPermission.PartyClient,
+		viewPermission.PartyUser,
+		viewPermission.PartyAPIUser,
 
-		view2.LiveTrackingDashboard,
-		view2.HistoricalTrackingDashboard,
+		viewPermission.LiveTrackingDashboard,
+		viewPermission.HistoricalTrackingDashboard,
 
-		view2.TrackerSF001,
+		viewPermission.TrackerSF001,
 	}
 
 	// Create root role and apply permissions of all other roles to root
@@ -209,13 +231,13 @@ var initialRoles = func() []role2.Role {
 			rootAPIPermissions = append(rootAPIPermissions, apiPerm)
 		}
 	}
-	root := role2.Role{
+	root := role.Role{
 		Name:            "root",
 		APIPermissions:  rootAPIPermissions,
 		ViewPermissions: rootViewPermissions,
 	}
 
-	return append([]role2.Role{root}, allRoles...)
+	return append([]role.Role{root}, allRoles...)
 }()
 
 func InitialSetup(handler recordHandler.RecordHandler) error {
@@ -225,7 +247,7 @@ func InitialSetup(handler recordHandler.RecordHandler) error {
 			Identifier: name.Identifier{Name: roleToCreate.Name},
 		})
 		switch err.(type) {
-		case exception2.NotFound:
+		case roleRecordHandlerException.NotFound:
 			// if role record does not exist yet, try and create it
 			_, err := handler.Create(&recordHandler.CreateRequest{
 				Role: roleToCreate,
