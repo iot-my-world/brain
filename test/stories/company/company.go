@@ -42,13 +42,11 @@ func (t *test) TestCompany() {
 
 		// build sigbug test data and run sigbug tests
 		sigbugTestData := make([]sigbugDeviceTestModule.Data, 0)
-		for _, cData := range clientData {
-			for _, sigbugDevice := range cData.SigbugDevices {
-				sigbugTestData = append(sigbugTestData, sigbugDeviceTestModule.Data{
-					Device:      sigbugDevice,
-					GPSReadings: nil,
-				})
-			}
+		for _, sigbugDevice := range companyData.SigbugDevices {
+			sigbugTestData = append(sigbugTestData, sigbugDeviceTestModule.Data{
+				Device:      sigbugDevice,
+				GPSReadings: nil,
+			})
 		}
 		suite.Run(t.T(), sigbugDeviceTestModule.New(
 			data.BrainURL,

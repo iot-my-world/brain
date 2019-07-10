@@ -94,7 +94,7 @@ func (suite *test) TestSigbug1Create() {
 			}
 
 			// set owner party id
-			data.Device.OwnerId = retrieveAssignedPartyResponse.Party.Details().PartyId
+			data.Device.AssignedId = retrieveAssignedPartyResponse.Party.Details().PartyId
 		}
 
 		// create the device

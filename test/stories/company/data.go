@@ -48,7 +48,7 @@ var TestData = []struct {
 		SigbugDevices: []sigbug.Sigbug{
 			// device owned by company, not yet assigned to client
 			{
-				DeviceId:       "Monteagle Logistics Limited",
+				DeviceId:       "198703",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "Monteagle Logistics Limited", // populated correctly on creation
@@ -58,7 +58,7 @@ var TestData = []struct {
 			},
 			// device owned by company assigned to a client
 			{
-				DeviceId:       "Monteagle Logistics Limited",
+				DeviceId:       "1102394870d",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "Monteagle Logistics Limited", // populated correctly on creation
@@ -109,7 +109,7 @@ var TestData = []struct {
 		SigbugDevices: []sigbug.Sigbug{
 			// device owned by company, not yet assigned to client
 			{
-				DeviceId:       "DHL",
+				DeviceId:       "2puapsdp",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "DHL", // populated correctly on creation
@@ -119,7 +119,7 @@ var TestData = []struct {
 			},
 			// device owned by company assigned to a client
 			{
-				DeviceId:       "DHL",
+				DeviceId:       "29809dnwjae",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "DHL", // populated correctly on creation
@@ -170,7 +170,7 @@ var TestData = []struct {
 		SigbugDevices: []sigbug.Sigbug{
 			// device owned by company, not yet assigned to client
 			{
-				DeviceId:       "Reinhard Trucking",
+				DeviceId:       "39887hnh32",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "Reinhard Trucking", // populated correctly on creation
@@ -180,7 +180,7 @@ var TestData = []struct {
 			},
 			// device owned by company assigned to a client
 			{
-				DeviceId:       "Reinhard Trucking",
+				DeviceId:       "3ps09c3l973",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "Reinhard Trucking", // populated correctly on creation
