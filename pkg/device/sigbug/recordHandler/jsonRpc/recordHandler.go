@@ -5,7 +5,7 @@ import (
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
 	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
-	company "github.com/iot-my-world/brain/pkg/party/company/recordHandler/adaptor/jsonRpc"
+	sigbugRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/adaptor/jsonRpc"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
 )
 
@@ -21,17 +21,17 @@ func New(
 	}
 }
 
-func (a *recordHandler) Create(request *sigbugRecordHandler.CreateRequest) (*sigbugRecordHandler.CreateResponse, error) {
+func (r *recordHandler) Create(request *sigbugRecordHandler.CreateRequest) (*sigbugRecordHandler.CreateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (a *recordHandler) Retrieve(request *sigbugRecordHandler.RetrieveRequest) (*sigbugRecordHandler.RetrieveResponse, error) {
+func (r *recordHandler) Retrieve(request *sigbugRecordHandler.RetrieveRequest) (*sigbugRecordHandler.RetrieveResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
-func (a *recordHandler) Update(request *sigbugRecordHandler.UpdateRequest) (*sigbugRecordHandler.UpdateResponse, error) {
+func (r *recordHandler) Update(request *sigbugRecordHandler.UpdateRequest) (*sigbugRecordHandler.UpdateResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
-func (a *recordHandler) Delete(request *sigbugRecordHandler.DeleteRequest) (*sigbugRecordHandler.DeleteResponse, error) {
+func (r *recordHandler) Delete(request *sigbugRecordHandler.DeleteRequest) (*sigbugRecordHandler.DeleteResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
@@ -54,7 +54,7 @@ func (r *recordHandler) ValidateCollectRequest(request *sigbugRecordHandler.Coll
 	return nil
 }
 
-func (a *recordHandler) Collect(request *sigbugRecordHandler.CollectRequest) (*sigbugRecordHandler.CollectResponse, error) {
+func (r *recordHandler) Collect(request *sigbugRecordHandler.CollectRequest) (*sigbugRecordHandler.CollectResponse, error) {
 	if err := r.ValidateCollectRequest(request); err != nil {
 		return nil, err
 	}
@@ -70,19 +70,19 @@ func (a *recordHandler) Collect(request *sigbugRecordHandler.CollectRequest) (*s
 		criteria = append(criteria, *wrapped)
 	}
 
-	companyCollectResponse := company.CollectResponse{}
+	collectResponse := sigbugRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
 		sigbugRecordHandler.CollectService,
-		company.CollectRequest{
+		sigbugRecordHandlerJsonRpcAdaptor.CollectRequest{
 			Criteria: criteria,
 			Query:    request.Query,
 		},
-		&companyCollectResponse); err != nil {
+		&collectResponse); err != nil {
 		return nil, err
 	}
 
 	return &sigbugRecordHandler.CollectResponse{
-		Records: companyCollectResponse.Records,
-		Total:   companyCollectResponse.Total,
+		Records: collectResponse.Records,
+		Total:   collectResponse.Total,
 	}, nil
 }
