@@ -14,7 +14,7 @@ func IsValidIdentifier(id identifier.Identifier) bool {
 	}
 
 	switch id.Type() {
-	case identifier.Id, identifier.AdminEmailAddress:
+	case identifier.Id, identifier.AdminEmailAddress, identifier.Name:
 		return true
 	default:
 		return false
