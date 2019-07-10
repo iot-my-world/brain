@@ -34,37 +34,18 @@ import (
 )
 
 func New(
-	suite suite.Suite,
 	url string,
 	user humanUser.User,
 	testData []Data,
-) (*Test, error) {
-
-	newCompanyTest := Test{
-		Suite:         suite,
+) *test {
+	return &test{
 		testData:      testData,
 		user:          user,
 		jsonRpcClient: basicJsonRpcClient.New(url),
 	}
-
-	// log in the client
-	if err := newCompanyTest.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
-		UsernameOrEmailAddress: newCompanyTest.user.Username,
-		Password:               string(newCompanyTest.user.Password),
-	}); err != nil {
-		return nil, err
-	}
-
-	newCompanyTest.companyRecordHandler = companyJsonRpcRecordHandler.New(newCompanyTest.jsonRpcClient)
-	newCompanyTest.companyAdministrator = companyJsonRpcAdministrator.New(newCompanyTest.jsonRpcClient)
-	newCompanyTest.partyRegistrar = partyJsonRpcRegistrar.New(newCompanyTest.jsonRpcClient)
-	newCompanyTest.humanUserAdministrator = humanUserJsonRpcAdministrator.New(newCompanyTest.jsonRpcClient)
-	newCompanyTest.humanUserRecordHandler = humanUserJsonRpcRecordHandler.New(newCompanyTest.jsonRpcClient)
-
-	return &newCompanyTest, nil
 }
 
-type Test struct {
+type test struct {
 	suite.Suite
 	jsonRpcClient          jsonRpcClient.Client
 	companyRecordHandler   companyRecordHandler.RecordHandler
@@ -76,13 +57,32 @@ type Test struct {
 	testData               []Data
 }
 
+func (suite *test) SetupTest() {
+
+	// log in the client
+	if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
+		UsernameOrEmailAddress: suite.user.Username,
+		Password:               string(suite.user.Password),
+	}); err != nil {
+		suite.Fail("log in error", err.Error())
+		return
+	}
+
+	// set up service provider clients that use jsonRpcClient
+	suite.companyRecordHandler = companyJsonRpcRecordHandler.New(suite.jsonRpcClient)
+	suite.companyAdministrator = companyJsonRpcAdministrator.New(suite.jsonRpcClient)
+	suite.partyRegistrar = partyJsonRpcRegistrar.New(suite.jsonRpcClient)
+	suite.humanUserAdministrator = humanUserJsonRpcAdministrator.New(suite.jsonRpcClient)
+	suite.humanUserRecordHandler = humanUserJsonRpcRecordHandler.New(suite.jsonRpcClient)
+}
+
 type Data struct {
 	Company   company.Company
 	AdminUser humanUser.User
 	Users     []humanUser.User
 }
 
-func (suite *Test) TestCompany1Create() {
+func (suite *test) TestCompany1Create() {
 	// create all companies in test data
 	for _, data := range suite.testData {
 		companyEntity := data.Company
@@ -131,7 +131,7 @@ nextCompanyToCreate:
 	}
 }
 
-func (suite *Test) TestCompany2UpdateAllowedFields() {
+func (suite *test) TestCompany2UpdateAllowedFields() {
 	for _, data := range suite.testData {
 
 		// retrieve the company by admin email address
@@ -200,7 +200,7 @@ func (suite *Test) TestCompany2UpdateAllowedFields() {
 	}
 }
 
-func (suite *Test) TestCompany3Delete() {
+func (suite *test) TestCompany3Delete() {
 	// create a company
 	createResponse, err := suite.companyAdministrator.Create(&companyAdministrator.CreateRequest{
 		Company: company.Company{
@@ -254,7 +254,7 @@ func (suite *Test) TestCompany3Delete() {
 	}
 }
 
-func (suite *Test) TestCompany4InviteAndRegisterAdmin() {
+func (suite *test) TestCompany4InviteAndRegisterAdmin() {
 	for _, data := range suite.testData {
 		companyEntity := data.Company
 		companyAdminUserEntity := data.AdminUser
@@ -342,7 +342,7 @@ func (suite *Test) TestCompany4InviteAndRegisterAdmin() {
 	}
 }
 
-func (suite *Test) TestCompany5CreateUsers() {
+func (suite *test) TestCompany5CreateUsers() {
 	for _, companyData := range suite.testData {
 		// authenticate json rpc client as company admin user
 		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
@@ -399,7 +399,7 @@ func (suite *Test) TestCompany5CreateUsers() {
 	}
 }
 
-func (suite *Test) TestCompany6InviteAndRegisterUsers() {
+func (suite *test) TestCompany6InviteAndRegisterUsers() {
 	for _, companyData := range suite.testData {
 		// authenticate json rpc client as company admin user
 		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
@@ -492,7 +492,7 @@ func (suite *Test) TestCompany6InviteAndRegisterUsers() {
 	}
 }
 
-func (suite *Test) TestCompany7UserLogin() {
+func (suite *test) TestCompany7UserLogin() {
 	for _, companyData := range suite.testData {
 		for _, userToTest := range companyData.Users {
 			if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
