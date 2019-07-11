@@ -65,12 +65,12 @@ func (suite *test) SetupTest() {
 
 func (suite *test) TestSigbug1Create() {
 	// create all sigbugs in test data
-	for _, data := range suite.testData {
+	for idx := range suite.testData {
 		// retrieve the owner party
 		retrieveOwnerPartyResponse, err := suite.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-			PartyType: data.Device.OwnerPartyType,
+			PartyType: suite.testData[idx].Device.OwnerPartyType,
 			Identifier: name.Identifier{
-				Name: data.Device.OwnerId.Id,
+				Name: suite.testData[idx].Device.OwnerId.Id,
 			},
 		})
 		if err != nil {
@@ -79,15 +79,15 @@ func (suite *test) TestSigbug1Create() {
 		}
 
 		// set owner party id
-		data.Device.OwnerId = retrieveOwnerPartyResponse.Party.Details().PartyId
+		suite.testData[idx].Device.OwnerId = retrieveOwnerPartyResponse.Party.Details().PartyId
 
 		// retrieve assigned party if set
-		if data.Device.AssignedId.Id != "" {
+		if suite.testData[idx].Device.AssignedId.Id != "" {
 			// retrieve the assigned party
 			retrieveAssignedPartyResponse, err := suite.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-				PartyType: data.Device.AssignedPartyType,
+				PartyType: suite.testData[idx].Device.AssignedPartyType,
 				Identifier: name.Identifier{
-					Name: data.Device.AssignedId.Id,
+					Name: suite.testData[idx].Device.AssignedId.Id,
 				},
 			})
 			if err != nil {
@@ -96,12 +96,12 @@ func (suite *test) TestSigbug1Create() {
 			}
 
 			// set owner party id
-			data.Device.AssignedId = retrieveAssignedPartyResponse.Party.Details().PartyId
+			suite.testData[idx].Device.AssignedId = retrieveAssignedPartyResponse.Party.Details().PartyId
 		}
 
 		// create the device
 		if _, err := suite.sigbugAdministrator.Create(&sigbugAdministrator.CreateRequest{
-			Sigbug: data.Device,
+			Sigbug: suite.testData[idx].Device,
 		}); err != nil {
 			suite.FailNow("error creating sigbug device", err.Error())
 		}
