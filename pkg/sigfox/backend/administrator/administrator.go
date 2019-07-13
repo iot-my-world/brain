@@ -12,7 +12,7 @@ type Administrator interface {
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
 }
 
-const ServiceProvider = "BackendTracker-Administrator"
+const ServiceProvider = "SigfoxBackend-Administrator"
 const UpdateAllowedFieldsService = ServiceProvider + ".UpdateAllowedFields"
 const CreateService = ServiceProvider + ".Create"
 

@@ -24,9 +24,6 @@ func New(
 				"id": {
 					reasonInvalid.Blank,
 				},
-				"token": {
-					reasonInvalid.Blank,
-				},
 			},
 		},
 	}

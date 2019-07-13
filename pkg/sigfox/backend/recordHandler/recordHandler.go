@@ -17,7 +17,7 @@ type RecordHandler interface {
 	Collect(*CollectRequest) (*CollectResponse, error)
 }
 
-const ServiceProvider = "Backend-RecordHandler"
+const ServiceProvider = "SigfoxBackend-RecordHandler"
 const CreateService = ServiceProvider + ".Create"
 const RetrieveService = ServiceProvider + ".Retrieve"
 const UpdateService = ServiceProvider + ".Update"
