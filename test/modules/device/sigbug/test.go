@@ -1,8 +1,8 @@
 package sigbug
 
 import (
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
+	jsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client"
+	basicJsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client/basic"
 	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	sigbugAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator"
 	sigbugJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/jsonRpc"

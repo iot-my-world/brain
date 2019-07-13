@@ -2,8 +2,8 @@ package system
 
 import (
 	"fmt"
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
+	jsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client"
+	basicJsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client/basic"
 	"github.com/iot-my-world/brain/pkg/search/identifier/device/tk102"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"

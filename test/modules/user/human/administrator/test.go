@@ -3,8 +3,8 @@ package administrator
 import (
 	"encoding/json"
 	"fmt"
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
-	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
+	jsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client"
+	basicJsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client/basic"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	"github.com/iot-my-world/brain/pkg/security/claims"

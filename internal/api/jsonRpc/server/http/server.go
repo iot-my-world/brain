@@ -9,10 +9,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc"
 	gorillaJson "github.com/gorilla/rpc/json"
+	server2 "github.com/iot-my-world/brain/internal/api/jsonRpc/server"
+	"github.com/iot-my-world/brain/internal/api/jsonRpc/service/provider"
 	"github.com/iot-my-world/brain/internal/cors"
 	"github.com/iot-my-world/brain/internal/log"
-	jsonRpcServer "github.com/iot-my-world/brain/pkg/api/jsonRpc/server"
-	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	apiAuthorizer "github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer"
 	"io/ioutil"
 	netHttp "net/http"
@@ -27,7 +27,7 @@ type server struct {
 	rpcServer        *rpc.Server
 	authorizer       apiAuthorizer.Authorizer
 	serverMux        *mux.Router
-	serviceProviders map[jsonRpcServiceProvider.Name]jsonRpcServiceProvider.Provider
+	serviceProviders map[provider.Name]provider.Provider
 }
 
 func New(
@@ -35,7 +35,7 @@ func New(
 	host string,
 	port string,
 	authorizer apiAuthorizer.Authorizer,
-) jsonRpcServer.Server {
+) server2.Server {
 	rpcServer := rpc.NewServer()
 	rpcServer.RegisterCodec(cors.CodecWithCors([]string{"*"}, gorillaJson.NewCodec()), "application/json")
 	return &server{
@@ -45,7 +45,7 @@ func New(
 		serverMux:        mux.NewRouter(),
 		rpcServer:        rpcServer,
 		authorizer:       authorizer,
-		serviceProviders: make(map[jsonRpcServiceProvider.Name]jsonRpcServiceProvider.Provider),
+		serviceProviders: make(map[provider.Name]provider.Provider),
 	}
 }
 
@@ -73,7 +73,7 @@ func (s *server) SecureStart() error {
 	return nil
 }
 
-func (s *server) RegisterServiceProvider(serviceProvider jsonRpcServiceProvider.Provider) error {
+func (s *server) RegisterServiceProvider(serviceProvider provider.Provider) error {
 	s.serviceProviders[serviceProvider.Name()] = serviceProvider
 	if err := s.rpcServer.RegisterService(serviceProvider, string(serviceProvider.Name())); err != nil {
 		err = errors.New(fmt.Sprintf(
@@ -126,7 +126,7 @@ func (s *server) applyAuthorization(next netHttp.Handler) netHttp.Handler {
 	})
 }
 
-func (s *server) getServiceProvider(r *netHttp.Request) (jsonRpcServiceProvider.Provider, string, error) {
+func (s *server) getServiceProvider(r *netHttp.Request) (provider.Provider, string, error) {
 	// Confirm that body of request has data
 	if r.Body == nil {
 		return nil, "", errors.New("body is nil")
@@ -153,7 +153,7 @@ func (s *server) getServiceProvider(r *netHttp.Request) (jsonRpcServiceProvider.
 		return nil, "", errors.New("invalid rpc method provider string")
 	}
 
-	provider, found := s.serviceProviders[jsonRpcServiceProvider.Name(providerAndMethod[0])]
+	provider, found := s.serviceProviders[provider.Name(providerAndMethod[0])]
 	if !found {
 		return nil, "", errors.New("no registered service provider")
 	}

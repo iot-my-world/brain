@@ -3,9 +3,9 @@ package jsonRpc
 import (
 	"fmt"
 	"github.com/go-errors/errors"
+	jsonRpcClient "github.com/iot-my-world/brain/internal/api/jsonRpc/client"
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	"github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"
