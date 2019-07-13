@@ -1,6 +1,6 @@
 package message
 
 type Message struct {
-	DeviceId string `json:"deviceId"`
+	DeviceId string `json:"backendId"`
 	Data     []byte `json:"data"`
 }

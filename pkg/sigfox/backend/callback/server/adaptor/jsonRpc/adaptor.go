@@ -28,7 +28,7 @@ func (a *adaptor) MethodRequiresAuthorization(string) bool {
 }
 
 type HandleDataMessageRequest struct {
-	Device string `json:"device"`
+	Device string `json:"backend"`
 	Data   []byte `json:"data"`
 }
 
