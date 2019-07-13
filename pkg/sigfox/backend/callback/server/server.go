@@ -10,6 +10,8 @@ type Server interface {
 
 const ServiceProvider = "SigfoxBackendCallbackServer"
 
+const HandleDataMessageService = ServiceProvider + ".HandleDataMessage"
+
 type HandleDataMessageRequest struct {
 	Message sigfoxBackendDataMessage.Message
 }

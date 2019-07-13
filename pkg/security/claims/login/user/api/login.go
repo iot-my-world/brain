@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
-	claims2 "github.com/iot-my-world/brain/pkg/security/claims"
+	claims "github.com/iot-my-world/brain/pkg/security/claims"
 	"time"
 )
 
@@ -17,8 +17,8 @@ type Login struct {
 	PartyId         id.Identifier `json:"partyId"`
 }
 
-func (l Login) Type() claims2.Type {
-	return claims2.APIUserLogin
+func (l Login) Type() claims.Type {
+	return claims.APIUserLogin
 }
 
 func (l Login) Expired() bool {
