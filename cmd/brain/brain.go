@@ -85,9 +85,15 @@ import (
 	jsonRpcHttpServer "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/http"
 	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 
+	sigfoxBackendAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/adaptor/jsonRpc"
+	sigfoxBackendBasicAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/basic"
 	sigfoxBackendAuthoriser "github.com/iot-my-world/brain/pkg/sigfox/backend/authoriser"
 	sigfoxBasicBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
 	sigfoxBasicBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/basic"
+	sigfoxBackendRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/adaptor/jsonRpc"
+	sigfoxBackendMongoRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/mongo"
+	sigfoxBackendValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/adaptor/jsonRpc"
+	sigfoxBackendBasicValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/basic"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -306,12 +312,26 @@ func main() {
 		SigbugRecordHandler,
 	)
 
+	// Sigfox Backend
+	SigfoxBackendRecordHandler := sigfoxBackendMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.SigfoxBackend,
+	)
+	SigfoxBackendValidator := sigfoxBackendBasicValidator.New(
+		PartyBasicAdministrator,
+	)
+	SigfoxBackendAdministrator := sigfoxBackendBasicAdministrator.New(
+		SigfoxBackendValidator,
+		SigfoxBackendRecordHandler,
+	)
+
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
 	)
 
-	humanUserJsonRpcServerAuthenticator := humanUserJsonRpcServerAuthenticator.New(
+	HumanUserJsonRpcServerAuthenticator := humanUserJsonRpcServerAuthenticator.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
@@ -331,7 +351,7 @@ func main() {
 	)
 	if err := humanUserJsonRpcHttpServer.RegisterBatchServiceProviders(
 		[]jsonRpcServiceProvider.Provider{
-			humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor.New(humanUserJsonRpcServerAuthenticator),
+			humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor.New(HumanUserJsonRpcServerAuthenticator),
 			humanUserRecordHandlerJsonRpcAdaptor.New(UserRecordHandler),
 			humanUserValidatorJsonRpcAdaptor.New(UserValidator),
 			humanUserAdministratorJsonRpcAdaptor.New(UserBasicAdministrator),
@@ -352,6 +372,9 @@ func main() {
 			sigbugValidatorJsonRpcAdaptor.New(SigbugValidator),
 			sigbugAdministratorJsonRpcAdaptor.New(SigbugAdministrator),
 			trackingReportJsonRpcAdaptor.New(TrackingReport),
+			sigfoxBackendRecordHandlerJsonRpcAdaptor.New(SigfoxBackendRecordHandler),
+			sigfoxBackendValidatorJsonRpcAdaptor.New(SigfoxBackendValidator),
+			sigfoxBackendAdministratorJsonRpcAdaptor.New(SigfoxBackendAdministrator),
 		},
 	); err != nil {
 		log.Fatal(err)
