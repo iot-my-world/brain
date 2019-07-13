@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	"github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	"net/http"
 )
@@ -16,13 +17,21 @@ func New(authorizationAdministrator administrator.Administrator) *adaptor {
 	}
 }
 
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 type LogoutRequest struct {
 }
 
 type LogoutResponse struct {
 }
 
-func (s *adaptor) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
+func (a *adaptor) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
 	fmt.Println("Logout Service running.")
 	return nil
 }
@@ -36,9 +45,9 @@ type LoginResponse struct {
 	Jwt string `json:"jwt"`
 }
 
-func (s *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
+func (a *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	loginResponse, err := s.authorizationAdministrator.Login(&administrator.LoginRequest{
+	loginResponse, err := a.authorizationAdministrator.Login(&administrator.LoginRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 		Password:               request.Password,
 	})

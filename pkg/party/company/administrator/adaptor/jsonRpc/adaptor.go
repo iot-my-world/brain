@@ -2,7 +2,8 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	company "github.com/iot-my-world/brain/pkg/party/company"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/company/administrator"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
@@ -19,6 +20,14 @@ func New(
 	return &adaptor{
 		companyAdministrator: companyAdministrator,
 	}
+}
+
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
 }
 
 type CreateRequest struct {

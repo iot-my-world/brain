@@ -27,7 +27,6 @@ import (
 	humanUserHttpAPIAuthApplier "github.com/iot-my-world/brain/pkg/security/authorization/api/applier/http/user/human"
 	humanUserAPIAuthorizer "github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer/user/human"
 
-	permissionAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator"
 	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator/basic"
 
@@ -41,13 +40,10 @@ import (
 	humanUserValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/user/human/validator/adaptor/jsonRpc"
 	humanUserBasicValidator "github.com/iot-my-world/brain/pkg/user/human/validator/basic"
 
-	companyAdministrator "github.com/iot-my-world/brain/pkg/party/company/administrator"
 	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/company/administrator/adaptor/jsonRpc"
 	companyBasicAdministrator "github.com/iot-my-world/brain/pkg/party/company/administrator/basic"
-	companyRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	companyRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/company/recordHandler/adaptor/jsonRpc"
 	companyMongoRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler/mongo"
-	companyValidator "github.com/iot-my-world/brain/pkg/party/company/validator"
 	companyValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "github.com/iot-my-world/brain/pkg/party/company/validator/basic"
 
@@ -351,19 +347,8 @@ func main() {
 
 	// ________________________________ Create Service Provider Adaptors ________________________________
 
-	// APIUser
-
 	// Auth
-	HumanUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(HumanUserAuthorizationService)
 	APIUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(APIUserAuthorizationService)
-
-	// Permission
-	PermissionAdministratorAdaptor := permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler)
-
-	// Company
-	CompanyRecordHandlerAdaptor := companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler)
-	CompanyValidatorAdaptor := companyValidatorJsonRpcAdaptor.New(CompanyValidator)
-	CompanyAdministratorAdaptor := companyAdministratorJsonRpcAdaptor.New(CompanyAdministrator)
 
 	// Client
 	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
@@ -410,30 +395,14 @@ func main() {
 			apiUserRecordHandlerJsonRpcAdaptor.New(APIUserRecordHandler),
 			apiUserValidatorJsonRpcAdaptor.New(APIUserValidator),
 			apiUserAdministratorJsonRpcAdaptor.New(APIUserAdministrator),
+			authServiceJsonRpcAdaptor.New(HumanUserAuthorizationService),
+			permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler),
+			companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler),
+			companyValidatorJsonRpcAdaptor.New(CompanyValidator),
+			companyAdministratorJsonRpcAdaptor.New(CompanyAdministrator),
 		},
 	); err != nil {
 		log.Fatal(err)
-	}
-
-	// Auth
-	if err := secureHumanUserAPIServer.RegisterService(HumanUserAuthServiceAdaptor, authorizationAdministrator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Auth Service Adaptor")
-	}
-
-	// Permission
-	if err := secureHumanUserAPIServer.RegisterService(PermissionAdministratorAdaptor, permissionAdministrator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Permission Handler Service Adaptor")
-	}
-
-	// Company
-	if err := secureHumanUserAPIServer.RegisterService(CompanyRecordHandlerAdaptor, companyRecordHandler.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Company Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(CompanyValidatorAdaptor, companyValidator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Company Validator Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(CompanyAdministratorAdaptor, companyAdministrator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Company Administrator Service")
 	}
 
 	// Client
