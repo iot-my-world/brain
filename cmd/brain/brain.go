@@ -520,7 +520,7 @@ func main() {
 	)
 	log.Info("Starting Sigfox Backend secure API Server on port " + "9011")
 	go func() {
-		err := sigfoxBackendJsonRpcHttpServer.Start()
+		err := sigfoxBackendJsonRpcHttpServer.SecureStart()
 		log.Error("sigfox backend json rpc http server", err)
 		os.Exit(1)
 	}()
