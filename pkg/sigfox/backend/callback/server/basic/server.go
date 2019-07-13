@@ -13,6 +13,10 @@ func New() sigfoxBackendCallbackServer.Server {
 	return &server{}
 }
 
+func (s *server) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 func (s *server) HandleDataMessage(*sigfoxBackendCallbackServer.HandleDataMessageRequest) (*sigfoxBackendCallbackServer.HandleDataMessageResponse, error) {
 	return nil, nil
 }

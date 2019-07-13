@@ -1,6 +1,7 @@
 package jsonRpc
 
 import (
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	sigfoxBackendCallbackDataMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
 	"net/http"
@@ -16,6 +17,14 @@ func New(
 	return &adaptor{
 		Server: Server,
 	}
+}
+
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(sigfoxBackendCallbackServer.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
 }
 
 type HandleDataMessageRequest struct {

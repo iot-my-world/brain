@@ -115,6 +115,8 @@ import (
 	jsonRpcHttpServer "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/http"
 
 	sigfoxBackendAuthoriser "github.com/iot-my-world/brain/pkg/sigfox/backend/authoriser"
+	sigfoxBasicBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
+	sigfoxBasicBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/basic"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -395,6 +397,9 @@ func main() {
 	// Report
 	TrackingReportAdaptor := trackingReportJsonRpcAdaptor.New(TrackingReport)
 
+	// Sigfox Backend Callback Server
+	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New()
+
 	// ________________________________ Register Service Provider Adaptors with secureHumanUserAPIServer ________________________________
 	// Create secureHumanUserAPIServer
 	secureHumanUserAPIServer := rpc.NewServer()
@@ -518,6 +523,12 @@ func main() {
 		"9011",
 		sigfoxBackendAuthoriser.New(),
 	)
+
+	// register service providers
+	if err := sigfoxBackendJsonRpcHttpServer.RegisterServiceProvider(sigfoxBasicBackendCallbackServerJsonRpcAdaptor.New(SigfoxBackendCallbackServer)); err != nil {
+		log.Fatal(err.Error())
+	}
+
 	log.Info("Starting Sigfox Backend secure API Server on port " + "9011")
 	go func() {
 		err := sigfoxBackendJsonRpcHttpServer.SecureStart()
