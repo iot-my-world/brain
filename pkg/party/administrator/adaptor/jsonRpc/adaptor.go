@@ -2,6 +2,7 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/administrator"
 	"github.com/iot-my-world/brain/pkg/party/client"
@@ -22,6 +23,14 @@ func New(
 	return &adaptor{
 		partyAdministrator: partyAdministrator,
 	}
+}
+
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
 }
 
 type GetMyPartyRequest struct{}

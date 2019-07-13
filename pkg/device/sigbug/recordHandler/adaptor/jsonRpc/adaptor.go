@@ -2,6 +2,7 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
@@ -22,6 +23,14 @@ func New(recordHandler sigbugRecordHandler.RecordHandler) *adaptor {
 	}
 }
 
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(sigbugRecordHandler.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 type RetrieveRequest struct {
 	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
 }
@@ -30,14 +39,14 @@ type RetrieveResponse struct {
 	Sigbug sigbug.Sigbug `json:"sigbug"`
 }
 
-func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+func (a *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	retrieveSigbugResponse, err := s.RecordHandler.Retrieve(
+	retrieveSigbugResponse, err := a.RecordHandler.Retrieve(
 		&sigbugRecordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
@@ -61,7 +70,7 @@ type CollectResponse struct {
 	Total   int             `json:"total"`
 }
 
-func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+func (a *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -77,7 +86,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectSigbugResponse, err := s.RecordHandler.Collect(&sigbugRecordHandler.CollectRequest{
+	collectSigbugResponse, err := a.RecordHandler.Collect(&sigbugRecordHandler.CollectRequest{
 		Claims:   claims,
 		Criteria: criteria,
 		Query:    request.Query,

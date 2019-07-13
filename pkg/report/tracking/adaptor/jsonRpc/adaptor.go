@@ -3,6 +3,7 @@ package jsonRpc
 import (
 	"errors"
 	"github.com/iot-my-world/brain/internal/log"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	sigbugReading "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps"
 	"github.com/iot-my-world/brain/pkg/report/tracking"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
@@ -22,6 +23,14 @@ func New(
 	return &adaptor{
 		trackingReport: trackingReport,
 	}
+}
+
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(tracking.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
 }
 
 type LiveRequest struct {
