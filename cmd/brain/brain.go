@@ -359,7 +359,7 @@ func main() {
 	}
 	log.Info("Starting Human User API Server on port: " + humanUserAPIServerPort)
 	go func() {
-		err := humanUserJsonRpcHttpServer.Start()
+		err := humanUserJsonRpcHttpServer.SecureStart()
 		log.Error("human user json rpc http server has stopped: ", err)
 		os.Exit(1)
 	}()

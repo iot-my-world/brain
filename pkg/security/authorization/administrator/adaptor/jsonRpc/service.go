@@ -21,7 +21,11 @@ func (a *adaptor) Name() jsonRpcServiceProvider.Name {
 	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
 }
 
-func (a *adaptor) MethodRequiresAuthorization(string) bool {
+func (a *adaptor) MethodRequiresAuthorization(method string) bool {
+	switch method {
+	case administrator.LoginService:
+		return false
+	}
 	return true
 }
 

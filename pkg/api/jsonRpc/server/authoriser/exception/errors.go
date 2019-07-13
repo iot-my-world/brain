@@ -2,11 +2,11 @@ package exception
 
 import (
 	"fmt"
-	api2 "github.com/iot-my-world/brain/pkg/security/permission/api"
+	apiPermission "github.com/iot-my-world/brain/pkg/security/permission/api"
 )
 
 type NotAuthorised struct {
-	Permission api2.Permission
+	Permission apiPermission.Permission
 }
 
 func (e NotAuthorised) Error() string {
