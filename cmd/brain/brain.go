@@ -13,8 +13,8 @@ import (
 
 	databaseCollection "github.com/iot-my-world/brain/pkg/database/collection"
 
+	humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator/adaptor/jsonRpc"
 	humanUserJsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/user/human/authenticator"
-	humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/user/human/authenticator/adaptor/jsonRpc"
 
 	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator/basic"
