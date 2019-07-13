@@ -1,11 +1,11 @@
-package administrator
+package authenticator
 
-type Administrator interface {
+type Authenticator interface {
 	Login(request *LoginRequest) (*LoginResponse, error)
 	Logout(request *LogoutRequest) (*LogoutResponse, error)
 }
 
-const ServiceProvider = "Authorization-Service"
+const ServiceProvider = "Authenticator-Service"
 const LoginService = ServiceProvider + ".Login"
 const LogoutService = ServiceProvider + ".Logout"
 

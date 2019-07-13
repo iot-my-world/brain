@@ -1,49 +1,48 @@
-package human
+package jsonRpcServerAuthenticator
 
 import (
 	"crypto/rsa"
 	"errors"
+	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	"github.com/iot-my-world/brain/pkg/search/identifier/username"
-	"github.com/iot-my-world/brain/pkg/security/authorization/administrator"
-	"github.com/iot-my-world/brain/pkg/security/claims/login/user/api"
 	"github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
-	token2 "github.com/iot-my-world/brain/pkg/security/token"
-	apiUserRecordHandler "github.com/iot-my-world/brain/pkg/user/api/recordHandler"
+	securityToken "github.com/iot-my-world/brain/pkg/security/token"
+	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	userRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
-type service struct {
-	apiUserRecordHandler apiUserRecordHandler.RecordHandler
-	jwtGenerator         token2.JWTGenerator
-	systemClaims         *human.Login
+type authenticator struct {
+	userRecordHandler userRecordHandler.RecordHandler
+	jwtGenerator      securityToken.JWTGenerator
+	systemClaims      *human.Login
 }
 
 func New(
-	apiUserRecordHandler apiUserRecordHandler.RecordHandler,
+	userRecordHandler userRecordHandler.RecordHandler,
 	rsaPrivateKey *rsa.PrivateKey,
 	systemClaims *human.Login,
-) administrator.Administrator {
-	return &service{
-		apiUserRecordHandler: apiUserRecordHandler,
-		jwtGenerator:         token2.NewJWTGenerator(rsaPrivateKey),
-		systemClaims:         systemClaims,
+) jsonRpcServerAuthenticator.Authenticator {
+	return &authenticator{
+		userRecordHandler: userRecordHandler,
+		jwtGenerator:      securityToken.NewJWTGenerator(rsaPrivateKey),
+		systemClaims:      systemClaims,
 	}
 }
 
-func (a *service) Logout(request *administrator.LogoutRequest) (*administrator.LogoutResponse, error) {
-	return &administrator.LogoutResponse{}, nil
+func (a *authenticator) Logout(request *jsonRpcServerAuthenticator.LogoutRequest) (*jsonRpcServerAuthenticator.LogoutResponse, error) {
+	return &jsonRpcServerAuthenticator.LogoutResponse{}, nil
 }
 
-func (a *service) Login(request *administrator.LoginRequest) (*administrator.LoginResponse, error) {
-	var retrieveUserResponse *apiUserRecordHandler.RetrieveResponse
+func (a *authenticator) Login(request *jsonRpcServerAuthenticator.LoginRequest) (*jsonRpcServerAuthenticator.LoginResponse, error) {
+	var retrieveUserResponse *userRecordHandler.RetrieveResponse
 	var err error
 
-	//try and retrieve api user record with username
-	retrieveUserResponse, err = a.apiUserRecordHandler.Retrieve(&apiUserRecordHandler.RetrieveRequest{
+	//try and retrieve User record with username
+	retrieveUserResponse, err = a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 		Claims:     *a.systemClaims,
 		Identifier: username.Identifier{Username: request.UsernameOrEmailAddress},
 	})
@@ -51,7 +50,7 @@ func (a *service) Login(request *administrator.LoginRequest) (*administrator.Log
 		switch err.(type) {
 		case userRecordHandlerException.NotFound:
 			//try and retrieve User record with email address
-			retrieveUserResponse, err = a.apiUserRecordHandler.Retrieve(&apiUserRecordHandler.RetrieveRequest{
+			retrieveUserResponse, err = a.userRecordHandler.Retrieve(&userRecordHandler.RetrieveRequest{
 				Claims:     *a.systemClaims,
 				Identifier: emailAddress.Identifier{EmailAddress: request.UsernameOrEmailAddress},
 			})
@@ -70,12 +69,12 @@ func (a *service) Login(request *administrator.LoginRequest) (*administrator.Log
 	}
 
 	// Password is correct. Try and generate loginToken
-	loginToken, err := a.jwtGenerator.GenerateToken(api.Login{
+	loginToken, err := a.jwtGenerator.GenerateToken(human.Login{
 		UserId:          id.Identifier{Id: retrieveUserResponse.User.Id},
 		IssueTime:       time.Now().UTC().Unix(),
 		ExpirationTime:  time.Now().Add(90 * time.Minute).UTC().Unix(),
-		ParentPartyType: retrieveUserResponse.User.PartyType,
-		ParentId:        retrieveUserResponse.User.PartyId,
+		ParentPartyType: retrieveUserResponse.User.ParentPartyType,
+		ParentId:        retrieveUserResponse.User.ParentId,
 		PartyType:       retrieveUserResponse.User.PartyType,
 		PartyId:         retrieveUserResponse.User.PartyId,
 	})
@@ -85,5 +84,5 @@ func (a *service) Login(request *administrator.LoginRequest) (*administrator.Log
 	}
 
 	//Login Successful, return Token
-	return &administrator.LoginResponse{Jwt: loginToken}, nil
+	return &jsonRpcServerAuthenticator.LoginResponse{Jwt: loginToken}, nil
 }

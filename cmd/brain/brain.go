@@ -13,8 +13,8 @@ import (
 
 	databaseCollection "github.com/iot-my-world/brain/pkg/database/collection"
 
-	authServiceJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/authorization/administrator/adaptor/jsonRpc"
-	humanUserAuthorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator/user/human"
+	humanUserJsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/user/human/authenticator"
+	humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/user/human/authenticator/adaptor/jsonRpc"
 
 	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator/basic"
@@ -207,13 +207,6 @@ func main() {
 		brainConfig.Environment,
 	)
 
-	// Auth
-	HumanUserAuthorizationService := humanUserAuthorizationAdministrator.New(
-		UserRecordHandler,
-		rsaPrivateKey,
-		&systemClaims,
-	)
-
 	// Company
 	CompanyValidator := companyBasicValidator.New(
 		CompanyRecordHandler,
@@ -318,6 +311,12 @@ func main() {
 		PartyBasicAdministrator,
 	)
 
+	humanUserJsonRpcServerAuthenticator := humanUserJsonRpcServerAuthenticator.New(
+		UserRecordHandler,
+		rsaPrivateKey,
+		&systemClaims,
+	)
+
 	// Sigfox Backend Callback Server
 	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New()
 
@@ -332,13 +331,13 @@ func main() {
 	)
 	if err := humanUserJsonRpcHttpServer.RegisterBatchServiceProviders(
 		[]jsonRpcServiceProvider.Provider{
+			humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor.New(humanUserJsonRpcServerAuthenticator),
 			humanUserRecordHandlerJsonRpcAdaptor.New(UserRecordHandler),
 			humanUserValidatorJsonRpcAdaptor.New(UserValidator),
 			humanUserAdministratorJsonRpcAdaptor.New(UserBasicAdministrator),
 			apiUserRecordHandlerJsonRpcAdaptor.New(APIUserRecordHandler),
 			apiUserValidatorJsonRpcAdaptor.New(APIUserValidator),
 			apiUserAdministratorJsonRpcAdaptor.New(APIUserAdministrator),
-			authServiceJsonRpcAdaptor.New(HumanUserAuthorizationService),
 			permissionAdministratorJsonRpcAdaptor.New(PermissionBasicHandler),
 			companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler),
 			companyValidatorJsonRpcAdaptor.New(CompanyValidator),

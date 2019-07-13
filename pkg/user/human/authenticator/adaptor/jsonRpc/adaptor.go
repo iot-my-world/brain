@@ -1,29 +1,28 @@
-package auth
+package jsonRpc
 
 import (
-	"fmt"
+	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
 	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
-	"github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	"net/http"
 )
 
 type adaptor struct {
-	authorizationAdministrator administrator.Administrator
+	authorizationAdministrator jsonRpcServerAuthenticator.Authenticator
 }
 
-func New(authorizationAdministrator administrator.Administrator) *adaptor {
+func New(authorizationAdministrator jsonRpcServerAuthenticator.Authenticator) *adaptor {
 	return &adaptor{
 		authorizationAdministrator: authorizationAdministrator,
 	}
 }
 
 func (a *adaptor) Name() jsonRpcServiceProvider.Name {
-	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
+	return jsonRpcServiceProvider.Name(jsonRpcServerAuthenticator.ServiceProvider)
 }
 
 func (a *adaptor) MethodRequiresAuthorization(method string) bool {
 	switch method {
-	case administrator.LoginService:
+	case jsonRpcServerAuthenticator.LoginService:
 		return false
 	}
 	return true
@@ -36,7 +35,6 @@ type LogoutResponse struct {
 }
 
 func (a *adaptor) Logout(r *http.Request, request *LogoutRequest, response *LogoutResponse) error {
-	fmt.Println("Logout Service running.")
 	return nil
 }
 
@@ -51,7 +49,7 @@ type LoginResponse struct {
 
 func (a *adaptor) Login(r *http.Request, request *LoginRequest, response *LoginResponse) error {
 
-	loginResponse, err := a.authorizationAdministrator.Login(&administrator.LoginRequest{
+	loginResponse, err := a.authorizationAdministrator.Login(&jsonRpcServerAuthenticator.LoginRequest{
 		UsernameOrEmailAddress: request.UsernameOrEmailAddress,
 		Password:               request.Password,
 	})
