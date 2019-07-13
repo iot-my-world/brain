@@ -3,6 +3,7 @@ package sigbug
 import (
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
+	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
 	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	sigbugAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator"
 	sigbugJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/jsonRpc"
@@ -14,7 +15,6 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	"github.com/iot-my-world/brain/pkg/search/query"
-	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	"github.com/stretchr/testify/suite"
 )
@@ -49,7 +49,7 @@ type Data struct {
 func (suite *test) SetupTest() {
 
 	// log in the client
-	if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
+	if err := suite.jsonRpcClient.Login(jsonRpcServerAuthenticator.LoginRequest{
 		UsernameOrEmailAddress: suite.user.Username,
 		Password:               string(suite.user.Password),
 	}); err != nil {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
+	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
-	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	resetPasswordClaims "github.com/iot-my-world/brain/pkg/security/claims/resetPassword"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
@@ -113,7 +113,7 @@ func (suite *test) TestUserAdministrator1ForgotPassword() {
 		suite.jsonRpcClient.Logout()
 
 		// try and log in with the new password
-		if err := suite.jsonRpcClient.Login(authorizationAdministrator.LoginRequest{
+		if err := suite.jsonRpcClient.Login(jsonRpcServerAuthenticator.LoginRequest{
 			UsernameOrEmailAddress: user.Username,
 			Password:               "321",
 		}); err != nil {
