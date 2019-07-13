@@ -1,9 +1,13 @@
 package basic
 
 import (
+	"crypto/rsa"
 	"fmt"
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	sigfoxBackendClaims "github.com/iot-my-world/brain/pkg/security/claims/sigfoxBackend"
+	"github.com/iot-my-world/brain/pkg/security/token"
 	"github.com/iot-my-world/brain/pkg/sigfox/backend/action"
 	backendAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator"
 	"github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/exception"
@@ -14,15 +18,18 @@ import (
 type administrator struct {
 	backendDeviceValidator validator.Validator
 	backendRecordHandler   recordHandler.RecordHandler
+	jwtGenerator           token.JWTGenerator
 }
 
 func New(
 	backendDeviceValidator validator.Validator,
 	backendRecordHandler recordHandler.RecordHandler,
+	rsaPrivateKey *rsa.PrivateKey,
 ) backendAdministrator.Administrator {
 	return &administrator{
 		backendDeviceValidator: backendDeviceValidator,
 		backendRecordHandler:   backendRecordHandler,
+		jwtGenerator:           token.NewJWTGenerator(rsaPrivateKey),
 	}
 }
 
@@ -64,7 +71,30 @@ func (a *administrator) Create(request *backendAdministrator.CreateRequest) (*ba
 		Backend: request.Backend,
 	})
 	if err != nil {
-		return nil, exception.DeviceCreation{Reasons: []string{err.Error()}}
+		err = exception.DeviceCreation{Reasons: []string{"creation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	claimsForToken := sigfoxBackendClaims.SigfoxBackend{
+		BackendId: id.Identifier{Id: createResponse.Backend.Id},
+	}
+	backendToken, err := a.jwtGenerator.GenerateToken(claimsForToken)
+	if err != nil {
+		err = exception.DeviceCreation{Reasons: []string{"token generation", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	createResponse.Backend.Token = backendToken
+	if _, err := a.backendRecordHandler.Update(&recordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: createResponse.Backend.Id},
+		Backend:    createResponse.Backend,
+	}); err != nil {
+		err = exception.DeviceCreation{Reasons: []string{"update sigfox backend with token", err.Error()}}
+		log.Error(err.Error())
+		return nil, err
 	}
 
 	return &backendAdministrator.CreateResponse{

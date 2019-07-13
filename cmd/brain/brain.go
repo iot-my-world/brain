@@ -324,6 +324,7 @@ func main() {
 	SigfoxBackendAdministrator := sigfoxBackendBasicAdministrator.New(
 		SigfoxBackendValidator,
 		SigfoxBackendRecordHandler,
+		rsaPrivateKey,
 	)
 
 	// Report
