@@ -47,13 +47,10 @@ import (
 	companyValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/company/validator/adaptor/jsonRpc"
 	companyBasicValidator "github.com/iot-my-world/brain/pkg/party/company/validator/basic"
 
-	clientAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator"
 	clientAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/client/administrator/adaptor/jsonRpc"
 	clientBasicAdministrator "github.com/iot-my-world/brain/pkg/party/client/administrator/basic"
-	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	clientRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/client/recordHandler/adaptor/jsonRpc"
 	clientMongoRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler/mongo"
-	clientValidator "github.com/iot-my-world/brain/pkg/party/client/validator"
 	clientValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/client/validator/adaptor/jsonRpc"
 	clientBasicValidator "github.com/iot-my-world/brain/pkg/party/client/validator/basic"
 
@@ -350,11 +347,6 @@ func main() {
 	// Auth
 	APIUserAuthServiceAdaptor := authServiceJsonRpcAdaptor.New(APIUserAuthorizationService)
 
-	// Client
-	ClientRecordHandlerAdaptor := clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler)
-	ClientValidatorAdaptor := clientValidatorJsonRpcAdaptor.New(ClientValidator)
-	ClientAdministratorAdaptor := clientAdministratorJsonRpcAdaptor.New(ClientBasicAdministrator)
-
 	// Party
 	PartyBasicRegistrarAdaptor := partyBasicRegistrarJsonRpcAdaptor.New(PartyBasicRegistrar)
 	PartyHandlerAdaptor := partyAdministratorJsonRpcAdaptor.New(PartyBasicAdministrator)
@@ -400,20 +392,12 @@ func main() {
 			companyRecordHandlerJsonRpcAdaptor.New(CompanyRecordHandler),
 			companyValidatorJsonRpcAdaptor.New(CompanyValidator),
 			companyAdministratorJsonRpcAdaptor.New(CompanyAdministrator),
+			clientRecordHandlerJsonRpcAdaptor.New(ClientRecordHandler),
+			clientValidatorJsonRpcAdaptor.New(ClientValidator),
+			clientAdministratorJsonRpcAdaptor.New(ClientBasicAdministrator),
 		},
 	); err != nil {
 		log.Fatal(err)
-	}
-
-	// Client
-	if err := secureHumanUserAPIServer.RegisterService(ClientRecordHandlerAdaptor, clientRecordHandler.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Client Record Handler Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ClientValidatorAdaptor, clientValidator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Client Validator Service")
-	}
-	if err := secureHumanUserAPIServer.RegisterService(ClientAdministratorAdaptor, clientAdministrator.ServiceProvider); err != nil {
-		log.Fatal("Unable to Register Client Administrator Service")
 	}
 
 	// Party
