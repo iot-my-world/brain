@@ -87,6 +87,15 @@ func (s *server) RegisterServiceProvider(serviceProvider jsonRpcServiceProvider.
 	return nil
 }
 
+func (s *server) RegisterBatchServiceProviders(serviceProviders []jsonRpcServiceProvider.Provider) error {
+	for _, serviceProvider := range serviceProviders {
+		if err := s.RegisterServiceProvider(serviceProvider); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *server) applyAuthorization(next netHttp.Handler) netHttp.Handler {
 	return netHttp.HandlerFunc(func(w netHttp.ResponseWriter, r *netHttp.Request) {
 		// Retrieve json rpc service method from request body

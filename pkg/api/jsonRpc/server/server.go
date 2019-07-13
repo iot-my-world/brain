@@ -8,4 +8,5 @@ type Server interface {
 	Start() error
 	SecureStart() error
 	RegisterServiceProvider(jsonRpcServiceProvider.Provider) error
+	RegisterBatchServiceProviders([]jsonRpcServiceProvider.Provider) error
 }
