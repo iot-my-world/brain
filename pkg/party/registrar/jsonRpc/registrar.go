@@ -3,7 +3,7 @@ package jsonRpc
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
+	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"

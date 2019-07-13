@@ -1,3 +1,3 @@
-package api
+package jsonRpc
 
 type Method string

@@ -7,7 +7,7 @@ import (
 	"github.com/go-errors/errors"
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	jsonRPCClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
+	jsonRPCClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	authorizationAdministrator "github.com/iot-my-world/brain/pkg/security/authorization/administrator"
 	authorizationAdministratorJsonRpc "github.com/iot-my-world/brain/pkg/security/authorization/administrator/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/security/claims"

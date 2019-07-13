@@ -1,7 +1,7 @@
 package recordHandler
 
 import (
-	"github.com/iot-my-world/brain/pkg/api"
+	"github.com/iot-my-world/brain/pkg/api/jsonRpc"
 	system2 "github.com/iot-my-world/brain/pkg/party/system"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
@@ -20,11 +20,11 @@ type RecordHandler interface {
 	Collect(request *CollectRequest) (*CollectResponse, error)
 }
 
-const Create api.Method = "Create"
-const Retrieve api.Method = "Retrieve"
-const Update api.Method = "Update"
-const Delete api.Method = "Delete"
-const Validate api.Method = "Validate"
+const Create jsonRpc.Method = "Create"
+const Retrieve jsonRpc.Method = "Retrieve"
+const Update jsonRpc.Method = "Update"
+const Delete jsonRpc.Method = "Delete"
+const Validate jsonRpc.Method = "Validate"
 
 const ServiceProvider = "System-RecordHandler"
 const CreateService = ServiceProvider + ".Create"
@@ -60,7 +60,7 @@ type CollectResponse struct {
 
 type ValidateRequest struct {
 	System system2.System
-	Method api.Method
+	Method jsonRpc.Method
 }
 
 type ValidateResponse struct {
