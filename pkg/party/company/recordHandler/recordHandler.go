@@ -1,7 +1,7 @@
 package recordHandler
 
 import (
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/search/query"
@@ -41,11 +41,11 @@ var ClientAdminUserPermissions = []api.Permission{
 var ClientUserPermissions = make([]api.Permission, 0)
 
 type CreateRequest struct {
-	Company company2.Company
+	Company company.Company
 }
 
 type CreateResponse struct {
-	Company company2.Company
+	Company company.Company
 }
 
 type RetrieveRequest struct {
@@ -54,13 +54,13 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Company company2.Company
+	Company company.Company
 }
 
 type UpdateRequest struct {
 	Claims     claims.Claims
 	Identifier identifier.Identifier
-	Company    company2.Company
+	Company    company.Company
 }
 
 type UpdateResponse struct{}
@@ -80,6 +80,6 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []company2.Company
+	Records []company.Company
 	Total   int
 }

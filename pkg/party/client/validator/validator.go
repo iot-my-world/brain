@@ -2,7 +2,7 @@ package validator
 
 import (
 	"github.com/iot-my-world/brain/pkg/action"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/permission/api"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
@@ -31,7 +31,7 @@ var ClientUserPermissions = make([]api.Permission, 0)
 
 type ValidateRequest struct {
 	Claims claims.Claims
-	Client client2.Client
+	Client client.Client
 	Action action.Action
 }
 

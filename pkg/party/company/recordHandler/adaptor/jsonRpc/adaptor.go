@@ -1,8 +1,9 @@
-package company
+package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
@@ -22,22 +23,30 @@ func New(recordHandler recordHandler.RecordHandler) *adaptor {
 	}
 }
 
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(recordHandler.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 type RetrieveRequest struct {
 	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
 }
 
 type RetrieveResponse struct {
-	Company company2.Company `json:"company"`
+	Company company.Company `json:"company"`
 }
 
-func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+func (a *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	retrieveCompanyResponse, err := s.RecordHandler.Retrieve(
+	retrieveCompanyResponse, err := a.RecordHandler.Retrieve(
 		&recordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
@@ -57,11 +66,11 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []company2.Company `json:"records"`
-	Total   int                `json:"total"`
+	Records []company.Company `json:"records"`
+	Total   int               `json:"total"`
 }
 
-func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+func (a *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -77,7 +86,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectCompanyResponse, err := s.RecordHandler.Collect(&recordHandler.CollectRequest{
+	collectCompanyResponse, err := a.RecordHandler.Collect(&recordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
 		Claims:   claims,

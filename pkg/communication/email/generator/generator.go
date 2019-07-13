@@ -1,7 +1,7 @@
 package generator
 
 import (
-	email2 "github.com/iot-my-world/brain/pkg/communication/email"
+	"github.com/iot-my-world/brain/pkg/communication/email"
 )
 
 type Generator interface {
@@ -9,9 +9,9 @@ type Generator interface {
 }
 
 type GenerateRequest struct {
-	Data email2.Data
+	Data email.Data
 }
 
 type GenerateResponse struct {
-	Email email2.Email
+	Email email.Email
 }

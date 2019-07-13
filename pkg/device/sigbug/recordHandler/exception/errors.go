@@ -1,0 +1,55 @@
+package exception
+
+import "strings"
+
+type RecordHandlerNil struct{}
+
+func (e RecordHandlerNil) Error() string {
+	return "given brain sigbug recordHandler is nil"
+}
+
+type NotFound struct{}
+
+func (e NotFound) Error() string {
+	return "sigbug not found"
+}
+
+type Create struct {
+	Reasons []string
+}
+
+func (e Create) Error() string {
+	return "sigbug creation error: " + strings.Join(e.Reasons, "; ")
+}
+
+type Retrieve struct {
+	Reasons []string
+}
+
+func (e Retrieve) Error() string {
+	return "sigbug retrieval error: " + strings.Join(e.Reasons, "; ")
+}
+
+type Update struct {
+	Reasons []string
+}
+
+func (e Update) Error() string {
+	return "sigbug update error: " + strings.Join(e.Reasons, "; ")
+}
+
+type Delete struct {
+	Reasons []string
+}
+
+func (e Delete) Error() string {
+	return "sigbug delete error: " + strings.Join(e.Reasons, "; ")
+}
+
+type Collect struct {
+	Reasons []string
+}
+
+func (e Collect) Error() string {
+	return "sigbug collect error: " + strings.Join(e.Reasons, "; ")
+}

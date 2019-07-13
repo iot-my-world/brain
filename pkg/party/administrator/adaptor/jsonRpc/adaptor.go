@@ -2,10 +2,11 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/administrator"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/wrapped"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
@@ -22,6 +23,18 @@ func New(
 	return &adaptor{
 		partyAdministrator: partyAdministrator,
 	}
+}
+
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(method string) bool {
+	switch method {
+	case administrator.CreateAndInviteClientService, administrator.CreateAndInviteCompanyService:
+		return false
+	}
+	return true
 }
 
 type GetMyPartyRequest struct{}
@@ -87,7 +100,7 @@ func (a *adaptor) RetrieveParty(r *http.Request, request *RetrievePartyRequest, 
 }
 
 type CreateAndInviteCompanyRequest struct {
-	Company company2.Company `json:"company"`
+	Company company.Company `json:"company"`
 }
 
 type CreateAndInviteCompanyResponse struct {
@@ -108,7 +121,7 @@ func (a *adaptor) CreateAndInviteCompany(r *http.Request, request *CreateAndInvi
 }
 
 type CreateAndInviteClientRequest struct {
-	Client client2.Client `json:"client"`
+	Client client.Client `json:"client"`
 }
 
 type CreateAndInviteClientResponse struct {

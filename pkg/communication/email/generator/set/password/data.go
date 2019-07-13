@@ -1,7 +1,7 @@
 package password
 
 import (
-	email2 "github.com/iot-my-world/brain/pkg/communication/email"
+	"github.com/iot-my-world/brain/pkg/communication/email"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	"net/mail"
 )
@@ -11,8 +11,8 @@ type Data struct {
 	User     humanUser.User
 }
 
-func (d Data) Details() email2.Details {
-	return email2.Details{
+func (d Data) Details() email.Details {
+	return email.Details{
 		Subject: "Set Password",
 		To: []mail.Address{{
 			Name:    d.User.Name,

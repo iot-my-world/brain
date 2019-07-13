@@ -1,10 +1,10 @@
 package tracking
 
 import (
+	sigbugReading "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps"
 	"github.com/iot-my-world/brain/pkg/search/identifier/party"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/permission/api"
-	zx303TrackerGPSReading "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps"
 )
 
 type Report interface {
@@ -44,7 +44,7 @@ type LiveRequest struct {
 }
 
 type LiveResponse struct {
-	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading
+	ZX303TrackerGPSReadings []sigbugReading.Reading
 }
 
 type HistoricalRequest struct {
@@ -52,5 +52,5 @@ type HistoricalRequest struct {
 }
 
 type HistoricalResponse struct {
-	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading
+	ZX303TrackerGPSReadings []sigbugReading.Reading
 }

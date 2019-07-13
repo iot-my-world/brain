@@ -2,7 +2,8 @@ package system
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	system2 "github.com/iot-my-world/brain/pkg/party/system"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
+	"github.com/iot-my-world/brain/pkg/party/system"
 	"github.com/iot-my-world/brain/pkg/party/system/recordHandler"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
@@ -22,22 +23,30 @@ func New(recordHandler recordHandler.RecordHandler) *adaptor {
 	}
 }
 
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(recordHandler.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 type RetrieveRequest struct {
 	WrappedIdentifier wrappedIdentifier.Wrapped `json:"identifier"`
 }
 
 type RetrieveResponse struct {
-	System system2.System `json:"system" bson:"system"`
+	System system.System `json:"system" bson:"system"`
 }
 
-func (s *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
+func (a *adaptor) Retrieve(r *http.Request, request *RetrieveRequest, response *RetrieveResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	retrieveSystemResponse, err := s.RecordHandler.Retrieve(
+	retrieveSystemResponse, err := a.RecordHandler.Retrieve(
 		&recordHandler.RetrieveRequest{
 			Claims:     claims,
 			Identifier: request.WrappedIdentifier.Identifier,
@@ -57,11 +66,11 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []system2.System `json:"records"`
-	Total   int              `json:"total"`
+	Records []system.System `json:"records"`
+	Total   int             `json:"total"`
 }
 
-func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
+func (a *adaptor) Collect(r *http.Request, request *CollectRequest, response *CollectResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -77,7 +86,7 @@ func (s *adaptor) Collect(r *http.Request, request *CollectRequest, response *Co
 		}
 	}
 
-	collectSystemResponse, err := s.RecordHandler.Collect(&recordHandler.CollectRequest{
+	collectSystemResponse, err := a.RecordHandler.Collect(&recordHandler.CollectRequest{
 		Criteria: criteria,
 		Query:    request.Query,
 		Claims:   claims,

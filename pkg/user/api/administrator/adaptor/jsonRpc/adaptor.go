@@ -2,20 +2,29 @@ package jsonRpc
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"github.com/iot-my-world/brain/pkg/user/api"
 	"github.com/iot-my-world/brain/pkg/user/api/administrator"
 	"net/http"
 )
 
-type Adaptor struct {
+type adaptor struct {
 	administrator administrator.Administrator
 }
 
-func New(administrator administrator.Administrator) *Adaptor {
-	return &Adaptor{
+func New(administrator administrator.Administrator) *adaptor {
+	return &adaptor{
 		administrator: administrator,
 	}
+}
+
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(administrator.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
 }
 
 type CreateRequest struct {
@@ -27,7 +36,7 @@ type CreateResponse struct {
 	Password string   `json:"password"`
 }
 
-func (a *Adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
+func (a *adaptor) Create(r *http.Request, request *CreateRequest, response *CreateResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
@@ -56,7 +65,7 @@ type UpdateAllowedFieldsResponse struct {
 	User api.User `json:"apiUser"`
 }
 
-func (a *Adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
+func (a *adaptor) UpdateAllowedFields(r *http.Request, request *UpdateAllowedFieldsRequest, response *UpdateAllowedFieldsResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())

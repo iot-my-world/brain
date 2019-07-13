@@ -1,42 +1,51 @@
-package company
+package adaptor
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
-	"github.com/iot-my-world/brain/pkg/party/company/validator"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
+	"github.com/iot-my-world/brain/pkg/party/company"
+	companyValidator "github.com/iot-my-world/brain/pkg/party/company/validator"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 	"net/http"
 )
 
 type adaptor struct {
-	companyValidator validator.Validator
+	companyValidator companyValidator.Validator
 }
 
-func New(companyValidator validator.Validator) *adaptor {
+func New(companyValidator companyValidator.Validator) *adaptor {
 	return &adaptor{
 		companyValidator: companyValidator,
 	}
 }
 
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(companyValidator.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 type ValidateRequest struct {
-	Company company2.Company `json:"company"`
-	Action  action.Action    `json:"action"`
+	Company company.Company `json:"company"`
+	Action  action.Action   `json:"action"`
 }
 
 type ValidateResponse struct {
 	ReasonsInvalid []reasonInvalid.ReasonInvalid `json:"reasonsInvalid"`
 }
 
-func (s *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
+func (a *adaptor) Validate(r *http.Request, request *ValidateRequest, response *ValidateResponse) error {
 	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
 	}
 
-	validateUserResponse, err := s.companyValidator.Validate(&validator.ValidateRequest{
+	validateUserResponse, err := a.companyValidator.Validate(&companyValidator.ValidateRequest{
 		Claims:  claims,
 		Company: request.Company,
 		Action:  request.Action,

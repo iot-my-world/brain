@@ -3,12 +3,13 @@ package jsonRpc
 import (
 	"errors"
 	"github.com/iot-my-world/brain/internal/log"
+	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
+	sigbugReading "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps"
 	"github.com/iot-my-world/brain/pkg/report/tracking"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/search/identifier/party"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
-	zx303TrackerGPSReading "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps"
 	"net/http"
 )
 
@@ -24,12 +25,20 @@ func New(
 	}
 }
 
+func (a *adaptor) Name() jsonRpcServiceProvider.Name {
+	return jsonRpcServiceProvider.Name(tracking.ServiceProvider)
+}
+
+func (a *adaptor) MethodRequiresAuthorization(string) bool {
+	return true
+}
+
 type LiveRequest struct {
 	WrappedPartyIdentifiers []wrappedIdentifier.Wrapped `json:"partyIdentifiers"`
 }
 
 type LiveResponse struct {
-	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading `json:"zx303TrackerGPSReadings"`
+	ZX303TrackerGPSReadings []sigbugReading.Reading `json:"zx303TrackerGPSReadings"`
 }
 
 func (a *adaptor) Live(r *http.Request, request *LiveRequest, response *LiveResponse) error {
@@ -69,7 +78,7 @@ type HistoricalRequest struct {
 }
 
 type HistoricalResponse struct {
-	ZX303TrackerGPSReadings []zx303TrackerGPSReading.Reading `json:"zx303TrackerGPSReadings"`
+	ZX303TrackerGPSReadings []sigbugReading.Reading `json:"zx303TrackerGPSReadings"`
 }
 
 func (a *adaptor) Historical(r *http.Request, request *HistoricalRequest, response *HistoricalResponse) error {

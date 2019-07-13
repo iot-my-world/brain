@@ -3,8 +3,8 @@ package jsonRpc
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
-	registrar2 "github.com/iot-my-world/brain/pkg/party/registrar"
+	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
+	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/party/registrar/adaptor/jsonRpc"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
@@ -15,17 +15,17 @@ type registrar struct {
 
 func New(
 	jsonRpcClient jsonRpcClient.Client,
-) registrar2.Registrar {
+) partyRegistrar.Registrar {
 	return &registrar{
 		jsonRpcClient: jsonRpcClient,
 	}
 }
 
-func (r *registrar) RegisterSystemAdminUser(request *registrar2.RegisterSystemAdminUserRequest) (*registrar2.RegisterSystemAdminUserResponse, error) {
+func (r *registrar) RegisterSystemAdminUser(request *partyRegistrar.RegisterSystemAdminUserRequest) (*partyRegistrar.RegisterSystemAdminUserResponse, error) {
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *registrar) ValidateInviteCompanyAdminUserRequest(request *registrar2.InviteCompanyAdminUserRequest) error {
+func (r *registrar) ValidateInviteCompanyAdminUserRequest(request *partyRegistrar.InviteCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.CompanyIdentifier == nil {
@@ -39,7 +39,7 @@ func (r *registrar) ValidateInviteCompanyAdminUserRequest(request *registrar2.In
 	}
 }
 
-func (r *registrar) InviteCompanyAdminUser(request *registrar2.InviteCompanyAdminUserRequest) (*registrar2.InviteCompanyAdminUserResponse, error) {
+func (r *registrar) InviteCompanyAdminUser(request *partyRegistrar.InviteCompanyAdminUserRequest) (*partyRegistrar.InviteCompanyAdminUserResponse, error) {
 	if err := r.ValidateInviteCompanyAdminUserRequest(request); err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (r *registrar) InviteCompanyAdminUser(request *registrar2.InviteCompanyAdmi
 	// invite the admin user
 	inviteCompanyAdminUserResponse := jsonRpc.InviteCompanyAdminUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.InviteCompanyAdminUserService,
+		partyRegistrar.InviteCompanyAdminUserService,
 		jsonRpc.InviteCompanyAdminUserRequest{
 			WrappedCompanyIdentifier: *companyIdentifier,
 		},
@@ -64,10 +64,10 @@ func (r *registrar) InviteCompanyAdminUser(request *registrar2.InviteCompanyAdmi
 		return nil, err
 	}
 
-	return &registrar2.InviteCompanyAdminUserResponse{URLToken: inviteCompanyAdminUserResponse.URLToken}, nil
+	return &partyRegistrar.InviteCompanyAdminUserResponse{URLToken: inviteCompanyAdminUserResponse.URLToken}, nil
 }
 
-func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *registrar2.RegisterCompanyAdminUserRequest) error {
+func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *partyRegistrar.RegisterCompanyAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -76,14 +76,14 @@ func (r *registrar) ValidateRegisterCompanyAdminUserRequest(request *registrar2.
 	return nil
 }
 
-func (r *registrar) RegisterCompanyAdminUser(request *registrar2.RegisterCompanyAdminUserRequest) (*registrar2.RegisterCompanyAdminUserResponse, error) {
+func (r *registrar) RegisterCompanyAdminUser(request *partyRegistrar.RegisterCompanyAdminUserRequest) (*partyRegistrar.RegisterCompanyAdminUserResponse, error) {
 	if err := r.ValidateRegisterCompanyAdminUserRequest(request); err != nil {
 		return nil, err
 	}
 
 	registerCompanyAdminUserResponse := jsonRpc.RegisterCompanyAdminUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.RegisterCompanyAdminUserService,
+		partyRegistrar.RegisterCompanyAdminUserService,
 		jsonRpc.RegisterCompanyAdminUserRequest{
 			User: request.User,
 		},
@@ -93,10 +93,10 @@ func (r *registrar) RegisterCompanyAdminUser(request *registrar2.RegisterCompany
 		return nil, err
 	}
 
-	return &registrar2.RegisterCompanyAdminUserResponse{User: registerCompanyAdminUserResponse.User}, nil
+	return &partyRegistrar.RegisterCompanyAdminUserResponse{User: registerCompanyAdminUserResponse.User}, nil
 }
 
-func (r *registrar) ValidateInviteCompanyUserRequest(request *registrar2.InviteCompanyUserRequest) error {
+func (r *registrar) ValidateInviteCompanyUserRequest(request *partyRegistrar.InviteCompanyUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -110,7 +110,7 @@ func (r *registrar) ValidateInviteCompanyUserRequest(request *registrar2.InviteC
 	}
 }
 
-func (r *registrar) InviteCompanyUser(request *registrar2.InviteCompanyUserRequest) (*registrar2.InviteCompanyUserResponse, error) {
+func (r *registrar) InviteCompanyUser(request *partyRegistrar.InviteCompanyUserRequest) (*partyRegistrar.InviteCompanyUserResponse, error) {
 	if err := r.ValidateInviteCompanyUserRequest(request); err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (r *registrar) InviteCompanyUser(request *registrar2.InviteCompanyUserReque
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *registrar) ValidateRegisterCompanyUserRequest(request *registrar2.RegisterCompanyUserRequest) error {
+func (r *registrar) ValidateRegisterCompanyUserRequest(request *partyRegistrar.RegisterCompanyUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -127,14 +127,14 @@ func (r *registrar) ValidateRegisterCompanyUserRequest(request *registrar2.Regis
 	return nil
 }
 
-func (r *registrar) RegisterCompanyUser(request *registrar2.RegisterCompanyUserRequest) (*registrar2.RegisterCompanyUserResponse, error) {
+func (r *registrar) RegisterCompanyUser(request *partyRegistrar.RegisterCompanyUserRequest) (*partyRegistrar.RegisterCompanyUserResponse, error) {
 	if err := r.ValidateRegisterCompanyUserRequest(request); err != nil {
 		return nil, err
 	}
 
 	registerCompanyUserResponse := jsonRpc.RegisterCompanyUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.RegisterCompanyUserService,
+		partyRegistrar.RegisterCompanyUserService,
 		jsonRpc.RegisterCompanyUserRequest{
 			User: request.User,
 		},
@@ -144,12 +144,12 @@ func (r *registrar) RegisterCompanyUser(request *registrar2.RegisterCompanyUserR
 		return nil, err
 	}
 
-	return &registrar2.RegisterCompanyUserResponse{
+	return &partyRegistrar.RegisterCompanyUserResponse{
 		User: registerCompanyUserResponse.User,
 	}, nil
 }
 
-func (r *registrar) ValidateInviteClientAdminUserRequest(request *registrar2.InviteClientAdminUserRequest) error {
+func (r *registrar) ValidateInviteClientAdminUserRequest(request *partyRegistrar.InviteClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.ClientIdentifier == nil {
@@ -163,7 +163,7 @@ func (r *registrar) ValidateInviteClientAdminUserRequest(request *registrar2.Inv
 	}
 }
 
-func (r *registrar) InviteClientAdminUser(request *registrar2.InviteClientAdminUserRequest) (*registrar2.InviteClientAdminUserResponse, error) {
+func (r *registrar) InviteClientAdminUser(request *partyRegistrar.InviteClientAdminUserRequest) (*partyRegistrar.InviteClientAdminUserResponse, error) {
 	if err := r.ValidateInviteClientAdminUserRequest(request); err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (r *registrar) InviteClientAdminUser(request *registrar2.InviteClientAdminU
 
 	inviteClientAdminUserResponse := jsonRpc.InviteClientAdminUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.InviteClientAdminUserService,
+		partyRegistrar.InviteClientAdminUserService,
 		jsonRpc.InviteClientAdminUserRequest{
 			WrappedClientIdentifier: *clientIdentifier,
 		},
@@ -187,12 +187,12 @@ func (r *registrar) InviteClientAdminUser(request *registrar2.InviteClientAdminU
 		return nil, err
 	}
 
-	return &registrar2.InviteClientAdminUserResponse{
+	return &partyRegistrar.InviteClientAdminUserResponse{
 		URLToken: inviteClientAdminUserResponse.URLToken,
 	}, nil
 }
 
-func (r *registrar) ValidateRegisterClientAdminUserRequest(request *registrar2.RegisterClientAdminUserRequest) error {
+func (r *registrar) ValidateRegisterClientAdminUserRequest(request *partyRegistrar.RegisterClientAdminUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -201,14 +201,14 @@ func (r *registrar) ValidateRegisterClientAdminUserRequest(request *registrar2.R
 	return nil
 }
 
-func (r *registrar) RegisterClientAdminUser(request *registrar2.RegisterClientAdminUserRequest) (*registrar2.RegisterClientAdminUserResponse, error) {
+func (r *registrar) RegisterClientAdminUser(request *partyRegistrar.RegisterClientAdminUserRequest) (*partyRegistrar.RegisterClientAdminUserResponse, error) {
 	if err := r.ValidateRegisterClientAdminUserRequest(request); err != nil {
 		return nil, err
 	}
 
 	registerClientAdminUserResponse := jsonRpc.RegisterClientAdminUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.RegisterClientAdminUserService,
+		partyRegistrar.RegisterClientAdminUserService,
 		jsonRpc.RegisterClientAdminUserRequest{
 			User: request.User,
 		},
@@ -218,12 +218,12 @@ func (r *registrar) RegisterClientAdminUser(request *registrar2.RegisterClientAd
 		return nil, err
 	}
 
-	return &registrar2.RegisterClientAdminUserResponse{
+	return &partyRegistrar.RegisterClientAdminUserResponse{
 		User: registerClientAdminUserResponse.User,
 	}, nil
 }
 
-func (r *registrar) ValidateInviteClientUserRequest(request *registrar2.InviteClientUserRequest) error {
+func (r *registrar) ValidateInviteClientUserRequest(request *partyRegistrar.InviteClientUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -236,7 +236,7 @@ func (r *registrar) ValidateInviteClientUserRequest(request *registrar2.InviteCl
 	return nil
 }
 
-func (r *registrar) InviteClientUser(request *registrar2.InviteClientUserRequest) (*registrar2.InviteClientUserResponse, error) {
+func (r *registrar) InviteClientUser(request *partyRegistrar.InviteClientUserRequest) (*partyRegistrar.InviteClientUserResponse, error) {
 	if err := r.ValidateInviteClientUserRequest(request); err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func (r *registrar) InviteClientUser(request *registrar2.InviteClientUserRequest
 	return nil, brainException.NotImplemented{}
 }
 
-func (r *registrar) ValidateRegisterClientUserRequest(request *registrar2.RegisterClientUserRequest) error {
+func (r *registrar) ValidateRegisterClientUserRequest(request *partyRegistrar.RegisterClientUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -254,14 +254,14 @@ func (r *registrar) ValidateRegisterClientUserRequest(request *registrar2.Regist
 	return nil
 }
 
-func (r *registrar) RegisterClientUser(request *registrar2.RegisterClientUserRequest) (*registrar2.RegisterClientUserResponse, error) {
+func (r *registrar) RegisterClientUser(request *partyRegistrar.RegisterClientUserRequest) (*partyRegistrar.RegisterClientUserResponse, error) {
 	if err := r.ValidateRegisterClientUserRequest(request); err != nil {
 		return nil, err
 	}
 
 	registerClientUserResponse := jsonRpc.RegisterClientUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.RegisterClientUserService,
+		partyRegistrar.RegisterClientUserService,
 		jsonRpc.RegisterClientUserRequest{
 			User: request.User,
 		},
@@ -271,12 +271,12 @@ func (r *registrar) RegisterClientUser(request *registrar2.RegisterClientUserReq
 		return nil, err
 	}
 
-	return &registrar2.RegisterClientUserResponse{
+	return &partyRegistrar.RegisterClientUserResponse{
 		User: registerClientUserResponse.User,
 	}, nil
 }
 
-func (r *registrar) ValidateInviteUserRequest(request *registrar2.InviteUserRequest) error {
+func (r *registrar) ValidateInviteUserRequest(request *partyRegistrar.InviteUserRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.UserIdentifier == nil {
@@ -289,7 +289,7 @@ func (r *registrar) ValidateInviteUserRequest(request *registrar2.InviteUserRequ
 	return nil
 }
 
-func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registrar2.InviteUserResponse, error) {
+func (r *registrar) InviteUser(request *partyRegistrar.InviteUserRequest) (*partyRegistrar.InviteUserResponse, error) {
 	if err := r.ValidateInviteUserRequest(request); err != nil {
 		return nil, err
 	}
@@ -302,7 +302,7 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 
 	inviteUserResponse := jsonRpc.InviteUserResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.InviteUserService,
+		partyRegistrar.InviteUserService,
 		jsonRpc.InviteUserRequest{
 			WrappedUserIdentifier: *id,
 		},
@@ -312,12 +312,12 @@ func (r *registrar) InviteUser(request *registrar2.InviteUserRequest) (*registra
 		return nil, err
 	}
 
-	return &registrar2.InviteUserResponse{
+	return &partyRegistrar.InviteUserResponse{
 		URLToken: inviteUserResponse.URLToken,
 	}, nil
 }
 
-func (r *registrar) ValidateAreAdminsRegisteredRequest(request *registrar2.AreAdminsRegisteredRequest) error {
+func (r *registrar) ValidateAreAdminsRegisteredRequest(request *partyRegistrar.AreAdminsRegisteredRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -326,7 +326,7 @@ func (r *registrar) ValidateAreAdminsRegisteredRequest(request *registrar2.AreAd
 	return nil
 }
 
-func (r *registrar) AreAdminsRegistered(request *registrar2.AreAdminsRegisteredRequest) (*registrar2.AreAdminsRegisteredResponse, error) {
+func (r *registrar) AreAdminsRegistered(request *partyRegistrar.AreAdminsRegisteredRequest) (*partyRegistrar.AreAdminsRegisteredResponse, error) {
 	if err := r.ValidateAreAdminsRegisteredRequest(request); err != nil {
 		return nil, err
 	}
@@ -343,7 +343,7 @@ func (r *registrar) AreAdminsRegistered(request *registrar2.AreAdminsRegisteredR
 
 	areAdminsRegisteredResponse := jsonRpc.AreAdminsRegisteredResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
-		registrar2.AreAdminsRegisteredService,
+		partyRegistrar.AreAdminsRegisteredService,
 		jsonRpc.AreAdminsRegisteredRequest{
 			WrappedPartyIdentifiers: wrappedPartyIdentifiers,
 		},
@@ -353,7 +353,7 @@ func (r *registrar) AreAdminsRegistered(request *registrar2.AreAdminsRegisteredR
 		return nil, err
 	}
 
-	return &registrar2.AreAdminsRegisteredResponse{
+	return &partyRegistrar.AreAdminsRegisteredResponse{
 		Result: areAdminsRegisteredResponse.Result,
 	}, nil
 }

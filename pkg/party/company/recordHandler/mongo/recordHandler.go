@@ -1,9 +1,9 @@
 package mongo
 
 import (
-	company2 "github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
-	recordHandler2 "github.com/iot-my-world/brain/pkg/party/company/recordHandler/generic"
+	companyGenericRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler/generic"
 	brainMongoRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler/mongo"
 	"gopkg.in/mgo.v2"
 )
@@ -31,11 +31,11 @@ func New(
 				Unique: true,
 			},
 		},
-		company2.IsValidIdentifier,
-		company2.ContextualiseFilter,
+		company.IsValidIdentifier,
+		company.ContextualiseFilter,
 	)
 
-	return recordHandler2.New(
+	return companyGenericRecordHandler.New(
 		mongoRecordHandler,
 	)
 }

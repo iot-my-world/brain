@@ -2,7 +2,7 @@ package recordHandler
 
 import (
 	"github.com/iot-my-world/brain/internal/log"
-	client2 "github.com/iot-my-world/brain/pkg/party/client"
+	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
 	brainRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler"
@@ -32,7 +32,7 @@ func (r *RecordHandler) Create(request *recordHandler.CreateRequest) (*recordHan
 	}, &createResponse); err != nil {
 		return nil, exception.Create{Reasons: []string{err.Error()}}
 	}
-	createdClient, ok := createResponse.Entity.(*client2.Client)
+	createdClient, ok := createResponse.Entity.(*client.Client)
 	if !ok {
 		return nil, exception.Create{Reasons: []string{"could not cast created entity to client"}}
 	}
@@ -43,7 +43,7 @@ func (r *RecordHandler) Create(request *recordHandler.CreateRequest) (*recordHan
 }
 
 func (r *RecordHandler) Retrieve(request *recordHandler.RetrieveRequest) (*recordHandler.RetrieveResponse, error) {
-	retrievedClient := client2.Client{}
+	retrievedClient := client.Client{}
 	retrieveResponse := brainRecordHandler.RetrieveResponse{
 		Entity: &retrievedClient,
 	}
@@ -90,7 +90,7 @@ func (r *RecordHandler) Delete(request *recordHandler.DeleteRequest) (*recordHan
 }
 
 func (r *RecordHandler) Collect(request *recordHandler.CollectRequest) (*recordHandler.CollectResponse, error) {
-	var collectedClients []client2.Client
+	var collectedClients []client.Client
 	collectResponse := brainRecordHandler.CollectResponse{
 		Records: &collectedClients,
 	}
@@ -104,7 +104,7 @@ func (r *RecordHandler) Collect(request *recordHandler.CollectRequest) (*recordH
 	}
 
 	if collectedClients == nil {
-		collectedClients = make([]client2.Client, 0)
+		collectedClients = make([]client.Client, 0)
 	}
 
 	return &recordHandler.CollectResponse{

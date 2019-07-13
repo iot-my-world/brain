@@ -2,9 +2,9 @@ package basic
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	sigbugReading "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	"github.com/iot-my-world/brain/pkg/report/tracking"
-	zx303GPSReading "github.com/iot-my-world/brain/pkg/tracker/zx303/reading/gps"
 )
 
 type basicTrackingReport struct {
@@ -48,7 +48,7 @@ func (btr *basicTrackingReport) Live(request *tracking.LiveRequest) (*tracking.L
 	}
 
 	// records to return
-	zx303GPSLiveReportReadings := make([]zx303GPSReading.Reading, 0)
+	zx303GPSLiveReportReadings := make([]sigbugReading.Reading, 0)
 	//
 	//// query for collecting only latest reading
 	//collectQuery := query.Query{

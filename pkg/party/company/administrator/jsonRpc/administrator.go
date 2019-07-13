@@ -3,9 +3,9 @@ package jsonRpc
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
-	jsonRpcClient "github.com/iot-my-world/brain/pkg/communication/jsonRpc/client"
-	administrator2 "github.com/iot-my-world/brain/pkg/party/company/administrator"
-	"github.com/iot-my-world/brain/pkg/party/company/administrator/adaptor/jsonRpc"
+	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
+	companyAdministrator "github.com/iot-my-world/brain/pkg/party/company/administrator"
+	companyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/company/administrator/adaptor/jsonRpc"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
@@ -15,13 +15,13 @@ type administrator struct {
 
 func New(
 	jsonRpcClient jsonRpcClient.Client,
-) administrator2.Administrator {
+) companyAdministrator.Administrator {
 	return &administrator{
 		jsonRpcClient: jsonRpcClient,
 	}
 }
 
-func (a *administrator) ValidateCreateRequest(request *administrator2.CreateRequest) error {
+func (a *administrator) ValidateCreateRequest(request *companyAdministrator.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -30,15 +30,15 @@ func (a *administrator) ValidateCreateRequest(request *administrator2.CreateRequ
 	return nil
 }
 
-func (a *administrator) Create(request *administrator2.CreateRequest) (*administrator2.CreateResponse, error) {
+func (a *administrator) Create(request *companyAdministrator.CreateRequest) (*companyAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
 		return nil, err
 	}
 
-	companyCreateResponse := jsonRpc.CreateResponse{}
+	companyCreateResponse := companyAdministratorJsonRpcAdaptor.CreateResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		administrator2.CreateService,
-		jsonRpc.CreateRequest{
+		companyAdministrator.CreateService,
+		companyAdministratorJsonRpcAdaptor.CreateRequest{
 			Company: request.Company,
 		},
 		&companyCreateResponse,
@@ -47,10 +47,10 @@ func (a *administrator) Create(request *administrator2.CreateRequest) (*administ
 		return nil, err
 	}
 
-	return &administrator2.CreateResponse{Company: companyCreateResponse.Company}, nil
+	return &companyAdministrator.CreateResponse{Company: companyCreateResponse.Company}, nil
 }
 
-func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *administrator2.UpdateAllowedFieldsRequest) error {
+func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *companyAdministrator.UpdateAllowedFieldsRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if len(reasonsInvalid) > 0 {
@@ -59,15 +59,15 @@ func (a *administrator) ValidateUpdateAllowedFieldsRequest(request *administrato
 	return nil
 }
 
-func (a *administrator) UpdateAllowedFields(request *administrator2.UpdateAllowedFieldsRequest) (*administrator2.UpdateAllowedFieldsResponse, error) {
+func (a *administrator) UpdateAllowedFields(request *companyAdministrator.UpdateAllowedFieldsRequest) (*companyAdministrator.UpdateAllowedFieldsResponse, error) {
 	if err := a.ValidateUpdateAllowedFieldsRequest(request); err != nil {
 		return nil, err
 	}
 
-	companyUpdateAllowedFieldsResponse := jsonRpc.UpdateAllowedFieldsResponse{}
+	companyUpdateAllowedFieldsResponse := companyAdministratorJsonRpcAdaptor.UpdateAllowedFieldsResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		administrator2.UpdateAllowedFieldsService,
-		jsonRpc.UpdateAllowedFieldsRequest{
+		companyAdministrator.UpdateAllowedFieldsService,
+		companyAdministratorJsonRpcAdaptor.UpdateAllowedFieldsRequest{
 			Company: request.Company,
 		},
 		&companyUpdateAllowedFieldsResponse,
@@ -76,12 +76,12 @@ func (a *administrator) UpdateAllowedFields(request *administrator2.UpdateAllowe
 		return nil, err
 	}
 
-	return &administrator2.UpdateAllowedFieldsResponse{
+	return &companyAdministrator.UpdateAllowedFieldsResponse{
 		Company: companyUpdateAllowedFieldsResponse.Company,
 	}, nil
 }
 
-func (a *administrator) ValidateDeleteRequest(request *administrator2.DeleteRequest) error {
+func (a *administrator) ValidateDeleteRequest(request *companyAdministrator.DeleteRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.CompanyIdentifier == nil {
@@ -94,7 +94,7 @@ func (a *administrator) ValidateDeleteRequest(request *administrator2.DeleteRequ
 	return nil
 }
 
-func (a *administrator) Delete(request *administrator2.DeleteRequest) (*administrator2.DeleteResponse, error) {
+func (a *administrator) Delete(request *companyAdministrator.DeleteRequest) (*companyAdministrator.DeleteResponse, error) {
 	if err := a.ValidateDeleteRequest(request); err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -107,15 +107,15 @@ func (a *administrator) Delete(request *administrator2.DeleteRequest) (*administ
 		return nil, err
 	}
 
-	response := jsonRpc.DeleteResponse{}
+	response := companyAdministratorJsonRpcAdaptor.DeleteResponse{}
 	if err := a.jsonRpcClient.JsonRpcRequest(
-		administrator2.DeleteService,
-		jsonRpc.DeleteRequest{
+		companyAdministrator.DeleteService,
+		companyAdministratorJsonRpcAdaptor.DeleteRequest{
 			CompanyIdentifier: *id,
 		},
 		&response); err != nil {
 		return nil, err
 	}
 
-	return &administrator2.DeleteResponse{}, nil
+	return &companyAdministrator.DeleteResponse{}, nil
 }
