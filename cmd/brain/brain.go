@@ -27,9 +27,6 @@ import (
 	humanUserHttpAPIAuthApplier "github.com/iot-my-world/brain/pkg/security/authorization/api/applier/http/user/human"
 	humanUserAPIAuthorizer "github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer/user/human"
 
-	apiUserHttpAPIAuthApplier "github.com/iot-my-world/brain/pkg/security/authorization/api/applier/http/user/api"
-	apiUserAPIAuthorizer "github.com/iot-my-world/brain/pkg/security/authorization/api/authorizer/user/api"
-
 	permissionAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator"
 	permissionAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/security/permission/administrator/adaptor/jsonRpc"
 	permissionBasicAdministrator "github.com/iot-my-world/brain/pkg/security/permission/administrator/basic"
@@ -114,10 +111,13 @@ import (
 	sigbugValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
 	sigbugValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/validator/adaptor/jsonRpc"
 	sigbugBasicValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator/basic"
+
+	jsonRpcHttpServer "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/http"
+
+	sigfoxBackendAuthoriser "github.com/iot-my-world/brain/pkg/sigfox/backend/authoriser"
 )
 
 var humanUserAPIServerPort = "9010"
-var apiUserAPIServerPort = "9011"
 
 func main() {
 	pathToConfigFile := flag.String("pathToConfigFile", "configs/config.toml", "brain configuration file")
@@ -511,24 +511,17 @@ func main() {
 	}
 
 	// Sigfox Test
-
-	// Set up Secure API User API Server
-	APIUserAPIAuthorizer := apiUserAPIAuthorizer.New(
-		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
-		PermissionBasicHandler,
+	// set  up sigfox backend server
+	sigfoxBackendJsonRpcHttpServer := jsonRpcHttpServer.New(
+		"/api-sigfox",
+		"0.0.0.0",
+		"9011",
+		sigfoxBackendAuthoriser.New(),
 	)
-	APIUserHttpAPIAuthApplier := apiUserHttpAPIAuthApplier.New(
-		APIUserAPIAuthorizer,
-	)
-	apiUserSecureAPIServerMux := mux.NewRouter()
-	apiUserSecureAPIServerMux.Methods("OPTIONS").HandlerFunc(APIUserHttpAPIAuthApplier.PreFlightHandler)
-	//apiUserSecureAPIServerMux.Handle("/api-2", APIUserHttpAPIAuthApplier.ApplyAuth(secureAPIUserAPIServer)).Methods("POST")
-	apiUserSecureAPIServerMux.Handle("/api-2", secureAPIUserAPIServer).Methods("POST")
-	// Start secureAPIUserAPIServer
-	log.Info("Starting API User Secure API Server on port " + apiUserAPIServerPort)
+	log.Info("Starting Sigfox Backend secure API Server on port " + "9011")
 	go func() {
-		err := http.ListenAndServe(":"+apiUserAPIServerPort, apiUserSecureAPIServerMux)
-		log.Error("apiUserSecureAPIServerMux stopped: ", err, "\n", string(debug.Stack()))
+		err := sigfoxBackendJsonRpcHttpServer.Start()
+		log.Error("sigfox backend json rpc http server", err)
 		os.Exit(1)
 	}()
 

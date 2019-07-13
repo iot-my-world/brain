@@ -1,7 +1,7 @@
 package recordHandler
 
 import (
-	"github.com/iot-my-world/brain/internal/api/jsonRpc"
+	"github.com/iot-my-world/brain/pkg/api/jsonRpc"
 	system2 "github.com/iot-my-world/brain/pkg/party/system"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
