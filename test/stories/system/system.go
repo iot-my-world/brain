@@ -4,6 +4,7 @@ import (
 	"github.com/iot-my-world/brain/test/data"
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
+	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
 	"github.com/iot-my-world/brain/test/stories/client"
 	"github.com/iot-my-world/brain/test/stories/company"
 	"github.com/stretchr/testify/suite"
@@ -49,4 +50,15 @@ func (t *test) TestSystem() {
 		User,
 		clientTestData,
 	))
+
+	// perform sigfox backend tests
+	for _, sigfoxBackendData := range SigfoxBackendTestData {
+		suite.Run(t.T(), sigfoxBackendTestModule.New(
+			data.BrainURL,
+			User,
+			[]sigfoxBackendTestModule.Data{
+				sigfoxBackendData,
+			},
+		))
+	}
 }

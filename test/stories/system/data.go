@@ -1,7 +1,9 @@
 package system
 
 import (
+	"github.com/iot-my-world/brain/pkg/sigfox/backend"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
 )
 
 var User = humanUser.User{
@@ -22,4 +24,12 @@ var User = humanUser.User{
 	//ParentId
 	//PartyType
 	//PartyId
+}
+
+var SigfoxBackendTestData = []sigfoxBackendTestModule.Data{
+	{
+		Backend: backend.Backend{
+			Name: "Sigfox",
+		},
+	},
 }
