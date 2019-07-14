@@ -14,6 +14,6 @@ type Backend struct {
 	Token          string        `json:"token" bson:"token"`
 }
 
-func (b Backend) SetId(id string) {
+func (b *Backend) SetId(id string) {
 	b.Id = id
 }
