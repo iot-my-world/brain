@@ -12,6 +12,7 @@ import (
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/system"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
@@ -55,6 +56,8 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 	var typedParty party.Party
 	var castSuccess bool
 	switch getMyPartyResponse.PartyType {
+	case party.System:
+		typedParty, castSuccess = getMyPartyResponse.Party.(system.System)
 	case party.Client:
 		typedParty, castSuccess = getMyPartyResponse.Party.(client.Client)
 	case party.Company:
