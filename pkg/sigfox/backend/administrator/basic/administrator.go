@@ -77,7 +77,9 @@ func (a *administrator) Create(request *backendAdministrator.CreateRequest) (*ba
 	}
 
 	claimsForToken := sigfoxBackendClaims.SigfoxBackend{
-		BackendId: id.Identifier{Id: createResponse.Backend.Id},
+		BackendId:      id.Identifier{Id: createResponse.Backend.Id},
+		OwnerPartyType: createResponse.Backend.OwnerPartyType,
+		OwnerId:        createResponse.Backend.OwnerId,
 	}
 	backendToken, err := a.jwtGenerator.GenerateToken(claimsForToken)
 	if err != nil {

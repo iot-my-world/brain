@@ -7,6 +7,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
+	"github.com/iot-my-world/brain/pkg/security/token"
 	sigfoxBackendAction "github.com/iot-my-world/brain/pkg/sigfox/backend/action"
 	sigfoxBackendValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator"
 	backendValidatorException "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/exception"
@@ -14,6 +15,7 @@ import (
 )
 
 type validator struct {
+	jwtValidator         token.JWTValidator
 	partyAdministrator   partyAdministrator.Administrator
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
@@ -141,6 +143,34 @@ func (v *validator) Validate(request *sigfoxBackendValidator.ValidateRequest) (*
 			Help:  "cannot be blank",
 			Data:  (*backendToValidate).Token,
 		})
+	} else {
+		// if token is not blank we check that it is valid
+		if (*backendToValidate).OwnerPartyType != "" && (*backendToValidate).OwnerId.Id != "" {
+			wrappedJWTClaims, err := v.jwtValidator.ValidateJWT((*backendToValidate).Token)
+			if err != nil {
+				err = backendValidatorException.Validate{Reasons: []string{"token validation", err.Error()}}
+				log.Error(err.Error())
+				return nil, err
+			}
+			unwrappedJWTClaims, err := wrappedJWTClaims.Unwrap()
+			if err != nil {
+				err = backendValidatorException.Validate{Reasons: []string{"unwrapping claims", err.Error()}}
+				log.Error(err.Error())
+				return nil, err
+			}
+
+			if (*backendToValidate).OwnerPartyType != unwrappedJWTClaims.PartyDetails().PartyType ||
+				(*backendToValidate).OwnerId != unwrappedJWTClaims.PartyDetails().PartyId ||
+				(*backendToValidate).OwnerPartyType != unwrappedJWTClaims.PartyDetails().ParentPartyType ||
+				(*backendToValidate).OwnerId != unwrappedJWTClaims.PartyDetails().ParentId {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "token",
+					Type:  reasonInvalid.Invalid,
+					Help:  "party details in claims in token must match that of the backend entity",
+					Data:  (*backendToValidate).Token,
+				})
+			}
+		}
 	}
 
 	// Make list of reasons invalid to return

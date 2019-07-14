@@ -4,6 +4,8 @@ import (
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
 	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
+	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
+	partyJsonRpcAdministrator "github.com/iot-my-world/brain/pkg/party/administrator/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/query"
 	sigfoxBackend "github.com/iot-my-world/brain/pkg/sigfox/backend"
@@ -34,6 +36,7 @@ type test struct {
 	testData                   []Data
 	sigfoxBackendAdministrator sigfoxBackendAdministrator.Administrator
 	sigfoxBackendRecordHandler sigfoxBackendRecordHandler.RecordHandler
+	partyAdministrator         partyAdministrator.Administrator
 }
 
 type Data struct {
@@ -54,11 +57,22 @@ func (suite *test) SetupTest() {
 	// set up service provider clients that use jsonRpcClient
 	suite.sigfoxBackendAdministrator = sigfoxBackendJsonRpcAdministrator.New(suite.jsonRpcClient)
 	suite.sigfoxBackendRecordHandler = sigfoxBackendJsonRpcRecordHandler.New(suite.jsonRpcClient)
+	suite.partyAdministrator = partyJsonRpcAdministrator.New(suite.jsonRpcClient)
 }
 
 func (suite *test) TestSigfoxBackend1Create() {
+	// get logged in party's details
+	getMyPartyResponse, err := suite.partyAdministrator.GetMyParty(&partyAdministrator.GetMyPartyRequest{})
+	if err != nil {
+		suite.FailNow("error getting my party details", err.Error())
+		return
+	}
+
 	// create all sigfoxBackends in test data
 	for _, data := range suite.testData {
+		// set owner party details on the backend
+		data.Backend.OwnerPartyType = getMyPartyResponse.Party.Details().PartyType
+		data.Backend.OwnerId = getMyPartyResponse.Party.Details().PartyId
 
 		// create the device
 		if _, err := suite.sigfoxBackendAdministrator.Create(&sigfoxBackendAdministrator.CreateRequest{

@@ -10,7 +10,9 @@ import (
 )
 
 type SigfoxBackend struct {
-	BackendId id.Identifier `json:"backendId"`
+	BackendId      id.Identifier `json:"backendId"`
+	OwnerPartyType party.Type    `json:"ownerPartyType"`
+	OwnerId        id.Identifier `json:"ownerId"`
 }
 
 func (r SigfoxBackend) Type() claims.Type {
@@ -27,7 +29,16 @@ func (r SigfoxBackend) TimeToExpiry() time.Duration {
 }
 
 func (r SigfoxBackend) PartyDetails() party.Details {
-	return party.Details{}
+	return party.Details{
+		Detail: party.Detail{
+			PartyType: r.OwnerPartyType,
+			PartyId:   r.OwnerId,
+		},
+		ParentDetail: party.ParentDetail{
+			ParentPartyType: r.OwnerPartyType,
+			ParentId:        r.OwnerId,
+		},
+	}
 }
 
 // permissions granted by having a valid set of these claims
