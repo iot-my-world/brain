@@ -320,6 +320,8 @@ func main() {
 	)
 	SigfoxBackendValidator := sigfoxBackendBasicValidator.New(
 		PartyBasicAdministrator,
+		SigfoxBackendRecordHandler,
+		&systemClaims,
 	)
 	SigfoxBackendAdministrator := sigfoxBackendBasicAdministrator.New(
 		SigfoxBackendValidator,

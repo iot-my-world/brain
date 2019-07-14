@@ -7,8 +7,12 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
+	"github.com/iot-my-world/brain/pkg/search/identifier/name"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"github.com/iot-my-world/brain/pkg/security/token"
 	sigfoxBackendAction "github.com/iot-my-world/brain/pkg/sigfox/backend/action"
+	backendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
+	backendRecordHandlerException "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/exception"
 	sigfoxBackendValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator"
 	backendValidatorException "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/exception"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
@@ -17,11 +21,15 @@ import (
 type validator struct {
 	jwtValidator         token.JWTValidator
 	partyAdministrator   partyAdministrator.Administrator
+	backendRecordHandler backendRecordHandler.RecordHandler
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
+	systemClaims         *humanUserLoginClaims.Login
 }
 
 func New(
 	partyAdministrator partyAdministrator.Administrator,
+	backendRecordHandler backendRecordHandler.RecordHandler,
+	systemClaims *humanUserLoginClaims.Login,
 ) sigfoxBackendValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
@@ -40,6 +48,8 @@ func New(
 	return &validator{
 		partyAdministrator:   partyAdministrator,
 		actionIgnoredReasons: actionIgnoredReasons,
+		backendRecordHandler: backendRecordHandler,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -134,6 +144,30 @@ func (v *validator) Validate(request *sigfoxBackendValidator.ValidateRequest) (*
 			Help:  "cannot be blank",
 			Data:  (*backendToValidate).Name,
 		})
+	} else {
+		// check for duplicate
+		_, err := v.backendRecordHandler.Retrieve(&backendRecordHandler.RetrieveRequest{
+			Claims: v.systemClaims,
+			Identifier: name.Identifier{
+				Name: (*backendToValidate).Name,
+			},
+		})
+		switch err.(type) {
+		case backendRecordHandlerException.NotFound:
+			// this is what we want
+		case nil:
+			// this means that there is already a backend with this name, i.e. a duplicate
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "name",
+				Type:  reasonInvalid.Duplicate,
+				Help:  "already exists",
+				Data:  (*backendToValidate).Name,
+			})
+		default:
+			err = backendValidatorException.Validate{Reasons: []string{"backend retrieval for duplicate name check", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
+		}
 	}
 
 	if (*backendToValidate).Token == "" {
