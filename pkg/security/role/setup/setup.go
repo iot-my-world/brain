@@ -236,6 +236,8 @@ var initialRoles = func() []role.Role {
 		viewPermission.HistoricalTrackingDashboard,
 
 		viewPermission.TrackerSF001,
+
+		viewPermission.SigfoxBackendManagement,
 	}
 
 	// Create root role and apply permissions of all other roles to root

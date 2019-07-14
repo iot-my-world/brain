@@ -13,3 +13,5 @@ const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"
 
 const TrackerSF001 Permission = "TrackerSF001"
+
+const SigfoxBackendManagement Permission = "SigfoxBackendManagement"

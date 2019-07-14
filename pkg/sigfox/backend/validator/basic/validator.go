@@ -2,10 +2,14 @@ package validator
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
+	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
+	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
 	sigfoxBackendAction "github.com/iot-my-world/brain/pkg/sigfox/backend/action"
 	sigfoxBackendValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator"
+	backendValidatorException "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/exception"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
@@ -65,6 +69,60 @@ func (v *validator) Validate(request *sigfoxBackendValidator.ValidateRequest) (*
 			Help:  "cannot be blank",
 			Data:  (*backendToValidate).Id,
 		})
+	}
+
+	if (*backendToValidate).OwnerPartyType == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "ownerPartyType",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*backendToValidate).OwnerPartyType,
+		})
+	}
+
+	if (*backendToValidate).OwnerId.Id == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "ownerId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*backendToValidate).OwnerId,
+		})
+	}
+
+	// if neither owner party type nor owner id are blank
+	if (*backendToValidate).OwnerPartyType != "" && (*backendToValidate).OwnerId.Id != "" {
+		// owner party type must be valid. i.e. must be of a valid type and the party must exist
+		switch (*backendToValidate).OwnerPartyType {
+		case party.System, party.Client, party.Company:
+			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+				Claims:     request.Claims,
+				PartyType:  (*backendToValidate).OwnerPartyType,
+				Identifier: (*backendToValidate).OwnerId,
+			})
+			if err != nil {
+				switch err.(type) {
+				case partyAdministratorException.NotFound:
+					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+						Field: "ownerId",
+						Type:  reasonInvalid.MustExist,
+						Help:  "owner party must exist",
+						Data:  (*backendToValidate).OwnerId,
+					})
+				default:
+					err = backendValidatorException.Validate{Reasons: []string{"retrieving owner party", err.Error()}}
+					log.Error(err.Error())
+					return nil, err
+				}
+			}
+
+		default:
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "ownerPartyType",
+				Type:  reasonInvalid.Invalid,
+				Help:  "must be a valid type",
+				Data:  (*backendToValidate).OwnerPartyType,
+			})
+		}
 	}
 
 	if (*backendToValidate).Name == "" {

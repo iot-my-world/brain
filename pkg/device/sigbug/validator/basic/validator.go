@@ -3,8 +3,8 @@ package validator
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
-	action2 "github.com/iot-my-world/brain/pkg/device/sigbug/action"
-	validator2 "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
+	sigbugAction "github.com/iot-my-world/brain/pkg/device/sigbug/action"
+	sigbugValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
@@ -18,17 +18,17 @@ type validator struct {
 
 func New(
 	partyAdministrator partyAdministrator.Administrator,
-) validator2.Validator {
+) sigbugValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
-		action2.Create: {
+		sigbugAction.Create: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
 				},
 			},
 		},
-		action2.UpdateAllowedFields: {
+		sigbugAction.UpdateAllowedFields: {
 			ReasonsInvalid: map[string][]reasonInvalid.Type{
 				"id": {
 					reasonInvalid.Blank,
@@ -43,7 +43,7 @@ func New(
 	}
 }
 
-func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest) error {
+func (v *validator) ValidateValidateRequest(request *sigbugValidator.ValidateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -56,7 +56,7 @@ func (v *validator) ValidateValidateRequest(request *validator2.ValidateRequest)
 	return nil
 }
 
-func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.ValidateResponse, error) {
+func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugValidator.ValidateResponse, error) {
 	if err := v.ValidateValidateRequest(request); err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 
 	// action specific checks
 	switch request.Action {
-	case action2.Create:
+	case sigbugAction.Create:
 
 	}
 
@@ -191,7 +191,7 @@ func (v *validator) Validate(request *validator2.ValidateRequest) (*validator2.V
 		}
 	}
 
-	return &validator2.ValidateResponse{
+	return &sigbugValidator.ValidateResponse{
 		ReasonsInvalid: returnedReasonsInvalid,
 	}, nil
 }
