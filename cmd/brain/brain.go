@@ -394,7 +394,9 @@ func main() {
 		"/api-2",
 		"0.0.0.0",
 		"9011",
-		sigfoxBackendAuthoriser.New(),
+		sigfoxBackendAuthoriser.New(
+			token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+		),
 	)
 	if err := sigfoxBackendJsonRpcHttpServer.RegisterBatchServiceProviders([]jsonRpcServiceProvider.Provider{
 		SigfoxBackendCallbackServerJsonRpcAdaptor.New(SigfoxBackendCallbackServer),
