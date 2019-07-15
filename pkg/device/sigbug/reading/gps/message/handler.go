@@ -12,10 +12,10 @@ func NewHandler() sigfoxBackendDataDataCallbackMessageHandler.Handler {
 	return &handler{}
 }
 
-func (h *handler) Handle(sigfoxBackendDataDataCallbackMessage.Message) error {
-	return nil
+func (h *handler) WantMessage(dataMessage sigfoxBackendDataDataCallbackMessage.Message) bool {
+	return true
 }
 
-func (h *handler) WantMessage(sigfoxBackendDataDataCallbackMessage.Message) bool {
-	return true
+func (h *handler) Handle(sigfoxBackendDataDataCallbackMessage.Message) error {
+	return nil
 }
