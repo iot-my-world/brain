@@ -88,7 +88,7 @@ import (
 	sigfoxBackendAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/adaptor/jsonRpc"
 	sigfoxBackendBasicAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/basic"
 	sigfoxBackendAuthoriser "github.com/iot-my-world/brain/pkg/sigfox/backend/authoriser"
-	sigfoxBasicBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
+	SigfoxBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
 	sigfoxBasicBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/basic"
 	sigfoxBackendRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/adaptor/jsonRpc"
 	sigfoxBackendMongoRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/mongo"
@@ -391,13 +391,13 @@ func main() {
 
 	// set  up sigfox backend server
 	sigfoxBackendJsonRpcHttpServer := jsonRpcHttpServer.New(
-		"/api-sigfox",
+		"/api-2",
 		"0.0.0.0",
 		"9011",
 		sigfoxBackendAuthoriser.New(),
 	)
 	if err := sigfoxBackendJsonRpcHttpServer.RegisterBatchServiceProviders([]jsonRpcServiceProvider.Provider{
-		sigfoxBasicBackendCallbackServerJsonRpcAdaptor.New(SigfoxBackendCallbackServer),
+		SigfoxBackendCallbackServerJsonRpcAdaptor.New(SigfoxBackendCallbackServer),
 	}); err != nil {
 		log.Fatal(err.Error())
 	}

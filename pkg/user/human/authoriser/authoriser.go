@@ -2,6 +2,7 @@ package authoriser
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcServerAuthoriser "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authoriser"
 	authoriserException "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authoriser/exception"
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
@@ -36,10 +37,12 @@ func (a *authoriser) AuthoriseServiceMethod(jwt string, jsonRpcMethod string) (w
 	// Validate the jwt
 	wrappedJWTClaims, err := a.jwtValidator.ValidateJWT(jwt)
 	if err != nil {
+		log.Error(err.Error())
 		return wrappedClaims.Wrapped{}, err
 	}
 	unwrappedJWTClaims, err := wrappedJWTClaims.Unwrap()
 	if err != nil {
+		log.Error(err.Error())
 		return wrappedClaims.Wrapped{}, err
 	}
 
