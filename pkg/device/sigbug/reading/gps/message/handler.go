@@ -8,7 +8,7 @@ import (
 type handler struct {
 }
 
-func New() sigfoxBackendDataDataCallbackMessageHandler.Handler {
+func NewHandler() sigfoxBackendDataDataCallbackMessageHandler.Handler {
 	return &handler{}
 }
 

@@ -77,6 +77,7 @@ import (
 
 	sigbugAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/adaptor/jsonRpc"
 	sigbugBasicAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/basic"
+	sigbugGPSReadingMessage "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/message"
 	sigbugRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/adaptor/jsonRpc"
 	sigbugMongoRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/mongo"
 	sigbugValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/validator/adaptor/jsonRpc"
@@ -88,6 +89,7 @@ import (
 	sigfoxBackendAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/adaptor/jsonRpc"
 	sigfoxBackendBasicAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/basic"
 	sigfoxBackendAuthoriser "github.com/iot-my-world/brain/pkg/sigfox/backend/authoriser"
+	sigfoxBackendDataMessageHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/handler"
 	SigfoxBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
 	sigfoxBasicBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/basic"
 	sigfoxBackendRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/adaptor/jsonRpc"
@@ -341,7 +343,11 @@ func main() {
 	)
 
 	// Sigfox Backend Callback Server
-	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New()
+	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New(
+		[]sigfoxBackendDataMessageHandler.Handler{
+			sigbugGPSReadingMessage.NewHandler(),
+		},
+	)
 
 	humanUserJsonRpcHttpServer := jsonRpcHttpServer.New(
 		"/api-1",
