@@ -1,6 +1,8 @@
 package jsonRpc
 
 import (
+	"encoding/hex"
+	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	sigfoxBackendCallbackDataMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
@@ -29,17 +31,23 @@ func (a *adaptor) MethodRequiresAuthorization(string) bool {
 
 type HandleDataMessageRequest struct {
 	Device string `json:"device"`
-	Data   []byte `json:"data"`
+	Data   string `json:"data"`
 }
 
 type HandleDataMessageResponse struct {
 }
 
 func (a *adaptor) HandleDataMessage(r *http.Request, request *HandleDataMessageRequest, response *HandleDataMessageResponse) error {
+	messageData, err := hex.DecodeString(request.Data)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
 	if _, err := a.Server.HandleDataMessage(&sigfoxBackendCallbackServer.HandleDataMessageRequest{
 		Message: sigfoxBackendCallbackDataMessage.Message{
 			DeviceId: request.Device,
-			Data:     request.Data,
+			Data:     messageData,
 		},
 	}); err != nil {
 		return err
