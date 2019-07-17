@@ -109,7 +109,7 @@ var TestData = []struct {
 		SigbugDevices: []sigbug.Sigbug{
 			// device owned by company, not yet assigned to client
 			{
-				DeviceId:       "2puapsdp",
+				DeviceId:       "399C87",
 				OwnerPartyType: party.Company,
 				OwnerId: id.Identifier{
 					Id: "DHL", // populated correctly on creation

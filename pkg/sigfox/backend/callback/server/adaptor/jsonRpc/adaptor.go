@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
+	"github.com/iot-my-world/brain/pkg/search/identifier/id"
 	sigfoxBackendCallbackDataMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
 	"net/http"
@@ -30,8 +31,8 @@ func (a *adaptor) MethodRequiresAuthorization(string) bool {
 }
 
 type HandleDataMessageRequest struct {
-	Device string `json:"device"`
-	Data   string `json:"data"`
+	DeviceIdentifier id.Identifier `json:"deviceIdentifier"`
+	Data             string        `json:"data"`
 }
 
 type HandleDataMessageResponse struct {
@@ -46,8 +47,8 @@ func (a *adaptor) HandleDataMessage(r *http.Request, request *HandleDataMessageR
 
 	if _, err := a.Server.HandleDataMessage(&sigfoxBackendCallbackServer.HandleDataMessageRequest{
 		Message: sigfoxBackendCallbackDataMessage.Message{
-			DeviceId: request.Device,
-			Data:     messageData,
+			DeviceIdentifier: request.DeviceIdentifier,
+			Data:             messageData,
 		},
 	}); err != nil {
 		return err

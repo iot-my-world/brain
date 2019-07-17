@@ -1,6 +1,8 @@
 package message
 
+import "github.com/iot-my-world/brain/pkg/search/identifier/id"
+
 type Message struct {
-	DeviceId string `json:"backendId"`
-	Data     []byte `json:"data"`
+	DeviceIdentifier id.Identifier
+	Data             []byte
 }
