@@ -1,4 +1,4 @@
-package id
+package sigbug
 
 import (
 	"errors"
@@ -6,21 +6,23 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const DeviceIdentifier identifier.Type = "SigbugDeviceIdentifier"
+
 type Identifier struct {
-	Id string `json:"id"`
+	DeviceId string `json:"deviceId"`
 }
 
-// Returns IdentifierType of this Identifier
-func (i Identifier) Type() identifier.Type { return identifier.Id }
-
-// Determines and returns the validity of this Identifier
 func (i Identifier) IsValid() error {
-	if i.Id == "" {
+	if i.DeviceId == "" {
 		return errors.New("id cannot be blank")
 	}
 	return nil
 }
 
+func (i Identifier) Type() identifier.Type {
+	return DeviceIdentifier
+}
+
 func (i Identifier) ToFilter() bson.M {
-	return bson.M{"id": i.Id}
+	return bson.M{"deviceId": i.DeviceId}
 }
