@@ -5,6 +5,7 @@ import (
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	wrappedClaims "github.com/iot-my-world/brain/pkg/security/claims/wrapped"
 	sigfoxBackendCallbackDataMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
 	"net/http"
@@ -39,6 +40,12 @@ type HandleDataMessageResponse struct {
 }
 
 func (a *adaptor) HandleDataMessage(r *http.Request, request *HandleDataMessageRequest, response *HandleDataMessageResponse) error {
+	claims, err := wrappedClaims.UnwrapClaimsFromContext(r)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
 	messageData, err := hex.DecodeString(request.Data)
 	if err != nil {
 		log.Error(err.Error())
@@ -46,6 +53,7 @@ func (a *adaptor) HandleDataMessage(r *http.Request, request *HandleDataMessageR
 	}
 
 	if _, err := a.Server.HandleDataMessage(&sigfoxBackendCallbackServer.HandleDataMessageRequest{
+		Claims: claims,
 		Message: sigfoxBackendCallbackDataMessage.Message{
 			DeviceIdentifier: request.DeviceIdentifier,
 			Data:             messageData,

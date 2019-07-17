@@ -345,7 +345,9 @@ func main() {
 	// Sigfox Backend Callback Server
 	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New(
 		[]sigfoxBackendDataMessageHandler.Handler{
-			sigbugSigfoxMessageHandler.New(),
+			sigbugSigfoxMessageHandler.New(
+				SigbugRecordHandler,
+			),
 		},
 	)
 

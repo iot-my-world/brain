@@ -22,8 +22,10 @@ func New(
 func (s *server) HandleDataMessage(request *sigfoxBackendCallbackServer.HandleDataMessageRequest) (*sigfoxBackendCallbackServer.HandleDataMessageResponse, error) {
 	for handlerIdx := range s.handlers {
 		if s.handlers[handlerIdx].WantMessage(request.Message) {
-			err := s.handlers[handlerIdx].Handle(request.Message)
-			if err != nil {
+			if err := s.handlers[handlerIdx].Handle(&sigfoxBackendDataMessageHandler.HandleRequest{
+				Claims:      request.Claims,
+				DataMessage: request.Message,
+			}); err != nil {
 				err = sigfoxBackendCallbackServerException.HandleDataMessage{Reasons: []string{"handling message", err.Error()}}
 				log.Error(err.Error())
 				return nil, err

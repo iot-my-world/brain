@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/binary"
 	"fmt"
+	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
 	"github.com/iot-my-world/brain/pkg/device/sigbug/sigfox/message"
 	sigfoxBackendDataDataCallbackMessageHandlerException "github.com/iot-my-world/brain/pkg/device/sigbug/sigfox/message/handler/exception"
 	sigfoxBackendDataDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
@@ -11,10 +12,15 @@ import (
 )
 
 type handler struct {
+	sigbugRecordHandler sigbugRecordHandler.RecordHandler
 }
 
-func New() sigfoxBackendDataDataCallbackMessageHandler.Handler {
-	return &handler{}
+func New(
+	sigbugRecordHandler sigbugRecordHandler.RecordHandler,
+) sigfoxBackendDataDataCallbackMessageHandler.Handler {
+	return &handler{
+		sigbugRecordHandler: sigbugRecordHandler,
+	}
 }
 
 func (h *handler) WantMessage(dataMessage sigfoxBackendDataDataCallbackMessage.Message) bool {
@@ -32,23 +38,23 @@ func (h *handler) WantMessage(dataMessage sigfoxBackendDataDataCallbackMessage.M
 	return false
 }
 
-func (h *handler) Handle(dataMessage sigfoxBackendDataDataCallbackMessage.Message) error {
+func (h *handler) Handle(request *sigfoxBackendDataDataCallbackMessageHandler.HandleRequest) error {
 
-	switch dataMessage.Data[0] {
+	switch request.DataMessage.Data[0] {
 	case message.GPSReading:
-		return h.handleGPSMessage(dataMessage)
+		return h.handleGPSMessage(request)
 	}
 
 	return nil
 }
 
-func (h *handler) handleGPSMessage(dataMessage sigfoxBackendDataDataCallbackMessage.Message) error {
-	if len(dataMessage.Data) != 9 {
+func (h *handler) handleGPSMessage(request *sigfoxBackendDataDataCallbackMessageHandler.HandleRequest) error {
+	if len(request.DataMessage.Data) != 9 {
 		return sigfoxBackendDataDataCallbackMessageHandlerException.HandleGPSMessage{Reasons: []string{"message data not long enough"}}
 	}
 
-	latitude := math.Float32frombits(binary.LittleEndian.Uint32(dataMessage.Data[1:5]))
-	longitude := math.Float32frombits(binary.LittleEndian.Uint32(dataMessage.Data[5:]))
+	latitude := math.Float32frombits(binary.LittleEndian.Uint32(request.DataMessage.Data[1:5]))
+	longitude := math.Float32frombits(binary.LittleEndian.Uint32(request.DataMessage.Data[5:]))
 
 	fmt.Printf("%f, %f", latitude, longitude)
 
