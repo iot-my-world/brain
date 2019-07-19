@@ -30,6 +30,7 @@ func New(
 	partyAdministrator partyAdministrator.Administrator,
 	backendRecordHandler backendRecordHandler.RecordHandler,
 	systemClaims *humanUserLoginClaims.Login,
+	jwtValidator token.JWTValidator,
 ) sigfoxBackendValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
@@ -50,6 +51,7 @@ func New(
 		actionIgnoredReasons: actionIgnoredReasons,
 		backendRecordHandler: backendRecordHandler,
 		systemClaims:         systemClaims,
+		jwtValidator:         jwtValidator,
 	}
 }
 

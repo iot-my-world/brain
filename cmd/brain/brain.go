@@ -324,6 +324,7 @@ func main() {
 		PartyBasicAdministrator,
 		SigfoxBackendRecordHandler,
 		&systemClaims,
+		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
 	)
 	SigfoxBackendAdministrator := sigfoxBackendBasicAdministrator.New(
 		SigfoxBackendValidator,

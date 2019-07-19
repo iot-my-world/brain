@@ -5,7 +5,7 @@ type Authenticator interface {
 	Logout(request *LogoutRequest) (*LogoutResponse, error)
 }
 
-const ServiceProvider = "Authenticator"
+const ServiceProvider = "Server-Authenticator"
 const LoginService = ServiceProvider + ".Login"
 const LogoutService = ServiceProvider + ".Logout"
 
