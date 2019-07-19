@@ -105,7 +105,9 @@ func (r *recordHandler) Retrieve(request *companyRecordHandler.RetrieveRequest) 
 		companyRecordHandlerJsonRpcAdaptor.RetrieveRequest{
 			WrappedIdentifier: *id,
 		},
-		&companyRetrieveResponse); err != nil {
+		&companyRetrieveResponse,
+	); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 

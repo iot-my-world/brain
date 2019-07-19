@@ -5,6 +5,7 @@ import (
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
+	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 	backendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
 	backendRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/adaptor/jsonRpc"
 )
@@ -25,8 +26,46 @@ func (r *recordHandler) Create(request *backendRecordHandler.CreateRequest) (*ba
 	return nil, brainException.NotImplemented{}
 }
 
+func (r *recordHandler) ValidateRetrieveRequest(request *backendRecordHandler.RetrieveRequest) error {
+	reasonsInvalid := make([]string, 0)
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
 func (r *recordHandler) Retrieve(request *backendRecordHandler.RetrieveRequest) (*backendRecordHandler.RetrieveResponse, error) {
-	return nil, brainException.NotImplemented{}
+	if err := r.ValidateRetrieveRequest(request); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	// wrap identifier
+	id, err := wrappedIdentifier.Wrap(request.Identifier)
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	backendRetrieveResponse := backendRecordHandlerJsonRpcAdaptor.RetrieveResponse{}
+	if err := r.jsonRpcClient.JsonRpcRequest(
+		backendRecordHandler.RetrieveService,
+		backendRecordHandlerJsonRpcAdaptor.RetrieveRequest{
+			WrappedIdentifier: *id,
+		},
+		&backendRetrieveResponse,
+	); err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	return &backendRecordHandler.RetrieveResponse{
+		Backend: backendRetrieveResponse.Backend,
+	}, nil
 }
 func (r *recordHandler) Update(request *backendRecordHandler.UpdateRequest) (*backendRecordHandler.UpdateResponse, error) {
 	return nil, brainException.NotImplemented{}
