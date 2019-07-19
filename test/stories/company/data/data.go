@@ -1,4 +1,4 @@
-package company
+package data
 
 import (
 	"github.com/iot-my-world/brain/pkg/device/sigbug"

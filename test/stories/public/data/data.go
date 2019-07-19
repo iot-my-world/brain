@@ -1,4 +1,4 @@
-package public
+package data
 
 import (
 	"github.com/iot-my-world/brain/pkg/party/client"
