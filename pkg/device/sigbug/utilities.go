@@ -8,9 +8,8 @@ func IsValidIdentifier(id identifier.Identifier) bool {
 	if id == nil {
 		return false
 	}
-
 	switch id.Type() {
-	case identifier.Id:
+	case identifier.Id, DeviceIdentifier:
 		return true
 	default:
 		return false

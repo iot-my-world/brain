@@ -2,13 +2,18 @@ package basic
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
 	companyAction "github.com/iot-my-world/brain/pkg/party/company/action"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler"
+	companyRecordHandler "github.com/iot-my-world/brain/pkg/party/company/recordHandler"
 	"github.com/iot-my-world/brain/pkg/party/company/recordHandler/exception"
+	companyRecordHandlerException "github.com/iot-my-world/brain/pkg/party/company/recordHandler/exception"
 	companyValidator "github.com/iot-my-world/brain/pkg/party/company/validator"
+	companyValidatorException "github.com/iot-my-world/brain/pkg/party/company/validator/exception"
 	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
+	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	userRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
@@ -84,6 +89,30 @@ func (v *validator) Validate(request *companyValidator.ValidateRequest) (*compan
 			Help:  "cannot be blank",
 			Data:  (*companyToValidate).Name,
 		})
+	} else {
+		// check for duplicate
+		_, err := v.companyRecordHandler.Retrieve(&companyRecordHandler.RetrieveRequest{
+			Claims: v.systemClaims,
+			Identifier: name.Identifier{
+				Name: (*companyToValidate).Name,
+			},
+		})
+		switch err.(type) {
+		case companyRecordHandlerException.NotFound:
+			// this is what we want
+		case nil:
+			// this means that there is already a backend with this name, i.e. a duplicate
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "name",
+				Type:  reasonInvalid.Duplicate,
+				Help:  "already exists",
+				Data:  (*companyToValidate).Name,
+			})
+		default:
+			err = companyValidatorException.Validate{Reasons: []string{"company retrieval for duplicate name check", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
+		}
 	}
 
 	if (*companyToValidate).AdminEmailAddress == "" {

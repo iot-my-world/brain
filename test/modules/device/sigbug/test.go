@@ -20,25 +20,33 @@ import (
 )
 
 func New(
-	url string,
+	humanUserURL string,
+	sigfoxBackendAPIUserURL string,
 	user humanUser.User,
 	testData []Data,
+	sigfoxBackendJWT string,
 ) *test {
 	return &test{
-		testData:      testData,
-		user:          user,
-		jsonRpcClient: basicJsonRpcClient.New(url),
+		testData:                          testData,
+		user:                              user,
+		humanUserJsonRpcClient:            basicJsonRpcClient.New(humanUserURL),
+		sigfoxBackendAPIUserJsonRpcClient: basicJsonRpcClient.New(sigfoxBackendAPIUserURL),
+		sigfoxBackendAPIUserURL:           sigfoxBackendAPIUserURL,
+		sigfoxBackendJWT:                  sigfoxBackendJWT,
 	}
 }
 
 type test struct {
 	suite.Suite
-	jsonRpcClient       jsonRpcClient.Client
-	user                humanUser.User
-	testData            []Data
-	sigbugAdministrator sigbugAdministrator.Administrator
-	sigbugRecordHandler sigbugRecordHandler.RecordHandler
-	partyAdministrator  partyAdministrator.Administrator
+	humanUserJsonRpcClient            jsonRpcClient.Client
+	sigfoxBackendAPIUserJsonRpcClient jsonRpcClient.Client
+	user                              humanUser.User
+	testData                          []Data
+	sigbugAdministrator               sigbugAdministrator.Administrator
+	sigbugRecordHandler               sigbugRecordHandler.RecordHandler
+	partyAdministrator                partyAdministrator.Administrator
+	sigfoxBackendAPIUserURL           string
+	sigfoxBackendJWT                  string
 }
 
 type Data struct {
@@ -48,19 +56,25 @@ type Data struct {
 
 func (suite *test) SetupTest() {
 
-	// log in the client
-	if err := suite.jsonRpcClient.Login(jsonRpcServerAuthenticator.LoginRequest{
+	// log in the human user client
+	if err := suite.humanUserJsonRpcClient.Login(jsonRpcServerAuthenticator.LoginRequest{
 		UsernameOrEmailAddress: suite.user.Username,
 		Password:               string(suite.user.Password),
 	}); err != nil {
-		suite.Fail("log in error", err.Error())
+		suite.FailNow("log in error", err.Error())
+		return
+	}
+
+	// set token for api user json rpc client
+	if err := suite.sigfoxBackendAPIUserJsonRpcClient.SetJWT(suite.sigfoxBackendJWT); err != nil {
+		suite.FailNow("error setting api user json rpc client", err.Error())
 		return
 	}
 
 	// set up service provider clients that use jsonRpcClient
-	suite.sigbugAdministrator = sigbugJsonRpcAdministrator.New(suite.jsonRpcClient)
-	suite.sigbugRecordHandler = sigbugJsonRpcRecordHandler.New(suite.jsonRpcClient)
-	suite.partyAdministrator = partyAdministratorJsonRpc.New(suite.jsonRpcClient)
+	suite.sigbugAdministrator = sigbugJsonRpcAdministrator.New(suite.humanUserJsonRpcClient)
+	suite.sigbugRecordHandler = sigbugJsonRpcRecordHandler.New(suite.humanUserJsonRpcClient)
+	suite.partyAdministrator = partyAdministratorJsonRpc.New(suite.humanUserJsonRpcClient)
 }
 
 func (suite *test) TestSigbug1Create() {

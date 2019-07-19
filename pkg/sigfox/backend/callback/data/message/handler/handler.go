@@ -1,10 +1,16 @@
 package handler
 
 import (
-	sigfoxBackendDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
+	"github.com/iot-my-world/brain/pkg/security/claims"
+	sigfoxBackendDataDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 )
 
 type Handler interface {
-	Handle(sigfoxBackendDataCallbackMessage.Message) error
-	WantMessage(sigfoxBackendDataCallbackMessage.Message) (bool, error)
+	Handle(*HandleRequest) error
+	WantMessage(sigfoxBackendDataDataCallbackMessage.Message) bool
+}
+
+type HandleRequest struct {
+	Claims      claims.Claims
+	DataMessage sigfoxBackendDataDataCallbackMessage.Message
 }

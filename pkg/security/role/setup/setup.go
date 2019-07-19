@@ -23,6 +23,9 @@ import (
 	"github.com/iot-my-world/brain/pkg/security/role/recordHandler"
 	roleRecordHandlerException "github.com/iot-my-world/brain/pkg/security/role/recordHandler/exception"
 	"github.com/iot-my-world/brain/pkg/security/role/setup/exception"
+	sigfoxBackendAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator"
+	sigfoxBackendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
+	sigfoxBackendValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator"
 	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	humanUserRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
@@ -195,6 +198,25 @@ var initialRoles = func() []role.Role {
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugValidator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugValidator.ClientUserPermissions...)
 
+	// Sigfox Backend Administrator
+	rootAPIPermissions = append(rootAPIPermissions, sigfoxBackendAdministrator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigfoxBackendAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigfoxBackendAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigfoxBackendAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigfoxBackendAdministrator.ClientUserPermissions...)
+	// Sigfox Backend RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, sigfoxBackendRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigfoxBackendRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigfoxBackendRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigfoxBackendRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigfoxBackendRecordHandler.ClientUserPermissions...)
+	// Sigfox Backend Validator
+	rootAPIPermissions = append(rootAPIPermissions, sigfoxBackendValidator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigfoxBackendValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigfoxBackendValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigfoxBackendValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigfoxBackendValidator.ClientUserPermissions...)
+
 	// Register roles here
 	allRoles := []role.Role{
 		ClientAdmin,
@@ -214,6 +236,8 @@ var initialRoles = func() []role.Role {
 		viewPermission.HistoricalTrackingDashboard,
 
 		viewPermission.TrackerSF001,
+
+		viewPermission.SigfoxBackendManagement,
 	}
 
 	// Create root role and apply permissions of all other roles to root

@@ -11,6 +11,7 @@ import (
 	registerCompanyAdminUserClaims "github.com/iot-my-world/brain/pkg/security/claims/registerCompanyAdminUser"
 	registerCompanyUserClaims "github.com/iot-my-world/brain/pkg/security/claims/registerCompanyUser"
 	resetPasswordClaims "github.com/iot-my-world/brain/pkg/security/claims/resetPassword"
+	sigfoxBackendClaims "github.com/iot-my-world/brain/pkg/security/claims/sigfoxBackend"
 	"github.com/iot-my-world/brain/pkg/security/claims/wrapped/exception"
 	"net/http"
 )
@@ -83,6 +84,13 @@ func (wc Wrapped) Unwrap() (claims.Claims, error) {
 
 	case claims.ResetPassword:
 		var unmarshalledClaims resetPasswordClaims.ResetPassword
+		if err := json.Unmarshal(wc.Value, &unmarshalledClaims); err != nil {
+			return nil, exception.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
+		}
+		result = unmarshalledClaims
+
+	case claims.SigfoxBackend:
+		var unmarshalledClaims sigfoxBackendClaims.SigfoxBackend
 		if err := json.Unmarshal(wc.Value, &unmarshalledClaims); err != nil {
 			return nil, exception.Unwrapping{Reasons: []string{"unmarshalling", err.Error()}}
 		}

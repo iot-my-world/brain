@@ -3,8 +3,8 @@ package resetPassword
 import (
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
-	claims2 "github.com/iot-my-world/brain/pkg/security/claims"
-	api2 "github.com/iot-my-world/brain/pkg/security/permission/api"
+	"github.com/iot-my-world/brain/pkg/security/claims"
+	apiPermission "github.com/iot-my-world/brain/pkg/security/permission/api"
 	humanUserAdministrator "github.com/iot-my-world/brain/pkg/user/human/administrator"
 	"time"
 )
@@ -19,8 +19,8 @@ type ResetPassword struct {
 	PartyId         id.Identifier `json:"partyId"`
 }
 
-func (r ResetPassword) Type() claims2.Type {
-	return claims2.ResetPassword
+func (r ResetPassword) Type() claims.Type {
+	return claims.ResetPassword
 }
 
 func (r ResetPassword) Expired() bool {
@@ -45,6 +45,6 @@ func (r ResetPassword) PartyDetails() party.Details {
 }
 
 // permissions granted by having a valid set of these claims
-var GrantedAPIPermissions = []api2.Permission{
+var GrantedAPIPermissions = []apiPermission.Permission{
 	humanUserAdministrator.SetPasswordService,
 }

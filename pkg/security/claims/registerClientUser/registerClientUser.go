@@ -4,8 +4,8 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	partyRegistrar "github.com/iot-my-world/brain/pkg/party/registrar"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
-	claims2 "github.com/iot-my-world/brain/pkg/security/claims"
-	api2 "github.com/iot-my-world/brain/pkg/security/permission/api"
+	claims "github.com/iot-my-world/brain/pkg/security/claims"
+	apiPermission "github.com/iot-my-world/brain/pkg/security/permission/api"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	humanUserValidator "github.com/iot-my-world/brain/pkg/user/human/validator"
 	"time"
@@ -21,8 +21,8 @@ type RegisterClientUser struct {
 	PartyId         id.Identifier  `json:"partyId"`
 }
 
-func (r RegisterClientUser) Type() claims2.Type {
-	return claims2.RegisterClientUser
+func (r RegisterClientUser) Type() claims.Type {
+	return claims.RegisterClientUser
 }
 
 func (r RegisterClientUser) Expired() bool {
@@ -47,7 +47,7 @@ func (r RegisterClientUser) PartyDetails() party.Details {
 }
 
 // permissions granted by having a valid set of these claims
-var GrantedAPIPermissions = []api2.Permission{
+var GrantedAPIPermissions = []apiPermission.Permission{
 	humanUserValidator.ValidateService,       // Ability to validate users
 	partyRegistrar.RegisterClientUserService, // Ability to register self
 }

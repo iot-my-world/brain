@@ -1,11 +1,13 @@
 package system
 
 import (
-	"github.com/iot-my-world/brain/test/data"
+	"github.com/iot-my-world/brain/test/data/environment"
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
-	"github.com/iot-my-world/brain/test/stories/client"
-	"github.com/iot-my-world/brain/test/stories/company"
+	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
+	clientStoryTestData "github.com/iot-my-world/brain/test/stories/client/data"
+	companyTestStoryData "github.com/iot-my-world/brain/test/stories/company/data"
+	systemTestStoryData "github.com/iot-my-world/brain/test/stories/system/data"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -24,17 +26,17 @@ func (t *test) SetupTest() {
 func (t *test) TestSystem() {
 	// perform system company tests
 	companyTestData := make([]companyTestModule.Data, 0)
-	for _, companyData := range company.TestData {
+	for _, companyData := range companyTestStoryData.TestData {
 		companyTestData = append(companyTestData, companyData.CompanyTestData)
 	}
 	suite.Run(t.T(), companyTestModule.New(
-		data.BrainURL,
-		User,
+		environment.BrainHumanUserURL,
+		systemTestStoryData.User,
 		companyTestData,
 	))
 
 	// perform system client tests
-	clientData, found := client.TestData["root"]
+	clientData, found := clientStoryTestData.TestData["root"]
 	if !found {
 		t.FailNow("root client data not found")
 		return
@@ -45,8 +47,19 @@ func (t *test) TestSystem() {
 		clientTestData = append(clientTestData, clientData.ClientTestData)
 	}
 	suite.Run(t.T(), clientTestModule.New(
-		data.BrainURL,
-		User,
+		environment.BrainHumanUserURL,
+		systemTestStoryData.User,
 		clientTestData,
 	))
+
+	// perform sigfox backend tests
+	for _, sigfoxBackendData := range systemTestStoryData.SigfoxBackendTestData {
+		suite.Run(t.T(), sigfoxBackendTestModule.New(
+			environment.BrainHumanUserURL,
+			systemTestStoryData.User,
+			[]sigfoxBackendTestModule.Data{
+				sigfoxBackendData,
+			},
+		))
+	}
 }

@@ -2,7 +2,7 @@ package id
 
 import (
 	"errors"
-	identifier2 "github.com/iot-my-world/brain/pkg/search/identifier"
+	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -11,7 +11,7 @@ type Identifier struct {
 }
 
 // Returns IdentifierType of this Identifier
-func (i Identifier) Type() identifier2.Type { return identifier2.Id }
+func (i Identifier) Type() identifier.Type { return identifier.Id }
 
 // Determines and returns the validity of this Identifier
 func (i Identifier) IsValid() error {

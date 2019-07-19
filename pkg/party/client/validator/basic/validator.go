@@ -2,15 +2,18 @@ package basic
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
 	"github.com/iot-my-world/brain/pkg/party/client"
 	clientAction "github.com/iot-my-world/brain/pkg/party/client/action"
-	"github.com/iot-my-world/brain/pkg/party/client/recordHandler"
-	"github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
+	clientRecordHandler "github.com/iot-my-world/brain/pkg/party/client/recordHandler"
+	clientRecordHandlerException "github.com/iot-my-world/brain/pkg/party/client/recordHandler/exception"
 	clientValidator "github.com/iot-my-world/brain/pkg/party/client/validator"
+	clientValidatorException "github.com/iot-my-world/brain/pkg/party/client/validator/exception"
 	partyRegistrarAction "github.com/iot-my-world/brain/pkg/party/registrar/action"
 	"github.com/iot-my-world/brain/pkg/search/identifier/adminEmailAddress"
 	"github.com/iot-my-world/brain/pkg/search/identifier/emailAddress"
+	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	humanUserLogin "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	userRecordHandler "github.com/iot-my-world/brain/pkg/user/human/recordHandler"
 	userRecordHandlerException "github.com/iot-my-world/brain/pkg/user/human/recordHandler/exception"
@@ -18,14 +21,14 @@ import (
 )
 
 type validator struct {
-	clientRecordHandler  recordHandler.RecordHandler
+	clientRecordHandler  clientRecordHandler.RecordHandler
 	userRecordHandler    userRecordHandler.RecordHandler
 	systemClaims         *humanUserLogin.Login
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
 func New(
-	clientRecordHandler recordHandler.RecordHandler,
+	clientRecordHandler clientRecordHandler.RecordHandler,
 	userRecordHandler userRecordHandler.RecordHandler,
 	systemClaims *humanUserLogin.Login,
 ) clientValidator.Validator {
@@ -86,6 +89,30 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 			Help:  "cannot be blank",
 			Data:  (*clientToValidate).Name,
 		})
+	} else {
+		// check for duplicate
+		_, err := v.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
+			Claims: v.systemClaims,
+			Identifier: name.Identifier{
+				Name: (*clientToValidate).Name,
+			},
+		})
+		switch err.(type) {
+		case clientRecordHandlerException.NotFound:
+			// this is what we want
+		case nil:
+			// this means that there is already a backend with this name, i.e. a duplicate
+			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+				Field: "name",
+				Type:  reasonInvalid.Duplicate,
+				Help:  "already exists",
+				Data:  (*clientToValidate).Name,
+			})
+		default:
+			err = clientValidatorException.Validate{Reasons: []string{"client retrieval for duplicate name check", err.Error()}}
+			log.Error(err.Error())
+			return nil, err
+		}
 	}
 
 	if (*clientToValidate).Type == "" {
@@ -143,7 +170,7 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 
 			// Check if there is another client that is already using the same admin email address
 
-			if _, err := v.clientRecordHandler.Retrieve(&recordHandler.RetrieveRequest{
+			if _, err := v.clientRecordHandler.Retrieve(&clientRecordHandler.RetrieveRequest{
 				// system claims as we want to ensure that all clients are visible for this check
 				Claims: *v.systemClaims,
 				Identifier: adminEmailAddress.Identifier{
@@ -151,7 +178,7 @@ func (v *validator) Validate(request *clientValidator.ValidateRequest) (*clientV
 				},
 			}); err != nil {
 				switch err.(type) {
-				case exception.NotFound:
+				case clientRecordHandlerException.NotFound:
 					// this is what we want, do nothing
 				default:
 					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{

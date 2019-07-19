@@ -14,6 +14,7 @@ const RegisterCompanyUser Type = "RegisterCompanyUser"
 const RegisterClientAdminUser Type = "RegisterClientAdminUser"
 const RegisterClientUser Type = "RegisterClientUser"
 const ResetPassword Type = "ResetPassword"
+const SigfoxBackend Type = "SigfoxBackend"
 
 type Claims interface {
 	Type() Type

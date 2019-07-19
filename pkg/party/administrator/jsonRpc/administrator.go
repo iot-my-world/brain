@@ -12,6 +12,7 @@ import (
 	partyAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/party/administrator/adaptor/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/party/company"
+	"github.com/iot-my-world/brain/pkg/party/system"
 	wrappedIdentifier "github.com/iot-my-world/brain/pkg/search/identifier/wrapped"
 )
 
@@ -28,10 +29,6 @@ func New(
 }
 func (a *administrator) ValidateGetMyPartyRequest(request *partyAdministrator.GetMyPartyRequest) error {
 	reasonsInvalid := make([]string, 0)
-
-	if request.Claims == nil {
-		reasonsInvalid = append(reasonsInvalid, "claims are nil")
-	}
 
 	if len(reasonsInvalid) > 0 {
 		return brainException.RequestInvalid{Reasons: reasonsInvalid}
@@ -59,6 +56,8 @@ func (a *administrator) GetMyParty(request *partyAdministrator.GetMyPartyRequest
 	var typedParty party.Party
 	var castSuccess bool
 	switch getMyPartyResponse.PartyType {
+	case party.System:
+		typedParty, castSuccess = getMyPartyResponse.Party.(system.System)
 	case party.Client:
 		typedParty, castSuccess = getMyPartyResponse.Party.(client.Client)
 	case party.Company:

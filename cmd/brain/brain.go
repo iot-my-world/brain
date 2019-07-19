@@ -79,15 +79,23 @@ import (
 	sigbugBasicAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/basic"
 	sigbugRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/adaptor/jsonRpc"
 	sigbugMongoRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/mongo"
+	sigbugSigfoxMessageHandler "github.com/iot-my-world/brain/pkg/device/sigbug/sigfox/message/handler"
 	sigbugValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/validator/adaptor/jsonRpc"
 	sigbugBasicValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator/basic"
 
 	jsonRpcHttpServer "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/http"
 	jsonRpcServiceProvider "github.com/iot-my-world/brain/pkg/api/jsonRpc/service/provider"
 
+	sigfoxBackendAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/adaptor/jsonRpc"
+	sigfoxBackendBasicAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/administrator/basic"
 	sigfoxBackendAuthoriser "github.com/iot-my-world/brain/pkg/sigfox/backend/authoriser"
-	sigfoxBasicBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
+	sigfoxBackendDataMessageHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/handler"
+	SigfoxBackendCallbackServerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/adaptor/jsonRpc"
 	sigfoxBasicBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/basic"
+	sigfoxBackendRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/adaptor/jsonRpc"
+	sigfoxBackendMongoRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/mongo"
+	sigfoxBackendValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/adaptor/jsonRpc"
+	sigfoxBackendBasicValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/basic"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -306,19 +314,43 @@ func main() {
 		SigbugRecordHandler,
 	)
 
+	// Sigfox Backend
+	SigfoxBackendRecordHandler := sigfoxBackendMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.SigfoxBackend,
+	)
+	SigfoxBackendValidator := sigfoxBackendBasicValidator.New(
+		PartyBasicAdministrator,
+		SigfoxBackendRecordHandler,
+		&systemClaims,
+		token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+	)
+	SigfoxBackendAdministrator := sigfoxBackendBasicAdministrator.New(
+		SigfoxBackendValidator,
+		SigfoxBackendRecordHandler,
+		rsaPrivateKey,
+	)
+
 	// Report
 	TrackingReport := trackingBasicReport.New(
 		PartyBasicAdministrator,
 	)
 
-	humanUserJsonRpcServerAuthenticator := humanUserJsonRpcServerAuthenticator.New(
+	HumanUserJsonRpcServerAuthenticator := humanUserJsonRpcServerAuthenticator.New(
 		UserRecordHandler,
 		rsaPrivateKey,
 		&systemClaims,
 	)
 
 	// Sigfox Backend Callback Server
-	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New()
+	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New(
+		[]sigfoxBackendDataMessageHandler.Handler{
+			sigbugSigfoxMessageHandler.New(
+				SigbugRecordHandler,
+			),
+		},
+	)
 
 	humanUserJsonRpcHttpServer := jsonRpcHttpServer.New(
 		"/api-1",
@@ -331,7 +363,7 @@ func main() {
 	)
 	if err := humanUserJsonRpcHttpServer.RegisterBatchServiceProviders(
 		[]jsonRpcServiceProvider.Provider{
-			humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor.New(humanUserJsonRpcServerAuthenticator),
+			humanUserJsonRpcServerAuthenticatorJsonRpcAdaptor.New(HumanUserJsonRpcServerAuthenticator),
 			humanUserRecordHandlerJsonRpcAdaptor.New(UserRecordHandler),
 			humanUserValidatorJsonRpcAdaptor.New(UserValidator),
 			humanUserAdministratorJsonRpcAdaptor.New(UserBasicAdministrator),
@@ -352,6 +384,9 @@ func main() {
 			sigbugValidatorJsonRpcAdaptor.New(SigbugValidator),
 			sigbugAdministratorJsonRpcAdaptor.New(SigbugAdministrator),
 			trackingReportJsonRpcAdaptor.New(TrackingReport),
+			sigfoxBackendRecordHandlerJsonRpcAdaptor.New(SigfoxBackendRecordHandler),
+			sigfoxBackendValidatorJsonRpcAdaptor.New(SigfoxBackendValidator),
+			sigfoxBackendAdministratorJsonRpcAdaptor.New(SigfoxBackendAdministrator),
 		},
 	); err != nil {
 		log.Fatal(err)
@@ -365,13 +400,15 @@ func main() {
 
 	// set  up sigfox backend server
 	sigfoxBackendJsonRpcHttpServer := jsonRpcHttpServer.New(
-		"/api-sigfox",
+		"/api-2",
 		"0.0.0.0",
 		"9011",
-		sigfoxBackendAuthoriser.New(),
+		sigfoxBackendAuthoriser.New(
+			token.NewJWTValidator(&rsaPrivateKey.PublicKey),
+		),
 	)
 	if err := sigfoxBackendJsonRpcHttpServer.RegisterBatchServiceProviders([]jsonRpcServiceProvider.Provider{
-		sigfoxBasicBackendCallbackServerJsonRpcAdaptor.New(SigfoxBackendCallbackServer),
+		SigfoxBackendCallbackServerJsonRpcAdaptor.New(SigfoxBackendCallbackServer),
 	}); err != nil {
 		log.Fatal(err.Error())
 	}
