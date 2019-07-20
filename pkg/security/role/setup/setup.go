@@ -43,7 +43,7 @@ var CompanyAdmin = role.Role{
 		viewPermission.LiveTrackingDashboard,
 		viewPermission.HistoricalTrackingDashboard,
 
-		viewPermission.TrackerSF001,
+		viewPermission.DeviceSigbugManagement,
 	},
 }
 
@@ -54,7 +54,7 @@ var CompanyUser = role.Role{
 		viewPermission.LiveTrackingDashboard,
 		viewPermission.HistoricalTrackingDashboard,
 
-		viewPermission.TrackerSF001,
+		viewPermission.DeviceSigbugManagement,
 	},
 }
 
@@ -69,7 +69,7 @@ var ClientAdmin = role.Role{
 		viewPermission.LiveTrackingDashboard,
 		viewPermission.HistoricalTrackingDashboard,
 
-		viewPermission.TrackerSF001,
+		viewPermission.DeviceSigbugManagement,
 	},
 }
 
@@ -80,7 +80,7 @@ var ClientUser = role.Role{
 		viewPermission.LiveTrackingDashboard,
 		viewPermission.HistoricalTrackingDashboard,
 
-		viewPermission.TrackerSF001,
+		viewPermission.DeviceSigbugManagement,
 	},
 }
 
@@ -235,7 +235,7 @@ var initialRoles = func() []role.Role {
 		viewPermission.LiveTrackingDashboard,
 		viewPermission.HistoricalTrackingDashboard,
 
-		viewPermission.TrackerSF001,
+		viewPermission.DeviceSigbugManagement,
 
 		viewPermission.SigfoxBackendManagement,
 	}

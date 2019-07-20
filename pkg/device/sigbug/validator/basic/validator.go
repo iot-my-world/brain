@@ -3,21 +3,30 @@ package validator
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	sigbugAction "github.com/iot-my-world/brain/pkg/device/sigbug/action"
+	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
+	sigbugRecordHandlerException "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/exception"
 	sigbugValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
+	sigbugValidatorException "github.com/iot-my-world/brain/pkg/device/sigbug/validator/exception"
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
 type validator struct {
+	sigbugRecordHandler  sigbugRecordHandler.RecordHandler
 	partyAdministrator   partyAdministrator.Administrator
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
+	systemClaims         *humanUserLoginClaims.Login
 }
 
 func New(
+	sigbugRecordHandler sigbugRecordHandler.RecordHandler,
 	partyAdministrator partyAdministrator.Administrator,
+	systemClaims *humanUserLoginClaims.Login,
 ) sigbugValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
@@ -40,6 +49,8 @@ func New(
 	return &validator{
 		partyAdministrator:   partyAdministrator,
 		actionIgnoredReasons: actionIgnoredReasons,
+		sigbugRecordHandler:  sigbugRecordHandler,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -73,13 +84,56 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		})
 	}
 
+	if (*sigbugToValidate).DeviceId == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "deviceId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*sigbugToValidate).DeviceId,
+		})
+	}
+
 	// action specific checks
 	switch request.Action {
 	case sigbugAction.Create:
+		if (*sigbugToValidate).DeviceId != "" {
+			// if device id is not blank, confirm that it is not a duplicate
+			_, err := v.sigbugRecordHandler.Retrieve(&sigbugRecordHandler.RetrieveRequest{
+				Claims: v.systemClaims,
+				Identifier: sigbug.Identifier{
+					DeviceId: (*sigbugToValidate).DeviceId,
+				},
+			})
+			switch err.(type) {
+			case nil:
+				// this means that there is a duplicate as a retrieval was possible
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "deviceId",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*sigbugToValidate).DeviceId,
+				})
 
+			case sigbugRecordHandlerException.NotFound:
+				// this is what we want
+			default:
+				// something else went wrong with retrieval, this is an error
+				return nil, sigbugValidatorException.Validate{Reasons: []string{"error retrieving sigbug for duplicate check", err.Error()}}
+			}
+		}
 	}
 
-	// owner party type must be set, cannot be blank
+	// owner id must be set
+	if (*sigbugToValidate).OwnerId.Id == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "ownerId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*sigbugToValidate).OwnerId,
+		})
+	}
+
+	// owner party type must be set
 	if (*sigbugToValidate).OwnerPartyType == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "ownerPartyType",
@@ -92,27 +146,30 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
 		switch (*sigbugToValidate).OwnerPartyType {
 		case party.System, party.Client, party.Company:
-			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-				Claims:     request.Claims,
-				PartyType:  (*sigbugToValidate).OwnerPartyType,
-				Identifier: (*sigbugToValidate).OwnerId,
-			})
-			if err != nil {
-				switch err.(type) {
-				case partyAdministratorException.NotFound:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "ownerId",
-						Type:  reasonInvalid.MustExist,
-						Help:  "owner party must exist",
-						Data:  (*sigbugToValidate).OwnerId,
-					})
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "ownerId",
-						Type:  reasonInvalid.Unknown,
-						Help:  "error retrieving owner party: " + err.Error(),
-						Data:  (*sigbugToValidate).OwnerId,
-					})
+			// try and retrieve the owner party if it is not blank
+			if (*sigbugToValidate).OwnerId.Id != "" {
+				_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+					Claims:     request.Claims,
+					PartyType:  (*sigbugToValidate).OwnerPartyType,
+					Identifier: (*sigbugToValidate).OwnerId,
+				})
+				if err != nil {
+					switch err.(type) {
+					case partyAdministratorException.NotFound:
+						allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+							Field: "ownerId",
+							Type:  reasonInvalid.MustExist,
+							Help:  "owner party must exist",
+							Data:  (*sigbugToValidate).OwnerId,
+						})
+					default:
+						allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+							Field: "ownerId",
+							Type:  reasonInvalid.Unknown,
+							Help:  "error retrieving owner party: " + err.Error(),
+							Data:  (*sigbugToValidate).OwnerId,
+						})
+					}
 				}
 			}
 
