@@ -3,6 +3,7 @@ package validator
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	sigbugAction "github.com/iot-my-world/brain/pkg/device/sigbug/action"
 	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
 	sigbugRecordHandlerException "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/exception"
@@ -11,6 +12,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
 	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
+	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
@@ -18,11 +20,13 @@ type validator struct {
 	sigbugRecordHandler  sigbugRecordHandler.RecordHandler
 	partyAdministrator   partyAdministrator.Administrator
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
+	systemClaims         *humanUserLoginClaims.Login
 }
 
 func New(
 	sigbugRecordHandler sigbugRecordHandler.RecordHandler,
 	partyAdministrator partyAdministrator.Administrator,
+	systemClaims *humanUserLoginClaims.Login,
 ) sigbugValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
@@ -46,6 +50,7 @@ func New(
 		partyAdministrator:   partyAdministrator,
 		actionIgnoredReasons: actionIgnoredReasons,
 		sigbugRecordHandler:  sigbugRecordHandler,
+		systemClaims:         systemClaims,
 	}
 }
 
@@ -94,8 +99,10 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		if (*sigbugToValidate).DeviceId != "" {
 			// if device id is not blank, confirm that it is not a duplicate
 			_, err := v.sigbugRecordHandler.Retrieve(&sigbugRecordHandler.RetrieveRequest{
-				Claims:     nil,
-				Identifier: nil,
+				Claims: v.systemClaims,
+				Identifier: sigbug.Identifier{
+					DeviceId: (*sigbugToValidate).DeviceId,
+				},
 			})
 			switch err.(type) {
 			case nil:
