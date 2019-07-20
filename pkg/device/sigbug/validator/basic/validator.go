@@ -73,6 +73,15 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		})
 	}
 
+	if (*sigbugToValidate).DeviceId == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "deviceId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*sigbugToValidate).DeviceId,
+		})
+	}
+
 	// action specific checks
 	switch request.Action {
 	case sigbugAction.Create:
