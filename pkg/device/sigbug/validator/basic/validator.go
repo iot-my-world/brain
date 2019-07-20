@@ -123,7 +123,17 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		}
 	}
 
-	// owner party type must be set, cannot be blank
+	// owner id must be set
+	if (*sigbugToValidate).OwnerId.Id == "" {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "ownerId",
+			Type:  reasonInvalid.Blank,
+			Help:  "cannot be blank",
+			Data:  (*sigbugToValidate).OwnerId,
+		})
+	}
+
+	// owner party type must be set
 	if (*sigbugToValidate).OwnerPartyType == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "ownerPartyType",
@@ -136,27 +146,30 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		// owner party type must be valid. i.e. must be of a valid type and the party must exist
 		switch (*sigbugToValidate).OwnerPartyType {
 		case party.System, party.Client, party.Company:
-			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-				Claims:     request.Claims,
-				PartyType:  (*sigbugToValidate).OwnerPartyType,
-				Identifier: (*sigbugToValidate).OwnerId,
-			})
-			if err != nil {
-				switch err.(type) {
-				case partyAdministratorException.NotFound:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "ownerId",
-						Type:  reasonInvalid.MustExist,
-						Help:  "owner party must exist",
-						Data:  (*sigbugToValidate).OwnerId,
-					})
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "ownerId",
-						Type:  reasonInvalid.Unknown,
-						Help:  "error retrieving owner party: " + err.Error(),
-						Data:  (*sigbugToValidate).OwnerId,
-					})
+			// try and retrieve the owner party if it is not blank
+			if (*sigbugToValidate).OwnerId.Id != "" {
+				_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
+					Claims:     request.Claims,
+					PartyType:  (*sigbugToValidate).OwnerPartyType,
+					Identifier: (*sigbugToValidate).OwnerId,
+				})
+				if err != nil {
+					switch err.(type) {
+					case partyAdministratorException.NotFound:
+						allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+							Field: "ownerId",
+							Type:  reasonInvalid.MustExist,
+							Help:  "owner party must exist",
+							Data:  (*sigbugToValidate).OwnerId,
+						})
+					default:
+						allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+							Field: "ownerId",
+							Type:  reasonInvalid.Unknown,
+							Help:  "error retrieving owner party: " + err.Error(),
+							Data:  (*sigbugToValidate).OwnerId,
+						})
+					}
 				}
 			}
 
