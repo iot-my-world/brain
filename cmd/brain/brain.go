@@ -307,6 +307,7 @@ func main() {
 		databaseCollection.Sigbug,
 	)
 	SigbugValidator := sigbugBasicValidator.New(
+		SigbugRecordHandler,
 		PartyBasicAdministrator,
 	)
 	SigbugAdministrator := sigbugBasicAdministrator.New(
