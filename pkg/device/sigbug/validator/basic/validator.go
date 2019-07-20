@@ -86,34 +86,34 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 			Help:  "cannot be blank",
 			Data:  (*sigbugToValidate).DeviceId,
 		})
-	} else {
-		// if it is not blank, confirm that it is not a duplicate
-		_, err := v.sigbugRecordHandler.Retrieve(&sigbugRecordHandler.RetrieveRequest{
-			Claims:     nil,
-			Identifier: nil,
-		})
-		switch err.(type) {
-		case nil:
-			// this means that there is a duplicate as a retrieval was possible
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "deviceId",
-				Type:  reasonInvalid.Duplicate,
-				Help:  "already exists",
-				Data:  (*sigbugToValidate).DeviceId,
-			})
-
-		case sigbugRecordHandlerException.NotFound:
-			// this is what we want
-		default:
-			// something else went wrong with retrieval, this is an error
-			return nil, sigbugValidatorException.Validate{Reasons: []string{"error retrieving sigbug for duplicate check", err.Error()}}
-		}
 	}
 
 	// action specific checks
 	switch request.Action {
 	case sigbugAction.Create:
+		if (*sigbugToValidate).DeviceId != "" {
+			// if device id is not blank, confirm that it is not a duplicate
+			_, err := v.sigbugRecordHandler.Retrieve(&sigbugRecordHandler.RetrieveRequest{
+				Claims:     nil,
+				Identifier: nil,
+			})
+			switch err.(type) {
+			case nil:
+				// this means that there is a duplicate as a retrieval was possible
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "deviceId",
+					Type:  reasonInvalid.Duplicate,
+					Help:  "already exists",
+					Data:  (*sigbugToValidate).DeviceId,
+				})
 
+			case sigbugRecordHandlerException.NotFound:
+				// this is what we want
+			default:
+				// something else went wrong with retrieval, this is an error
+				return nil, sigbugValidatorException.Validate{Reasons: []string{"error retrieving sigbug for duplicate check", err.Error()}}
+			}
+		}
 	}
 
 	// owner party type must be set, cannot be blank
