@@ -12,7 +12,7 @@ type Administrator interface {
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
 }
 
-const ServiceProvider = "SigbugTracker-Administrator"
+const ServiceProvider = "SigbugDevice-Administrator"
 const UpdateAllowedFieldsService = ServiceProvider + ".UpdateAllowedFields"
 const CreateService = ServiceProvider + ".Create"
 
