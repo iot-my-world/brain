@@ -12,6 +12,6 @@ const PartyAPIUser Permission = "PartyAPIUser"
 const LiveTrackingDashboard Permission = "LiveTrackingDashboard"
 const HistoricalTrackingDashboard Permission = "HistoricalTrackingDashboard"
 
-const TrackerSF001 Permission = "TrackerSF001"
+const DeviceSigbugManagement Permission = "DeviceSigbugManagement"
 
 const SigfoxBackendManagement Permission = "SigfoxBackendManagement"
