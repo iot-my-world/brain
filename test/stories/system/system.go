@@ -62,4 +62,7 @@ func (t *test) TestSystem() {
 			},
 		))
 	}
+
+	// perform tests as systems sigfox backend
+
 }
