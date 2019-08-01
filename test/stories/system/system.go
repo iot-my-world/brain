@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/iot-my-world/brain/pkg/workbook"
 	"github.com/iot-my-world/brain/test/data/environment"
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
@@ -62,6 +63,9 @@ func (t *test) TestSystem() {
 				sigfoxBackendData,
 			},
 		))
+
+		// parse test data
+		gpsDataWorkbook, err := workbook.New()
 
 		// tests logged in as backend
 		suite.Run(t.T(), sigfoxBackendCallbackServerTestModule.New(
