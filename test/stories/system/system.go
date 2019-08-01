@@ -5,6 +5,7 @@ import (
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
 	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
+	sigfoxBackendCallbackServerTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend/callback/server"
 	clientStoryTestData "github.com/iot-my-world/brain/test/stories/client/data"
 	companyTestStoryData "github.com/iot-my-world/brain/test/stories/company/data"
 	systemTestStoryData "github.com/iot-my-world/brain/test/stories/system/data"
@@ -52,8 +53,8 @@ func (t *test) TestSystem() {
 		clientTestData,
 	))
 
-	// perform sigfox backend tests
 	for _, sigfoxBackendData := range systemTestStoryData.SigfoxBackendTestData {
+		// create, update, retrieve etc.
 		suite.Run(t.T(), sigfoxBackendTestModule.New(
 			environment.BrainHumanUserURL,
 			systemTestStoryData.User,
@@ -61,8 +62,15 @@ func (t *test) TestSystem() {
 				sigfoxBackendData,
 			},
 		))
-	}
 
-	// perform tests as systems sigfox backend
+		// tests logged in as backend
+		suite.Run(t.T(), sigfoxBackendCallbackServerTestModule.New(
+			systemTestStoryData.User,
+			environment.BrainHumanUserURL,
+			environment.APIUserURL,
+			sigfoxBackendData.Backend,
+			[]sigfoxBackendCallbackServerTestModule.Data{},
+		))
+	}
 
 }
