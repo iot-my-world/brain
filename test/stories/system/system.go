@@ -1,8 +1,8 @@
 package system
 
 import (
-	"github.com/iot-my-world/brain/pkg/workbook"
 	"github.com/iot-my-world/brain/test/data/environment"
+	sigbugGPSTestDataGenerator "github.com/iot-my-world/brain/test/data/sigbug/gps/generator"
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
 	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
@@ -65,7 +65,16 @@ func (t *test) TestSystem() {
 		))
 
 		// parse test data
-		gpsDataWorkbook, err := workbook.New()
+		gpsDataMap, err := sigbugGPSTestDataGenerator.Generate()
+		if err != nil {
+			t.FailNow("error getting sigbug gps test data", err)
+			return
+		}
+
+		homeToWorkGPSData, found := gpsDataMap["homeToWork"]
+		if !t.Equal(true, found, "homeToWork gps data should exist") {
+			return
+		}
 
 		// tests logged in as backend
 		suite.Run(t.T(), sigfoxBackendCallbackServerTestModule.New(
@@ -73,7 +82,12 @@ func (t *test) TestSystem() {
 			environment.BrainHumanUserURL,
 			environment.APIUserURL,
 			sigfoxBackendData.Backend,
-			[]sigfoxBackendCallbackServerTestModule.Data{},
+			[]sigfoxBackendCallbackServerTestModule.Data{
+				{
+					Sigbug:  clientData[0].SigbugDevices[0],
+					GPSData: homeToWorkGPSData,
+				},
+			},
 		))
 	}
 

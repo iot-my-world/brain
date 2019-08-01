@@ -5,6 +5,6 @@ import (
 	"testing"
 )
 
-func TestAll(t *testing.T) {
+func Test(t *testing.T) {
 	suite.Run(t, New())
 }

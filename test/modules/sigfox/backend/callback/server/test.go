@@ -1,14 +1,17 @@
 package server
 
 import (
+	"fmt"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
 	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
+	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	sigfoxBackend "github.com/iot-my-world/brain/pkg/sigfox/backend"
 	sigfoxBackendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
 	sigfoxBackendJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/jsonRpc"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
+	sigbugGPSTestData "github.com/iot-my-world/brain/test/data/sigbug/gps"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -39,6 +42,8 @@ type test struct {
 }
 
 type Data struct {
+	Sigbug  sigbug.Sigbug
+	GPSData []sigbugGPSTestData.Data
 }
 
 func (suite *test) SetupTest() {
@@ -76,5 +81,7 @@ func (suite *test) SetupTest() {
 }
 
 func (suite *test) TestSigfoxBackendCallbackServer1() {
-	suite.T().Log("awer")
+	for testDataIdx := range suite.testData {
+		fmt.Println("create!", suite.testData[testDataIdx].GPSData)
+	}
 }
