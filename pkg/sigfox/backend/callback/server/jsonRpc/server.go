@@ -1,6 +1,7 @@
 package jsonRpc
 
 import (
+	"encoding/hex"
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
@@ -12,8 +13,12 @@ type server struct {
 	jsonRpcClient jsonRpcClient.Client
 }
 
-func New() sigfoxBackendCallbackServer.Server {
-	return &server{}
+func New(
+	jsonRpcClient jsonRpcClient.Client,
+) sigfoxBackendCallbackServer.Server {
+	return &server{
+		jsonRpcClient: jsonRpcClient,
+	}
 }
 
 func (s *server) ValidateHandleDataMessageRequest(request *sigfoxBackendCallbackServer.HandleDataMessageRequest) error {
@@ -36,7 +41,7 @@ func (s *server) HandleDataMessage(request *sigfoxBackendCallbackServer.HandleDa
 		sigfoxBackendCallbackServer.HandleDataMessageService,
 		sigfoxBackendCallbackServerJsonRpcAdaptor.HandleDataMessageRequest{
 			DeviceId: request.Message.DeviceId,
-			Data:     string(request.Message.Data),
+			Data:     hex.EncodeToString(request.Message.Data),
 		},
 		&handleDataMessageResponse); err != nil {
 		return nil, err

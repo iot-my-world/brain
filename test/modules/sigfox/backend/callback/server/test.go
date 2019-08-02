@@ -9,6 +9,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	sigfoxBackend "github.com/iot-my-world/brain/pkg/sigfox/backend"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
+	sigfoxBackendJsonRpcCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/jsonRpc"
 	sigfoxBackendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
 	sigfoxBackendJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/jsonRpc"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
@@ -80,6 +81,9 @@ func (suite *test) SetupTest() {
 		suite.FailNow("error setting token in api user json rpc client", err.Error())
 		return
 	}
+
+	// create json rpc sigfox backend callback server
+	suite.sigfoxBackendCallbackServer = sigfoxBackendJsonRpcCallbackServer.New(suite.apiUserJsonRpcClient)
 }
 
 func (suite *test) TestSigfoxBackendCallbackServer1() {
