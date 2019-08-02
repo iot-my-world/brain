@@ -1,13 +1,14 @@
 package server
 
 import (
-	"fmt"
+	"encoding/hex"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
 	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
 	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	sigfoxBackend "github.com/iot-my-world/brain/pkg/sigfox/backend"
+	sigfoxBackendDataMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
 	sigfoxBackendJsonRpcCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/jsonRpc"
 	sigfoxBackendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
@@ -88,6 +89,26 @@ func (suite *test) SetupTest() {
 
 func (suite *test) TestSigfoxBackendCallbackServer1() {
 	for testDataIdx := range suite.testData {
-		fmt.Println("create!", suite.testData[testDataIdx].GPSData)
+		for gpsDataMessageIdx := range suite.testData[testDataIdx].GPSData {
+			gpsMessageHexBytes, err := hex.DecodeString(suite.testData[testDataIdx].GPSData[gpsDataMessageIdx].DataMessage)
+			if err != nil {
+				suite.FailNow("error decoding gps data message bytes", err.Error())
+				return
+			}
+
+			//handleMessageResponse, err := suite.sigfoxBackendCallbackServer.HandleDataMessage(
+			_, err = suite.sigfoxBackendCallbackServer.HandleDataMessage(
+				&sigfoxBackendCallbackServer.HandleDataMessageRequest{
+					Message: sigfoxBackendDataMessage.Message{
+						DeviceId: "",
+						Data:     gpsMessageHexBytes,
+					},
+				},
+			)
+			if err != nil {
+				suite.FailNow("error handling data message", err.Error())
+				return
+			}
+		}
 	}
 }
