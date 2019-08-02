@@ -8,6 +8,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/device/sigbug"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	sigfoxBackend "github.com/iot-my-world/brain/pkg/sigfox/backend"
+	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
 	sigfoxBackendRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler"
 	sigfoxBackendJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/jsonRpc"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
@@ -33,12 +34,13 @@ func New(
 
 type test struct {
 	suite.Suite
-	testData                   []Data
-	humanUserJsonRpcClient     jsonRpcClient.Client
-	apiUserJsonRpcClient       jsonRpcClient.Client
-	backend                    sigfoxBackend.Backend
-	user                       humanUser.User
-	sigfoxBackendRecordHandler sigfoxBackendRecordHandler.RecordHandler
+	testData                    []Data
+	humanUserJsonRpcClient      jsonRpcClient.Client
+	apiUserJsonRpcClient        jsonRpcClient.Client
+	backend                     sigfoxBackend.Backend
+	user                        humanUser.User
+	sigfoxBackendRecordHandler  sigfoxBackendRecordHandler.RecordHandler
+	sigfoxBackendCallbackServer sigfoxBackendCallbackServer.Server
 }
 
 type Data struct {
