@@ -6,8 +6,6 @@ import (
 	basicJsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client/basic"
 	jsonRpcServerAuthenticator "github.com/iot-my-world/brain/pkg/api/jsonRpc/server/authenticator"
 	"github.com/iot-my-world/brain/pkg/device/sigbug"
-	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
-	sigbugJsonRpcRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/jsonRpc"
 	"github.com/iot-my-world/brain/pkg/search/identifier/name"
 	sigfoxBackend "github.com/iot-my-world/brain/pkg/sigfox/backend"
 	sigfoxBackendDataMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
@@ -74,23 +72,6 @@ func (suite *test) SetupTest() {
 	if err != nil {
 		suite.FailNow("error retrieving sigfox backend", err.Error())
 		return
-	}
-
-	// retrieve the sigfox devices in test
-	sigbugRecordHandlerJsonRpc := sigbugJsonRpcRecordHandler.New(suite.humanUserJsonRpcClient)
-	for testDataIdx := range suite.testData {
-		retrieveResponse, err := sigbugRecordHandlerJsonRpc.Retrieve(
-			&sigbugRecordHandler.RetrieveRequest{
-				Identifier: sigbug.Identifier{
-					DeviceId: suite.testData[testDataIdx].Sigbug.DeviceId,
-				},
-			},
-		)
-		if err != nil {
-			suite.FailNow("error retrieving sigbug device for callback server test", err.Error())
-			return
-		}
-		suite.testData[testDataIdx].Sigbug = retrieveResponse.Sigbug
 	}
 
 	// populate the backend
