@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/device/sigbug/action"
 	sigbugAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator"
 	"github.com/iot-my-world/brain/pkg/device/sigbug/administrator/exception"
@@ -128,5 +129,65 @@ func (a *administrator) UpdateAllowedFields(request *sigbugAdministrator.UpdateA
 
 	return &sigbugAdministrator.UpdateAllowedFieldsResponse{
 		Sigbug: deviceRetrieveResponse.Sigbug,
+	}, nil
+}
+
+func (a *administrator) ValidateLastMessageUpdateRequest(request *sigbugAdministrator.LastMessageUpdateRequest) error {
+	reasonsInvalid := make([]string, 0)
+
+	if request.Claims == nil {
+		reasonsInvalid = append(reasonsInvalid, "claims are nil")
+	}
+
+	if request.Identifier == nil {
+		reasonsInvalid = append(reasonsInvalid, "identifier is nil")
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return brainException.RequestInvalid{Reasons: reasonsInvalid}
+	}
+	return nil
+}
+
+func (a *administrator) LastMessageUpdate(request *sigbugAdministrator.LastMessageUpdateRequest) (*sigbugAdministrator.LastMessageUpdateResponse, error) {
+	if err := a.ValidateLastMessageUpdateRequest(request); err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	// retrieve the sigbug device
+	sigbugDeviceRetrieveResponse, err := a.sigbugRecordHandler.Retrieve(&recordHandler.RetrieveRequest{
+		Claims:     request.Claims,
+		Identifier: request.Identifier,
+	})
+	if err != nil {
+		err = exception.LastMessageUpdate{Reasons: []string{
+			"device retrieval",
+			err.Error(),
+		}}
+		log.Error(err)
+		return nil, err
+	}
+
+	// update last message
+	sigbugDeviceRetrieveResponse.Sigbug.LastMessage = request.Message
+
+	// update the device
+	_, err = a.sigbugRecordHandler.Update(&recordHandler.UpdateRequest{
+		Claims:     request.Claims,
+		Identifier: id.Identifier{Id: sigbugDeviceRetrieveResponse.Sigbug.Id},
+		Sigbug:     sigbugDeviceRetrieveResponse.Sigbug,
+	})
+	if err != nil {
+		err = exception.LastMessageUpdate{Reasons: []string{
+			"device update",
+			err.Error(),
+		}}
+		log.Error(err)
+		return nil, err
+	}
+
+	return &sigbugAdministrator.LastMessageUpdateResponse{
+		Sigbug: sigbugDeviceRetrieveResponse.Sigbug,
 	}, nil
 }

@@ -5,11 +5,13 @@ import (
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/security/claims"
 	"github.com/iot-my-world/brain/pkg/security/permission/api"
+	sigfoxBackendDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 )
 
 type Administrator interface {
 	Create(request *CreateRequest) (*CreateResponse, error)
 	UpdateAllowedFields(request *UpdateAllowedFieldsRequest) (*UpdateAllowedFieldsResponse, error)
+	LastMessageUpdate(request *LastMessageUpdateRequest) (*LastMessageUpdateResponse, error)
 }
 
 const ServiceProvider = "SigbugDevice-Administrator"
@@ -53,10 +55,12 @@ type UpdateAllowedFieldsResponse struct {
 	Sigbug sigbug.Sigbug
 }
 
-type HeartbeatRequest struct {
-	Claims           claims.Claims
-	SigbugIdentifier identifier.Identifier
+type LastMessageUpdateRequest struct {
+	Claims     claims.Claims
+	Identifier identifier.Identifier
+	Message    sigfoxBackendDataCallbackMessage.Message
 }
 
-type HeartbeatResponse struct {
+type LastMessageUpdateResponse struct {
+	Sigbug sigbug.Sigbug
 }
