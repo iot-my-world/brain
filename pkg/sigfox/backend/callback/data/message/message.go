@@ -1,6 +1,11 @@
 package message
 
 type Message struct {
-	DeviceId string
-	Data     []byte
+	Id       string `json:"id" bson:"id"`
+	DeviceId string `json:"deviceId" bson:"deviceId"`
+	Data     []byte `json:"data" bson:"data"`
+}
+
+func (m *Message) SetId(id string) {
+	m.Id = id
 }
