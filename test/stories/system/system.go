@@ -2,6 +2,8 @@ package system
 
 import (
 	"github.com/iot-my-world/brain/test/data/environment"
+	sigbugGPSTestData "github.com/iot-my-world/brain/test/data/sigbug/gps"
+	sigbugGPSTestDataGenerator "github.com/iot-my-world/brain/test/data/sigbug/gps/generator"
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
 	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
@@ -9,6 +11,7 @@ import (
 	companyTestStoryData "github.com/iot-my-world/brain/test/stories/company/data"
 	systemTestStoryData "github.com/iot-my-world/brain/test/stories/system/data"
 	"github.com/stretchr/testify/suite"
+	"math"
 )
 
 func New() *test {
@@ -22,6 +25,8 @@ type test struct {
 func (t *test) SetupTest() {
 
 }
+
+const noGPSReadingsToTake = 10
 
 func (t *test) TestSystem() {
 	// perform system company tests
@@ -52,8 +57,8 @@ func (t *test) TestSystem() {
 		clientTestData,
 	))
 
-	// perform sigfox backend tests
 	for _, sigfoxBackendData := range systemTestStoryData.SigfoxBackendTestData {
+		// create, update, retrieve etc.
 		suite.Run(t.T(), sigfoxBackendTestModule.New(
 			environment.BrainHumanUserURL,
 			systemTestStoryData.User,
@@ -61,5 +66,50 @@ func (t *test) TestSystem() {
 				sigfoxBackendData,
 			},
 		))
+
+		// parse test data
+		gpsDataMap, err := sigbugGPSTestDataGenerator.Generate()
+		if err != nil {
+			t.FailNow("error getting sigbug gps test data", err)
+			return
+		}
+
+		// get 10 readings from each test journey data set
+		testGPSData := make([]sigbugGPSTestData.Data, 0)
+		for journeyName := range gpsDataMap {
+			if noGPSReadingsToTake > len(gpsDataMap[journeyName]) {
+				// if the number to be taken is greater than the size of the set
+				// then take all
+				testGPSData = append(testGPSData, gpsDataMap[journeyName]...)
+				continue
+			}
+			// otherwise sample the set
+			for i := 0; i < noGPSReadingsToTake; i++ {
+				sampleIdx := int(math.Ceil(float64(i*len(gpsDataMap[journeyName])) / float64(noGPSReadingsToTake)))
+				if sampleIdx < 0 || sampleIdx == len(gpsDataMap[journeyName]) {
+					t.FailNow("sample index invalid", sampleIdx)
+					return
+				}
+				testGPSData = append(
+					testGPSData,
+					gpsDataMap[journeyName][sampleIdx],
+				)
+			}
+		}
+
+		//// tests logged in as backend
+		//suite.Run(t.T(), sigfoxBackendCallbackServerTestModule.New(
+		//	systemTestStoryData.User,
+		//	environment.BrainHumanUserURL,
+		//	environment.APIUserURL,
+		//	sigfoxBackendData.Backend,
+		//	[]sigfoxBackendCallbackServerTestModule.Data{
+		//		{
+		//			Sigbug:  clientData[0].SigbugDevices[0],
+		//			GPSData: testGPSData,
+		//		},
+		//	},
+		//))
 	}
+
 }
