@@ -3,26 +3,16 @@ package validator
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
-	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
-	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	messageAction "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/action"
-	sigfoxBackendDataCallbackMessageRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/recordHandler"
 	messageValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
 type validator struct {
-	sigfoxBackendDataCallbackMessageRecordHandler sigfoxBackendDataCallbackMessageRecordHandler.RecordHandler
-	partyAdministrator                            partyAdministrator.Administrator
-	actionIgnoredReasons                          map[action.Action]reasonInvalid.IgnoredReasonsInvalid
-	systemClaims                                  *humanUserLoginClaims.Login
+	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
 }
 
-func New(
-	sigfoxBackendDataCallbackMessageRecordHandler sigfoxBackendDataCallbackMessageRecordHandler.RecordHandler,
-	partyAdministrator partyAdministrator.Administrator,
-	systemClaims *humanUserLoginClaims.Login,
-) messageValidator.Validator {
+func New() messageValidator.Validator {
 
 	actionIgnoredReasons := map[action.Action]reasonInvalid.IgnoredReasonsInvalid{
 		messageAction.Create: {
@@ -35,10 +25,7 @@ func New(
 	}
 
 	return &validator{
-		partyAdministrator:                            partyAdministrator,
-		actionIgnoredReasons:                          actionIgnoredReasons,
-		sigfoxBackendDataCallbackMessageRecordHandler: sigfoxBackendDataCallbackMessageRecordHandler,
-		systemClaims:                                  systemClaims,
+		actionIgnoredReasons: actionIgnoredReasons,
 	}
 }
 

@@ -96,6 +96,10 @@ import (
 	sigfoxBackendMongoRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/recordHandler/mongo"
 	sigfoxBackendValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/adaptor/jsonRpc"
 	sigfoxBackendBasicValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/validator/basic"
+
+	sigfoxBackendDataCallbackMessageBasicAdministrator "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/administrator/basic"
+	sigfoxBackendDataCallbackMessageMongoRecordHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/recordHandler/mongo"
+	sigfoxBackendDataCallbackMessageBasicValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/validator/basic"
 )
 
 var humanUserAPIServerPort = "9010"
@@ -333,6 +337,16 @@ func main() {
 		SigfoxBackendRecordHandler,
 		rsaPrivateKey,
 	)
+	SigfoxBackendDataCallbackMessageMongoRecordHandler := sigfoxBackendDataCallbackMessageMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.SigfoxBackendDataCallbackMessage,
+	)
+	SigfoxBackendDataCallbackMessageBasicValidator := sigfoxBackendDataCallbackMessageBasicValidator.New()
+	SigfoxBackendDataCallbackMessageBasicAdministrator := sigfoxBackendDataCallbackMessageBasicAdministrator.New(
+		SigfoxBackendDataCallbackMessageBasicValidator,
+		SigfoxBackendDataCallbackMessageMongoRecordHandler,
+	)
 
 	// Report
 	TrackingReport := trackingBasicReport.New(
@@ -347,6 +361,7 @@ func main() {
 
 	// Sigfox Backend Callback Server
 	SigfoxBackendCallbackServer := sigfoxBasicBackendCallbackServer.New(
+		SigfoxBackendDataCallbackMessageBasicAdministrator,
 		[]sigfoxBackendDataMessageHandler.Handler{
 			sigbugSigfoxMessageHandler.New(
 				SigbugRecordHandler,
