@@ -5,6 +5,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/client"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	sigfoxBackendDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	clientTest "github.com/iot-my-world/brain/test/modules/party/client"
 )
@@ -51,6 +52,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "John", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "1aspoive",
@@ -61,6 +65,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "John", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
@@ -110,6 +117,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Sunbeam Tech", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "2piaseinve",
@@ -120,6 +130,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "Sunbeam Tech", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
@@ -172,6 +185,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Pick 'n Pay", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "3poiasdvpoie",
@@ -182,6 +198,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "Pick 'n Pay", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
@@ -232,6 +251,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Woolworths", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "4poiadoiee",
@@ -242,6 +264,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "Woolworths", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
@@ -294,6 +319,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Makro", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "5poieoiae",
@@ -304,6 +332,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "Makro", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
@@ -354,6 +385,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Fruit 'n Veg", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "6poijwepoi",
@@ -364,6 +398,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "Fruit 'n Veg", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
@@ -427,6 +464,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Spar", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 			},
 		},
@@ -476,6 +516,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Game", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "8iasepieoij",
@@ -486,6 +529,9 @@ var TestData = map[string][]struct {
 					AssignedPartyType: party.Client,
 					AssignedId: id.Identifier{
 						Id: "Game", // populated correctly on creation
+					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
 					},
 				},
 			},
