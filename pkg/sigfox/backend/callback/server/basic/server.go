@@ -7,6 +7,7 @@ import (
 	sigfoxBackendDataMessageHandler "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/handler"
 	sigfoxBackendCallbackServer "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server"
 	sigfoxBackendCallbackServerException "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/server/exception"
+	"time"
 )
 
 type server struct {
@@ -43,6 +44,10 @@ func (s *server) HandleDataMessage(request *sigfoxBackendCallbackServer.HandleDa
 		return nil, err
 	}
 
+	// set timestamp on data callback message
+	request.Message.Timestamp = time.Now().UTC().Unix()
+
+	// record data callback message
 	createMessageResponse, err := s.sigfoxBackendDataCallbackMessageAdministrator.Create(
 		&sigfoxBackendDataCallbackMessageAdministrator.CreateRequest{
 			Claims:  request.Claims,
@@ -54,6 +59,7 @@ func (s *server) HandleDataMessage(request *sigfoxBackendCallbackServer.HandleDa
 		return nil, err
 	}
 
+	// give message to handlers that want it
 	for handlerIdx := range s.handlers {
 		if s.handlers[handlerIdx].WantMessage(request.Message) {
 			if err := s.handlers[handlerIdx].Handle(&sigfoxBackendDataMessageHandler.HandleRequest{

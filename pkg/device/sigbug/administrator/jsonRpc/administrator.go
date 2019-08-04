@@ -79,3 +79,7 @@ func (a *administrator) UpdateAllowedFields(request *sigbugAdministrator.UpdateA
 		Sigbug: sigbugUpdateAllowedFieldsResponse.Sigbug,
 	}, nil
 }
+
+func (a *administrator) LastMessageUpdate(request *sigbugAdministrator.LastMessageUpdateRequest) (*sigbugAdministrator.LastMessageUpdateResponse, error) {
+	return nil, brainException.NotImplemented{}
+}

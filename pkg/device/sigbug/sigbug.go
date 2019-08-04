@@ -3,6 +3,7 @@ package sigbug
 import (
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	sigfoxBackendDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 )
 
 type Sigbug struct {
@@ -14,7 +15,7 @@ type Sigbug struct {
 	AssignedPartyType party.Type    `json:"assignedPartyType" bson:"assignedPartyType"`
 	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
 
-	LastMessageTimestamp int64 `json:"lastMessageTimestamp" bson:"lastMessageTimestamp"`
+	LastMessage sigfoxBackendDataCallbackMessage.Message `json:"lastMessage" bson:"lastMessage"`
 }
 
 func (s *Sigbug) SetId(id string) {

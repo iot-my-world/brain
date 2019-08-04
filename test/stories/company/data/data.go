@@ -5,6 +5,7 @@ import (
 	"github.com/iot-my-world/brain/pkg/party"
 	"github.com/iot-my-world/brain/pkg/party/company"
 	"github.com/iot-my-world/brain/pkg/search/identifier/id"
+	sigfoxBackendDataCallbackMessage "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message"
 	humanUser "github.com/iot-my-world/brain/pkg/user/human"
 	companyTest "github.com/iot-my-world/brain/test/modules/party/company"
 )
@@ -55,6 +56,9 @@ var TestData = []struct {
 				},
 				AssignedPartyType: "",
 				AssignedId:        id.Identifier{},
+				LastMessage: sigfoxBackendDataCallbackMessage.Message{
+					Data: make([]byte, 0),
+				},
 			},
 			// device owned by company assigned to a client
 			{
@@ -66,6 +70,9 @@ var TestData = []struct {
 				AssignedPartyType: party.Client,
 				AssignedId: id.Identifier{
 					Id: "Pick 'n Pay", // populated correctly on creation
+				},
+				LastMessage: sigfoxBackendDataCallbackMessage.Message{
+					Data: make([]byte, 0),
 				},
 			},
 		},
@@ -116,6 +123,9 @@ var TestData = []struct {
 				},
 				AssignedPartyType: "",
 				AssignedId:        id.Identifier{},
+				LastMessage: sigfoxBackendDataCallbackMessage.Message{
+					Data: make([]byte, 0),
+				},
 			},
 			// device owned by company assigned to a client
 			{
@@ -127,6 +137,9 @@ var TestData = []struct {
 				AssignedPartyType: party.Client,
 				AssignedId: id.Identifier{
 					Id: "Fruit 'n Veg", // populated correctly on creation
+				},
+				LastMessage: sigfoxBackendDataCallbackMessage.Message{
+					Data: make([]byte, 0),
 				},
 			},
 		},
@@ -177,6 +190,9 @@ var TestData = []struct {
 				},
 				AssignedPartyType: "",
 				AssignedId:        id.Identifier{},
+				LastMessage: sigfoxBackendDataCallbackMessage.Message{
+					Data: make([]byte, 0),
+				},
 			},
 			// device owned by company assigned to a client
 			{
@@ -188,6 +204,9 @@ var TestData = []struct {
 				AssignedPartyType: party.Client,
 				AssignedId: id.Identifier{
 					Id: "Spar", // populated correctly on creation
+				},
+				LastMessage: sigfoxBackendDataCallbackMessage.Message{
+					Data: make([]byte, 0),
 				},
 			},
 		},

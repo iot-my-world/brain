@@ -365,6 +365,7 @@ func main() {
 		[]sigfoxBackendDataMessageHandler.Handler{
 			sigbugSigfoxMessageHandler.New(
 				SigbugRecordHandler,
+				SigbugAdministrator,
 			),
 		},
 	)

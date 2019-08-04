@@ -44,10 +44,10 @@ func (e DeviceCreation) Error() string {
 	return "error creating device: " + strings.Join(e.Reasons, "; ")
 }
 
-type Heartbeat struct {
+type LastMessageUpdate struct {
 	Reasons []string
 }
 
-func (e Heartbeat) Error() string {
-	return "heartbeat error: " + strings.Join(e.Reasons, "; ")
+func (e LastMessageUpdate) Error() string {
+	return "last message update error: " + strings.Join(e.Reasons, "; ")
 }

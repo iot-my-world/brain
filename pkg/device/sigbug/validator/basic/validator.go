@@ -93,6 +93,15 @@ func (v *validator) Validate(request *sigbugValidator.ValidateRequest) (*sigbugV
 		})
 	}
 
+	if (*sigbugToValidate).LastMessage.Data == nil {
+		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+			Field: "lastMessage.Data",
+			Type:  reasonInvalid.Nil,
+			Help:  "cannot be nil",
+			Data:  nil,
+		})
+	}
+
 	// action specific checks
 	switch request.Action {
 	case sigbugAction.Create:
