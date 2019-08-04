@@ -453,6 +453,9 @@ var TestData = map[string][]struct {
 					AssignedId: id.Identifier{
 						Id: "Spar", // populated correctly on creation
 					},
+					LastMessage: sigfoxBackendDataCallbackMessage.Message{
+						Data: make([]byte, 0),
+					},
 				},
 				{
 					DeviceId:       "7aoiweoijvepi",
