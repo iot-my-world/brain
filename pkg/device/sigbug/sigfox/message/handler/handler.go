@@ -32,6 +32,9 @@ func (h *handler) WantMessage(dataMessage sigfoxBackendDataDataCallbackMessage.M
 	}
 
 	switch dataMessage.Data[0] {
+	case message.CouldNotGetGPSFixMessageType:
+		return true
+
 	case message.GPSReading:
 		if len(dataMessage.Data) == 9 {
 			return true
@@ -61,10 +64,18 @@ func (h *handler) Handle(request *sigfoxBackendDataDataCallbackMessageHandler.Ha
 	}
 
 	switch request.DataMessage.Data[0] {
+	case message.CouldNotGetGPSFixMessageType:
+		return h.handleCouldNotGetFixMessage(request)
+
 	case message.GPSReading:
 		return h.handleGPSMessage(request)
 	}
 
+	return nil
+}
+
+func (h *handler) handleCouldNotGetFixMessage(request *sigfoxBackendDataDataCallbackMessageHandler.HandleRequest) error {
+	log.Info("handle!")
 	return nil
 }
 

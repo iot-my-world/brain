@@ -7,7 +7,6 @@ import (
 	clientTestModule "github.com/iot-my-world/brain/test/modules/party/client"
 	companyTestModule "github.com/iot-my-world/brain/test/modules/party/company"
 	sigfoxBackendTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend"
-	sigfoxBackendCallbackServerTestModule "github.com/iot-my-world/brain/test/modules/sigfox/backend/callback/server"
 	clientStoryTestData "github.com/iot-my-world/brain/test/stories/client/data"
 	companyTestStoryData "github.com/iot-my-world/brain/test/stories/company/data"
 	systemTestStoryData "github.com/iot-my-world/brain/test/stories/system/data"
@@ -98,19 +97,19 @@ func (t *test) TestSystem() {
 			}
 		}
 
-		// tests logged in as backend
-		suite.Run(t.T(), sigfoxBackendCallbackServerTestModule.New(
-			systemTestStoryData.User,
-			environment.BrainHumanUserURL,
-			environment.APIUserURL,
-			sigfoxBackendData.Backend,
-			[]sigfoxBackendCallbackServerTestModule.Data{
-				{
-					Sigbug:  clientData[0].SigbugDevices[0],
-					GPSData: testGPSData,
-				},
-			},
-		))
+		//// tests logged in as backend
+		//suite.Run(t.T(), sigfoxBackendCallbackServerTestModule.New(
+		//	systemTestStoryData.User,
+		//	environment.BrainHumanUserURL,
+		//	environment.APIUserURL,
+		//	sigfoxBackendData.Backend,
+		//	[]sigfoxBackendCallbackServerTestModule.Data{
+		//		{
+		//			Sigbug:  clientData[0].SigbugDevices[0],
+		//			GPSData: testGPSData,
+		//		},
+		//	},
+		//))
 	}
 
 }
