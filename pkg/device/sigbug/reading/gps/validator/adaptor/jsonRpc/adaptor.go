@@ -12,12 +12,12 @@ import (
 )
 
 type adaptor struct {
-	sigfoxBackendDataCallbackReadingValidator sigbugGPSReadingValidator.Validator
+	sigbugGPSReadingValidator sigbugGPSReadingValidator.Validator
 }
 
-func New(sigfoxBackendDataCallbackReadingValidator sigbugGPSReadingValidator.Validator) *adaptor {
+func New(sigbugGPSReadingValidator sigbugGPSReadingValidator.Validator) *adaptor {
 	return &adaptor{
-		sigfoxBackendDataCallbackReadingValidator: sigfoxBackendDataCallbackReadingValidator,
+		sigbugGPSReadingValidator: sigbugGPSReadingValidator,
 	}
 }
 
@@ -45,7 +45,7 @@ func (a *adaptor) Validate(r *http.Request, request *ValidateRequest, response *
 		return err
 	}
 
-	validateReadingDeviceResponse, err := a.sigfoxBackendDataCallbackReadingValidator.Validate(&sigbugGPSReadingValidator.ValidateRequest{
+	validateReadingDeviceResponse, err := a.sigbugGPSReadingValidator.Validate(&sigbugGPSReadingValidator.ValidateRequest{
 		Claims:  claims,
 		Reading: request.Reading,
 		Action:  request.Action,

@@ -14,7 +14,7 @@ type Administrator interface {
 	LastMessageUpdate(request *LastMessageUpdateRequest) (*LastMessageUpdateResponse, error)
 }
 
-const ServiceProvider = "SigbugGPSReading-Administrator"
+const ServiceProvider = "SigbugDevice-Administrator"
 const UpdateAllowedFieldsService = ServiceProvider + ".UpdateAllowedFields"
 const CreateService = ServiceProvider + ".Create"
 

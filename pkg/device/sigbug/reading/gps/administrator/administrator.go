@@ -10,7 +10,7 @@ type Administrator interface {
 	Create(request *CreateRequest) (*CreateResponse, error)
 }
 
-const ServiceProvider = "ReadingDevice-Administrator"
+const ServiceProvider = "SigbugGPSReading-Administrator"
 const CreateService = ServiceProvider + ".Create"
 
 var SystemUserPermissions = []api.Permission{

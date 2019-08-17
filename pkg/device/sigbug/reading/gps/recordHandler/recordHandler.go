@@ -17,7 +17,7 @@ type RecordHandler interface {
 	Collect(*CollectRequest) (*CollectResponse, error)
 }
 
-const ServiceProvider = "Reading-RecordHandler"
+const ServiceProvider = "SigbugGPSReading-RecordHandler"
 const CreateService = ServiceProvider + ".Create"
 const RetrieveService = ServiceProvider + ".Retrieve"
 const UpdateService = ServiceProvider + ".Update"

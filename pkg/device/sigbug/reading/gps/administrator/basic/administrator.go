@@ -18,14 +18,14 @@ type administrator struct {
 func New(
 	sigfoxBackendDataCallbackReadingValidator sigbugGPSReadingValidator.Validator,
 	sigbugGPSReadingRecordHandler sigbugGPSReadingRecordHandler.RecordHandler,
-) messageAdministrator.Administrator {
+) sigbugGPSReadingAdministrator.Administrator {
 	return &administrator{
 		sigfoxBackendDataCallbackReadingValidator: sigfoxBackendDataCallbackReadingValidator,
 		sigbugGPSReadingRecordHandler:             sigbugGPSReadingRecordHandler,
 	}
 }
 
-func (a *administrator) ValidateCreateRequest(request *messageAdministrator.CreateRequest) error {
+func (a *administrator) ValidateCreateRequest(request *sigbugGPSReadingAdministrator.CreateRequest) error {
 	reasonsInvalid := make([]string, 0)
 
 	if request.Claims == nil {
@@ -54,7 +54,7 @@ func (a *administrator) ValidateCreateRequest(request *messageAdministrator.Crea
 	return nil
 }
 
-func (a *administrator) Create(request *messageAdministrator.CreateRequest) (*messageAdministrator.CreateResponse, error) {
+func (a *administrator) Create(request *sigbugGPSReadingAdministrator.CreateRequest) (*sigbugGPSReadingAdministrator.CreateResponse, error) {
 	if err := a.ValidateCreateRequest(request); err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (a *administrator) Create(request *messageAdministrator.CreateRequest) (*me
 		return nil, sigbugGPSReadingAdministratorException.DeviceCreation{Reasons: []string{err.Error()}}
 	}
 
-	return &messageAdministrator.CreateResponse{
+	return &sigbugGPSReadingAdministrator.CreateResponse{
 		Reading: createResponse.Reading,
 	}, nil
 }

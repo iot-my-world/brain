@@ -12,7 +12,7 @@ type Validator interface {
 	Validate(request *ValidateRequest) (*ValidateResponse, error)
 }
 
-const ServiceProvider = "SigbugGPSReading-Validator"
+const ServiceProvider = "SigbugDevice-Validator"
 const ValidateService = ServiceProvider + ".Validate"
 
 var SystemUserPermissions = []api.Permission{
