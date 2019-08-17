@@ -3,8 +3,8 @@ package validator
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	"github.com/iot-my-world/brain/pkg/action"
-	messageAction "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/action"
-	messageValidator "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/validator"
+	messageAction "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/action"
+	messageValidator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
@@ -48,23 +48,23 @@ func (v *validator) Validate(request *messageValidator.ValidateRequest) (*messag
 	}
 
 	allReasonsInvalid := make([]reasonInvalid.ReasonInvalid, 0)
-	messageToValidate := &request.Reading
+	gpsReadingToValidate := &request.Reading
 
-	if (*messageToValidate).Id == "" {
+	if (*gpsReadingToValidate).Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "id",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*messageToValidate).Id,
+			Data:  (*gpsReadingToValidate).Id,
 		})
 	}
 
-	if (*messageToValidate).DeviceId == "" {
+	if (*gpsReadingToValidate).DeviceId.Id == "" {
 		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
 			Field: "deviceId",
 			Type:  reasonInvalid.Blank,
 			Help:  "cannot be blank",
-			Data:  (*messageToValidate).DeviceId,
+			Data:  (*gpsReadingToValidate).DeviceId,
 		})
 	}
 

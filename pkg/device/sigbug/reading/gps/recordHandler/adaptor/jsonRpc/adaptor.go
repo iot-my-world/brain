@@ -24,7 +24,7 @@ func New(recordHandler sigbugGPSReadingRecordHandler.RecordHandler) *adaptor {
 }
 
 func (a *adaptor) Name() jsonRpcServiceProvider.Name {
-	return jsonRpcServiceProvider.Name(sigbugGPSReadingRecordHandler.ServiceProvider)
+	return sigbugGPSReadingRecordHandler.ServiceProvider
 }
 
 func (a *adaptor) MethodRequiresAuthorization(string) bool {

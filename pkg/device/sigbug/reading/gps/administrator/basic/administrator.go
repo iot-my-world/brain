@@ -3,21 +3,21 @@ package basic
 import (
 	"fmt"
 	brainException "github.com/iot-my-world/brain/internal/exception"
-	messageAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/administrator"
-	"github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/action"
-	"github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/administrator/exception"
-	"github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/recordHandler"
-	"github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/validator"
+	sigbugGPSReadingAction "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/action"
+	sigbugGPSReadingAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/administrator"
+	sigbugGPSReadingAdministratorException "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/administrator/exception"
+	sigbugGPSReadingRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler"
+	sigbugGPSReadingValidator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator"
 )
 
 type administrator struct {
-	sigfoxBackendDataCallbackReadingValidator validator.Validator
-	sigbugGPSReadingRecordHandler             recordHandler.RecordHandler
+	sigfoxBackendDataCallbackReadingValidator sigbugGPSReadingValidator.Validator
+	sigbugGPSReadingRecordHandler             sigbugGPSReadingRecordHandler.RecordHandler
 }
 
 func New(
-	sigfoxBackendDataCallbackReadingValidator validator.Validator,
-	sigbugGPSReadingRecordHandler recordHandler.RecordHandler,
+	sigfoxBackendDataCallbackReadingValidator sigbugGPSReadingValidator.Validator,
+	sigbugGPSReadingRecordHandler sigbugGPSReadingRecordHandler.RecordHandler,
 ) messageAdministrator.Administrator {
 	return &administrator{
 		sigfoxBackendDataCallbackReadingValidator: sigfoxBackendDataCallbackReadingValidator,
@@ -31,10 +31,10 @@ func (a *administrator) ValidateCreateRequest(request *messageAdministrator.Crea
 	if request.Claims == nil {
 		reasonsInvalid = append(reasonsInvalid, "claims are nil")
 	} else {
-		sigfoxBackendDataCallbackReadingValidateResponse, err := a.sigfoxBackendDataCallbackReadingValidator.Validate(&validator.ValidateRequest{
+		sigfoxBackendDataCallbackReadingValidateResponse, err := a.sigfoxBackendDataCallbackReadingValidator.Validate(&sigbugGPSReadingValidator.ValidateRequest{
 			Claims:  request.Claims,
 			Reading: request.Reading,
-			Action:  action.Create,
+			Action:  sigbugGPSReadingAction.Create,
 		})
 		if err != nil {
 			reasonsInvalid = append(reasonsInvalid, "error validating reading reading: "+err.Error())
@@ -59,11 +59,11 @@ func (a *administrator) Create(request *messageAdministrator.CreateRequest) (*me
 		return nil, err
 	}
 
-	createResponse, err := a.sigbugGPSReadingRecordHandler.Create(&recordHandler.CreateRequest{
+	createResponse, err := a.sigbugGPSReadingRecordHandler.Create(&sigbugGPSReadingRecordHandler.CreateRequest{
 		Reading: request.Reading,
 	})
 	if err != nil {
-		return nil, exception.DeviceCreation{Reasons: []string{err.Error()}}
+		return nil, sigbugGPSReadingAdministratorException.DeviceCreation{Reasons: []string{err.Error()}}
 	}
 
 	return &messageAdministrator.CreateResponse{

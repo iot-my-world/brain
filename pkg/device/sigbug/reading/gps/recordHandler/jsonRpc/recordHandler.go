@@ -5,8 +5,8 @@ import (
 	"github.com/iot-my-world/brain/internal/log"
 	jsonRpcClient "github.com/iot-my-world/brain/pkg/api/jsonRpc/client"
 	sigbugGPSReadingRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler"
+	sigbugGPSReadingRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler/adaptor/jsonRpc"
 	wrappedCriterion "github.com/iot-my-world/brain/pkg/search/criterion/wrapped"
-	messageRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/recordHandler/adaptor/jsonRpc"
 )
 
 type recordHandler struct {
@@ -70,10 +70,10 @@ func (r *recordHandler) Collect(request *sigbugGPSReadingRecordHandler.CollectRe
 		criteria = append(criteria, *wrapped)
 	}
 
-	collectResponse := messageRecordHandlerJsonRpcAdaptor.CollectResponse{}
+	collectResponse := sigbugGPSReadingRecordHandlerJsonRpcAdaptor.CollectResponse{}
 	if err := r.jsonRpcClient.JsonRpcRequest(
 		sigbugGPSReadingRecordHandler.CollectService,
-		messageRecordHandlerJsonRpcAdaptor.CollectRequest{
+		sigbugGPSReadingRecordHandlerJsonRpcAdaptor.CollectRequest{
 			Criteria: criteria,
 			Query:    request.Query,
 		},

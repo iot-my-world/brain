@@ -4,9 +4,9 @@ import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
 	sigbugGPSReading "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps"
 	sigbugGPSReadingRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler"
+	sigbugGPSReadingRecordHandlerException "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler/exception"
 	brainRecordHandler "github.com/iot-my-world/brain/pkg/recordHandler"
 	brainRecordHandlerException "github.com/iot-my-world/brain/pkg/recordHandler/exception"
-	sigfoxBackendDataCallbackReadingRecordHandlerException "github.com/iot-my-world/brain/pkg/sigfox/backend/callback/data/message/recordHandler/exception"
 )
 
 type RecordHandler struct {
@@ -49,11 +49,11 @@ func (r *RecordHandler) Create(request *sigbugGPSReadingRecordHandler.CreateRequ
 	if err := r.sigbugGPSReadingRecordHandler.Create(&brainRecordHandler.CreateRequest{
 		Entity: &request.Reading,
 	}, &createResponse); err != nil {
-		return nil, sigfoxBackendDataCallbackReadingRecordHandlerException.Create{Reasons: []string{err.Error()}}
+		return nil, sigbugGPSReadingRecordHandlerException.Create{Reasons: []string{err.Error()}}
 	}
 	createdReading, ok := createResponse.Entity.(*sigbugGPSReading.Reading)
 	if !ok {
-		return nil, sigfoxBackendDataCallbackReadingRecordHandlerException.Create{Reasons: []string{"could not cast created entity to message"}}
+		return nil, sigbugGPSReadingRecordHandlerException.Create{Reasons: []string{"could not cast created entity to message"}}
 	}
 
 	return &sigbugGPSReadingRecordHandler.CreateResponse{
@@ -72,7 +72,7 @@ func (r *RecordHandler) Retrieve(request *sigbugGPSReadingRecordHandler.Retrieve
 	}, &retrieveResponse); err != nil {
 		switch err.(type) {
 		case brainRecordHandlerException.NotFound:
-			return nil, sigfoxBackendDataCallbackReadingRecordHandlerException.NotFound{}
+			return nil, sigbugGPSReadingRecordHandlerException.NotFound{}
 		default:
 			return nil, err
 		}
@@ -90,7 +90,7 @@ func (r *RecordHandler) Update(request *sigbugGPSReadingRecordHandler.UpdateRequ
 		Identifier: request.Identifier,
 		Entity:     &request.Reading,
 	}, &updateResponse); err != nil {
-		return nil, sigfoxBackendDataCallbackReadingRecordHandlerException.Update{Reasons: []string{err.Error()}}
+		return nil, sigbugGPSReadingRecordHandlerException.Update{Reasons: []string{err.Error()}}
 	}
 
 	return &sigbugGPSReadingRecordHandler.UpdateResponse{}, nil
@@ -102,7 +102,7 @@ func (r *RecordHandler) Delete(request *sigbugGPSReadingRecordHandler.DeleteRequ
 		Claims:     request.Claims,
 		Identifier: request.Identifier,
 	}, &deleteResponse); err != nil {
-		return nil, sigfoxBackendDataCallbackReadingRecordHandlerException.Delete{Reasons: []string{err.Error()}}
+		return nil, sigbugGPSReadingRecordHandlerException.Delete{Reasons: []string{err.Error()}}
 	}
 
 	return &sigbugGPSReadingRecordHandler.DeleteResponse{}, nil
@@ -119,7 +119,7 @@ func (r *RecordHandler) Collect(request *sigbugGPSReadingRecordHandler.CollectRe
 		Query:    request.Query,
 	}, &collectResponse)
 	if err != nil {
-		return nil, sigfoxBackendDataCallbackReadingRecordHandlerException.Collect{Reasons: []string{err.Error()}}
+		return nil, sigbugGPSReadingRecordHandlerException.Collect{Reasons: []string{err.Error()}}
 	}
 
 	if collectedReading == nil {
