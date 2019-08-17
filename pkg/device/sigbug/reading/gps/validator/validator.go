@@ -19,15 +19,11 @@ var SystemUserPermissions = []api.Permission{
 	ValidateService,
 }
 
-var CompanyAdminUserPermissions = []api.Permission{
-	ValidateService,
-}
+var CompanyAdminUserPermissions = make([]api.Permission, 0)
 
 var CompanyUserPermissions = make([]api.Permission, 0)
 
-var ClientAdminUserPermissions = []api.Permission{
-	ValidateService,
-}
+var ClientAdminUserPermissions = make([]api.Permission, 0)
 
 var ClientUserPermissions = make([]api.Permission, 0)
 
