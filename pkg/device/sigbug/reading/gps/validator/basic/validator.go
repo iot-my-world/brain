@@ -83,8 +83,8 @@ func (v *validator) Validate(request *sigbugGPSReadingValidator.ValidateRequest)
 	} else {
 		// device must exist
 		sigbugRetrieveResponse, err := v.sigbugRecordHandler.Retrieve(&sigbugRecordHandler.RetrieveRequest{
-			Claims:     nil,
-			Identifier: nil,
+			Claims:     request.Claims,
+			Identifier: request.Reading.DeviceId,
 		})
 		if err != nil {
 			switch err.(type) {
