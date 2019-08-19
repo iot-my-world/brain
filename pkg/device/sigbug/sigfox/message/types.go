@@ -1,4 +1,4 @@
 package message
 
-const GPSReading byte = 0
 const CouldNotGetGPSFixMessageType byte = 1
+const GPSReading byte = 2

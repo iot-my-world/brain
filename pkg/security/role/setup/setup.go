@@ -3,6 +3,9 @@ package setup
 import (
 	"github.com/iot-my-world/brain/internal/log"
 	sigbugAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator"
+	sigbugGPSReadingAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/administrator"
+	sigbugGPSReadingRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler"
+	sigbugGPSReadingValidator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator"
 	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
 	sigbugValidator "github.com/iot-my-world/brain/pkg/device/sigbug/validator"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
@@ -197,6 +200,25 @@ var initialRoles = func() []role.Role {
 	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugValidator.CompanyUserPermissions...)
 	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugValidator.ClientAdminUserPermissions...)
 	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugValidator.ClientUserPermissions...)
+
+	// Sigbug GPS Reading Administrator
+	rootAPIPermissions = append(rootAPIPermissions, sigbugGPSReadingAdministrator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigbugGPSReadingAdministrator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugGPSReadingAdministrator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugGPSReadingAdministrator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugGPSReadingAdministrator.ClientUserPermissions...)
+	// Sigbug GPS Reading RecordHandler
+	rootAPIPermissions = append(rootAPIPermissions, sigbugGPSReadingRecordHandler.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigbugGPSReadingRecordHandler.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugGPSReadingRecordHandler.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugGPSReadingRecordHandler.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugGPSReadingRecordHandler.ClientUserPermissions...)
+	// Sigbug GPS Reading Validator
+	rootAPIPermissions = append(rootAPIPermissions, sigbugGPSReadingValidator.SystemUserPermissions...)
+	CompanyAdmin.APIPermissions = append(CompanyAdmin.APIPermissions, sigbugGPSReadingValidator.CompanyAdminUserPermissions...)
+	CompanyUser.APIPermissions = append(CompanyUser.APIPermissions, sigbugGPSReadingValidator.CompanyUserPermissions...)
+	ClientAdmin.APIPermissions = append(ClientAdmin.APIPermissions, sigbugGPSReadingValidator.ClientAdminUserPermissions...)
+	ClientUser.APIPermissions = append(ClientUser.APIPermissions, sigbugGPSReadingValidator.ClientUserPermissions...)
 
 	// Sigfox Backend Administrator
 	rootAPIPermissions = append(rootAPIPermissions, sigfoxBackendAdministrator.SystemUserPermissions...)

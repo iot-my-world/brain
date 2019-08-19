@@ -1,7 +1,7 @@
 package recordHandler
 
 import (
-	"github.com/iot-my-world/brain/pkg/device/sigbug"
+	sigbugGPSReading "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps"
 	"github.com/iot-my-world/brain/pkg/search/criterion"
 	"github.com/iot-my-world/brain/pkg/search/identifier"
 	"github.com/iot-my-world/brain/pkg/search/query"
@@ -17,7 +17,7 @@ type RecordHandler interface {
 	Collect(*CollectRequest) (*CollectResponse, error)
 }
 
-const ServiceProvider = "SigbugDevice-RecordHandler"
+const ServiceProvider = "SigbugGPSReading-RecordHandler"
 const CreateService = ServiceProvider + ".Create"
 const RetrieveService = ServiceProvider + ".Retrieve"
 const UpdateService = ServiceProvider + ".Update"
@@ -47,11 +47,11 @@ var ClientUserPermissions = []api.Permission{
 }
 
 type CreateRequest struct {
-	Sigbug sigbug.Sigbug
+	Reading sigbugGPSReading.Reading
 }
 
 type CreateResponse struct {
-	Sigbug sigbug.Sigbug
+	Reading sigbugGPSReading.Reading
 }
 
 type RetrieveRequest struct {
@@ -60,13 +60,13 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	Sigbug sigbug.Sigbug
+	Reading sigbugGPSReading.Reading
 }
 
 type UpdateRequest struct {
 	Claims     claims.Claims
 	Identifier identifier.Identifier
-	Sigbug     sigbug.Sigbug
+	Reading    sigbugGPSReading.Reading
 }
 
 type UpdateResponse struct{}
@@ -86,6 +86,6 @@ type CollectRequest struct {
 }
 
 type CollectResponse struct {
-	Records []sigbug.Sigbug
+	Records []sigbugGPSReading.Reading
 	Total   int
 }

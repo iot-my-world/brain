@@ -77,6 +77,12 @@ import (
 
 	sigbugAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/adaptor/jsonRpc"
 	sigbugBasicAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/administrator/basic"
+	sigbugGPSReadingAdministratorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/administrator/adaptor/jsonRpc"
+	sigbugGPSReadingBasicAdministrator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/administrator/basic"
+	sigbugGPSReadingRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler/adaptor/jsonRpc"
+	sigbugGPSReadingMongoRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/recordHandler/mongo"
+	sigbugGPSReadingValidatorJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator/adaptor/jsonRpc"
+	sigbugGPSReadingBasicValidator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator/basic"
 	sigbugRecordHandlerJsonRpcAdaptor "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/adaptor/jsonRpc"
 	sigbugMongoRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/mongo"
 	sigbugSigfoxMessageHandler "github.com/iot-my-world/brain/pkg/device/sigbug/sigfox/message/handler"
@@ -319,6 +325,20 @@ func main() {
 		SigbugValidator,
 		SigbugRecordHandler,
 	)
+	SigbugGPSReadingRecordHandler := sigbugGPSReadingMongoRecordHandler.New(
+		mainMongoSession,
+		databaseName,
+		databaseCollection.SigbugGPSReading,
+	)
+	SigbugGPSReadingValidator := sigbugGPSReadingBasicValidator.New(
+		SigbugRecordHandler,
+		PartyBasicAdministrator,
+		&systemClaims,
+	)
+	SigbugGPSReadingAdministrator := sigbugGPSReadingBasicAdministrator.New(
+		SigbugGPSReadingValidator,
+		SigbugGPSReadingRecordHandler,
+	)
 
 	// Sigfox Backend
 	SigfoxBackendRecordHandler := sigfoxBackendMongoRecordHandler.New(
@@ -366,6 +386,7 @@ func main() {
 			sigbugSigfoxMessageHandler.New(
 				SigbugRecordHandler,
 				SigbugAdministrator,
+				SigbugGPSReadingAdministrator,
 			),
 		},
 	)
@@ -401,6 +422,9 @@ func main() {
 			sigbugRecordHandlerJsonRpcAdaptor.New(SigbugRecordHandler),
 			sigbugValidatorJsonRpcAdaptor.New(SigbugValidator),
 			sigbugAdministratorJsonRpcAdaptor.New(SigbugAdministrator),
+			sigbugGPSReadingRecordHandlerJsonRpcAdaptor.New(SigbugGPSReadingRecordHandler),
+			sigbugGPSReadingValidatorJsonRpcAdaptor.New(SigbugGPSReadingValidator),
+			sigbugGPSReadingAdministratorJsonRpcAdaptor.New(SigbugGPSReadingAdministrator),
 			trackingReportJsonRpcAdaptor.New(TrackingReport),
 			sigfoxBackendRecordHandlerJsonRpcAdaptor.New(SigfoxBackendRecordHandler),
 			sigfoxBackendValidatorJsonRpcAdaptor.New(SigfoxBackendValidator),
