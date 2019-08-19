@@ -7,5 +7,5 @@ type Validate struct {
 }
 
 func (e Validate) Error() string {
-	return "error validating reading: " + strings.Join(e.Reasons, "; ")
+	return "error validating sigbug gps reading: " + strings.Join(e.Reasons, "; ")
 }

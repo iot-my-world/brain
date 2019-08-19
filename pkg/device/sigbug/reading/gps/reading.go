@@ -20,9 +20,10 @@ type Reading struct {
 	AssignedId        id.Identifier `json:"assignedId" bson:"assignedId"`
 
 	// Reading Details
-	TimeStamp int64   `json:"timeStamp" bson:"timeStamp"`
-	Latitude  float32 `json:"latitude" bson:"latitude"`
-	Longitude float32 `json:"longitude" bson:"longitude"`
+	MessageId id.Identifier `json:"messageId" bson:"messageId"`
+	TimeStamp int64         `json:"timeStamp" bson:"timeStamp"`
+	Latitude  float32       `json:"latitude" bson:"latitude"`
+	Longitude float32       `json:"longitude" bson:"longitude"`
 }
 
 func (r *Reading) SetId(id string) {

@@ -386,6 +386,7 @@ func main() {
 			sigbugSigfoxMessageHandler.New(
 				SigbugRecordHandler,
 				SigbugAdministrator,
+				SigbugGPSReadingAdministrator,
 			),
 		},
 	)

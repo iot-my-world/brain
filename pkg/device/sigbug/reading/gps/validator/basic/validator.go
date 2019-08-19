@@ -2,20 +2,20 @@ package validator
 
 import (
 	brainException "github.com/iot-my-world/brain/internal/exception"
+	"github.com/iot-my-world/brain/internal/log"
 	"github.com/iot-my-world/brain/pkg/action"
 	sigbugGPSReadingAction "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/action"
 	sigbugGPSReadingValidator "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator"
+	sigbugGPSReadingValidatorException "github.com/iot-my-world/brain/pkg/device/sigbug/reading/gps/validator/exception"
 	sigbugRecordHandler "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler"
-	"github.com/iot-my-world/brain/pkg/party"
+	sigbugRecordHandlerException "github.com/iot-my-world/brain/pkg/device/sigbug/recordHandler/exception"
 	partyAdministrator "github.com/iot-my-world/brain/pkg/party/administrator"
-	partyAdministratorException "github.com/iot-my-world/brain/pkg/party/administrator/exception"
 	humanUserLoginClaims "github.com/iot-my-world/brain/pkg/security/claims/login/user/human"
 	"github.com/iot-my-world/brain/pkg/validate/reasonInvalid"
 )
 
 type validator struct {
 	actionIgnoredReasons map[action.Action]reasonInvalid.IgnoredReasonsInvalid
-	partyAdministrator   partyAdministrator.Administrator
 	systemClaims         *humanUserLoginClaims.Login
 	sigbugRecordHandler  sigbugRecordHandler.RecordHandler
 }
@@ -38,7 +38,6 @@ func New(
 
 	return &validator{
 		sigbugRecordHandler:  sigbugRecordHandler,
-		partyAdministrator:   partyAdministrator,
 		actionIgnoredReasons: actionIgnoredReasons,
 		systemClaims:         systemClaims,
 	}
@@ -81,118 +80,65 @@ func (v *validator) Validate(request *sigbugGPSReadingValidator.ValidateRequest)
 			Help:  "cannot be blank",
 			Data:  (*gpsReadingToValidate).DeviceId,
 		})
-	}
-
-	// owner id must be set
-	if (*gpsReadingToValidate).OwnerId.Id == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "ownerId",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*gpsReadingToValidate).OwnerId,
-		})
-	}
-
-	// owner party type must be set
-	if (*gpsReadingToValidate).OwnerPartyType == "" {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "ownerPartyType",
-			Type:  reasonInvalid.Blank,
-			Help:  "cannot be blank",
-			Data:  (*gpsReadingToValidate).OwnerPartyType,
-		})
 	} else {
-		// if it is not blank
-		// owner party type must be valid. i.e. must be of a valid type and the party must exist
-		switch (*gpsReadingToValidate).OwnerPartyType {
-		case party.System, party.Client, party.Company:
-			// try and retrieve the owner party if it is not blank
-			if (*gpsReadingToValidate).OwnerId.Id != "" {
-				_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-					Claims:     request.Claims,
-					PartyType:  (*gpsReadingToValidate).OwnerPartyType,
-					Identifier: (*gpsReadingToValidate).OwnerId,
+		// device must exist
+		sigbugRetrieveResponse, err := v.sigbugRecordHandler.Retrieve(&sigbugRecordHandler.RetrieveRequest{
+			Claims:     nil,
+			Identifier: nil,
+		})
+		if err != nil {
+			switch err.(type) {
+			case sigbugRecordHandlerException.NotFound:
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "deviceId",
+					Type:  reasonInvalid.MustExist,
+					Help:  "associated device must exist",
+					Data:  (*gpsReadingToValidate).DeviceId,
 				})
-				if err != nil {
-					switch err.(type) {
-					case partyAdministratorException.NotFound:
-						allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-							Field: "ownerId",
-							Type:  reasonInvalid.MustExist,
-							Help:  "owner party must exist",
-							Data:  (*gpsReadingToValidate).OwnerId,
-						})
-					default:
-						allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-							Field: "ownerId",
-							Type:  reasonInvalid.Unknown,
-							Help:  "error retrieving owner party: " + err.Error(),
-							Data:  (*gpsReadingToValidate).OwnerId,
-						})
-					}
+			default:
+				err = sigbugGPSReadingValidatorException.Validate{
+					Reasons: []string{
+						"retrieving sigbug",
+						err.Error(),
+					},
 				}
+				log.Error(err)
+				return nil, err
 			}
-
-		default:
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "ownerPartyType",
-				Type:  reasonInvalid.Invalid,
-				Help:  "must be a valid type",
-				Data:  (*gpsReadingToValidate).OwnerPartyType,
-			})
-		}
-	}
-
-	// although assigned party type can be blank, if it is then the assigned id must also be blank
-	if ((*gpsReadingToValidate).AssignedPartyType == "" && (*gpsReadingToValidate).AssignedId.Id != "") ||
-		((*gpsReadingToValidate).AssignedId.Id == "" && (*gpsReadingToValidate).AssignedPartyType != "") {
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "assignedPartyType",
-			Type:  reasonInvalid.Invalid,
-			Help:  "must both be blank or set",
-			Data:  (*gpsReadingToValidate).AssignedPartyType,
-		})
-		allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-			Field: "assignedId",
-			Type:  reasonInvalid.Invalid,
-			Help:  "must both be blank or set",
-			Data:  (*gpsReadingToValidate).AssignedId,
-		})
-	} else if (*gpsReadingToValidate).AssignedPartyType != "" && (*gpsReadingToValidate).AssignedId.Id != "" {
-		// neither are blank
-		switch (*gpsReadingToValidate).AssignedPartyType {
-		case party.System, party.Client, party.Company:
-			_, err := v.partyAdministrator.RetrieveParty(&partyAdministrator.RetrievePartyRequest{
-				Claims:     request.Claims,
-				PartyType:  (*gpsReadingToValidate).AssignedPartyType,
-				Identifier: (*gpsReadingToValidate).AssignedId,
-			})
-			if err != nil {
-				switch err.(type) {
-				case partyAdministratorException.NotFound:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "assignedId",
-						Type:  reasonInvalid.MustExist,
-						Help:  "assigned party must exist",
-						Data:  (*gpsReadingToValidate).AssignedId,
-					})
-				default:
-					allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-						Field: "assignedId",
-						Type:  reasonInvalid.Unknown,
-						Help:  "error retrieving assigned party: " + err.Error(),
-						Data:  (*gpsReadingToValidate).AssignedId,
-					})
-				}
+		} else {
+			// device and message must have same owner and assigned party details
+			if sigbugRetrieveResponse.Sigbug.OwnerId != (*gpsReadingToValidate).OwnerId {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "ownerId",
+					Type:  reasonInvalid.Invalid,
+					Help:  "owner id must be same as associated sigbug",
+					Data:  (*gpsReadingToValidate).OwnerId,
+				})
 			}
-
-		default:
-			allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
-				Field: "assignedPartyType",
-				Type:  reasonInvalid.Invalid,
-				Help:  "must be a valid type",
-				Data:  (*gpsReadingToValidate).AssignedPartyType,
-			})
+			if sigbugRetrieveResponse.Sigbug.OwnerPartyType != (*gpsReadingToValidate).OwnerPartyType {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "ownerPartyType",
+					Type:  reasonInvalid.Invalid,
+					Help:  "owner party type must be same as associated sigbug",
+					Data:  (*gpsReadingToValidate).OwnerPartyType,
+				})
+			}
+			if sigbugRetrieveResponse.Sigbug.AssignedId != (*gpsReadingToValidate).AssignedId {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "assignedId",
+					Type:  reasonInvalid.Invalid,
+					Help:  "assigned id must be same as associated sigbug",
+					Data:  (*gpsReadingToValidate).AssignedId,
+				})
+			}
+			if sigbugRetrieveResponse.Sigbug.AssignedPartyType != (*gpsReadingToValidate).AssignedPartyType {
+				allReasonsInvalid = append(allReasonsInvalid, reasonInvalid.ReasonInvalid{
+					Field: "assignedPartyType",
+					Type:  reasonInvalid.Invalid,
+					Help:  "assigned party type must be same as associated sigbug",
+					Data:  (*gpsReadingToValidate).AssignedPartyType,
+				})
+			}
 		}
 	}
 
